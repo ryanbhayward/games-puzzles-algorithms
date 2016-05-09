@@ -21,10 +21,19 @@ class Board(object):
             self.dimensions.append(10)
         if len(self.dimensions) < 2:
             self.dimensions.append(self.dimensions[0])
-        self._cells = array('I', [COLORS['none']] * prod(*self.dimensions))
+        self._cells = array('I', [COLORS['none']] * len(self))
+
+    def __len__(self):
+        return prod(*self.dimensions)
 
     def __getitem__(self, i):
         return self._cells[i]
+
+    def __setitem__(self, i, color):
+        self._cells[i] = color
+
+    def size(self):
+        return self.dimensions
 
     def num_rows(self):
         return self.dimensions[0]
@@ -114,7 +123,7 @@ class GameState(object):
         """
         Place a white stone regardless of whose turn it is.
         """
-        my_cell_index = self.cell_index(*cell)
+        my_cell_index = self.board.cell_index(*cell)
         if(self.board[my_cell_index] == COLORS["none"]):
             self.board[my_cell_index] = COLORS["white"]
         else:
@@ -122,18 +131,18 @@ class GameState(object):
         #if the placed cell touches a white edge connect it appropriately
         if(cell[0] == 0):
             self.white_groups.join(self.EDGE1, cell)
-        if(cell[0] == self.size -1):
+        if(cell[0] == len(self.board) -1):
             self.white_groups.join(self.EDGE2, cell)
         #join any groups connected by the new white stone
         for n in self.neighbors(cell):
-            if(self.board[self.cell_index(*n)] == COLORS["white"]):
+            if(self.board[self.board.cell_index(*n)] == COLORS["white"]):
                 self.white_groups.join(n, cell)
 
     def place_black(self, cell):
         """
         Place a black stone regardless of whose turn it is.
         """
-        my_cell_index = self.cell_index(*cell)
+        my_cell_index = self.board.cell_index(*cell)
         if(self.board[my_cell_index] == COLORS["none"]):
             self.board[my_cell_index] = COLORS["black"]
         else:
@@ -141,11 +150,11 @@ class GameState(object):
         #if the placed cell touches a black edge connect it appropriately
         if(cell[1] == 0):
             self.black_groups.join(self.EDGE1, cell)
-        if(cell[1] == self.size -1):
+        if(cell[1] == len(self.board) -1):
             self.black_groups.join(self.EDGE2, cell)
         #join any groups connected by the new black stone
         for n in self.neighbors(cell):
-            if(self.board[self.cell_index(*n)] == COLORS["black"]):
+            if(self.board[self.board.cell_index(*n)] == COLORS["black"]):
                 self.black_groups.join(n, cell)
 
     def turn(self):
@@ -183,16 +192,16 @@ class GameState(object):
         x = cell[0]
         y=cell[1]
         return [(n[0]+x , n[1]+y) for n in self.neighbor_patterns\
-            if (0<=n[0]+x and n[0]+x<self.size and 0<=n[1]+y and n[1]+y<self.size)]
+            if (0<=n[0]+x and n[0]+x<len(self.board) and 0<=n[1]+y and n[1]+y<len(self.board))]
 
     def __getitem__(self, cell):
-        return self.board[self.cell_index(*cell)]
+        return self.board[self.board.cell_index(*cell)]
 
     def cell_color(self, cell):
         return self[cell]
 
     def color(self, player, row, column):
-        return self.board[self.cell_index(column, row)]
+        return self.board[self.board.cell_index(column, row)]
 
     def legal_actions(self):
         for row, column in self.board.empty_cells():
@@ -216,16 +225,16 @@ class GameState(object):
         black = '@'
         empty = '.'
         ret = '\n'
-        coord_size = len(str(self.size))
+        coord_size = len(str(len(self.board)))
         offset = 1
         ret+=' '*(offset+1)
-        for x in range(self.size):
+        for x in range(len(self.board)):
             ret+=chr(ord('A')+x)+' '*offset*2
         ret+='\n'
-        for y in range(self.size):
+        for y in range(len(self.board)):
             ret+=str(y+1)+' '*(offset*2+coord_size-len(str(y+1)))
-            for x in range(self.size):
-                my_cell_index = self.cell_index(x, y)
+            for x in range(len(self.board)):
+                my_cell_index = self.board.cell_index(x, y)
                 if(self.board[my_cell_index] == COLORS["white"]):
                     ret+=white
                 elif(self.board[my_cell_index] == COLORS["black"]):
@@ -234,6 +243,6 @@ class GameState(object):
                     ret+=empty
                 ret+=' '*offset*2
             ret+=white+"\n"+' '*offset*(y+1)
-        ret+=' '*(offset*2+1)+(black+' '*offset*2)*self.size
+        ret+=' '*(offset*2+1)+(black+' '*offset*2)*len(self.board)
 
         return ret
