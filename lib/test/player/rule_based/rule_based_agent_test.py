@@ -29,7 +29,7 @@ def test_error():
       cell_str_to_cell('b4')
     ]
     for cell in cells_to_play:
-      state.play(cell)
+      state.play(state.board.cell_index(*cell))
 
 
 def test_midgame_black():
@@ -37,11 +37,11 @@ def test_midgame_black():
     state = GameState.root(5)
     patient = RuleBasedAgent(lambda: random_generator.uniform(0, 1), only_corners=False)
 
-    state.play((0, 0))
-    state.play((2, 2))
-    state.play((1, 0))
-    state.play((3, 1))
-    state.play((0, 1))
+    state.play(state.board.cell_index(0, 0))
+    state.play(state.board.cell_index(2, 2))
+    state.play(state.board.cell_index(1, 0))
+    state.play(state.board.cell_index(3, 1))
+    state.play(state.board.cell_index(0, 1))
 
     assert str(state) == (
 '''
@@ -69,7 +69,7 @@ def test_midgame_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -87,7 +87,7 @@ def test_midgame_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -105,7 +105,7 @@ def test_midgame_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -123,7 +123,7 @@ def test_midgame_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -142,10 +142,10 @@ def test_midgame_white():
     state = GameState.root(5)
     patient = RuleBasedAgent(lambda: random_generator.uniform(0, 1), only_corners=False)
 
-    state.play((2, 2))
-    state.play((0, 0))
-    state.play((3, 1))
-    state.play((1, 0))
+    state.play(state.board.cell_index(2, 2))
+    state.play(state.board.cell_index(0, 0))
+    state.play(state.board.cell_index(3, 1))
+    state.play(state.board.cell_index(1, 0))
 
     assert str(state) == (
 '''
@@ -173,7 +173,7 @@ def test_midgame_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -191,7 +191,7 @@ def test_midgame_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -209,7 +209,7 @@ def test_midgame_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -227,7 +227,7 @@ def test_midgame_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -246,8 +246,8 @@ def test_post_opening_white():
     state = GameState.root(5)
     patient = RuleBasedAgent(lambda: random_generator.uniform(0, 1), only_corners=False)
 
-    state.play((2, 2))
-    state.play((0, 0))
+    state.play(state.board.cell_index(2, 2))
+    state.play(state.board.cell_index(0, 0))
 
     assert str(state) == (
 '''
@@ -273,7 +273,7 @@ def test_post_opening_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -291,7 +291,7 @@ def test_post_opening_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -309,7 +309,7 @@ def test_post_opening_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -327,7 +327,7 @@ def test_post_opening_white():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -346,9 +346,9 @@ def test_post_opening_black():
     state = GameState.root(5)
     patient = RuleBasedAgent(lambda: random_generator.uniform(0, 1), only_corners=False)
 
-    state.play((0, 0))
-    state.play((2, 2))
-    state.play((0, 1))
+    state.play(state.board.cell_index(0, 0))
+    state.play(state.board.cell_index(2, 2))
+    state.play(state.board.cell_index(0, 1))
 
     assert str(state) == (
 '''
@@ -374,7 +374,7 @@ def test_post_opening_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -392,7 +392,7 @@ def test_post_opening_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -410,7 +410,7 @@ def test_post_opening_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -428,7 +428,7 @@ def test_post_opening_black():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert str(state) == (
 '''
@@ -448,9 +448,9 @@ def test_collision_after_empty():
     patient = RuleBasedAgent(lambda: random_generator.uniform(0, 1), only_corners=False)
 
     action = patient.act(state)
-    state.play(action)
-    state.play(action)
-    state.set_turn(COLORS['black'])
+    state.play(state.board.cell_index(*action))
+    state.play(state.board.cell_index(*action))
+    state.set_player_to_act(COLORS['black'])
     d = patient.distribution(state)
 
     actions = sorted(d.keys())
@@ -458,7 +458,7 @@ def test_collision_after_empty():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert state.to_s(color_to_player(COLORS['black'])) == (
 '''
@@ -488,7 +488,7 @@ def test_on_empty():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert state.to_s(color_to_player(COLORS['white'])) == (
 '''
@@ -506,7 +506,7 @@ def test_on_empty():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert state.to_s(color_to_player(COLORS['white'])) == (
 '''
@@ -524,7 +524,7 @@ def test_on_empty():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert state.to_s(color_to_player(COLORS['white'])) == (
 '''
@@ -542,7 +542,7 @@ def test_on_empty():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert state.to_s(color_to_player(COLORS['white'])) == (
 '''
@@ -560,7 +560,7 @@ def test_on_empty():
     action = actions.pop()
     row = state.board.row(action)
     column = state.board.column(action)
-    state.play((row, column))
+    state.play(state.board.cell_index(row, column))
 
     assert state.to_s(color_to_player(COLORS['white'])) == (
 '''

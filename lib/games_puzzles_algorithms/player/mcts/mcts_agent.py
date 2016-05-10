@@ -162,10 +162,10 @@ class MctsAgent:
 		"""
 		if self.root.child_nodes():
 			self.previous_children = self.root.child_nodes()
-		my_player = self.rootstate.turn()
+		my_player = self.rootstate.player_to_act()
 		self.rootstate.place(move, player)
 		self.root = self.root_node()
-		self.rootstate.set_turn(my_player)
+		self.rootstate.set_player_to_act(my_player)
 
 	def search(self, time_budget):
 		"""
@@ -179,7 +179,7 @@ class MctsAgent:
 		while True:
 			try:
 				node, state = self.select_node()
-				turn = state.turn()
+				turn = state.player_to_act()
 				self.backup(node, turn, *self.roll_out(state))
 				num_rollouts += 1
 			except TimeIsUp:
@@ -197,14 +197,14 @@ class MctsAgent:
 			cell = (y, x)
 			if state[cell] == COLORS['none']:
 				potential_moves.append(cell)
-			elif state[cell] == player_to_color(state.turn()):
+			elif state[cell] == player_to_color(state.player_to_act()):
 				num_opponent_stones_to_place += 1
 			else:
 				num_opponent_stones_to_place -= 1
 
 		if potential_moves and num_opponent_stones_to_place > 0:
 			random.shuffle(potential_moves)
-			opponent = next_player(state.turn())
+			opponent = next_player(state.player_to_act())
 			played_moves = []
 			while (
 				potential_moves and

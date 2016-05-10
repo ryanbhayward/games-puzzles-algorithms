@@ -13,10 +13,10 @@ def test_on_empty():
     patient = UniformRandomAgent(lambda: random_generator.uniform(0, 1))
 
     action = patient.act(state)
-    action = (state.board.row(action), state.board.column(action))
-    assert action == (1, 4)
-    assert cell_str(action) == 'e2'
-    assert action == cell_str_to_cell('e2')
+    cell = (state.board.row(action), state.board.column(action))
+    assert cell == (1, 4)
+    assert cell_str(cell) == 'e2'
+    assert cell == cell_str_to_cell('e2')
     state.play(action)
     assert state.to_s(color_to_player(COLORS['white'])) == (
 '''

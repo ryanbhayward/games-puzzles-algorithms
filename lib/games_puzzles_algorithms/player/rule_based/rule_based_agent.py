@@ -19,13 +19,13 @@ class CombinedPlayerRuleBasedAgent(object):
         ]
 
     def act(self, state, time_allowed_s=None):
-        return self.players[state.turn()].act(
+        return self.players[state.player_to_act()].act(
             state,
             time_allowed_s=time_allowed_s
         )
 
     def distribution(self, state, weight=1.0, time_allowed_s=None):
-        return self.players[state.turn()].distribution(
+        return self.players[state.player_to_act()].distribution(
             state,
             weight=weight,
             time_allowed_s=time_allowed_s
@@ -45,12 +45,12 @@ class RuleBasedAgent(object):
         d = {}
         s = 0.0
         if only_corners:
-            if state.board.color(state.turn(), row, 0) == COLORS['none']:
+            if state.board.color(state.player_to_act(), row, 0) == COLORS['none']:
                 action = state.board.cell_index(row, 0)
                 d[action] = 1.0
                 s += 1
             column = state.board.num_columns() - 1
-            if state.board.color(state.turn(), 0, column) == COLORS['none']:
+            if state.board.color(state.player_to_act(), 0, column) == COLORS['none']:
                 action = state.board.cell_index(0, column)
                 d[action] = 1.0
                 s += 1
@@ -58,7 +58,7 @@ class RuleBasedAgent(object):
             middle_column = state.board.num_columns() // 2
             odd_sized_board = middle_column * 2 != state.board.num_columns()
             for column in range(middle_column):
-                if state.board.color(state.turn(), row, column) == COLORS['none']:
+                if state.board.color(state.player_to_act(), row, column) == COLORS['none']:
                     action = state.board.cell_index(row, column)
                     d[action] = 1.0
                     s += 1
@@ -69,7 +69,7 @@ class RuleBasedAgent(object):
                 state.board.num_columns() - middle_column - 1,
                 -1
             ):
-                if state.board.color(state.turn(), row, column) == COLORS['none']:
+                if state.board.color(state.player_to_act(), row, column) == COLORS['none']:
                     action = state.board.cell_index(row, column)
                     d[action] = 1.0
                     s += 1
@@ -77,7 +77,7 @@ class RuleBasedAgent(object):
             if odd_sized_board:
                 middle_row = middle_column
                 if (
-                    state.board.color(state.turn(), middle_row, middle_column) ==
+                    state.board.color(state.player_to_act(), middle_row, middle_column) ==
                     COLORS['none']
                 ):
                     d[state.board.cell_index(middle_row, middle_column)] = (
@@ -92,11 +92,11 @@ class RuleBasedAgent(object):
     def empty_board_distribution_after_collision(state, row, column):
         d = {}
         s = 0
-        if player_to_color(state.turn()) == COLORS['black']:
+        if player_to_color(state.player_to_act()) == COLORS['black']:
             if (
                 column - 1 >= 0 and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     row,
                     column - 1
                 ) == COLORS['none']
@@ -106,7 +106,7 @@ class RuleBasedAgent(object):
             if (
                 column + 1 < state.board.num_columns() and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     row,
                     column + 1
                 ) == COLORS['none']
@@ -117,7 +117,7 @@ class RuleBasedAgent(object):
             if (
                 row - 1 >= 0 and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     row - 1,
                     column
                 ) == COLORS['none']
@@ -127,7 +127,7 @@ class RuleBasedAgent(object):
             if (
                 row + 1 < state.board.num_rows() and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     row + 1,
                     column
                 ) == COLORS['none']
@@ -142,14 +142,14 @@ class RuleBasedAgent(object):
     def post_openining_distribution(state, row, column):
         d = {}
         s = 0.0
-        if player_to_color(state.turn()) == COLORS['white']:
+        if player_to_color(state.player_to_act()) == COLORS['white']:
             # West
             west_row = row
             west_column = column - 1
             if (
                 west_column >= 0 and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     west_row,
                     west_column
                 ) == COLORS['none']
@@ -163,7 +163,7 @@ class RuleBasedAgent(object):
             if (
                 east_column < state.board.num_columns() and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     east_row,
                     east_column
                 ) == COLORS['none']
@@ -177,7 +177,7 @@ class RuleBasedAgent(object):
             if (
                 north_row >= 0 and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     north_row,
                     north_column
                 ) == COLORS['none']
@@ -191,7 +191,7 @@ class RuleBasedAgent(object):
             if (
                 south_row < state.board.num_rows() and
                 state.board.color(
-                    state.turn(),
+                    state.player_to_act(),
                     south_row,
                     south_column
                 ) == COLORS['none']
@@ -206,7 +206,7 @@ class RuleBasedAgent(object):
             southwest_row < state.board.num_rows() and
             southwest_column >= 0 and
             state.board.color(
-                state.turn(),
+                state.player_to_act(),
                 southwest_row,
                 southwest_column
             ) == COLORS['none']
@@ -221,7 +221,7 @@ class RuleBasedAgent(object):
             northeast_column < state.board.num_columns() and
             northeast_row >= 0 and
             state.board.color(
-                state.turn(),
+                state.player_to_act(),
                 northeast_row,
                 northeast_column
             ) == COLORS['none']
@@ -272,14 +272,14 @@ class RuleBasedAgent(object):
         my_endpoint = self.endpoints[0]
         row = state.board.row(my_endpoint)
         column = state.board.column(my_endpoint)
-        if player_to_color(state.turn()) == COLORS['white']:
+        if player_to_color(state.player_to_act()) == COLORS['white']:
             if column > 0:
                 west_row = row
                 west_column = column - 1
                 if (
                     west_column >= 0 and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         west_row,
                         west_column
                     ) == COLORS['none']
@@ -292,7 +292,7 @@ class RuleBasedAgent(object):
                     southwest_column >= 0 and
                     southwest_row < state.board.num_rows() and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         southwest_row,
                         southwest_column
                     ) == COLORS['none']
@@ -308,7 +308,7 @@ class RuleBasedAgent(object):
                 if (
                     north_row >= 0 and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         north_row,
                         north_column
                     ) == COLORS['none']
@@ -321,7 +321,7 @@ class RuleBasedAgent(object):
                     northeast_row >= 0 and
                     northeast_column < state.board.num_columns() and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         northeast_row,
                         northeast_column
                     ) == COLORS['none']
@@ -333,14 +333,14 @@ class RuleBasedAgent(object):
         my_endpoint = self.endpoints[1]
         row = state.board.row(my_endpoint)
         column = state.board.column(my_endpoint)
-        if player_to_color(state.turn()) == COLORS['white']:
+        if player_to_color(state.player_to_act()) == COLORS['white']:
             if column < state.board.num_columns() - 1:
                 east_row = row
                 east_column = column + 1
                 if (
                     east_column < state.board.num_columns() and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         east_row,
                         east_column
                     ) == COLORS['none']
@@ -353,7 +353,7 @@ class RuleBasedAgent(object):
                     northeast_row >= 0 and
                     northeast_column < state.board.num_columns() and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         northeast_row,
                         northeast_column
                     ) == COLORS['none']
@@ -369,7 +369,7 @@ class RuleBasedAgent(object):
                 if (
                     south_row < state.board.num_rows() and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         south_row,
                         south_column
                     ) == COLORS['none']
@@ -382,7 +382,7 @@ class RuleBasedAgent(object):
                     southwest_row < state.board.num_rows() and
                     southwest_column >= 0 and
                     state.board.color(
-                        state.turn(),
+                        state.player_to_act(),
                         southwest_row,
                         southwest_column
                     ) == COLORS['none']
@@ -430,13 +430,13 @@ class RuleBasedAgent(object):
     def distribution(self, state, weight=1.0, time_allowed_s=None):
         if self.search_agent is None:
             fast_state = HexGameState.root(state.board.num_rows())
-            fast_state.set_turn(state.turn())
+            fast_state.set_player_to_act(state.player_to_act())
             self.search_agent = MctsAgent(fast_state)
         if self.move_pending:
             row = state.board.row(self.last_move)
             column = state.board.column(self.last_move)
             try:
-                self.search_agent.move((column, row), color_to_player(state[row, column]))
+                self.search_agent.move(self.last_move, color_to_player(state[row, column]))
             except IllegalAction:
                 # print("WARNING: Column {}, row {}, is an illegal action on the following board:".format(column, row))
                 # print(str(self.search_agent.rootstate))
@@ -444,7 +444,7 @@ class RuleBasedAgent(object):
                 # print(str(state))
                 if self.mode == self.SEARCH_MODE:
                     self.mode = self.RANDOM_MODE
-            if state[row, column] != player_to_color(state.turn()):
+            if state[row, column] != player_to_color(state.player_to_act()):
                 if self.mode == self.OPENING_MODE:
                     d = self.empty_board_distribution_after_collision(
                         state,
@@ -472,7 +472,7 @@ class RuleBasedAgent(object):
                     self.mode = self.POST_OPENINING_MODE
                 elif self.mode == self.POST_OPENINING_MODE:
                     self.endpoints.append(self.last_move)
-                    if player_to_color(state.turn()) == COLORS['white']:
+                    if player_to_color(state.player_to_act()) == COLORS['white']:
                         if (
                             state.board.column(self.endpoints[1]) <
                             state.board.column(self.endpoints[0])
@@ -485,7 +485,7 @@ class RuleBasedAgent(object):
                         self.endpoints.reverse()
                     self.mode = self.MIDGAME_MODE
                 elif self.mode == self.MIDGAME_MODE:
-                    if player_to_color(state.turn()) == COLORS['white']:
+                    if player_to_color(state.player_to_act()) == COLORS['white']:
                         if (
                             state.board.column(self.last_move) <
                             state.board.column(self.endpoints[0])
