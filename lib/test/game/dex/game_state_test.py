@@ -1,7 +1,7 @@
-from games_puzzles_algorithms.game.dex.game_state import color_to_player
-from games_puzzles_algorithms.game.dex.game_state import COLORS
-from games_puzzles_algorithms.game.dex.game_state import GameState
-from games_puzzles_algorithms.game.dex.game_state import IllegalAction
+from games_puzzles_algorithms.games.dex.game_state import color_to_player
+from games_puzzles_algorithms.games.dex.game_state import COLORS
+from games_puzzles_algorithms.games.dex.game_state import GameState
+from games_puzzles_algorithms.games.dex.game_state import IllegalAction
 import pytest
 import random
 from games_puzzles_algorithms.choose import choose_legal_action_uniformly_randomly
@@ -166,7 +166,7 @@ def test_potentially_winning_moves2():
     )
 
     patient.set_player_to_act(color_to_player(COLORS['white']))
-    moves = patient.potentially_winning_moves()
+    moves = list(patient.potentially_winning_moves())
     assert moves == [patient.board.cell_index(1, 2)]
 
 
@@ -189,7 +189,7 @@ def test_potentially_winning_moves1():
     )
 
     patient.set_player_to_act(color_to_player(COLORS['white']))
-    moves = patient.potentially_winning_moves()
+    moves = list(patient.potentially_winning_moves())
     assert moves == [patient.board.cell_index(0, 4), patient.board.cell_index(1, 4)]
 
 
@@ -213,9 +213,9 @@ def test_set_colorless():
 
 def test_with_action_applied():
     patient = GameState.root(5)
-    assert patient.acting_player == color_to_player(COLORS['white'])
+    assert patient.player_to_act() == color_to_player(COLORS['white'])
     for _ in patient.with_action_applied(0):
-        assert patient.acting_player == color_to_player(COLORS['white'])
+        assert patient.player_to_act() == color_to_player(COLORS['white'])
         assert patient.to_s(color_to_player(COLORS['white'])) == (
 '''
   A  B  C  D  E
@@ -226,7 +226,7 @@ def test_with_action_applied():
     5  .  .  .  .  .  O
         @  @  @  @  @'''
         )
-    assert patient.acting_player == color_to_player(COLORS['white'])
+    assert patient.player_to_act() == color_to_player(COLORS['white'])
     assert patient.to_s(color_to_player(COLORS['white'])) == (
 '''
   A  B  C  D  E

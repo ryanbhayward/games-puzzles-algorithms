@@ -1,6 +1,6 @@
 from __future__ import division
 from .mcts_agent import *
-from games_puzzles_algorithms.game.dex.game_state import COLORS
+from games_puzzles_algorithms.games.dex.game_state import COLORS
 
 
 class rave_node(node):

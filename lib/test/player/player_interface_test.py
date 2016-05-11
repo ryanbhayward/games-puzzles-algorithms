@@ -1,8 +1,8 @@
-from games_puzzles_algorithms.player.rule_based.uniform_random_agent \
+from games_puzzles_algorithms.players.rule_based.uniform_random_agent \
     import UniformRandomAgent
-from games_puzzles_algorithms.player.rule_based.first_action_agent \
+from games_puzzles_algorithms.players.rule_based.first_action_agent \
     import FirstActionAgent
-from games_puzzles_algorithms.player.mcts.mcts_agent \
+from games_puzzles_algorithms.players.mcts.mcts_agent \
     import MctsAgent
 import pytest
 

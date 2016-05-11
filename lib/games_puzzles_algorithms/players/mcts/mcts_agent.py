@@ -1,9 +1,9 @@
 from __future__ import division
-from games_puzzles_algorithms.game.dex.game_state import GameState
-from games_puzzles_algorithms.game.dex.game_state import color_to_player
-from games_puzzles_algorithms.game.dex.game_state import player_to_color
-from games_puzzles_algorithms.game.dex.game_state import next_player
-from games_puzzles_algorithms.game.dex.game_state import COLORS
+from games_puzzles_algorithms.games.dex.game_state import GameState
+from games_puzzles_algorithms.games.dex.game_state import color_to_player
+from games_puzzles_algorithms.games.dex.game_state import player_to_color
+from games_puzzles_algorithms.games.dex.game_state import next_player
+from games_puzzles_algorithms.games.dex.game_state import COLORS
 from games_puzzles_algorithms.choose import choose_legal_action_uniformly_randomly
 import time
 import random

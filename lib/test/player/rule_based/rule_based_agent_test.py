@@ -1,9 +1,9 @@
-from games_puzzles_algorithms.player.rule_based.rule_based_agent import RuleBasedAgent
-from games_puzzles_algorithms.game.dex.game_state import GameState
-from games_puzzles_algorithms.game.dex.game_state import COLORS
-from games_puzzles_algorithms.game.dex.game_state import color_to_player
-from games_puzzles_algorithms.game.dex.game_state import cell_str
-from games_puzzles_algorithms.game.dex.game_state import cell_str_to_cell
+from games_puzzles_algorithms.players.rule_based.rule_based_agent import RuleBasedAgent
+from games_puzzles_algorithms.games.dex.game_state import GameState
+from games_puzzles_algorithms.games.dex.game_state import COLORS
+from games_puzzles_algorithms.games.dex.game_state import color_to_player
+from games_puzzles_algorithms.games.dex.game_state import cell_str
+from games_puzzles_algorithms.games.dex.game_state import cell_str_to_cell
 import random
 
 

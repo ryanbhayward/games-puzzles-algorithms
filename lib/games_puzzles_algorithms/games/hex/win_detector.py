@@ -1,5 +1,6 @@
 from games_puzzles_algorithms.union_find import UnionFind
 from .color import COLORS, NUM_PLAYERS, player_to_color
+from games_puzzles_algorithms.debug import log
 
 
 class WinDetector(object):

@@ -1,11 +1,11 @@
-from games_puzzles_algorithms.game.dex.game_state import COLORS
-from games_puzzles_algorithms.game.dex.game_state import player_to_color
-from games_puzzles_algorithms.game.dex.game_state import color_to_player
-from games_puzzles_algorithms.game.hex.game_state import GameState as HexGameState
-from games_puzzles_algorithms.game.dex.game_state import IllegalAction
+from games_puzzles_algorithms.games.dex.game_state import COLORS
+from games_puzzles_algorithms.games.dex.game_state import player_to_color
+from games_puzzles_algorithms.games.dex.game_state import color_to_player
+from games_puzzles_algorithms.games.hex.game_state import GameState as HexGameState
+from games_puzzles_algorithms.games.dex.game_state import IllegalAction
 from games_puzzles_algorithms.choose import choose_from_distribution
 from games_puzzles_algorithms.choose import choose_legal_action_uniformly_randomly
-from games_puzzles_algorithms.player.mcts.mcts_agent import MctsAgent
+from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
 import math
 
 
