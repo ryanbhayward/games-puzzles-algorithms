@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CMPUT 396 Hex</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css"/>
+  </head>
+
+  <body>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+
+  <script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+  </script>
+</html>
