@@ -1,4 +1,5 @@
-from games_puzzles_algorithms.players.rule_based.uniform_random_agent import UniformRandomAgent
+from games_puzzles_algorithms.players.rule_based.uniform_random_agent \
+    import UniformRandomAgent
 from games_puzzles_algorithms.games.dex.game_state import GameState
 from games_puzzles_algorithms.games.dex.game_state import COLORS
 from games_puzzles_algorithms.games.dex.game_state import color_to_player
@@ -12,7 +13,7 @@ def test_on_empty():
     state = GameState.root(5)
     patient = UniformRandomAgent(lambda: random_generator.uniform(0, 1))
 
-    action = patient.act(state)
+    action = patient.select_action(state)
     cell = (state.board.row(action), state.board.column(action))
     assert cell == (1, 4)
     assert cell_str(cell) == 'e2'

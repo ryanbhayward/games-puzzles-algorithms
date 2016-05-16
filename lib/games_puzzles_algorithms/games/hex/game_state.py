@@ -316,7 +316,10 @@ class GameState(object):
         self._potentially_winning_moves = None
 
     def score(self, player):
-        return int(player == self.winner())
+        if self.is_terminal():
+            return 1 if player == self.winner() else -1
+        else:
+            return None
 
     def winner(self):
         return self.win_detector.winner()
