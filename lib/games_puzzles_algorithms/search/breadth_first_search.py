@@ -2,20 +2,19 @@ from collections import deque
 import time
 from games_puzzles_algorithms.search.search import Search, Node
 
-        
 
 class BreadthFirstSearch(Search):
     """Breadth first search class."""
-    
-    def __init__(self, problem, time_limit):
+
+    def __init__(self, problem, time_limit, heuristic):
         """
         Initialize the search.
         Create the root node with the problem and set a time limit for search.
-        """           
+        """
         Search.__init__(self, problem, time_limit)
         self.frontier = deque()
         self.frontier.append(self.rootnode)
-        
+
     def search(self):
         """
         Perform breadth first search until time_limit is reached.
@@ -28,7 +27,7 @@ class BreadthFirstSearch(Search):
         while time.time() - start < self.time_limit:
             if len(self.frontier) == 0:
                 return None
-            
+
             current_node = self.frontier.popleft()
             self.explored.add(current_node.state.value())
             for move in current_node.state.valid_moves():
@@ -40,15 +39,13 @@ class BreadthFirstSearch(Search):
                     if child.state.is_solved():
                         return self.solution(child)
                     self.frontier.append(child)
-                    
+
         return False
-        
+
     def _in_frontier(self, state):
         """Check if there is a node with state state in the frontier."""
         for node in self.frontier:
             if state.equals(node.state):
                 return True
-            
+
         return False
-    
-        

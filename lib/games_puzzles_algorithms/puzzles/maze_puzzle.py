@@ -2,6 +2,7 @@
 
 import copy
 import random
+from math import hypot
 
 
 class MazePuzzle(object):
@@ -11,7 +12,7 @@ class MazePuzzle(object):
 
     e.g. (5 by 5):
            +---+---+---+---+---+
-      Y 4  |                 f |
+      Y 4  |                 $ |
            +---+---+   +---+   +
       Y 3  |       |   |       |
            +   +   +   +   +---+
@@ -19,7 +20,7 @@ class MazePuzzle(object):
            +   +   +---+---+   +
       Y 1  |   |               |
            +   +---+---+---+   +
-      Y 0  | S         |       |
+      Y 0  | @         |       |
            +---+---+---+---+---+
             X0  X1  X2  X3  X4
 
@@ -35,6 +36,12 @@ class MazePuzzle(object):
     PLAYER = " @ "
     FINISH = " $ "
     DIRECTIONS = {
+        "up": "up",
+        "down": "down",
+        "left": "left",
+        "right": "right"
+    }
+    MOVE_DIRECTIONS = {
         "up": (0, 1),
         "down": (0, -1),
         "left": (-1, 0),
@@ -97,7 +104,23 @@ class MazePuzzle(object):
             s += ''.join(a + ['\n'] + b + ['\n'])
         return s
 
+    def __eq__(self, other):
+        """
+        Check if self is equal to other.
+        :param other: Another object
+        :return: True if equality passes, false otherwise
+        """
+        type_match = isinstance(other, self.__class__)
+        if not type_match:
+            return False
+        return self.position == other.position and self.goal == other.goal and \
+            self.hor == other.hor and self.ver == other.ver
+
     def is_solved(self):
+        """
+        Return if the maze is solved yet.
+        :return: True if solved, False otherwise
+        """
         return self.position == self.goal
 
     def valid_moves(self):
@@ -122,6 +145,11 @@ class MazePuzzle(object):
 
     @staticmethod
     def str_moves(moves):
+        """
+        Given a list of moves, return the string list of moves
+        :param moves: list of move objects (dict with move tuple)
+        :return: list of strings representing the moves
+        """
         move_strings = []
         for move in moves:
             if move == MazePuzzle.DIRECTIONS["up"]:
@@ -135,6 +163,11 @@ class MazePuzzle(object):
         return move_strings
 
     def apply_move(self, direction):
+        """
+        Move the player within the maze. If the movement is invalid, print a message, do nothing.
+        :param direction: String, direction to move in
+        :return: None
+        """
         str_direction = str(direction).lower()
         if str_direction not in MazePuzzle.DIRECTIONS:
             print("Invalid direction: " + str_direction)
@@ -142,5 +175,39 @@ class MazePuzzle(object):
         if str_direction not in MazePuzzle.str_moves(self.valid_moves()):
             print("Path blocked in: " + str_direction)
             return
-        move_player = MazePuzzle.DIRECTIONS[str_direction]
+        move_player = MazePuzzle.MOVE_DIRECTIONS[str_direction]
         self.position = [x + y for x, y in zip(self.position, move_player)]
+
+    def __raw_dist_to_finish(self):
+        """
+        Return the raw pythagorean distance from the player position to the goal.
+        :return:
+        """
+        return hypot(self.goal[0] - self.position[0], self.goal[1] - self.position[1])
+
+    def heuristic(self, name):
+        print(name)  # ignoring the heuristic, only one heuristic (pythagorean dist)
+        return self.__raw_dist_to_finish()
+
+    def value(self):
+        """
+        Return the string version of self.
+        :return:
+        """
+        return str(self)
+
+    def copy(self):
+        """
+        Return a new object representing self.
+        :return:
+        """
+        new_maze = MazePuzzle()
+        new_maze.ver = copy.deepcopy(self.ver)
+        new_maze.hor = copy.deepcopy(self.hor)
+        new_maze.position = self.position[:]
+        new_maze.goal = self.goal[:]
+        return new_maze
+
+    def equals(self, other):
+        """Check if two puzzles are in the same state."""
+        return self == other

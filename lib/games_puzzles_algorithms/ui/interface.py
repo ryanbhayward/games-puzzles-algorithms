@@ -10,7 +10,10 @@ class Interface(Cmd):
     Generalized interface for puzzles and solvers.
     """
 
-    SOLVERS = {"A*": AStar, "breadth_first_search": BreadthFirstSearch}
+    SOLVERS = {
+        "A*": AStar,
+        "breadth_first_search": BreadthFirstSearch
+    }
     PUZZLES = {
         SlidingTilePuzzle.NAME: SlidingTilePuzzle,
         MazePuzzle.NAME: MazePuzzle
@@ -33,23 +36,27 @@ class Interface(Cmd):
             self.heuristic = heuristic
             self.puzzle_name = self.PUZZLES[puzzle]
             self.puzzle = self.puzzle_name(self.size)
-
-            if solver in self.SOLVERS:
-                self.solver_name = self.SOLVERS[solver]
-                self.solver = self.solver_name(self.puzzle, self.time_limit, heuristic)
         elif puzzle == MazePuzzle.NAME:
             self.width = 5
             self.height = 5
+            self.heuristic = ""
             self.puzzle_name = self.PUZZLES[puzzle]
             self.puzzle = MazePuzzle(self.width, self.height)
         else:
             raise Exception("Specified puzzle " + puzzle + " is not defined!")
 
+        if solver in self.SOLVERS:
+            self.solver_name = self.SOLVERS[solver]
+            self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+        else:
+            raise Exception("Specified solver " + solver + " is not defined!")
+
         print(puzzle)
         self.do_show_puzzle("")
         print("Type 'help' for a list of commands.")
 
-    def do_quit(self, args):
+    @staticmethod
+    def do_quit(arg):
         """Exit the program."""
         return True
 
@@ -75,8 +82,10 @@ class Interface(Cmd):
                 size = int(args)
             except ValueError:
                 print("Error: invalid size")
+                return
             if size < 1:
                 print("Error: invalid size")
+                return
             self.size = size
             self.do_new_puzzle("")
         elif self.puzzle_name.NAME == MazePuzzle.NAME:
@@ -85,28 +94,36 @@ class Interface(Cmd):
                 print("Error: invalid sizes. Expected 2 numbers")
                 return
             try:
-                self.width = int(sizes[0])
-                self.height = int(sizes[1])
+                width = int(sizes[0])
+                if width <= 0:
+                    print("Error: width cannot be less than 1")
+                    return
+                height = int(sizes[1])
+                if height <= 0:
+                    print("Error: height cannot be less than 1")
+                    return
+                if width < 2 and height < 2:
+                    print("Error: width and height cannot both be less than 2")
+                    return
+                self.width = width
+                self.height = height
             except ValueError:
                 print("Error: invalid sizes. Expected 2 numbers")
                 return
-            self.size = sizes
             self.do_new_puzzle("")
 
     def do_set_time(self, args):
         """Set the time limit for search."""
-        if self.puzzle_name.NAME == SlidingTilePuzzle.NAME:
-            try:
-                time = int(args)
-            except ValueError:
-                print("Error: invalid time")
-            if time < 0:
-                print("Error: invalid time")
-            self.time_limit = time
-            self.solver = self.solver_name(self.puzzle, time, self.heuristic)
-        elif self.puzzle_name.NAME == MazePuzzle.NAME:
-            # todo: set maze time for solver
-            print(args)
+        try:
+            time = int(args)
+        except ValueError:
+            print("Error: invalid time")
+            return
+        if time < 0:
+            print("Error: invalid time")
+            return
+        self.time_limit = time
+        self.solver = self.solver_name(self.puzzle, time, self.heuristic)
 
     def do_show_puzzle(self, args):
         """Print a string representation of the puzzle."""
@@ -132,16 +149,13 @@ class Interface(Cmd):
         """
         Search for a solution and print the moves to reach it if one is found.
         """
-        if self.puzzle_name.NAME == SlidingTilePuzzle.NAME:
-            result = self.solver.search()
-            if result is None:
-                print("The puzzle has no solution.")
-            elif not result:
-                print("The search timed out.""")
-                print(str(self.solver.num_nodes_generated()) + " nodes were generated")
-        elif self.puzzle_name.NAME == MazePuzzle.NAME:
-            # todo set maze do search
-            print(args)
+        result = self.solver.search()
+        if result is None:
+            print("The puzzle has no solution.")
+        elif not result:
+            print("The search timed out.""")
+            print(str(self.solver.num_nodes_generated()) + " nodes were generated")
+        print(result)
 
     def do_new_puzzle(self, args):
         """Generate a new puzzle of the same size as the current one"""
@@ -153,10 +167,9 @@ class Interface(Cmd):
                 print("Error: invalid seed")
         if self.puzzle_name.NAME == SlidingTilePuzzle.NAME:
             self.puzzle = self.puzzle_name(self.size, seed)
-            self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
         elif self.puzzle_name.NAME == MazePuzzle.NAME:
             self.puzzle = self.puzzle_name(self.width, self.height, seed)
-            # todo: setup maze solver
+        self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
         print(self.puzzle.NAME)
         print(self.puzzle)
 
