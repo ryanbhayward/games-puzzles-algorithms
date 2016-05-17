@@ -185,8 +185,14 @@ class MazePuzzle(object):
         """
         return hypot(self.goal[0] - self.position[0], self.goal[1] - self.position[1])
 
+    # noinspection PyUnusedLocal
     def heuristic(self, name):
-        print(name)  # ignoring the heuristic, only one heuristic (pythagorean dist)
+        """
+        Calculate heuristic for maze completion
+        :param name: ignoring the heuristic, only one heuristic (pythagorean dist).
+         Placed for compatibility with existing search methods
+        :return:
+        """
         return self.__raw_dist_to_finish()
 
     def value(self):

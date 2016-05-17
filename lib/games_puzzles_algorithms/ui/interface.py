@@ -55,6 +55,7 @@ class Interface(Cmd):
         self.do_show_puzzle("")
         print("Type 'help' for a list of commands.")
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def do_quit(arg):
         """Exit the program."""
@@ -125,6 +126,7 @@ class Interface(Cmd):
         self.time_limit = time
         self.solver = self.solver_name(self.puzzle, time, self.heuristic)
 
+    # noinspection PyUnusedLocal
     def do_show_puzzle(self, args):
         """Print a string representation of the puzzle."""
         print(self.puzzle)
@@ -140,11 +142,15 @@ class Interface(Cmd):
             print("Congratulations! You solved the puzzle.")
             print("Generating a new puzzle...")
             self.do_new_puzzle("")
+        # Workaround fix for no search available after maze move
+        self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
 
+    # noinspection PyUnusedLocal
     def do_get_moves(self, args):
         """Print a list of all valid moves in the current state."""
         print(", ".join(self.puzzle.str_moves(self.puzzle.valid_moves())))
 
+    # noinspection PyUnusedLocal
     def do_search(self, args):
         """
         Search for a solution and print the moves to reach it if one is found.
@@ -179,6 +185,7 @@ class Interface(Cmd):
             self.heuristic = args
             self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
 
+    # noinspection PyUnusedLocal
     def do_is_solved(self, args):
         """Print True if the puzzle is solved. False otherwise."""
         print(self.puzzle.is_solved())
