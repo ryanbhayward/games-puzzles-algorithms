@@ -76,6 +76,7 @@ class Interface(Cmd):
         print("search")
         print("new_puzzle")
         print("set_heuristic")
+        print("set_solver")
         print("is_solved")
 
     def do_set_size(self, args):
@@ -186,6 +187,14 @@ class Interface(Cmd):
         if args in self.puzzle_name.HEURISTICS:
             self.heuristic = args
             self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+
+    def do_set_solver(self, args):
+        """Set the solver for the puzzle."""
+        if args in self.SOLVERS:
+            self.solver_name = self.SOLVERS[args]
+            self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+        else:
+            print("Invalid solver " + args)
 
     # noinspection PyUnusedLocal
     def do_is_solved(self, args):
