@@ -178,7 +178,7 @@ class MazePuzzle(object):
         move_player = MazePuzzle.MOVE_DIRECTIONS[str_direction]
         self.position = [x + y for x, y in zip(self.position, move_player)]
 
-    def __raw_dist_to_finish(self):
+    def _raw_dist_to_finish(self):
         """
         Return the raw pythagorean distance from the player position to the goal.
         :return:
@@ -193,7 +193,7 @@ class MazePuzzle(object):
          Placed for compatibility with existing search methods
         :return:
         """
-        return self.__raw_dist_to_finish()
+        return self._raw_dist_to_finish()
 
     def value(self):
         """
