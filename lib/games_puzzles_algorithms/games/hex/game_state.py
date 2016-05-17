@@ -106,8 +106,8 @@ class Board(object):
 
         opponent = next_player(player)
 
-        # Already the player's color
-        if self._cells[action] == color:
+        # Already has a stone.
+        if self._cells[action] != COLORS["none"]:
             raise IllegalAction(
                 ("Attempted to place for {} but collided with {} stone already"
                  " on cell {}").format(

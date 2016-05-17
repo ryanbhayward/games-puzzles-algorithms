@@ -19,13 +19,13 @@ def test_hex_board_prints():
     )
 
 
-@pytest.mark.xfail
 def test_hex_move_made_twice():
     patient = GameState.root(5)
     patient.play(patient.board.cell_index(0, 0))
 
-    with pytest.raises(IllegalAction):
+    with pytest.raises(IllegalAction) as excinfo:
         patient.play(patient.board.cell_index(0, 0))
+    assert 'stone already on cell' in str(excinfo.value)
 
 
 @pytest.mark.xfail
