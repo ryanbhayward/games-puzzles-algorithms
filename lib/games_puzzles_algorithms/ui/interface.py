@@ -30,13 +30,13 @@ class Interface(Cmd):
         """
         Cmd.__init__(self)
         self.time_limit = 30
-        self.verbose = verbose
+        self.verbose = False
 
-        if puzzle == SlidingTilePuzzle.NAME:
-            self.size = 3
-            if solver == "A*" and heuristic is None:
-                heuristic = "manhattan distance"
-            self.heuristic = heuristic
+        self.size = 3
+        if solver == "A*" and heuristic is None:
+            heuristic = "manhattan distance"
+        self.heuristic = heuristic
+        if puzzle in self.PUZZLES:
             self.puzzle_name = self.PUZZLES[puzzle]
             self.puzzle = self.puzzle_name(self.size)
         elif puzzle == MazePuzzle.NAME:
@@ -88,6 +88,7 @@ class Interface(Cmd):
         print("set_heuristic")
         print("set_solver")
         print("is_solved")
+        print("verbose")
 
     def do_set_size(self, args):
         """Set the size of the puzzle problem."""
@@ -173,8 +174,10 @@ class Interface(Cmd):
             print("The puzzle has no solution.")
         elif not result:
             print("The search timed out.""")
-            print(str(self.solver.num_nodes_generated()) + " nodes were generated")
-        print(result)
+            print(str(self.solver.num_nodes_generated()) + " nodes were "
+                  "generated")
+        else:
+            print(self.puzzle.str_moves(result))
 
     def do_new_puzzle(self, args):
         """Generate a new puzzle of the same size as the current one"""
@@ -210,3 +213,13 @@ class Interface(Cmd):
     def do_is_solved(self, args):
         """Print True if the puzzle is solved. False otherwise."""
         print(self.puzzle.is_solved())
+
+    def do_verbose(self, args):
+        if args[0].lower() == 't':
+            verbose = True
+        elif args[0].lower() == 'f':
+            verbose = False
+        else:
+            print('Error: invalid argument, should be t or f')
+
+        self.solver.set_verbose(verbose)
