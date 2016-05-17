@@ -47,8 +47,8 @@ class Board(object):
     def is_empty(self, player, *cell):
         return self.cell_index(*cell) in self._empty_cells[player]
 
-    def color(self, player, row, column):
-        return self._cells[i]
+    def color(self, row, column):
+        return self._cells[self.cell_index(row, column)]
 
     def my_cells(self, player):
         return self._my_cells[player].keys()
@@ -92,8 +92,8 @@ class Board(object):
         '''Undo `player`'s last action.'''
         action = self._actions[player].pop()
         self._cells[action] = COLORS['none']
-        self._empty_cells[player][cell_index] = True
-        del self._my_cells[player][cell_index]
+        self._empty_cells[player][action] = True
+        del self._my_cells[player][action]
         return action
 
     def play(self, action, player):
@@ -106,8 +106,8 @@ class Board(object):
 
         opponent = next_player(player)
 
-        # Already the player's color
-        if self._cells[action] == color:
+        # Already has a stone.
+        if self._cells[action] != COLORS["none"]:
             raise IllegalAction(
                 ("Attempted to place for {} but collided with {} stone already"
                  " on cell {}").format(
@@ -155,9 +155,7 @@ class Board(object):
 
     def __str__(self):
         """Return an ASCII representation."""
-        return self._to_s(
-            lambda row, column: self.color(player, row, column)
-        )
+        return self._to_s(self.color)
 
     def _to_s(self, get_color_fn):
         """Return an ASCII representation."""
