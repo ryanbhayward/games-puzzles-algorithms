@@ -3,7 +3,8 @@ from games_puzzles_algorithms.games.hex.win_detector import WinDetector
 from games_puzzles_algorithms.games.hex.game_state \
     import GameState as HexGameState
 from games_puzzles_algorithms.games.hex.game_state import Board as HexBoard
-from .multi_dimensional_array import MultiDimensionalArray
+from games_puzzles_algorithms.multi_dimensional_array \
+    import MultiDimensionalArray
 from array import array
 from games_puzzles_algorithms.debug import log
 from games_puzzles_algorithms.games.hex.color import IllegalAction, COLORS, \

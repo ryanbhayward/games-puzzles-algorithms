@@ -25,7 +25,7 @@ ffi.cdef(
     '''
 )
 
-ffi.set_source("games_puzzles_algorithms.games.dex._hyper_cube_indexer",
+ffi.set_source("games_puzzles_algorithms._hyper_cube_indexer",
     '''
     static unsigned int _compute_base_offset(
         const unsigned int * dimensions,

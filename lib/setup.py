@@ -15,5 +15,5 @@ setup(
         'pytest'
     ],
     setup_requires=["cffi >= 1.0.0"],
-    cffi_modules=["games_puzzles_algorithms/games/dex/hyper_cube_indexer_build.py:ffi"]
+    cffi_modules=["games_puzzles_algorithms/hyper_cube_indexer_build.py:ffi"]
 )
