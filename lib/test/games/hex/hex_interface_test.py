@@ -27,3 +27,20 @@ def test_hex_move_made_twice():
 
     with pytest.raises(IllegalAction):
         patient.play(patient.board.cell_index(0, 0))
+
+
+@pytest.mark.xfail
+def test_hex_undo():
+    patient = GameState.root(5)
+    patient.play(patient.board.cell_index(0, 0))
+    patient.undo()
+    assert str(patient) == (
+'''
+  A  B  C  D  E
+1  .  .  .  .  .  O
+ 2  .  .  .  .  .  O
+  3  .  .  .  .  .  O
+   4  .  .  .  .  .  O
+    5  .  .  .  .  .  O
+        @  @  @  @  @'''
+    )
