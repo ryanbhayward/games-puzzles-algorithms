@@ -150,7 +150,7 @@ class SlidingTilePuzzle(object):
     
     def misplaced_tiles(self):
         """Return a heuristic giving the number of misplaced tiles."""
-        return self.size - self.num_correct_tiles
+        return self.size * self.size - self.num_correct_tiles
     
     def manhattan_distance(self):
         """

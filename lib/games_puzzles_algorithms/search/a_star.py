@@ -24,14 +24,29 @@ class AStar(Search):
         Perform A* until time_limit is reached.
         Returns a list of moves to reach the solution if it finds one, None
         if there is not solution, or False if the time limit is reached.
-        """        
+        """
         start_time = time.time()
+        if self.verbose:
+            print('Starting A* search')
+            self.print_verbose_statement(start_time)
+            verbose_limit = 10
         while(time.time() - start_time < self.time_limit):
+            if self.verbose and time.time() - start_time > verbose_limit:
+                self.print_verbose_statement(start_time)
+                verbose_limit += 10
             if len(self.frontier) == 0:
+                if self.verbose:
+                    print('0 node are left in the frontier,'
+                          ' and the puzzle has no solution.')
+                    self.print_verbose_statement(start_time)
+                    print('Ending the search.')
                 return None
             
             current_node = heappop(self.frontier)
             if current_node.state.is_solved():
+                if self.verbose:
+                    print('Solution node found')
+                    self.print_verbose_statement(start_time)
                 return self.solution(current_node)
             
             self.explored.add(current_node.state.value())
@@ -42,7 +57,9 @@ class AStar(Search):
                 in_frontier = self._update_frontier(child)
                 if not (new_state.value() in self.explored or in_frontier):
                     heappush(self.frontier, child)
-                    
+        
+        self.print_verbose_statement(start_time)
+        print('The search timed out without finding a solution.')
         return False
                     
     def _update_frontier(self, node):
