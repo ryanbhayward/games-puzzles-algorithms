@@ -92,8 +92,8 @@ class Board(object):
         '''Undo `player`'s last action.'''
         action = self._actions[player].pop()
         self._cells[action] = COLORS['none']
-        self._empty_cells[player][cell_index] = True
-        del self._my_cells[player][cell_index]
+        self._empty_cells[player][action] = True
+        del self._my_cells[player][action]
         return action
 
     def play(self, action, player):

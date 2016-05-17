@@ -28,7 +28,6 @@ def test_hex_move_made_twice():
     assert 'stone already on cell' in str(excinfo.value)
 
 
-@pytest.mark.xfail
 def test_hex_undo():
     patient = GameState.root(5)
     patient.play(patient.board.cell_index(0, 0))
