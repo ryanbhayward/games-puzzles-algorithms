@@ -47,8 +47,8 @@ class Board(object):
     def is_empty(self, player, *cell):
         return self.cell_index(*cell) in self._empty_cells[player]
 
-    def color(self, player, row, column):
-        return self._cells[i]
+    def color(self, row, column):
+        return self._cells[self.cell_index(row, column)]
 
     def my_cells(self, player):
         return self._my_cells[player].keys()
@@ -155,9 +155,7 @@ class Board(object):
 
     def __str__(self):
         """Return an ASCII representation."""
-        return self._to_s(
-            lambda row, column: self.color(player, row, column)
-        )
+        return self._to_s(self.color)
 
     def _to_s(self, get_color_fn):
         """Return an ASCII representation."""

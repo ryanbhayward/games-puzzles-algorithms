@@ -4,7 +4,6 @@ from games_puzzles_algorithms.games.hex.color import IllegalAction
 from games_puzzles_algorithms.games.hex.game_state import GameState
 
 
-@pytest.mark.xfail
 def test_hex_board_prints():
     patient = GameState.root(5)
 
