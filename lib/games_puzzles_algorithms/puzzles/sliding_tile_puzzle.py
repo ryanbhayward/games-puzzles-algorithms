@@ -20,7 +20,7 @@ class SlidingTilePuzzle(object):
     3 4 5
     6 7 8
     """    
-    
+    NAME = "sliding_tile"
     BLANK = 0
     DIRECTIONS = {"up": 0, "down": 1, "right": 2, "left": 3}
     HEURISTICS = ["misplaced tiles", "manhattan distance"]

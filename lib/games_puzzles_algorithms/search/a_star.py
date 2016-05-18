@@ -2,38 +2,39 @@ from games_puzzles_algorithms.search.search import Search, Node
 from heapq import *
 import time
 
+
 class AStar(Search):
     """
     A* search class.
     """
-    
+
     def __init__(self, problem, time_limit, heuristic):
         """
         Initialize the search.
         Create the root node with the problem and set a time limit for search.
         Heursitic is a string indicating the name of the heuristic to use.
-        """            
+        """
         Search.__init__(self, problem, time_limit)
         self.frontier = []
         self.rootnode.set_heuristic(heuristic)
         self.heuristic = heuristic
-        heappush(self.frontier, self.rootnode)   
-        
+        heappush(self.frontier, self.rootnode)
+
     def search(self):
         """
         Perform A* until time_limit is reached.
         Returns a list of moves to reach the solution if it finds one, None
         if there is not solution, or False if the time limit is reached.
-        """        
+        """
         start_time = time.time()
-        while(time.time() - start_time < self.time_limit):
+        while (time.time() - start_time < self.time_limit):
             if len(self.frontier) == 0:
                 return None
-            
+
             current_node = heappop(self.frontier)
             if current_node.state.is_solved():
                 return self.solution(current_node)
-            
+
             self.explored.add(current_node.state.value())
             for move in current_node.state.valid_moves():
                 new_state = current_node.state.copy()
@@ -42,9 +43,9 @@ class AStar(Search):
                 in_frontier = self._update_frontier(child)
                 if not (new_state.value() in self.explored or in_frontier):
                     heappush(self.frontier, child)
-                    
+
         return False
-                    
+
     def _update_frontier(self, node):
         """Update the frontier except for adding new nodes.
         Return True if there is a node (A) in the frontier with the same
@@ -55,7 +56,7 @@ class AStar(Search):
             if self.frontier[i].state.equals(node.state):
                 if self.frontier[i] > node:
                     self.frontier[i] = node
-                    heapify(self.frontier)  
+                    heapify(self.frontier)
                 return True
-            
+
         return False
