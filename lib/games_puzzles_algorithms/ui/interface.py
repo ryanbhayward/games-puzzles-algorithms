@@ -79,8 +79,10 @@ class Interface(Cmd):
                 size2 = size1
         except ValueError:
             print("Error: invalid size")
+            return
         if size1 < 1 or size2 < 1:
             print("Error: invalid size")
+            return
         
         self.size1 = size1
         self.size2 = size2
@@ -92,8 +94,10 @@ class Interface(Cmd):
             time = int(args)
         except ValueError:
             print("Error: invalid time")
+            return
         if time < 0:
             print("Error: invalid time")
+            return
         self.time_limit = time
         self.new_solver()   
         
@@ -105,6 +109,7 @@ class Interface(Cmd):
         """Apply the move given by args to the puzzle."""
         if args not in self.puzzle.str_moves(self.puzzle.valid_moves()):
             print("Error: " + args + " is not a valid move in this state.")
+            return
         self.puzzle.apply_move(args)
         
     def do_get_moves(self, args):
@@ -123,7 +128,7 @@ class Interface(Cmd):
             print(str(self.solver.num_nodes_generated()) + " nodes were "
                   "generated")
         else:
-            print(self.puzzle.str_moves(result))
+            print(', '.join(self.puzzle.str_moves(result)))
         
     def do_new_puzzle(self, args):
         """Generate a new puzzle of the same size as the current one"""
@@ -133,6 +138,7 @@ class Interface(Cmd):
                 seed = int(args)
             except ValueError:
                 print("Error: invalid seed")
+                return
 
         self.puzzle = self.puzzle_name(self.size1, seed, self.size2)
         self.new_solver()
@@ -148,11 +154,16 @@ class Interface(Cmd):
         print(self.puzzle.is_solved())
         
     def do_verbose(self, args):
+        """
+        Set the verbosity of the output.
+        args should be True or False or t or f as a string.
+        """
         if args[0].lower() == 't':
             verbose = True
         elif args[0].lower() == 'f':
             verbose = False
         else:
             print('Error: invalid argument, should be t or f')
+            return
             
         self.solver.set_verbose(verbose)
