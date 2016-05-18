@@ -51,6 +51,22 @@ class Board(HexBoard):
         return (self.cells.indexer.dimensions[1],
                 self.cells.indexer.dimensions[2])
 
+    def is_empty(self, player, *cell):
+        return self.cell_index(*cell) in self._empty_cells[player]
+
+    def num_legal_actions(self, player):
+        return len(self._empty_cells[player])
+
+    def legal_actions(self, player):
+        for action in self._empty_cells[player].keys():
+            yield action
+
+    def every_legal_neighbor(self, player, *cell):
+        """Generate neighbors of `cell` that can be played on by `player`."""
+        for neighbor in self.every_neighbor(*cell):
+            if self.cell_index(*neighbor) in self._empty_cells[player]:
+                yield neighbor
+
     def is_color(self, player, row, column, color):
         ci = self.cell_index(row, column)
         if ci in self._empty_cells[player]:
@@ -155,6 +171,20 @@ class GameState(HexGameState):
     @classmethod
     def clean_board(self, *dimensions):
         return Board(*dimensions)
+
+    def __getitem__(self, cell):
+        return self.board.color(self.player_to_act(), *cell)
+
+    def is_empty(self, cell):
+        return self.board.is_empty(self.player_to_act(), *cell)
+
+    def legal_actions(self):
+        for a in self.board.legal_actions(self._acting_player):
+            yield a
+
+    def num_legal_actions(self):
+        return self.board.num_legal_actions(self._acting_player)
+
 
     def previous_action_was_a_collision(self, previous_player=None):
         if previous_player is None:

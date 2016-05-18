@@ -33,19 +33,18 @@ class Board(object):
         self._cells = array('I', [COLORS['none']] * len(self))
 
         self._actions = [[] for _ in range(NUM_PLAYERS)]
-        self._empty_cells = []
+        self._empty_cells = {}
         self._my_cells = []
         for player in range(NUM_PLAYERS):
-            self._empty_cells.append({})
             self._my_cells.append({})
-            for a in range(len(self)):
-                self._empty_cells[player][a] = True
+        for a in range(len(self)):
+            self._empty_cells[a] = True
 
     def __len__(self):
         return prod(*self.size())
 
-    def is_empty(self, player, *cell):
-        return self.cell_index(*cell) in self._empty_cells[player]
+    def is_empty(self, *cell):
+        return self.cell_index(*cell) in self._empty_cells
 
     def color(self, row, column):
         return self._cells[self.cell_index(row, column)]
@@ -92,7 +91,7 @@ class Board(object):
         '''Undo `player`'s last action.'''
         action = self._actions[player].pop()
         self._cells[action] = COLORS['none']
-        self._empty_cells[player][action] = True
+        self._empty_cells[action] = True
         del self._my_cells[player][action]
         return action
 
@@ -119,14 +118,14 @@ class Board(object):
             self._my_cells[player][action] = True
             self._actions[player].append(action)
 
-        del self._empty_cells[player][action]
+        del self._empty_cells[action]
         return color
 
-    def num_legal_actions(self, player):
-        return len(self._empty_cells[player])
+    def num_legal_actions(self):
+        return len(self._empty_cells)
 
-    def legal_actions(self, player):
-        for action in self._empty_cells[player].keys():
+    def legal_actions(self):
+        for action in self._empty_cells.keys():
             yield action
 
     def is_valid_cell(self, row, column):
@@ -144,10 +143,10 @@ class Board(object):
             if self.is_valid_cell(neighbor_row, neighbor_column):
                 yield (neighbor_row, neighbor_column)
 
-    def every_legal_neighbor(self, player, *cell):
+    def every_legal_neighbor(self, *cell):
         """Generate neighbors of `cell` that can be played on by `player`."""
         for neighbor in self.every_neighbor(*cell):
-            if self.cell_index(*neighbor) in self._empty_cells[player]:
+            if self.cell_index(*neighbor) in self._empty_cells:
                 yield neighbor
 
     def length_separating_goal_sides(self, player):
@@ -211,7 +210,7 @@ class GameState(object):
         self._potentially_winning_moves = None
 
     def __getitem__(self, cell):
-        return self.board.color(self.player_to_act(), *cell)
+        return self.board.color(*cell)
 
     def could_terminate_in_one_action(self, player=None):
         '''
@@ -261,7 +260,7 @@ class GameState(object):
                                  .copy_from_raw(original_group))
 
     def is_empty(self, cell):
-        return self.board.is_empty(self.player_to_act(), *cell)
+        return self.board.is_empty(*cell)
 
     def num_actions_taken(self, player):
         return len(self.win_detector.history_of_player_groups[player])
@@ -344,11 +343,11 @@ class GameState(object):
             self._acting_player = next_player(viewing_player)
 
     def legal_actions(self):
-        for a in self.board.legal_actions(self._acting_player):
+        for a in self.board.legal_actions():
             yield a
 
     def num_legal_actions(self):
-        return self.board.num_legal_actions(self._acting_player)
+        return self.board.num_legal_actions()
 
     def to_s(self, player):
         """Print an ascii representation of the game board."""
