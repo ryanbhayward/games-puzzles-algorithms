@@ -22,20 +22,27 @@ class Interface(Cmd):
         self.time_limit = 30
         self.verbose = False
         
-        self.size = 3
+        self.size1 = 3
+        self.size2 = 3
         if solver == "A*" and heuristic is None:
             heuristic = "manhattan distance"
         self.heuristic = heuristic
         if puzzle in self.PUZZLES:
             self.puzzle_name = self.PUZZLES[puzzle]
-            self.puzzle = self.puzzle_name(self.size)
+            self.puzzle = self.puzzle_name(size1=self.size1, size2=self.size2)
         
         if solver in self.SOLVERS:
             self.solver_name = self.SOLVERS[solver]
+            self.new_solver()
+            
+    def new_solver(self):
+        """Create a new solver based on the current attribute values."""
+        if self.solver_name == self.SOLVERS['A*']:
             self.solver = self.solver_name(self.puzzle, self.time_limit,
-                                           heuristic)
+                                           self.heuristic)
+        else:
+            self.solver = self.solver_name(self.puzzle, self.time_limit)
         
-    
     def do_quit(self, args):
         """Exit the program."""
         return True
@@ -57,15 +64,26 @@ class Interface(Cmd):
         print("verbose")
         
     def do_set_size(self, args):
-        """Set the size of the puzzle problem."""
+        """
+        Set the size of the puzzle problem.
+        args should be one or two positive numbers separated by a space.
+        The first number is the number of rows, and the second if given is the
+        number of columns. Otherwise the number of columns and rows are equal.
+        """
         try:
-            size = int(args)
+            args = args.split(' ')
+            size1 = int(args[0])
+            if len(args) > 1:
+                size2 = int(args[1])
+            else:
+                size2 = size1
         except ValueError:
             print("Error: invalid size")
-        if size < 1:
+        if size1 < 1 or size2 < 1:
             print("Error: invalid size")
-            
-        self.size = size
+        
+        self.size1 = size1
+        self.size2 = size2
         self.do_new_puzzle("")
         
     def do_set_time(self, args):
@@ -77,7 +95,7 @@ class Interface(Cmd):
         if time < 0:
             print("Error: invalid time")
         self.time_limit = time
-        self.solver = self.solver_name(self.puzzle, time, self.heuristic)        
+        self.new_solver()   
         
     def do_show_puzzle(self, args):
         """Print a string representation of the puzzle."""
@@ -116,16 +134,14 @@ class Interface(Cmd):
             except ValueError:
                 print("Error: invalid seed")
 
-        self.puzzle = self.puzzle_name(self.size, seed)
-        self.solver = self.solver_name(self.puzzle, self.time_limit, 
-                                       self.heuristic)
+        self.puzzle = self.puzzle_name(self.size1, seed, self.size2)
+        self.new_solver()
         
     def do_set_heuristic(self, args):
         """Set the heuristic for the search."""
         if args in self.puzzle_name.HEURISTICS:
             self.heuristic = args
-            self.solver = self.solver_name(self.puzzle, self.time_limit,
-                                           self.heuristic)            
+            self.new_solver()            
         
     def do_is_solved(self, args):
         """Print True if the puzzle is solved. False otherwise."""

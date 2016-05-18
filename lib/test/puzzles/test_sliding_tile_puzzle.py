@@ -6,7 +6,8 @@ class TestSlidingTilePuzzle(unittest.TestCase):
     def test_init(self):
         size = 3
         puzzle = SlidingTilePuzzle(size)
-        self.assertEqual(puzzle.size, size)
+        self.assertEqual(puzzle.size1, size)
+        self.assertEqual(puzzle.size2, size)
         self.assertEqual(puzzle.puzzle.shape, (size, size))
         self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
         self.assertLessEqual(puzzle.num_correct_tiles, size * size)
@@ -17,12 +18,24 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         seed = 1
         a = SlidingTilePuzzle(size, seed)
         b = SlidingTilePuzzle(size, seed)
-        self.assertEqual(a.size, b.size)
+        self.assertEqual(a.size1, b.size1)
+        self.assertEqual(a.size2, b.size2)
         for i in range(size):
             for j in range(size):
                 self.assertEqual(a.puzzle[(i, j)], b.puzzle[(i, j)])
         self.assertEqual(a.blank_index, b.blank_index)
         self.assertEqual(a.num_correct_tiles, b.num_correct_tiles)
+        
+    def test_init_rectangle(self):
+        size1 = 2
+        size2 = 3
+        puzzle = SlidingTilePuzzle(size1=size1, size2=size2)
+        self.assertEqual(puzzle.size1, size1)
+        self.assertEqual(puzzle.size2, size2)
+        self.assertEqual(puzzle.puzzle.shape, (size1, size2))
+        self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
+        self.assertLessEqual(puzzle.num_correct_tiles, size1 * size2)
+        self.assertGreaterEqual(puzzle.num_correct_tiles, 0)        
 
     def test_is_solved_false(self):
         size = 2
@@ -50,6 +63,16 @@ class TestSlidingTilePuzzle(unittest.TestCase):
             for j in range(size):
                 self.assertEqual(puzzle.correct_num((i, j)), number)
                 number += 1
+                
+    def test_correct_num_rectangle(self):
+        size1 = 3
+        size2 = 2
+        puzzle = SlidingTilePuzzle(size1=size1, size2=size2)
+        number = 0
+        for i in range(size1):
+            for j in range(size2):
+                self.assertEqual(puzzle.correct_num((i, j)), number)
+                number += 1
 
     def test_correct_tile(self):
         size = 3
@@ -57,6 +80,16 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         number = 0
         for i in range(size):
             for j in range(size):
+                self.assertEqual(puzzle.correct_tile(number), (i, j))
+                number += 1
+                
+    def test_correct_tile_rectangle(self):
+        size1 = 2
+        size2 = 3
+        puzzle = SlidingTilePuzzle(size1=size1, size2=size2)
+        number = 0
+        for i in range(size1):
+            for j in range(size2):
                 self.assertEqual(puzzle.correct_tile(number), (i, j))
                 number += 1
 
@@ -143,7 +176,8 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         size = 3
         a = SlidingTilePuzzle(size)
         b = a.copy()
-        self.assertEqual(a.size, b.size)
+        self.assertEqual(a.size1, b.size1)
+        self.assertEqual(a.size2, b.size2)
         for i in range(size):
             for j in range(size):
                 self.assertEqual(a.puzzle[(i, j)], b.puzzle[(i, j)])
@@ -194,6 +228,15 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         num_tiles = puzzle.misplaced_tiles()
         expected_num = 0
         self.assertEqual(num_tiles, expected_num)
+        
+    def test_misplaced_tiles_rectangle(self):
+        size1 = 2
+        size2 = 3
+        seed = 1
+        puzzle = SlidingTilePuzzle(size1, seed, size2)
+        num_tiles = puzzle.misplaced_tiles()
+        expected_num = 5
+        self.assertEqual(num_tiles, expected_num)
 
     def test_manhattan_distance_incomplete(self):
         size = 3
@@ -215,6 +258,15 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         puzzle.apply_move(SlidingTilePuzzle.DIRECTIONS["right"])
         num_tiles = puzzle.manhattan_distance()
         expected_num = 0
+        self.assertEqual(num_tiles, expected_num)
+        
+    def test_manhattan_distance_rectangle(self):
+        size1 = 2
+        size2 = 3
+        seed = 1
+        puzzle = SlidingTilePuzzle(size1, seed, size2)
+        num_tiles = puzzle.manhattan_distance()
+        expected_num = 1 + 2 + 2 + 2 + 0 + 1
         self.assertEqual(num_tiles, expected_num)
 
     def test_heuristic_misplaced(self):
@@ -249,7 +301,18 @@ class TestSlidingTilePuzzle(unittest.TestCase):
                         '\n   7  11  15   1 '
                         '\n  12  13   9   4 \n')
         self.assertEqual(str(puzzle), expected_str)
+        
+    def test_str_rectangle(self):
+        size1 = 2
+        size2 = 3
+        seed = 1
+        puzzle = SlidingTilePuzzle(size1, seed, size2)
+        expected_str = '\n  2  3  5 \n  B  4  1 \n'
+        self.assertEqual(str(puzzle), expected_str)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        unittest.main()
+    except SystemExit:
+        pass
