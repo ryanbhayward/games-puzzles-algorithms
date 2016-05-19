@@ -68,6 +68,18 @@ class TestAStar(unittest.TestCase):
             state.apply_move(move)
             
         self.assertTrue(state.is_solved())
+        
+    def test_reset(self):
+        state = SlidingTilePuzzle(2, 10)
+        time = 5
+        heuristic = 'manhattan distance'
+        search = AStar(state, time, heuristic)
+        solution = search.search()
+        self.assertGreater(search.num_nodes_generated(), 1)
+        self.assertTrue(search.solved)
+        search.reset()
+        self.assertEqual(search.num_nodes_generated(), 1)
+        self.assertFalse(search.solved)    
 
 
 if __name__ == '__main__':
