@@ -98,8 +98,7 @@ class Interface(Cmd):
         if time < 0:
             print("Error: invalid time")
             return
-        self.time_limit = time
-        self.new_solver()   
+        self.solver.set_time(time)
         
     def do_show_puzzle(self, args):
         """Print a string representation of the puzzle."""
