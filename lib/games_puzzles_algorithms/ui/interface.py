@@ -2,6 +2,7 @@ from cmd import Cmd
 from games_puzzles_algorithms.search.a_star import AStar
 from games_puzzles_algorithms.search.breadth_first_search import BreadthFirstSearch
 from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
+from games_puzzles_algorithms.puzzles.solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle
 
 class Interface(Cmd):
     """
@@ -9,7 +10,8 @@ class Interface(Cmd):
     """
     
     SOLVERS = {"A*": AStar, "breadth_first_search": BreadthFirstSearch}
-    PUZZLES = {"sliding_tile": SlidingTilePuzzle}
+    PUZZLES = {"sliding_tile": SlidingTilePuzzle,
+               "solvable_sliding_tile": SolvableSlidingTilePuzzle}
     
     def __init__(self, puzzle, solver, heuristic=None):
         """
