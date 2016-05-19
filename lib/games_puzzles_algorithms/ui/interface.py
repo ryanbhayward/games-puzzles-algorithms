@@ -3,25 +3,18 @@ from games_puzzles_algorithms.search.a_star import AStar
 from games_puzzles_algorithms.search.breadth_first_search import BreadthFirstSearch
 from games_puzzles_algorithms.search.depth_first_search import DepthFirstSearch
 from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
-from games_puzzles_algorithms.puzzles.maze_puzzle import MazePuzzle
-
+from games_puzzles_algorithms.puzzles.solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle
 
 class Interface(Cmd):
     """
     Generalized interface for puzzles and solvers.
     """
 
-    SOLVERS = {
-        "A*": AStar,
-        "bfs": BreadthFirstSearch,
-        "dfs": DepthFirstSearch
-    }
-    PUZZLES = {
-        SlidingTilePuzzle.NAME: SlidingTilePuzzle,
-        MazePuzzle.NAME: MazePuzzle
-    }
+    SOLVERS = {"A*": AStar, "breadth_first_search": BreadthFirstSearch}
+    PUZZLES = {"sliding_tile": SlidingTilePuzzle,
+               "solvable_sliding_tile": SolvableSlidingTilePuzzle}
 
-    def __init__(self, puzzle, solver, verbose, heuristic=None):
+    def __init__(self, puzzle, solver, heuristic=None):
         """
         Initialize the interface.
         puzzle, solver, and heuristic are all strings giving the names of

@@ -1,5 +1,7 @@
 from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
+from games_puzzles_algorithms.puzzles.solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle
 import unittest
+import random
 
 class TestSlidingTilePuzzle(unittest.TestCase):
     
@@ -309,10 +311,76 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         puzzle = SlidingTilePuzzle(size1, seed, size2)
         expected_str = '\n  2  3  5 \n  B  4  1 \n'
         self.assertEqual(str(puzzle), expected_str)
+        
+
+def reverse_move(move):
+    if move == SlidingTilePuzzle.DIRECTIONS['up']:
+        return SlidingTilePuzzle.DIRECTIONS['down']
+    elif move == SlidingTilePuzzle.DIRECTIONS['down']:
+        return SlidingTilePuzzle.DIRECTIONS['up']
+    elif move == SlidingTilePuzzle.DIRECTIONS['left']:
+        return SlidingTilePuzzle.DIRECTIONS['right']
+    else:
+        return SlidingTilePuzzle.DIRECTIONS['left']
+
+
+class TestSolvableSlidingTilePuzzle(unittest.TestCase):
+    
+    def test_init(self):
+        size = 3
+        puzzle = SolvableSlidingTilePuzzle(size)
+        self.assertEqual(puzzle.size1, size)
+        self.assertEqual(puzzle.size2, size)
+        self.assertEqual(puzzle.puzzle.shape, (size, size))
+        self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
+        self.assertLessEqual(puzzle.num_correct_tiles, size * size)
+        self.assertGreaterEqual(puzzle.num_correct_tiles, 0)
+
+    def test_seed_init(self):
+        size = 3
+        seed = 1
+        a = SolvableSlidingTilePuzzle(size, seed)
+        b = SolvableSlidingTilePuzzle(size, seed)
+        self.assertEqual(a.size1, b.size1)
+        self.assertEqual(a.size2, b.size2)
+        for i in range(size):
+            for j in range(size):
+                self.assertEqual(a.puzzle[(i, j)], b.puzzle[(i, j)])
+        self.assertEqual(a.blank_index, b.blank_index)
+        self.assertEqual(a.num_correct_tiles, b.num_correct_tiles)
+        random.seed(seed)
+        moves = []
+        number = 0
+        
+        for i in range(size):
+            for j in range(size):
+                b.puzzle[(i, j)] = number
+                number += 1
+        b.blank_index = (0, 0)
+        
+        for i in range(size * size * 10):
+            move_choice = b.valid_moves()
+            move = random.choice(move_choice)
+            b.apply_move(move)
+            moves.append(reverse_move(move))
+
+        moves.reverse()
+        for move in moves:
+            a.apply_move(move)
+        self.assertTrue(a.is_solved())
+        
+        
+    def test_init_rectangle(self):
+        size1 = 2
+        size2 = 3
+        puzzle = SolvableSlidingTilePuzzle(size1=size1, size2=size2)
+        self.assertEqual(puzzle.size1, size1)
+        self.assertEqual(puzzle.size2, size2)
+        self.assertEqual(puzzle.puzzle.shape, (size1, size2))
+        self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
+        self.assertLessEqual(puzzle.num_correct_tiles, size1 * size2)
+        self.assertGreaterEqual(puzzle.num_correct_tiles, 0)   
 
 
 if __name__ == '__main__':
-    try:
-        unittest.main()
-    except SystemExit:
-        pass
+    unittest.main()
