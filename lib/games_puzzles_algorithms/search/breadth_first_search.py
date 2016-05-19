@@ -2,7 +2,6 @@ from collections import deque
 import time
 from games_puzzles_algorithms.search.search import Search, Node
 
-        
 
 class BreadthFirstSearch(Search):
     """Breadth first search class."""
@@ -22,11 +21,28 @@ class BreadthFirstSearch(Search):
         Returns a list of moves to reach the solution if it finds one, None
         if there is not solution, or False if the time limit is reached.
         """
-        start = time.time()
+        start_time = time.time()
+        if self.verbose:
+            print('Starting Breadth First Search')
+            self.print_verbose_statement(start_time)
+            verbose_limit = 10
+
+        
         if self.rootnode.state.is_solved():
-            return self._solution(self.rootnode)
-        while time.time() - start < self.time_limit:
+            if self.verbose:
+                print('The rootnode was a solution node.')
+                self.print_verbose_statement(start_time)
+            return self.solution(self.rootnode)
+        while time.time() - start_time < self.time_limit:
+            if self.verbose and time.time() - start_time > verbose_limit:
+                self.print_verbose_statement(start_time)
+                verbose_limit += 10
             if len(self.frontier) == 0:
+                if self.verbose:
+                    print('0 nodes are left in the frontier,'
+                          ' and the puzzle has no solution.')
+                    self.print_verbose_statement(start_time)
+                    print('Ending the search.')                
                 return None
             
             current_node = self.frontier.popleft()
@@ -38,9 +54,15 @@ class BreadthFirstSearch(Search):
                 if (not new_state.value() in self.explored
                     and not self._in_frontier(new_state)):
                     if child.state.is_solved():
+                        if self.verbose:
+                            print('Solution node found')
+                            self.print_verbose_statement(start_time)                        
                         return self.solution(child)
                     self.frontier.append(child)
                     
+        if self.verbose:
+            self.print_verbose_statement(start_time)
+            print('The search timed out without finding a solution.')                   
         return False
         
     def _in_frontier(self, state):
