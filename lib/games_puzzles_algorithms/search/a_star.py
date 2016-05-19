@@ -37,7 +37,7 @@ class AStar(Search):
                 verbose_limit += 10
             if len(self.frontier) == 0:
                 if self.verbose:
-                    print('0 node are left in the frontier,'
+                    print('0 nodes are left in the frontier,'
                           ' and the puzzle has no solution.')
                     self.print_verbose_statement(start_time)
                     print('Ending the search.')
@@ -63,8 +63,9 @@ class AStar(Search):
                 if not (new_state.value() in self.explored or in_frontier):
                     heappush(self.frontier, child)
 
-        self.print_verbose_statement(start_time)
-        print('The search timed out without finding a solution.')
+        if self.verbose:
+            self.print_verbose_statement(start_time)
+            print('The search timed out without finding a solution.')
         return False
 
     def _update_frontier(self, node):
