@@ -80,3 +80,6 @@ class Search(object):
         time_remaining = self.time_limit - (time.time() - start_time)
         print('time remaining = %.3f, '%(time_remaining)
               + str(self.num_nodes_generated()) + ' nodes generated')
+
+    def set_time(self, time):
+        self.time_limit = time
