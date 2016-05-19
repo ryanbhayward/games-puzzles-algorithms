@@ -4,7 +4,6 @@ from games_puzzles_algorithms.games.dex.game_state import GameState
 from games_puzzles_algorithms.games.dex.game_state import IllegalAction
 import pytest
 import random
-from games_puzzles_algorithms.choose import choose_legal_action_uniformly_randomly
 
 
 def test_white_win1():
