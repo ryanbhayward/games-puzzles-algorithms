@@ -50,8 +50,7 @@ class Interface(Cmd):
 
         if solver in self.SOLVERS:
             self.solver_name = solver
-            self.solver_class = self.SOLVERS[solver]
-            self.solver = self._instantiate_solver(solver=solver)(self.puzzle, self.time_limit)
+            self.solver = self._instantiate_solver()
         else:
             raise Exception("Specified solver " + solver + " is not defined!")
 
@@ -59,14 +58,14 @@ class Interface(Cmd):
         self.do_show_puzzle("")
         print("Type 'help' for a list of commands.")
 
-    def _instantiate_solver(self, solver=""):
+    def _instantiate_solver(self):
         """
         Wrapper for the search constructors, given that A* takes different params than BFS/DFS
         :return: Constructor function for search object
         """
-        if solver == "A*":
-            return lambda a, b: self.solver_class(a, b, self.heuristic)
-        return lambda a, b: self.solver_class(a, b)
+        if self.solver_name == "A*":
+            return Interface.SOLVERS[self.solver_name](self.puzzle, self.time_limit, self.heuristic)
+        return Interface.SOLVERS[self.solver_name](self.puzzle, self.time_limit)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -203,8 +202,7 @@ class Interface(Cmd):
         """Set the solver for the puzzle."""
         if args in self.SOLVERS:
             self.solver_name = args
-            self.solver_class = self.SOLVERS[args]
-            self.solver = self._instantiate_solver(solver=args)(self.puzzle, self.time_limit)
+            self.solver = self._instantiate_solver()
         else:
             print("Invalid solver " + args)
 
