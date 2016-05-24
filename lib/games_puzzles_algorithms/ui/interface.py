@@ -49,13 +49,20 @@ class Interface(Cmd):
 
         if solver in self.SOLVERS:
             self.solver_name = self.SOLVERS[solver]
-            self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+            self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
         else:
             raise Exception("Specified solver " + solver + " is not defined!")
 
         print(puzzle)
         self.do_show_puzzle("")
         print("Type 'help' for a list of commands.")
+
+    def _instantiate_solver(self):
+        """
+        Wrapper for the search constructors, given that A* takes different params than BFS/DFS
+        :return: Constructor function for search object
+        """
+        return lambda a, b: self.solver_name(a, b, self.heuristic)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -127,7 +134,7 @@ class Interface(Cmd):
             print("Error: invalid time")
             return
         self.time_limit = time
-        self.solver = self.solver_name(self.puzzle, time, self.heuristic)
+        self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
 
     # noinspection PyUnusedLocal
     def do_show_puzzle(self, args):
@@ -146,7 +153,7 @@ class Interface(Cmd):
             print("Generating a new puzzle...")
             self.do_new_puzzle("")
         # Workaround fix for no search available after maze move
-        self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+        self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
 
     # noinspection PyUnusedLocal
     def do_get_moves(self, args):
@@ -178,7 +185,7 @@ class Interface(Cmd):
             self.puzzle = self.puzzle_name(self.size, seed)
         elif self.puzzle_name.NAME == MazePuzzle.NAME:
             self.puzzle = self.puzzle_name(self.width, self.height, seed)
-        self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+        self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
         print(self.puzzle.NAME)
         print(self.puzzle)
 
@@ -186,13 +193,13 @@ class Interface(Cmd):
         """Set the heuristic for the search."""
         if args in self.puzzle_name.HEURISTICS:
             self.heuristic = args
-            self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+            self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
 
     def do_set_solver(self, args):
         """Set the solver for the puzzle."""
         if args in self.SOLVERS:
             self.solver_name = self.SOLVERS[args]
-            self.solver = self.solver_name(self.puzzle, self.time_limit, self.heuristic)
+            self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
         else:
             print("Invalid solver " + args)
 

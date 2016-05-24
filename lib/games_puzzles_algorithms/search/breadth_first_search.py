@@ -6,7 +6,7 @@ from games_puzzles_algorithms.search.search import Search, Node
 class BreadthFirstSearch(Search):
     """Breadth first search class."""
 
-    def __init__(self, problem, time_limit, heuristic):
+    def __init__(self, problem, time_limit):
         """
         Initialize the search.
         Create the root node with the problem and set a time limit for search.
