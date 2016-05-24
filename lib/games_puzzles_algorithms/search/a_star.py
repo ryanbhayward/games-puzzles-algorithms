@@ -20,19 +20,26 @@ class AStar(Search):
         self.heuristic = heuristic
         heappush(self.frontier, self.rootnode)
 
-    def search(self):
+    def search(self, verbose=False):
         """
         Perform A* until time_limit is reached.
         Returns a list of moves to reach the solution if it finds one, None
         if there is not solution, or False if the time limit is reached.
         """
         start_time = time.time()
-        while (time.time() - start_time < self.time_limit):
+        tick = 0
+        while time.time() - start_time < self.time_limit:
             if len(self.frontier) == 0:
                 return None
-
             current_node = heappop(self.frontier)
+
+            if verbose:
+                print("Step {0}".format(tick))
+                print(current_node.state)
+
             if current_node.state.is_solved():
+                if verbose:
+                    print("Took {0} steps using A Star.".format(tick))
                 return self.solution(current_node)
 
             self.explored.add(current_node.state.value())
@@ -43,7 +50,7 @@ class AStar(Search):
                 in_frontier = self._update_frontier(child)
                 if not (new_state.value() in self.explored or in_frontier):
                     heappush(self.frontier, child)
-
+            tick += 1
         return False
 
     def _update_frontier(self, node):
