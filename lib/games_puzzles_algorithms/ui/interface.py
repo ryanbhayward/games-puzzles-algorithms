@@ -202,6 +202,7 @@ class Interface(Cmd):
     def do_set_solver(self, args):
         """Set the solver for the puzzle."""
         if args in self.SOLVERS:
+            self.solver_name = args
             self.solver_class = self.SOLVERS[args]
             self.solver = self._instantiate_solver(solver=args)(self.puzzle, self.time_limit)
         else:

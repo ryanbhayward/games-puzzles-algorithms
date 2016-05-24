@@ -80,7 +80,7 @@ class MazePuzzle(object):
                     self.ver[y][max(x, xx)] = "    "
                 construct_walk(xx, yy)
 
-        construct_walk()
+        construct_walk(random.randrange(width), random.randrange(height))
 
     def __str__(self):
         """
