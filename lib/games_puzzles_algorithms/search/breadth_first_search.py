@@ -15,7 +15,7 @@ class BreadthFirstSearch(Search):
         self.frontier = deque()
         self.frontier.append(self.rootnode)
 
-    def search(self):
+    def search(self, verbose=False):
         """
         Perform breadth first search until time_limit is reached.
         Returns a list of moves to reach the solution if it finds one, None
@@ -24,11 +24,18 @@ class BreadthFirstSearch(Search):
         start = time.time()
         if self.rootnode.state.is_solved():
             return self._solution(self.rootnode)
+
+        tick = 0
+
         while time.time() - start < self.time_limit:
             if len(self.frontier) == 0:
                 return None
-
             current_node = self.frontier.popleft()
+
+            if verbose:
+                print("Step {0}".format(tick))
+                print(current_node.state)
+
             self.explored.add(current_node.state.value())
             for move in current_node.state.valid_moves():
                 new_state = current_node.state.copy()
@@ -37,9 +44,11 @@ class BreadthFirstSearch(Search):
                 if (not new_state.value() in self.explored
                     and not self._in_frontier(new_state)):
                     if child.state.is_solved():
+                        if verbose:
+                            print("Took {0} steps using Breadth First Search.".format(tick))
                         return self.solution(child)
                     self.frontier.append(child)
-
+            tick += 1
         return False
 
     def _in_frontier(self, state):

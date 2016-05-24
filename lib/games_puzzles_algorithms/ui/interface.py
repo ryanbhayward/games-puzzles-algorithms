@@ -21,7 +21,7 @@ class Interface(Cmd):
         MazePuzzle.NAME: MazePuzzle
     }
 
-    def __init__(self, puzzle, solver, heuristic=None):
+    def __init__(self, puzzle, solver, verbose, heuristic=None):
         """
         Initialize the interface.
         puzzle, solver, and heuristic are all strings giving the names of
@@ -30,6 +30,7 @@ class Interface(Cmd):
         """
         Cmd.__init__(self)
         self.time_limit = 30
+        self.verbose = verbose
 
         if puzzle == SlidingTilePuzzle.NAME:
             self.size = 3
@@ -48,8 +49,9 @@ class Interface(Cmd):
             raise Exception("Specified puzzle " + puzzle + " is not defined!")
 
         if solver in self.SOLVERS:
-            self.solver_name = self.SOLVERS[solver]
-            self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
+            self.solver_name = solver
+            self.solver_class = self.SOLVERS[solver]
+            self.solver = self._instantiate_solver(solver=solver)(self.puzzle, self.time_limit)
         else:
             raise Exception("Specified solver " + solver + " is not defined!")
 
@@ -57,12 +59,17 @@ class Interface(Cmd):
         self.do_show_puzzle("")
         print("Type 'help' for a list of commands.")
 
-    def _instantiate_solver(self):
+    def _instantiate_solver(self, solver=""):
         """
         Wrapper for the search constructors, given that A* takes different params than BFS/DFS
         :return: Constructor function for search object
         """
-        return lambda a, b: self.solver_name(a, b, self.heuristic)
+        try:
+            if solver == "A*":
+                return lambda a, b: self.solver_class(a, b, self.heuristic)
+        except AttributeError:
+            pass
+        return lambda a, b: self.solver_class(a, b)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -134,7 +141,7 @@ class Interface(Cmd):
             print("Error: invalid time")
             return
         self.time_limit = time
-        self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
+        self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
 
     # noinspection PyUnusedLocal
     def do_show_puzzle(self, args):
@@ -153,7 +160,7 @@ class Interface(Cmd):
             print("Generating a new puzzle...")
             self.do_new_puzzle("")
         # Workaround fix for no search available after maze move
-        self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
+        self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
 
     # noinspection PyUnusedLocal
     def do_get_moves(self, args):
@@ -165,7 +172,7 @@ class Interface(Cmd):
         """
         Search for a solution and print the moves to reach it if one is found.
         """
-        result = self.solver.search()
+        result = self.solver.search(self.verbose)
         if result is None:
             print("The puzzle has no solution.")
         elif not result:
@@ -185,7 +192,7 @@ class Interface(Cmd):
             self.puzzle = self.puzzle_name(self.size, seed)
         elif self.puzzle_name.NAME == MazePuzzle.NAME:
             self.puzzle = self.puzzle_name(self.width, self.height, seed)
-        self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
+        self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
         print(self.puzzle.NAME)
         print(self.puzzle)
 
@@ -193,13 +200,13 @@ class Interface(Cmd):
         """Set the heuristic for the search."""
         if args in self.puzzle_name.HEURISTICS:
             self.heuristic = args
-            self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
+            self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
 
     def do_set_solver(self, args):
         """Set the solver for the puzzle."""
         if args in self.SOLVERS:
-            self.solver_name = self.SOLVERS[args]
-            self.solver = self._instantiate_solver()(self.puzzle, self.time_limit)
+            self.solver_class = self.SOLVERS[args]
+            self.solver = self._instantiate_solver(solver=args)(self.puzzle, self.time_limit)
         else:
             print("Invalid solver " + args)
 

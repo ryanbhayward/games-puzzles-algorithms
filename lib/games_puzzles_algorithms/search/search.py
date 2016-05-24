@@ -46,7 +46,7 @@ class Search(object):
         self.time_limit = time_limit
         self.rootnode = Node(problem, None, None)
 
-    def search(self):
+    def search(self, verbose=False):
         """Abstract search method. Should be overridden in child classes"""
         raise NotImplementedError("Search should not be instantiated directly")
 
