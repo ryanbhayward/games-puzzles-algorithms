@@ -64,11 +64,8 @@ class Interface(Cmd):
         Wrapper for the search constructors, given that A* takes different params than BFS/DFS
         :return: Constructor function for search object
         """
-        try:
-            if solver == "A*":
-                return lambda a, b: self.solver_class(a, b, self.heuristic)
-        except AttributeError:
-            pass
+        if solver == "A*":
+            return lambda a, b: self.solver_class(a, b, self.heuristic)
         return lambda a, b: self.solver_class(a, b)
 
     # noinspection PyUnusedLocal
