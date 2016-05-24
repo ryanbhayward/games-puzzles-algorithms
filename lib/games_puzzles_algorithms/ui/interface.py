@@ -137,7 +137,7 @@ class Interface(Cmd):
             print("Error: invalid time")
             return
         self.time_limit = time
-        self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
+        self.solver = self._instantiate_solver()
 
     # noinspection PyUnusedLocal
     def do_show_puzzle(self, args):
@@ -156,7 +156,7 @@ class Interface(Cmd):
             print("Generating a new puzzle...")
             self.do_new_puzzle("")
         # Workaround fix for no search available after maze move
-        self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
+        self.solver = self._instantiate_solver()
 
     # noinspection PyUnusedLocal
     def do_get_moves(self, args):
@@ -188,7 +188,7 @@ class Interface(Cmd):
             self.puzzle = self.puzzle_name(self.size, seed)
         elif self.puzzle_name.NAME == MazePuzzle.NAME:
             self.puzzle = self.puzzle_name(self.width, self.height, seed)
-        self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
+        self.solver = self._instantiate_solver()
         print(self.puzzle.NAME)
         print(self.puzzle)
 
@@ -196,7 +196,7 @@ class Interface(Cmd):
         """Set the heuristic for the search."""
         if args in self.puzzle_name.HEURISTICS:
             self.heuristic = args
-            self.solver = self._instantiate_solver(solver=self.solver_name)(self.puzzle, self.time_limit)
+            self.solver = self._instantiate_solver()
 
     def do_set_solver(self, args):
         """Set the solver for the puzzle."""
