@@ -249,6 +249,38 @@ function resize_board() {
     return false;
 }
 
+function resize_board_modal() {
+    var prompt_string = "Please enter a number in the range [2:13].";
+    $('.ui.form')
+        .form({
+            fields: {
+                row_dimension: {
+                    identifier : 'row_dimension',
+                    rules: [
+                        {
+                            type : 'integer[1..13]',
+                            prompt: prompt_string
+                        }
+                    ]
+                },
+                column_dimension: {
+                    identifier : 'column_dimension',
+                    rules: [
+                        {
+                            type : 'integer[1..13]',
+                            prompt: prompt_string
+                        }
+                    ]
+                }
+            },
+            onSuccess: resize_board
+        });
+    var modal_element = $('#resize_modal').modal('setting', {
+        onApprove: resize_board
+    });
+    modal_element.modal('show');
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
