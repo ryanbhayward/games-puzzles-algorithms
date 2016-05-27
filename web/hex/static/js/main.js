@@ -286,6 +286,7 @@ function preload() {
     game.load.image('undo', '../static/assets/undo.png');
     game.load.image('reset', '../static/assets/reset.png');
     game.load.image('aimove', '../static/assets/aimove.png');
+    game.load.image('resize', '../static/assets/resize.png');
 }
 
 function create() {
@@ -297,6 +298,7 @@ function create() {
     var button = game.add.button(10, 550, 'undo', undo_move);
     var button = game.add.button(180, 550, 'reset', reset_game);
     var button = game.add.button(350, 550, 'aimove', ai_move);
+    var button = game.add.button(520, 550, 'resize', resize_board_modal);
 
     reset_game();
     draw_board(hexagons, graphics);
