@@ -12,6 +12,22 @@
 
   <body>
     <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <div id="resize_modal" class="ui small modal editform">
+      <i class="close icon"></i>
+      <div class="description">
+        <div class="ui header">Choose a new board size.</div>
+        <form class="ui form">
+          <div class="field">
+          <input placeholder="Row Dimension..." name="row_dimension" type="text">
+          </div>
+          <div class="field">
+            <input placeholder="Column Dimension..." name="column_dimension" type="text">
+          </div>
+          <button class="ui right button" type="submit">Resize</button>
+          <div class="ui error message"></div>
+        </form>
+      </div>
+    </div>
   </body>
 
   <script type=text/javascript>
