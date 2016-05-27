@@ -8,6 +8,17 @@ row_dimension = 12
 state = game.GameState.root(row_dimension, column_dimension)
 
 
+@app.route('/_reset_game', methods=['GET'])
+def reset_game():
+    global state, row_dimension, column_dimension
+
+    state = game.GameState.root(row_dimension, column_dimension)
+
+    return jsonify(error=False, board=state.board._cells.tolist(),
+                   row_dimension=row_dimension,
+                   column_dimension=column_dimension)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
