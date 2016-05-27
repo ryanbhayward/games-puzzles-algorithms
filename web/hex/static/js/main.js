@@ -137,6 +137,7 @@ function draw_board(hexagons, graphics) {
     for (var i = 0; i < hexagons.length; ++i) {
         graphics.beginFill(0xffffff);
         graphics.drawPolygon(hexagons[i]);
+        draw_piece(hexagons[i], board[i], graphics);
         graphics.endFill();
     }
 }
