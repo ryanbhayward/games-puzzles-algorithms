@@ -8,6 +8,24 @@ row_dimension = 12
 state = game.GameState.root(row_dimension, column_dimension)
 
 
+@app.route('/_resize_board', methods=['GET'])
+def resize_board():
+    global state, row_dimension, column_dimension
+
+    try:
+        row_dimension = request.args.get('row_dimension', None, type=int)
+        column_dimension = request.args.get('column_dimension', None, type=int)
+
+        state = game.GameState.root(row_dimension, column_dimension)
+
+        return jsonify(error=False, board=state.board._cells.tolist(),
+                       row_dimension=row_dimension,
+                       column_dimension=column_dimension)
+
+    except Exception:
+        return jsonify(error=True)
+
+
 @app.route('/_board', methods=['GET'])
 def get_board():
     global state
