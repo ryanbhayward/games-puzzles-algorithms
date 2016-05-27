@@ -217,6 +217,15 @@ function reset_game() {
            });
 }
 
+function ai_move() {
+    $.ajax({ url: $SCRIPT_ROOT + '/_ai_move',
+             dataType: 'json',
+             async: false,
+             data: {},
+             success: set_board
+           });
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
