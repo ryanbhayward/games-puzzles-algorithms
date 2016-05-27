@@ -103,6 +103,24 @@ function draw_board(hexagons, graphics) {
     }
 }
 
+function set_board(data) {
+    if (data.error === true) {
+        return;
+    }
+    board = data.board;
+    draw_board(hexagons, graphics);
+
+}
+
+function get_state() {
+    $.ajax({ url: $SCRIPT_ROOT + '/_board',
+             dataType: 'json',
+             async: false,
+             data: {},
+             success: set_board
+           });
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
