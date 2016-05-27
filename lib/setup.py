@@ -11,9 +11,7 @@ setup(
         'setuptools == 20.2.2',
         "cffi >= 1.0.0"
     ],
-    tests_require=[
-        'pytest'
-    ],
-    setup_requires=["cffi >= 1.0.0"],
+    tests_require=['pytest'],
+    setup_requires=["cffi >= 1.0.0", 'pytest-runner'],
     cffi_modules=["games_puzzles_algorithms/games/dex/hyper_cube_indexer_build.py:ffi"]
 )
