@@ -225,6 +225,7 @@ function preload() {
 
     // Load the image assets.
     game.load.image('undo', '../static/assets/undo.png');
+    game.load.image('reset', '../static/assets/reset.png');
 }
 
 function create() {
@@ -234,6 +235,7 @@ function create() {
     hexagons = generate_board(row_dimension, column_dimension);
 
     var button = game.add.button(10, 550, 'undo', undo_move);
+    var button = game.add.button(180, 550, 'reset', reset_game);
 
     reset_game();
     draw_board(hexagons, graphics);
