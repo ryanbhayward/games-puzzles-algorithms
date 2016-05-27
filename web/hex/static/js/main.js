@@ -142,6 +142,17 @@ function draw_board(hexagons, graphics) {
     }
 }
 
+function declare_winner(winner) {
+    if (winner === BLACK) {
+        var win_string = "Black wins!";
+    } else if (winner === WHITE) {
+        var win_string = "White wins!";
+    }
+
+    $("#who_wins").html(win_string);
+    $("#winner_modal").modal('show');
+}
+
 function set_board(data) {
     if (data.error === true) {
         return;
