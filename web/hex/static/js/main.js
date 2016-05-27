@@ -140,6 +140,19 @@ function board_index(row, column) {
     return (column * row_dimension + row);
 }
 
+// Check if we've clicked on a hex and request a move if appropriate.
+function on_click(key) {
+    for (var i = 0; i < column_dimension; ++i) {
+        for (var j = 0; j < row_dimension; ++j) {
+            var hex = hexagons[board_index(j, i)];
+            if (hex.contains(this.input.x, this.input.y)) {
+                make_move(j, i);
+                break;
+            }
+        }
+    }
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -155,6 +168,8 @@ function create() {
     get_state();
 
     draw_board(hexagons, graphics);
+
+    game.input.onDown.add(on_click, game);
 }
 
 })();
