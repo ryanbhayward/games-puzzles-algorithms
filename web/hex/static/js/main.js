@@ -57,6 +57,16 @@ function generate_board(row_dimension, column_dimension) {
     return hexagons;
 }
 
+function draw_board(hexagons, graphics) {
+    graphics.lineStyle(3, 0x000000, 1);
+
+    for (var i = 0; i < hexagons.length; ++i) {
+        graphics.beginFill(0xffffff);
+        graphics.drawPolygon(hexagons[i]);
+        graphics.endFill();
+    }
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
