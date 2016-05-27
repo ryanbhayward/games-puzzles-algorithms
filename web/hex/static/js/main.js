@@ -28,6 +28,35 @@ function hexagon(center) {
     return new Phaser.Polygon(corners);
 }
 
+// Generate one column of the board.
+function generate_column(start, row_dimension) {
+    var center = start.clone();
+    var hexagons = [];
+
+    for (var i = 0; i < row_dimension; ++i) {
+        hexagons.push(hexagon(center));
+        center.add(width / 2, 3/4 * height);
+    }
+
+    return hexagons;
+}
+
+// Generate the hexagons that make up the board.
+function generate_board(row_dimension, column_dimension) {
+    var hexagons = [];
+
+
+    var column_start = new Phaser.Point(width / 2, height / 2);
+
+    for (var i = 0; i < column_dimension; ++i) {
+        Array.prototype.push.apply(hexagons,
+                                   generate_column(column_start, row_dimension));
+        column_start.add(width, 0);
+    }
+
+    return hexagons;
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
