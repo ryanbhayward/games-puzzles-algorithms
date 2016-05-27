@@ -1,7 +1,7 @@
 .PHONY: test
 test: test-python
 test-%:
-	$* -m py.test ./ -svx
+	$* -m py.test ./
 
 .PHONY: install
 install: install-pip
