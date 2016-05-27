@@ -1,12 +1,17 @@
+import random
+
 from flask import Flask, g, jsonify, render_template, request
 
 import games_puzzles_algorithms.games.hex.game_state as game
 import games_puzzles_algorithms.games.hex.color as color
+import games_puzzles_algorithms.players.rule_based.uniform_random_agent as agent
+
 
 app = Flask(__name__)
 column_dimension = 12
 row_dimension = 12
 state = game.GameState.root(row_dimension, column_dimension)
+game_agent = agent.UniformRandomAgent(random.random)
 
 
 @app.route('/_play_move', methods=['GET'])
@@ -68,6 +73,22 @@ def reset_game():
     return jsonify(error=False, board=state.board._cells.tolist(),
                    row_dimension=row_dimension,
                    column_dimension=column_dimension)
+
+
+@app.route('/_ai_move', methods=['GET'])
+def ai_move():
+    global state
+
+    move = game_agent.select_action(state)
+
+    try:
+        state.play(move)
+
+        return jsonify(error=False, board=state.board._cells.tolist(),
+                       winner=state.winner())
+
+    except color.IllegalAction:
+        return jsonify(error=True)
 
 
 @app.route('/')
