@@ -7,10 +7,16 @@ var game = new Phaser.Game(frame_width, frame_height, Phaser.Auto, "body",
                            {preload: preload, create: create,});
 
 var size = 50;
+var diameter = 60;
 var height = 2 * size;
 var width = Math.sqrt(3)/2 * height;
 var row_dimension = 12;
 var column_dimension = 12;
+var board_colors = [0x000000, 0xffffff];
+
+var BLACK = 0;
+var WHITE = 1;
+var EMPTY = 2;
 
 var board;
 var hexagons;
@@ -74,6 +80,7 @@ function max_size_width(row_dimension, column_dimension, board_width) {
 }
 
 function set_dimensions(size) {
+    diameter = 1.2 * size;
     height = 2 * size;
     width = Math.sqrt(3)/2 * height;
 }
@@ -109,6 +116,19 @@ function poly_center(poly) {
     y /= coords.length / 2;
 
     return [x, y];
+}
+
+// Draw a piece within the given hexagon, if needed.
+function draw_piece(hexagon, piece, graphics) {
+    if (piece == EMPTY) {
+        return;
+    }
+
+    center = poly_center(hexagon);
+
+    graphics.beginFill(board_colors[piece]);
+    graphics.drawCircle(center[0], center[1], diameter);
+    graphics.endFill();
 }
 
 function draw_board(hexagons, graphics) {
