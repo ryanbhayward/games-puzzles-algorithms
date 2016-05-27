@@ -160,6 +160,9 @@ function set_board(data) {
     board = data.board;
     draw_board(hexagons, graphics);
 
+    if (typeof data.winner !== 'undefined' && data.winner !== 2) {
+        declare_winner(data.winner);
+    }
 }
 
 function reset_board(data) {
