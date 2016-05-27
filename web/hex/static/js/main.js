@@ -156,6 +156,18 @@ function set_board(data) {
 
 }
 
+function reset_board(data) {
+    if (data.error === true) {
+        return;
+    }
+    row_dimension = data.row_dimension;
+    column_dimension = data.column_dimension;
+    set_size(row_dimension, column_dimension);
+    hexagons = generate_board(row_dimension, column_dimension);
+    graphics.clear();
+    get_state();
+}
+
 function get_state() {
     $.ajax({ url: $SCRIPT_ROOT + '/_board',
              dataType: 'json',
