@@ -4,6 +4,8 @@
 
 var frame_width = 1000;
 var frame_height = 600;
+var board_width = 1000 - 10;
+var board_height = frame_height - 60;
 
 var game = new Phaser.Game(frame_width, frame_height, Phaser.Auto, "body",
                            {preload: preload, create: create,});
@@ -61,6 +63,38 @@ function generate_board(row_dimension, column_dimension) {
     }
 
     return hexagons;
+}
+
+// Calculate the maximum unit size based on board frame height.
+function max_size_height(row_dimension, board_height) {
+    var height_multiple = 1 + (3 / 4) * (row_dimension - 1);
+    return board_height / height_multiple / 2;
+}
+
+// Calculate the maximum unit size based on board frame width.
+function max_size_width(row_dimension, column_dimension, board_width) {
+    var width_multiple = column_dimension + (row_dimension - 1) / 2;
+    return board_width / width_multiple / Math.sqrt(3);
+}
+
+function set_dimensions(size) {
+    height = 2 * size;
+    width = Math.sqrt(3)/2 * height;
+}
+
+// Set the size of the board units.
+function set_size(row_dimension, column_dimension) {
+    var from_height = max_size_height(row_dimension, board_height);
+    var from_width = max_size_width(row_dimension, column_dimension,
+                                    board_width);
+
+    if (from_height < from_width) {
+        size = from_height;
+    } else {
+        size = from_width;
+    }
+
+    set_dimensions(size);
 }
 
 function draw_board(hexagons, graphics) {
