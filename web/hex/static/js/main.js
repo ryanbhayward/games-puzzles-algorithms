@@ -240,6 +240,7 @@ function preload() {
     // Load the image assets.
     game.load.image('undo', $SCRIPT_ROOT + '/static/assets/undo.png');
     game.load.image('reset', $SCRIPT_ROOT + '/static/assets/reset.png');
+    game.load.image('aimove', $SCRIPT_ROOT + '/static/assets/aimove.png');
 }
 
 function create() {
@@ -250,6 +251,7 @@ function create() {
 
     game.add.button(10, 550, 'undo', undo_move);
     game.add.button(180, 550, 'reset', reset_game);
+    game.add.button(350, 550, 'aimove', ai_move);
 
     reset_game();
     draw_board(hexagons, graphics);
