@@ -231,6 +231,24 @@ function ai_move() {
            });
 }
 
+function resize_board() {
+    var $form = $('.ui.form');
+    var row_dimension = $form.form('get value', 'row_dimension');
+    var column_dimension = $form.form('get value', 'column_dimension');
+
+    $('#resize_modal').modal('hide');
+
+    $.ajax({ url: $SCRIPT_ROOT + '/_resize_board',
+             dataType: 'json',
+             async: false,
+             data: {'row_dimension': row_dimension,
+                    'column_dimension': column_dimension},
+             success: reset_board
+           });
+
+    return false;
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
