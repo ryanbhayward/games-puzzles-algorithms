@@ -201,6 +201,9 @@ function preload() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
+
+    // Load the image assets.
+    game.load.image('undo', '../static/assets/undo.png');
 }
 
 function create() {
@@ -209,6 +212,8 @@ function create() {
 
     hexagons = generate_board(row_dimension, column_dimension);
     get_state();
+
+    var button = game.add.button(10, 550, 'undo', undo_move);
 
     draw_board(hexagons, graphics);
 
