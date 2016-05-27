@@ -53,6 +53,7 @@ function generate_column(start, row_dimension) {
 function generate_board(row_dimension, column_dimension) {
     var hexagons = [];
 
+    set_size(row_dimension, column_dimension);
 
     var column_start = new Phaser.Point(width / 2, height / 2);
 
