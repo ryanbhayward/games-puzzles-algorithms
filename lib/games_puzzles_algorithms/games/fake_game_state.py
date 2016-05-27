@@ -37,4 +37,4 @@ class FakeGameState(object):
         return False
 
     def score(self, player):
-        return None if self.is_terminal() else 0
+        return 0 if self.is_terminal() else None

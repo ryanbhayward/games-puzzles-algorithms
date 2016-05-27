@@ -3,21 +3,31 @@ import time
 import random
 from math import sqrt, log
 from copy import deepcopy
+from games_puzzles_algorithms.choose \
+    import choose_legal_action_uniformly_randomly
 INF = float('inf')
 
 
+def uniform_random_roll_out_policy(state):
+    return choose_legal_action_uniformly_randomly(state, random.random())
+
+
 class UctNode:
-    def __init__(self, action=None, parent=None):
+    def __init__(self, action=None, parent=None, acting_player=None):
         self.action = action
         self.parent = parent
         self.N = 0  # times this position was visited
         self.Q = 0  # average reward (wins-losses) from this position
         self._children = []
         self.outcome = None
+        self.acting_player = acting_player
 
     def expand(self, game_state):
+        self.acting_player = game_state.player_to_act()
         for action in game_state.legal_actions():
-            self._children.append(UctNode(action, self))
+            self._children.append(UctNode(
+                action=action,
+                parent=self))
 
     def backup(self, score=0):
         """Update the node statistics on the path from the passed node to
@@ -85,8 +95,23 @@ class UctNode:
     def __len__(self):
         count = 1
         for child in self.child_nodes():
-            count += len(current_node)
+            count += len(child)
         return count
+
+    def _to_s(self, level=0):
+        s = "| Q: {} N: {}".format(self.Q, self.N)
+        if self.action is not None:
+            s = "A: {} ".format(self.action) + s
+        if self.acting_player is not None:
+            s = "P: {} ".format(self.acting_player) + s
+        if not self.is_leaf():
+            for n in self.child_nodes():
+                s += ("\n"
+                      + (" " * level * 4)
+                      + "`-> {}".format(n._to_s(level + 1)))
+        return s
+
+    def __str__(self): return self._to_s()
 
 
 class MctsAgent(object):
@@ -102,10 +127,10 @@ class MctsAgent(object):
         def __init__(self, node_generator=UctNode, exploration=1):
             self._node_generator = node_generator
             self._exploration = exploration
-            self.root = None
+            self._root = None
 
         def reset(self):
-            self.root = None
+            self._root = None
 
         def good_action(self,
                         game_state,
@@ -164,7 +189,8 @@ class MctsAgent(object):
             num_iterations_completed = 0
 
             def time_is_available():
-                return (time.clock() - start_time) < time_available
+                return (time_available < 0
+                        or (time.clock() - start_time) < time_available)
 
             while num_iterations_completed < num_iterations:
                 try:
@@ -174,15 +200,15 @@ class MctsAgent(object):
                         time_is_available=time_is_available)
                 except self.TimeIsUp:
                     break
-                node.backup(**self.roll_out(game_state))
+                node.backup(**self.roll_out(game_state,
+                                            game_state.player_to_act()))
                 for _ in range(num_actions):
                     game_state.undo()
                 num_iterations_completed += 1
-
-            # stderr.write("Ran "+str(num_iterations_completed)+ " rollouts
-            # in " +\
-            #     str(time.clock() - self.start_time)+" sec\n")
-            # stderr.write("Node count: "+str(self.tree_size())+"\n")
+            time_used_s = time.clock() - start_time
+            return {'num_iterations_completed': num_iterations_completed,
+                    'time_used_s': time_used_s,
+                    'num_nodes_expanded': len(self._root)}
 
         def node_value(self, n):
             return n.ucb(self._exploration)
@@ -223,7 +249,10 @@ class MctsAgent(object):
                 game_state.play(node.action)
             return (node, game_state, num_actions)
 
-        def roll_out(self, state, player_of_interest):
+        def roll_out(self,
+                     state,
+                     player_of_interest,
+                     roll_out_policy=uniform_random_roll_out_policy):
             """
             Simulate a play-out from the passed game state, `state`.
 
@@ -234,14 +263,14 @@ class MctsAgent(object):
                 return {'score': state.score(player_of_interest)}
             else:
                 outcome = None
-                for action in state.legal_actions():
-                    for _ in state.do_after_play(action):
-                        outcome = self.roll_out(state, player_of_interest)
+                action = roll_out_policy(state)
+                for _ in state.do_after_play(action):
+                    outcome = self.roll_out(state, player_of_interest)
                 return outcome
 
         def __len__(self):
             """Return the number of nodes in search tree."""
-            return len(self.root)
+            return len(self._root)
 
     def __init__(self,
                  node_generator=UctNode,
