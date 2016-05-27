@@ -11,6 +11,12 @@ var game = new Phaser.Game(frame_width, frame_height, Phaser.Auto, "body",
 var size = 50;
 var height = 2 * size;
 var width = Math.sqrt(3)/2 * height;
+var row_dimension = 12;
+var column_dimension = 12;
+
+var board;
+var graphics;
+var hexagons;
 
 // Generate a hexagon centered at the given center point.
 function hexagon(center) {
@@ -76,6 +82,11 @@ function preload() {
 
 function create() {
     game.stage.backgroundColor = 0xffffff;
+    graphics = game.add.graphics(0, 0);
+
+    hexagons = generate_board(row_dimension, column_dimension);
+
+    draw_board(hexagons, graphics);
 }
 
 })();
