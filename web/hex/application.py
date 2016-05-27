@@ -8,6 +8,13 @@ row_dimension = 12
 state = game.GameState.root(row_dimension, column_dimension)
 
 
+@app.route('/_board', methods=['GET'])
+def get_board():
+    global state
+
+    return jsonify(error=False, board=state.board._cells.tolist())
+
+
 @app.route('/_reset_game', methods=['GET'])
 def reset_game():
     global state, row_dimension, column_dimension
