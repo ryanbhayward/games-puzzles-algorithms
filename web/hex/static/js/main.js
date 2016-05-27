@@ -131,6 +131,10 @@ function make_move(row, column) {
            });
 }
 
+function board_index(row, column) {
+    return (column * row_dimension + row);
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
