@@ -213,6 +213,15 @@ function undo_move() {
            });
 }
 
+function reset_game() {
+    $.ajax({ url: $SCRIPT_ROOT + '/_reset_game',
+             dataType: 'json',
+             async: false,
+             data: {},
+             success: reset_board
+           });
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
