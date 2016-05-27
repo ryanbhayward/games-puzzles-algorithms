@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CMPUT 396 Hex</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ url_for('static', filename='css/semantic.min.css') }}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.2.3.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/semantic.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/phaser.min.js') }}"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <div id="resize_modal" class="ui small modal editform">
+      <i class="close icon"></i>
+      <div class="description">
+        <div class="ui header">Choose a new board size.</div>
+        <form class="ui form">
+          <div class="field">
+          <input placeholder="Row Dimension..." name="row_dimension" type="text">
+          </div>
+          <div class="field">
+            <input placeholder="Column Dimension..." name="column_dimension" type="text">
+          </div>
+          <button class="ui right button" type="submit">Resize</button>
+          <div class="ui error message"></div>
+        </form>
+      </div>
+    </div>
+    <div id="winner_modal" class="ui small modal">
+      <i class="close icon"></i>
+      <div class="description">
+        <div class="ui header">Winner Detected!</div>
+        <p id="who_wins"></p>
+      </div>
+    </div>
+  </body>
+
+  <script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+  </script>
+</html>
