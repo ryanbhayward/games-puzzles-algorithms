@@ -10,9 +10,9 @@ var size = 50;
 var diameter = 60;
 var height = 2 * size;
 var width = Math.sqrt(3)/2 * height;
-var row_dimension = 12;
-var column_dimension = 12;
 var board_colors = [0x000000, 0xffffff];
+var row_dimension;
+var column_dimension;
 
 var BLACK = 0;
 var WHITE = 1;
@@ -232,10 +232,10 @@ function create() {
     graphics = game.add.graphics(0, 0);
 
     hexagons = generate_board(row_dimension, column_dimension);
-    get_state();
 
     var button = game.add.button(10, 550, 'undo', undo_move);
 
+    reset_game();
     draw_board(hexagons, graphics);
 
     game.input.onDown.add(on_click, game);
