@@ -126,6 +126,16 @@ function get_state() {
            });
 }
 
+function make_move(row, column) {
+    $.ajax({ url: $SCRIPT_ROOT + '/_play_move',
+             dataType: 'json',
+             async: false,
+             data: {'row': row,
+                    'column': column},
+             success: set_board
+           });
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
