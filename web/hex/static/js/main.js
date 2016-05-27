@@ -133,6 +133,7 @@ function create() {
     graphics = game.add.graphics(0, 0);
 
     hexagons = generate_board(row_dimension, column_dimension);
+    get_state();
 
     draw_board(hexagons, graphics);
 }
