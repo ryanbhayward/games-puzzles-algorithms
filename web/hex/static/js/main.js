@@ -93,6 +93,24 @@ function set_size(row_dimension, column_dimension) {
     set_dimensions(size);
 }
 
+// Calculate the center of mass of the given polygon.
+function poly_center(poly) {
+    var coords = poly.toNumberArray();
+
+    var x = 0.0;
+    var y = 0.0;
+
+    for (var i = 0; i < coords.length / 2; ++i) {
+        x += coords[2 * i];
+        y += coords[2 * i + 1];
+    }
+
+    x /= coords.length / 2;
+    y /= coords.length / 2;
+
+    return [x, y];
+}
+
 function draw_board(hexagons, graphics) {
     graphics.lineStyle(3, 0x000000, 1);
 
