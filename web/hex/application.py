@@ -50,6 +50,15 @@ def get_board():
     return jsonify(error=False, board=state.board._cells.tolist())
 
 
+@app.route('/_undo_move', methods=['GET'])
+def undo_move():
+    global state
+
+    state.undo()
+
+    return jsonify(error=False, board=state.board._cells.tolist())
+
+
 @app.route('/_reset_game', methods=['GET'])
 def reset_game():
     global state, row_dimension, column_dimension
