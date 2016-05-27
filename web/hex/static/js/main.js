@@ -5,6 +5,8 @@ var game = new Phaser.Game(frame_width, frame_height, Phaser.Auto, "body",
                            {preload: preload, create: create,});
 
 var size = 50;
+var height = 2 * size;
+var width = Math.sqrt(3)/2 * height;
 
 // Generate a hexagon centered at the given center point.
 function hexagon(center) {
