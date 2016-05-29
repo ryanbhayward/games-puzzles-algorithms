@@ -10,7 +10,7 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         puzzle = SlidingTilePuzzle(size)
         self.assertEqual(puzzle.size1, size)
         self.assertEqual(puzzle.size2, size)
-        self.assertEqual(puzzle.puzzle.shape, (size, size))
+        self.assertEqual(puzzle.puzzle.size(), (size, size))
         self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
         self.assertLessEqual(puzzle.num_correct_tiles, size * size)
         self.assertGreaterEqual(puzzle.num_correct_tiles, 0)
@@ -34,7 +34,7 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         puzzle = SlidingTilePuzzle(size1=size1, size2=size2)
         self.assertEqual(puzzle.size1, size1)
         self.assertEqual(puzzle.size2, size2)
-        self.assertEqual(puzzle.puzzle.shape, (size1, size2))
+        self.assertEqual(puzzle.puzzle.size(), (size1, size2))
         self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
         self.assertLessEqual(puzzle.num_correct_tiles, size1 * size2)
         self.assertGreaterEqual(puzzle.num_correct_tiles, 0)        
@@ -331,7 +331,7 @@ class TestSolvableSlidingTilePuzzle(unittest.TestCase):
         puzzle = SolvableSlidingTilePuzzle(size)
         self.assertEqual(puzzle.size1, size)
         self.assertEqual(puzzle.size2, size)
-        self.assertEqual(puzzle.puzzle.shape, (size, size))
+        self.assertEqual(puzzle.puzzle.size(), (size, size))
         self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
         self.assertLessEqual(puzzle.num_correct_tiles, size * size)
         self.assertGreaterEqual(puzzle.num_correct_tiles, 0)
@@ -376,11 +376,14 @@ class TestSolvableSlidingTilePuzzle(unittest.TestCase):
         puzzle = SolvableSlidingTilePuzzle(size1=size1, size2=size2)
         self.assertEqual(puzzle.size1, size1)
         self.assertEqual(puzzle.size2, size2)
-        self.assertEqual(puzzle.puzzle.shape, (size1, size2))
+        self.assertEqual(puzzle.puzzle.size(), (size1, size2))
         self.assertEqual(puzzle.puzzle[puzzle.blank_index], 0)
         self.assertLessEqual(puzzle.num_correct_tiles, size1 * size2)
         self.assertGreaterEqual(puzzle.num_correct_tiles, 0)   
 
 
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        unittest.main()
+    except SystemExit:
+        pass
