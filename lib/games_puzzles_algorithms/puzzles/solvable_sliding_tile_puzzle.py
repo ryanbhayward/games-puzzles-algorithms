@@ -1,5 +1,5 @@
 from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
-import numpy as np
+from games_puzzles_algorithms.twod_array import TwoDArray
 import random
 
 
@@ -22,8 +22,8 @@ class SolvableSlidingTilePuzzle(SlidingTilePuzzle):
         self.size2 = size2
         if size2 is None:
             self.size2 = size1
-        self.puzzle = np.arange(self.size1 * self.size2)
-        self.puzzle = np.reshape(self.puzzle, (self.size1, self.size2))
+        self.puzzle = list(range(self.size1 * self.size2))
+        self.puzzle = TwoDArray((self.size1, self.size2), self.puzzle)
         
         self.num_correct_tiles = 0
         for i in range(self.size1):

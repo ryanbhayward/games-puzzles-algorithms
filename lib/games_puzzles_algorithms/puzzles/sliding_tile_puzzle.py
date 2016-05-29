@@ -1,6 +1,6 @@
 
 import random
-import numpy as np
+from games_puzzles_algorithms.twod_array import TwoDArray
 
 
 class SlidingTilePuzzle(object):
@@ -40,9 +40,9 @@ class SlidingTilePuzzle(object):
         self.size2 = size2
         if size2 is None:
             self.size2 = size1
-        self.puzzle = np.arange(self.size1 * self.size2)
+        self.puzzle = list(range(self.size1 * self.size2))
         random.shuffle(self.puzzle)
-        self.puzzle = np.reshape(self.puzzle, (self.size1, self.size2))
+        self.puzzle = TwoDArray((self.size1, self.size2), self.puzzle)
         
         self.num_correct_tiles = 0
         for i in range(self.size1):
@@ -132,11 +132,11 @@ class SlidingTilePuzzle(object):
     
     def copy(self):
         """Return a deep copy of SlidingTilePuzzle."""
-        new_puzzle = SlidingTilePuzzle(0)
+        new_puzzle = SlidingTilePuzzle(1)
         new_puzzle.size1 = self.size1
         new_puzzle.size2 = self.size2
         new_puzzle.num_correct_tiles = self.num_correct_tiles
-        new_puzzle.puzzle = np.zeros((self.size1, self.size2))
+        new_puzzle.puzzle = TwoDArray((self.size1, self.size2))
         new_puzzle.blank_index = self.blank_index
         for i in range(self.size1):
             for j in range(self.size2):
@@ -150,7 +150,7 @@ class SlidingTilePuzzle(object):
         
     def equals(self, other):
         """Check if two puzzles are in the same state."""
-        return np.array_equal(self.puzzle, other.puzzle)
+        return self.puzzle == other.puzzle
     
     def misplaced_tiles(self):
         """Return a heuristic giving the number of misplaced tiles."""
