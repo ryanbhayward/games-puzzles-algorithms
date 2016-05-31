@@ -291,12 +291,39 @@ class GameState(object):
             self._potentially_winning_moves = None
         return action
 
-    def play(self, cell):
-        self.place(cell, self._acting_player)
+    def play(self, action):
+        '''Apply the given action.
 
-    def do_after_play(self, action):
-        self.play(action)
-        yield
+        `action` must be in the set of legal actions
+        (see `legal_actions`).
+        Return `self`.
+        '''
+        self.place(action, self._acting_player)
+        return self
+
+    def __enter__(self):
+        '''Allows the following type of code:
+
+        ```
+        with state.play(action):
+            # Do something with `state` after `action`
+            # has been applied to `state`.
+        # `action` has automatically be undone.
+        '''
+        pass
+
+    def __exit__(self,
+                 exception_type,
+                 exception_val,
+                 exception_traceback):
+        '''Allows the following type of code:
+
+        ```
+        with state.play(action):
+            # Do something with `state` after `action`
+            # has been applied to `state`.
+        # `action` has automatically be undone.
+        '''
         self.undo()
 
     def place(self, action, player):

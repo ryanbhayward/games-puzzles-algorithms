@@ -27,7 +27,7 @@ def test_legal_actions(game_state):
     (g, 0) for g in game_states()] + [(g, 1) for g in game_states()
 ])
 def test_play(game_state, action):
-    game_state.play(action)
+    assert game_state == game_state.play(action)
 
 
 @pytest.mark.parametrize('game_state', game_states())
@@ -59,4 +59,5 @@ def test_score(game_state, player):
     (g, 0) for g in game_states()] + [(g, 1) for g in game_states()
 ])
 def test_do_after_play(game_state, action):
-    game_state.do_after_play(action)
+    with game_state.play(action):
+        pass

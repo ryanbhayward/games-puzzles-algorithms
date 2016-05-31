@@ -294,7 +294,7 @@ class MctsAgent(object):
             else:
                 outcome = None
                 action = roll_out_policy(state)
-                for _ in state.do_after_play(action):
+                with state.play(action):
                     outcome = self.roll_out(state, player_of_interest)
                 return outcome
 
