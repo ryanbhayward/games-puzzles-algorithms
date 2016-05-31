@@ -5,6 +5,9 @@ from math import sqrt, log
 from copy import deepcopy
 from games_puzzles_algorithms.choose \
     import choose_legal_action_uniformly_randomly
+import games_puzzles_algorithms.debug as debug
+import logging
+import json
 INF = float('inf')
 
 
@@ -92,26 +95,31 @@ class UctNode:
                                                        == max_value)]
         return random.choice(max_nodes)
 
-    def __len__(self):
-        count = 1
+    def num_children(self):
+        count = 0
         for child in self.child_nodes():
-            count += len(child)
+            count += child.num_children() + 1
         return count
 
-    def _to_s(self, level=0):
-        s = "| Q: {} N: {}".format(self.Q, self.N)
-        if self.action is not None:
-            s = "A: {} ".format(self.action) + s
-        if self.acting_player is not None:
-            s = "P: {} ".format(self.acting_player) + s
-        if not self.is_leaf():
-            for n in self.child_nodes():
-                s += ("\n"
-                      + (" " * level * 4)
-                      + "`-> {}".format(n._to_s(level + 1)))
-        return s
+    def num_nodes(self):
+        return self.num_children() + 1
 
-    def __str__(self): return self._to_s()
+    def info_strings_to_json(self):
+        d = {}
+        d['info'] = "| Q: {} N: {}".format(self.Q, self.N)
+        if self.action is not None:
+            d['info'] = "A: {} ".format(self.action) + d['info']
+        if self.acting_player is not None:
+            d['info'] = "P: {} ".format(self.acting_player) + d['info']
+        if not self.is_leaf():
+            d['children'] = []
+            for n in self.child_nodes():
+                d['children'].append(n.info_strings_to_json())
+        return d
+
+    def __str__(self): return json.dumps(self.info_strings_to_json(),
+                                         sort_keys=True,
+                                         indent=4)
 
 
 class MctsAgent(object):
@@ -124,7 +132,9 @@ class MctsAgent(object):
             return self(node_generator=other._node_generator,
                         exploration=other._exploration)
 
-        def __init__(self, node_generator=UctNode, exploration=1):
+        def __init__(self,
+                     node_generator=UctNode,
+                     exploration=1):
             self._node_generator = node_generator
             self._exploration = exploration
             self._root = None
@@ -186,13 +196,22 @@ class MctsAgent(object):
             self._root = self._node_generator()
             self._root.expand(root_state)
 
+            debug.log({'Initial search tree': (
+                          self._root.info_strings_to_json()
+                       ),
+                       'Time available in seconds': time_available,
+                       '# iterations': num_iterations}, level=logging.INFO)
+            debug.log(str(my_root_state), level=logging.INFO)
+
             num_iterations_completed = 0
 
+            time_used_s = 0
             def time_is_available():
-                return (time_available < 0
-                        or (time.clock() - start_time) < time_available)
+                nonlocal time_used_s
+                time_used_s = time.clock() - start_time
+                return (time_available < 0 or time_used_s < time_available)
 
-            while num_iterations_completed < num_iterations:
+            for num_iterations_completed in range(num_iterations):
                 try:
                     node, game_state, num_actions = self.select_node(
                         self._root,
@@ -200,15 +219,26 @@ class MctsAgent(object):
                         time_is_available=time_is_available)
                 except self.TimeIsUp:
                     break
-                node.backup(**self.roll_out(game_state,
-                                            game_state.player_to_act()))
-                for _ in range(num_actions):
-                    game_state.undo()
-                num_iterations_completed += 1
-            time_used_s = time.clock() - start_time
-            return {'num_iterations_completed': num_iterations_completed,
+
+                debug.log("Executing roll-out from (player {} is acting):"
+                            .format(game_state.player_to_act()),
+                          level=logging.INFO)
+                debug.log(str(my_root_state), level=logging.INFO)
+
+                rollout_results = self.roll_out(game_state,
+                                                game_state.player_to_act())
+                debug.log({'Roll-out results': rollout_results})
+                node.backup(**rollout_results)
+
+                debug.log({'Updated search tree': (
+                                self._root.info_strings_to_json()),
+                           'Seconds used': time_used_s,
+                           '# iterations completed': (num_iterations_completed
+                                                      + 1)})
+                for _ in range(num_actions): game_state.undo()
+            return {'num_iterations_completed': num_iterations_completed + 1,
                     'time_used_s': time_used_s,
-                    'num_nodes_expanded': len(self._root)}
+                    'num_nodes_expanded': self._root.num_nodes()}
 
         def node_value(self, n):
             return n.ucb(self._exploration)

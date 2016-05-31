@@ -1,5 +1,7 @@
 from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
+from games_puzzles_algorithms.debug import log
+import logging
 import pytest
 import random
 
@@ -22,6 +24,7 @@ class SimpleGameState(FakeGameState):
         `action` must be in the set of legal actions (see `legal_actions`).
         '''
         self._actions.append(action)
+        self.set_player_to_act(int(not self._player_to_act))
 
     def do_after_play(self, action):
         '''Apply the given action, yield the new state, and undo the action
@@ -33,6 +36,7 @@ class SimpleGameState(FakeGameState):
     def undo(self):
         '''Reverse the effect of the last action that was played'''
         self._actions.pop()
+        self.set_player_to_act(int(not self._player_to_act))
 
     def set_player_to_act(self, player):
         self._player_to_act = player
@@ -90,3 +94,18 @@ def test_search():
     assert stats['num_iterations_completed'] == 10
     assert stats['time_used_s'] is not None
     assert stats['num_nodes_expanded'] == 11
+
+
+# def test_verbose_search():
+#     logging.basicConfig(level=logging.DEBUG)
+#
+#     random.seed(0)
+#
+#     state = SimpleGameState()
+#     patient = MctsAgent.Mcts(exploration=1)
+#     num_iterations = 10
+#     stats = patient.search(state, num_iterations=num_iterations)
+#
+#     assert stats['num_iterations_completed'] == 10
+#     assert stats['time_used_s'] is not None
+#     assert stats['num_nodes_expanded'] == 11
