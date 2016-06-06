@@ -1,0 +1,10 @@
+cffi==1.6.0
+click==6.6
+Flask==0.11
+future==0.15.2
+-e git+git@github.com:ryanbhayward/games-puzzles-algorithms.git@74f0c70e261e8ab64983e31928522d653ea0b954#egg=games_puzzles_algorithms&subdirectory=lib
+itsdangerous==0.24
+Jinja2==2.8
+MarkupSafe==0.23
+pycparser==2.14
+Werkzeug==0.11.10

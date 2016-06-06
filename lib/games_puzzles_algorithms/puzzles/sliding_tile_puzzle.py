@@ -145,7 +145,7 @@ class SlidingTilePuzzle(object):
         return tuple(self.puzzle.flatten())
         
     def equals(self, other):
-        """Check if two puzzles are in the same state."""
+        """Check if two maze are in the same state."""
         return np.array_equal(self.puzzle, other.puzzle)
     
     def misplaced_tiles(self):
