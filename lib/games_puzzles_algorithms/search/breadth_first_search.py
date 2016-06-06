@@ -28,26 +28,11 @@ class BreadthFirstSearch(Search):
         tick = 0
 
         while time.time() - start < self.time_limit:
-            if len(self.frontier) == 0:
+            solved, state = self.step(verbose, tick)
+            if solved is None:
                 return None
-            current_node = self.frontier.popleft()
-
-            if verbose:
-                print("Step {0}".format(tick))
-                print(current_node.state)
-
-            self.explored.add(current_node.state.value())
-            for move in current_node.state.valid_moves():
-                new_state = current_node.state.copy()
-                new_state.apply_move(move)
-                child = Node(new_state, move, current_node)
-                if (not new_state.value() in self.explored
-                    and not self._in_frontier(new_state)):
-                    if child.state.is_solved():
-                        if verbose:
-                            print("Took {0} steps using Breadth First Search.".format(tick))
-                        return self.solution(child)
-                    self.frontier.append(child)
+            if solved:
+                return state
             tick += 1
         return False
 
@@ -58,3 +43,36 @@ class BreadthFirstSearch(Search):
                 return True
 
         return False
+
+    def step(self, verbose=False, tick=0):
+        """
+        Perform one step of the search.
+        :param verbose: boolean, verbose mode
+        :param tick: integer, number of steps elapsed
+        :return: 2-tuple.
+        * (None, None) for no solution,
+        * (True, [Steps]) for solved,
+        * (False, <state>) for unsolved, searching
+        """
+        if len(self.frontier) == 0:
+            return None, None
+
+        current_node = self.frontier.popleft()
+
+        if verbose:
+            print("Step {0}".format(tick))
+            print(current_node.state)
+
+        self.explored.add(current_node.state.value())
+        for move in current_node.state.valid_moves():
+            new_state = current_node.state.copy()
+            new_state.apply_move(move)
+            child = Node(new_state, move, current_node)
+            if not new_state.value() in self.explored and not self._in_frontier(new_state):
+                if child.state.is_solved():
+                    if verbose:
+                        print("Took {0} steps using Breadth First Search.".format(tick))
+                    return True, self.solution(child)
+                self.frontier.append(child)
+
+        return False, current_node.state
