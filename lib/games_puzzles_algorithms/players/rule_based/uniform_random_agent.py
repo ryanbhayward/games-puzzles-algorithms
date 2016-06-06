@@ -8,7 +8,7 @@ class UniformRandomAgent(object):
         super(UniformRandomAgent, self).__init__()
         self.random_generator = random_generator
 
-    def select_action(self, state):
+    def select_action(self, state, time_available=-1):
         return choose_legal_action_uniformly_randomly(
             state, self.random_generator())
 

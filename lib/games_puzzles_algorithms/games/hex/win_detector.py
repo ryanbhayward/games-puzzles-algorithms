@@ -51,7 +51,7 @@ class WinDetector(object):
     def connect_with_edges_if_necessary(self, board, acting_player, cell, cell_index):
         if cell[acting_player] == 0:
             self.connect_with_edge(acting_player, 0, cell_index)
-        elif cell[acting_player] == board.size()[acting_player] - 1:
+        if cell[acting_player] == board.size()[acting_player] - 1:
             self.connect_with_edge(acting_player, 1, cell_index)
 
     def imagined_update(self, board, acting_player, cell, cell_index):

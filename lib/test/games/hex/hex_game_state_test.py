@@ -6,6 +6,17 @@ from games_puzzles_algorithms.games.hex.game_state import GameState
 from games_puzzles_algorithms.games.hex.game_state import IllegalAction
 
 
+def test_one_by_one():
+    state = GameState.root(1)
+    assert str(state) == (
+'''
+  A
+1  .  O
+    @''')
+    state.play(0)
+    assert state.is_terminal() == True
+
+
 def test_white_win1():
     patient = GameState.root(5)
     patient.place(patient.board.cell_index(1, 0), COLORS['white'])
