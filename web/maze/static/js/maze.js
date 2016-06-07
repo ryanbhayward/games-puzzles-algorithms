@@ -7,11 +7,11 @@ var black = "data:image/jpeg;base64," +
 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 var green = "data:image/jpeg;base64," +
 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkOMHwHwADYQHJEKmC9QAAAABJRU5ErkJggg==";
-var white = "data:image/jpeg;base64," +
+var yellow = "data:image/jpeg;base64," +
 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/1/yPwAINAMYyt59LwAAAABJRU5ErkJggg==";
 var cellSize = 8;
 
-var game = new Phaser.Game(500,500,Phaser.AUTO,'maze', {preload:preload, create:create, render:render});
+var game = new Phaser.Game(600,600,Phaser.AUTO,'maze', {preload:preload, create:create, render:render});
 
 var maze;
 var solver;
@@ -30,8 +30,8 @@ function preload() {
   gBg.src = green;
   game.cache.addImage('green', green, gBg);
   var wBg = new Image();
-  wBg.src = white;
-  game.cache.addImage('white', white, wBg);
+  wBg.src = yellow;
+  game.cache.addImage('yellow', yellow, wBg);
 };
 
 function create(){
@@ -45,22 +45,33 @@ function render() {
 	game.debug.text(game.time.fps, 2, 14, "#00ff00");
   if (!this.maze || !this.maze.length)
     return;
+  /*
   game.world.forEach(function(item) {
     item.destroy();
   });
-  for (var i = 0; i < this.maze.length; i++) {
-    var row = this.maze[i];
-    for (var j = 0; j < row.length; j++) {
-      var cell = row[j];
-      if (cell === 0)
-        game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'black');
-      else if (cell === 1)
-        game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'grey');
-      else if (cell === 2)
-        game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'white');
-      else if (cell === 3)
-        game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'green');
+  */
+  if (game.time.time > timeout) {
+    for (var i = 0; i < this.maze.length; i++) {
+      var row = this.maze[i];
+      for (var j = 0; j < row.length; j++) {
+        var cell = row[j];
+        if (!this.nextRender) {
+          if (cell === 0)
+            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'black');
+          else if (cell === 1)
+            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'grey');
+          else if (cell === 2)
+            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'yellow');
+          else if (cell === 3)
+            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'green');
+        } else {
+          if (cell === 2)
+            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'yellow');
+        }
+      }
     }
+    this.nextRender = true;
+    timeout = game.time.time + 5;
   }
 }
 
@@ -91,6 +102,7 @@ function onCurDown(x) {
     $('#searchOutput').text('');
     $('#searchSteps').text('');
     $.get("/refresh", {}, getState.bind(this));
+    location.reload();
     return
   }
 }

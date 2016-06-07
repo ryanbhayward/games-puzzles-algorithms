@@ -16,7 +16,7 @@ SOLVERS = {
 }
 
 # MAZE VARIABLES
-maze = MazePuzzle()
+maze = MazePuzzle(width=20, height=20)
 str_solver = "bfs"
 solver = SOLVERS[str_solver](maze, -1)
 search_steps = 0
