@@ -137,10 +137,10 @@ function draw_piece(hexagon, piece, graphics) {
 }
 
 function draw_board(hexagons, graphics) {
-    graphics.lineStyle(3, 0x000000, 1);
+    graphics.lineStyle(2, 0x000000, 1);
 
     for (var i = 0; i < hexagons.length; ++i) {
-        graphics.beginFill(0xffffff);
+        graphics.beginFill(0xffffff, 0);
         graphics.drawPolygon(hexagons[i]);
         draw_piece(hexagons[i], board[i], graphics);
         graphics.endFill();
@@ -307,10 +307,12 @@ function preload() {
     game.load.image('reset', $SCRIPT_ROOT + '/static/assets/reset.png');
     game.load.image('aimove', $SCRIPT_ROOT + '/static/assets/aimove.png');
     game.load.image('resize', $SCRIPT_ROOT + '/static/assets/resize.png');
+    game.load.image('wood', $SCRIPT_ROOT + '/static/assets/wood.jpg');
 }
 
 function create() {
     game.stage.backgroundColor = 0xffffff;
+    game.add.image(0, 0, 'wood');
     graphics = game.add.graphics(0, 0);
 
     game.add.button(10, 550, 'undo', undo_move);
