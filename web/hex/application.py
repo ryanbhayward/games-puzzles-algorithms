@@ -66,8 +66,9 @@ def undo_move():
 
 @app.route('/_reset_game', methods=['GET'])
 def reset_game():
-    global state, row_dimension, column_dimension
+    global game_agent, state, row_dimension, column_dimension
 
+    game_agent.reset()
     state = game.GameState.root(row_dimension, column_dimension)
 
     return jsonify(error=False, board=state.board._cells.tolist(),
