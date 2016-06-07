@@ -24,8 +24,9 @@ var EMPTY = 2;
 
 var board;
 var border;
+var border_hexagons;
 var graphics;
-var hexagons;
+var play_hexagons;
 
 // Generate a hexagon centered at the given center point.
 function hexagon(center) {
@@ -160,7 +161,8 @@ function set_size(row_dimension, column_dimension) {
 
 function initialize_board(row_dimension, column_dimension) {
     set_size(row_dimension, column_dimension);
-    hexagons = generate_board(row_dimension, column_dimension);
+    play_hexagons = generate_board(row_dimension, column_dimension);
+    border_hexagons = generate_border(row_dimension, column_dimension);
 }
 
 // Calculate the center of mass of the given polygon.
@@ -267,7 +269,7 @@ function board_index(row, column) {
 function on_click(key) {
     for (var i = 0; i < column_dimension; ++i) {
         for (var j = 0; j < row_dimension; ++j) {
-            var hex = hexagons[board_index(j, i)];
+            var hex = play_hexagons[board_index(j, i)];
             if (hex.contains(this.input.x, this.input.y)) {
                 make_move(j, i);
                 break;
