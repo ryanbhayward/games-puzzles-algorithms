@@ -23,6 +23,7 @@ var WHITE = 1;
 var EMPTY = 2;
 
 var board;
+var border;
 var graphics;
 var hexagons;
 
@@ -78,6 +79,47 @@ function generate_board(row_dimension, column_dimension) {
         Array.prototype.push.apply(hexagons,
                                    generate_column(column_start, row_dimension));
         column_start.add(width, 0);
+    }
+
+    return hexagons;
+}
+
+// Generate the hexagons that will make up the board border.
+function generate_border(row_dimension, column_dimension) {
+    var column_start, row_start, i;
+    var hexagons = [];
+    border = [];
+
+    // Add column along left.
+    column_start = new Phaser.Point(width, 2.25 * height);
+    Array.prototype.push.apply(hexagons, generate_column(column_start,
+                                                         row_dimension - 1));
+
+    // Add column along right.
+    column_start = new Phaser.Point((column_dimension + 1.5) * width,
+                                    1.5 * height);
+    Array.prototype.push.apply(hexagons, generate_column(column_start,
+                                                         row_dimension - 1));
+
+    // Push white pieces into border.
+    for (i = 0; i < 2 * (row_dimension - 1); ++i) {
+        border.push(WHITE);
+    }
+
+    // Add row along top.
+    row_start = new Phaser.Point(2 * width, 0.75 * height);
+    Array.prototype.push.apply(hexagons, generate_row(row_start,
+                                                      column_dimension - 1));
+
+    // Add row along bottom.
+    row_start = new Phaser.Point((0.5 * (row_dimension + 1) + 1) * width,
+                                 (0.75 * row_dimension + 1.5) * height);
+    Array.prototype.push.apply(hexagons, generate_row(row_start,
+                                                      column_dimension - 1));
+
+    // Push black pieces into border.
+    for (i = 0; i < 2 * (column_dimension - 1); ++i) {
+        border.push(BLACK);
     }
 
     return hexagons;
