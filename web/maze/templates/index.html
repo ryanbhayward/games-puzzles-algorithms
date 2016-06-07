@@ -2,14 +2,35 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>CMPUT 396 Puzzles</title>
+  <title>CMPUT 396 Maze</title>
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
-<canvas id="maze"></canvas>
-<script type="text/javascript" src="{{ url_for('static', filename='js/maze.js') }}"></script>
+<h1>CMPUT 396 Maze</h1>
+<div id="maze"></div>
+<p>Move with arrow keys or <strong>WASD</strong>.
+  Press <strong>R</strong> to reset.
+  Press <strong>X</strong> to search.</p>
+<form id="maze-form">
+  <label for="search">Search</label>
+  <select id="search">
+    <option value="bfs">Breadth First Search</option>
+    <option value="dfs">Depth First Search</option>
+    <option value="A*">A Star</option>
+  </select>
+  <label for="width">Width</label>
+  <input id="width" type="number">
+  <label for="height">Height</label>
+  <input id="height" type="number">
+  <button type="submit">Update</button>
+</form>
+<ul>
+  <li>Steps: <span id="steps"></span></li>
+  <li>Search Steps: <span id="searchSteps"></span><br><span style="width: 400px;" id="searchOutput"></span></li>
+</ul>
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.2.3.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/phaser.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/maze.js') }}"></script>
 </body>
 </html>

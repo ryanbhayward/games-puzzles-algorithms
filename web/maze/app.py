@@ -44,23 +44,25 @@ def state():
 
 @app.route("/refresh", methods=['GET'])
 def refresh():
-    global maze, solver, search_steps, steps
-    width = len(maze.hor) - 1
-    height = len(maze.hor[0]) - 1
+    global maze, search_steps, steps
+    width = len(maze.hor[0]) - 1
+    height = len(maze.hor) - 1
+    print(width, height)
     maze = MazePuzzle(width=width, height=height)
-    solver = SOLVERS[str_solver](maze, -1)
+    _instantiate_solver(str_solver)
     search_steps = 0
     steps = 0
     return state()
 
 
-@app.route("/move", methods=['POST'])
+@app.route("/move", methods=['POST', 'PUT'])
 def move():
     global steps
     raw_move = request.form['move']
     if raw_move in maze.str_moves(maze.valid_moves()):
         maze.apply_move(raw_move)
         steps += 1
+        _instantiate_solver(str_solver)
     return state()
 
 
@@ -69,14 +71,7 @@ def set_search():
     """
     Change the current search to use specified solver
     """
-    global solver, str_solver
-    raw_str_solver = request.form['search']
-    if raw_str_solver in SOLVERS.keys:
-        str_solver = raw_str_solver
-        if raw_str_solver == 'A*':
-            solver = SOLVERS[raw_str_solver](maze, -1, maze.heuristic('raw_distance'))
-        else:
-            solver = SOLVERS[raw_str_solver](maze, -1)
+    _instantiate_solver(request.form['search'])
     return state()
 
 
@@ -90,6 +85,7 @@ def set_size():
         raw_width = int(request.form['width'])
         raw_height = int(request.form['height'])
         maze = MazePuzzle(width=raw_width, height=raw_height)
+        _instantiate_solver(str_solver)
     except ValueError:
         pass
     return state()
@@ -103,11 +99,21 @@ def search_step():
     if solved is None:
         data = {'solved': None}
     elif not solved:
-        data = {'solved': solved, 'maze': step.json()}
+        data = {'solved': solved, 'maze': step.array()}
     else:
         data = {'solved': solved, 'solution': step}
+        _instantiate_solver(str_solver)
     return json.dumps(data)
 
+
+def _instantiate_solver(raw_str_solver):
+    global str_solver, solver
+    if raw_str_solver in SOLVERS.keys():
+        str_solver = raw_str_solver
+        if raw_str_solver == 'A*':
+            solver = SOLVERS[raw_str_solver](maze, -1, maze.heuristic('raw_distance'))
+        else:
+            solver = SOLVERS[raw_str_solver](maze, -1)
 
 if __name__ == "__main__":
     app.run()

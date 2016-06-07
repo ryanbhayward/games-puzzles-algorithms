@@ -66,6 +66,9 @@ class AStar(Search):
             return None, None
         current_node = heappop(self.frontier)
 
+        if current_node.state.is_solved():
+            return True, []
+
         if verbose:
             print("Step {0}".format(tick))
             print(current_node.state)
