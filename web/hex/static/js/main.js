@@ -196,7 +196,7 @@ function draw_piece(hexagon, piece, graphics) {
     graphics.endFill();
 }
 
-function draw_board(hexagons, graphics) {
+function draw_play_area(hexagons, graphics) {
     graphics.lineStyle(2, 0x000000, 1);
 
     for (var i = 0; i < hexagons.length; ++i) {
@@ -205,6 +205,22 @@ function draw_board(hexagons, graphics) {
         draw_piece(hexagons[i], board[i], graphics);
         graphics.endFill();
     }
+}
+
+function draw_border(hexagons, graphics) {
+    graphics.lineStyle(2, 0x000000, 1);
+
+    for (var i = 0; i < hexagons.length; ++i) {
+        graphics.beginFill(0xffffff, 0);
+        graphics.drawPolygon(hexagons[i]);
+        draw_piece(hexagons[i], border[i], graphics);
+        graphics.endFill();
+    }
+}
+
+function draw_board(play_hexagons, border_hexagons, graphics) {
+    draw_play_area(play_hexagons, graphics);
+    draw_border(border_hexagons, graphics);
 }
 
 function declare_winner(winner) {
@@ -224,7 +240,7 @@ function set_board(data) {
         return;
     }
     board = data.board;
-    draw_board(hexagons, graphics);
+    draw_play_area(play_hexagons, graphics);
 
     if (typeof data.winner !== 'undefined' && data.winner !== 2) {
         declare_winner(data.winner);
@@ -239,6 +255,7 @@ function reset_board(data) {
     column_dimension = data.column_dimension;
     initialize_board(row_dimension, column_dimension);
     graphics.clear();
+    draw_border(border_hexagons, graphics);
     get_state();
 }
 
@@ -380,7 +397,7 @@ function create() {
     game.add.button(520, 550, 'resize', resize_board_modal);
 
     reset_game();
-    draw_board(hexagons, graphics);
+    draw_board(play_hexagons, border_hexagons, graphics);
 
     game.input.onDown.add(on_click, game);
 }
