@@ -313,8 +313,6 @@ function create() {
     game.stage.backgroundColor = 0xffffff;
     graphics = game.add.graphics(0, 0);
 
-    hexagons = generate_board(row_dimension, column_dimension);
-
     game.add.button(10, 550, 'undo', undo_move);
     game.add.button(180, 550, 'reset', reset_game);
     game.add.button(350, 550, 'aimove', ai_move);
