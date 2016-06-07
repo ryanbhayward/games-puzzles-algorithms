@@ -35,6 +35,22 @@
         <p id="who_wins"></p>
       </div>
     </div>
+    <div id="agent_modal" class="ui small modal">
+      <i class="close icon"></i>
+      <div class="description">
+        <div class="ui header">Choose an AI agent.</div>
+        <div class="ui selection dropdown">
+          <input type="hidden" name="agent">
+          <i class="dropdown icon"></i>
+          <div class="default text">Agent</div>
+          <div class="menu">
+            <div class="item" data-value="0">First Action</div>
+            <div class="item" data-value="1">Uniform Random</div>
+            <div class="item" data-value="2">MCTS</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 
   <script type=text/javascript>
