@@ -59,8 +59,6 @@ function generate_column(start, row_dimension) {
 function generate_board(row_dimension, column_dimension) {
     var hexagons = [];
 
-    set_size(row_dimension, column_dimension);
-
     var column_start = new Phaser.Point(width / 2, height / 2);
 
     for (var i = 0; i < column_dimension; ++i) {
@@ -103,6 +101,11 @@ function set_size(row_dimension, column_dimension) {
     }
 
     set_dimensions(size);
+}
+
+function initialize_board(row_dimension, column_dimension) {
+    set_size(row_dimension, column_dimension);
+    hexagons = generate_board(row_dimension, column_dimension);
 }
 
 // Calculate the center of mass of the given polygon.
@@ -177,8 +180,7 @@ function reset_board(data) {
     }
     row_dimension = data.row_dimension;
     column_dimension = data.column_dimension;
-    set_size(row_dimension, column_dimension);
-    hexagons = generate_board(row_dimension, column_dimension);
+    initialize_board(row_dimension, column_dimension);
     graphics.clear();
     get_state();
 }
