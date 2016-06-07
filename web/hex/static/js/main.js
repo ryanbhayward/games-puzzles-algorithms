@@ -55,6 +55,19 @@ function generate_column(start, row_dimension) {
     return hexagons;
 }
 
+//Generate one row of the board.
+function generate_row(start, column_dimension) {
+    var center = start.clone();
+    var hexagons = [];
+
+    for (var i = 0; i < column_dimension; ++i) {
+        hexagons.push(hexagon(center));
+        center.add(width, 0);
+    }
+
+    return hexagons;
+}
+
 // Generate the hexagons that make up the board.
 function generate_board(row_dimension, column_dimension) {
     var hexagons = [];
