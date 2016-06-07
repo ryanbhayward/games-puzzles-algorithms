@@ -1,9 +1,14 @@
 import sys
 import traceback
+import json
+import logging
 
 
-def log(data, file=sys.stdout):
+def log(data, level=logging.INFO):
     sf = traceback.extract_stack()[-2]
-    print("\nIn {} on line {} in {}\n    {}".format(
-        sf[0], sf[1], sf[2], data, file=file)
+    logger = logging.getLogger(sf[0])
+    logger.log(level, "\nIn {} on line {} in {}\n{}".format(
+        sf[0], sf[1], sf[2], json.dumps(data,
+                                        sort_keys=True,
+                                        indent=4))
     )
