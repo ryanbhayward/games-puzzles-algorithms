@@ -1,23 +1,17 @@
+.PHONY: default
+default: install test
+
 .PHONY: test
-test: test-python
-test-%:
-	$* setup.py -q test --addopts '-x $(ARGS)'
+test: PYTHON :=python3
+test: setup.py
+	$(PYTHON) setup.py -q test --addopts '-x $(ARGS)'
 
 .PHONY: install
-install: install-pip
-install-%:
-	$* install -r requirements.txt
-
-.PHONY: dev-install
-dev-install: dev-install-python-pip
-dev-install-%:
-	$(eval TOOLS = $(subst -, ,$*))
-	$(eval INTERPRETER = $(word 1, $(TOOLS)))
-	$(eval INSTALLER = $(word 2, $(TOOLS)))
-	$(MAKE) install-$(INSTALLER)
-	$(INTERPRETER) setup.py test
+install: PIP :=pip3
+install: requirements.txt
+	$(PIP) install -r requirements.txt
 
 clean:
 	find . -name "*.pyc" -delete
 	find . -name "__pycache__" -delete
-	rm -rf .cache .eggs *.egg-info build
+	rm -rf .cache *.egg *.eggs *.egg-info build 2> /dev/null
