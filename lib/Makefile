@@ -1,7 +1,7 @@
 .PHONY: test
 test: test-python
 test-%:
-	$* -m py.test ./
+	$* setup.py -q test --addopts '-x $(ARGS)'
 
 .PHONY: install
 install: install-pip
