@@ -1,152 +1,185 @@
-(function() {
-"use strict";
+(function () {
+  "use strict";
 
-var grey = "data:image/jpeg;base64," +
-"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNM+Q8AAc0BZX6f84gAAAAASUVORK5CYII=";
-var black = "data:image/jpeg;base64," +
-"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-var green = "data:image/jpeg;base64," +
-"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkOMHwHwADYQHJEKmC9QAAAABJRU5ErkJggg==";
-var yellow = "data:image/jpeg;base64," +
-"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/1/yPwAINAMYyt59LwAAAABJRU5ErkJggg==";
-var cellSize = 8;
+  var grey = "data:image/jpeg;base64," +
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNM+Q8AAc0BZX6f84gAAAAASUVORK5CYII=";
+  var black = "data:image/jpeg;base64," +
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+  var green = "data:image/jpeg;base64," +
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkOMHwHwADYQHJEKmC9QAAAABJRU5ErkJggg==";
+  var yellow = "data:image/jpeg;base64," +
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/1/yPwAINAMYyt59LwAAAABJRU5ErkJggg==";
+  var darkYellow = "data:image/jpeg;base64," +
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMYWT4DwACnAFmA4+qdwAAAABJRU5ErkJggg==";
+  var cellSize = 8;
 
-var game = new Phaser.Game(600,600,Phaser.AUTO,'maze', {preload:preload, create:create, render:render});
+  var game = new Phaser.Game(600, 400, Phaser.AUTO, 'maze', {preload: preload, create: create, render: render});
 
-var maze;
-var solver;
-var steps;
-var searchSteps;
-var timeout;
+  var maze;
+  var solver;
+  var steps;
+  var searchSteps;
+  var initializeState = true;
+  var userSprite;
+  var historySprites = [];
+  var searchDelay = 0;
 
-function preload() {
-  var iBg = new Image();
-  iBg.src = grey;
-  game.cache.addImage('grey', grey, iBg);
-  var bBg = new Image();
-  bBg.src = black;
-  game.cache.addImage('black', black, bBg);
-  var gBg = new Image();
-  gBg.src = green;
-  game.cache.addImage('green', green, gBg);
-  var wBg = new Image();
-  wBg.src = yellow;
-  game.cache.addImage('yellow', yellow, wBg);
-};
+  function preload() {
+    var iBg = new Image();
+    iBg.src = grey;
+    game.cache.addImage('grey', grey, iBg);
+    var bBg = new Image();
+    bBg.src = black;
+    game.cache.addImage('black', black, bBg);
+    var gBg = new Image();
+    gBg.src = green;
+    game.cache.addImage('green', green, gBg);
+    var wBg = new Image();
+    wBg.src = yellow;
+    game.cache.addImage('yellow', yellow, wBg);
+    var dBg = new Image();
+    dBg.src = darkYellow;
+    game.cache.addImage('darkYellow', darkYellow, dBg);
+  }
 
-function create(){
-  game.input.keyboard.addCallbacks(this, onCurDown, function(){}, function(){})
-  $.get("/state", {}, getState.bind(this));
-  timeout = game.time.time;
-	game.time.advancedTiming = true;
-};
+  function create() {
+    game.input.keyboard.addCallbacks(this, onCurDown, function () {
+    }, function () {
+    });
+    $.get("/state", {}, getState.bind(this));
+    game.time.advancedTiming = true;
+  }
 
-function render() {
-	game.debug.text(game.time.fps, 2, 14, "#00ff00");
-  if (!this.maze || !this.maze.length)
-    return;
-  /*
-  game.world.forEach(function(item) {
-    item.destroy();
-  });
-  */
-  if (game.time.time > timeout) {
-    for (var i = 0; i < this.maze.length; i++) {
-      var row = this.maze[i];
-      for (var j = 0; j < row.length; j++) {
-        var cell = row[j];
-        if (!this.nextRender) {
-          if (cell === 0)
-            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'black');
-          else if (cell === 1)
+  function render() {
+    game.debug.text(game.time.fps, 2, 14, "#00ff00");
+  }
+
+  function onCurDown(x) {
+    // handle movement
+    var move = '';
+    if (['ArrowLeft', 'KeyA'].indexOf(x.code) > -1)
+      move = 'left';
+    else if (['ArrowRight', 'KeyD'].indexOf(x.code) > -1)
+      move = 'right';
+    else if (['ArrowDown', 'KeyS'].indexOf(x.code) > -1)
+      move = 'down';
+    else if (['ArrowUp', 'KeyW'].indexOf(x.code) > -1)
+      move = 'up';
+    if (['left', 'up', 'right', 'down'].indexOf(move) > -1) {
+      $.ajax({url: '/move', type: 'PUT', data: {'move': move}, success: getState.bind(this)});
+      return
+    }
+
+    // handle searching
+    if (x.code === 'KeyX') {
+      let historyLength = historySprites.length;
+      for (var i = 0; i < historyLength; i++) {
+        historySprites.pop().destroy();
+      }
+      this.searchSteps = 0;
+      $.get("/search_step", {}, searchStep.bind(this));
+      return
+    }
+    // handle reset
+    if (x.code === 'KeyR') {
+      $('#searchOutput').text('');
+      $('#searchSteps').text('');
+      $.get("/refresh", {}, getState.bind(this));
+      location.reload();
+    }
+  }
+
+  function updateMazeState(maze) {
+    var i = 0;
+    var j = 0;
+    var row;
+    var cell;
+    if (initializeState) {
+      for (i = 0; i < maze.length; i++) {
+        row = maze[i];
+        for (j = 0; j < row.length; j++) {
+          cell = row[j];
+          if (cell === 1) {
+            // initialize wall sprites
             game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'grey');
-          else if (cell === 2)
-            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'yellow');
-          else if (cell === 3)
+          }
+          else if (cell === 2) {
+            // initialize user sprite
+            userSprite = game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'yellow');
+          }
+          else if (cell === 3) {
+            // initialize goal sprite
             game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'green');
-        } else {
-          if (cell === 2)
-            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'yellow');
+          }
+        }
+      }
+      initializeState = false;
+    } else {
+      for (i = 0; i < maze.length; i++) {
+        row = maze[i];
+        for (j = 0; j < row.length; j++) {
+          cell = row[j];
+          if (cell === 2) {
+            historySprites.push(game.add.tileSprite(userSprite.x, userSprite.y, cellSize, cellSize, 'darkYellow'));
+            userSprite.x = j * cellSize;
+            userSprite.y = i * cellSize;
+          }
         }
       }
     }
-    this.nextRender = true;
-    timeout = game.time.time + 5;
-  }
-}
-
-function onCurDown(x) {
-  // handle movement
-  var move = '';
-  if (['ArrowLeft', 'KeyA'].indexOf(x.code) > -1)
-    move = 'left';
-  else if (['ArrowRight', 'KeyD'].indexOf(x.code) > -1)
-    move = 'right';
-  else if (['ArrowDown', 'KeyS'].indexOf(x.code) > -1)
-    move = 'down';
-  else if (['ArrowUp', 'KeyW'].indexOf(x.code) > -1)
-    move = 'up';
-  if (['left', 'up', 'right', 'down'].indexOf(move) > -1){
-    $.ajax({url: '/move', type: 'PUT', data: {'move': move}, success: getState.bind(this)});
-    return
   }
 
-  // handle searching
-  if (x.code === 'KeyX') {
-    console.log('search');
-    $.get("/search_step", {}, searchStep.bind(this))
-    return
+  function searchStep(rawData) {
+    var data = JSON.parse(rawData);
+    var solved = data.solved;
+    if (solved === null) {
+      $('#searchOutput').text('Impossible, no solution');
+      $.get("/state", {}, getState.bind(this));
+      this.searchSteps = null;
+    } else if (solved === true) {
+      $('#searchOutput').text(data.solution);
+      $.get("/state", {}, getState.bind(this));
+      let historyLength = historySprites.length;
+      for (var i = 0; i < historyLength; i++) {
+        historySprites.pop().destroy();
+      }
+    } else {
+      this.maze = data.maze;
+      updateMazeState(this.maze);
+      if (!this.searchSteps)
+        this.searchSteps = 0;
+      this.searchSteps += 1;
+      $('#searchSteps').text(this.searchSteps);
+      setTimeout(function () {
+        $.get("/search_step", {}, searchStep.bind(this))
+      }.bind(this), searchDelay);
+    }
   }
-  // handle reset
-  if (x.code === 'KeyR') {
-    $('#searchOutput').text('');
-    $('#searchSteps').text('');
-    $.get("/refresh", {}, getState.bind(this));
-    location.reload();
-    return
+
+  function getState(rawData) {
+    var data = JSON.parse(rawData);
+    maze = data.maze;
+    solver = data.solver;
+    steps = data.steps;
+    updateMazeState(maze);
+    $("#search").val(solver);
+    $('#steps').text(steps);
+    $('#width').val(Math.floor(maze[0].length / 2));
+    $('#height').val(Math.floor(maze.length / 2));
+    $('#delay').val(searchDelay);
   }
-}
 
-function searchStep(rawData) {
-  var data = JSON.parse(rawData);
-  var solved = data.solved;
-  if (solved === null) {
-    $('#searchOutput').text('Impossible, no solution');
-    $.get("/state", {}, getState.bind(this));
-    this.searchSteps = null;
-    return;
-  } else if (solved === true) {
-    $('#searchOutput').text(data.solution);
-    $.get("/state", {}, getState.bind(this));
-    return;
-  } else {
-    this.maze = data.maze;
-    if (!this.searchSteps)
-      this.searchSteps = 0;
-    this.searchSteps += 1;
-    $('#searchSteps').text(this.searchSteps);
-    $.get("/search_step", {}, searchStep.bind(this));
-  }
-}
+  $("#maze-form").submit(function () {
+    var width = $('#width').val();
+    var height = $('#height').val();
+    var search = $('#search').val();
+    $.post("/set_search", {'search': search}, getState);
+    $.post("/set_size", {'width': width, 'height': height}, getState);
+    return true;
+  });
 
-function getState(rawData) {
-  var data = JSON.parse(rawData);
-  this.maze = data.maze;
-  this.solver = data.solver;
-  this.steps = data.steps;
-  $("#search").val(this.solver);
-  $('#steps').text(this.steps);
-  $('#width').val(Math.floor(this.maze[0].length/2));
-  $('#height').val(Math.floor(this.maze.length/2));
-}
+  $("#delay").change(function () {
+    searchDelay = Number($('#delay').val());
+  });
 
-$("#maze-form").submit(function(){
-  var width = $('#width').val();
-  var height = $('#height').val();
-  var search = $('#search').val();
-  $.post("/set_search", {'search': search}, getState)
-  $.post("/set_size", {'width': width, 'height': height}, getState)
-  return true;
-});
-
-})()
+})();

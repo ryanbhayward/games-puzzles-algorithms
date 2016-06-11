@@ -24,13 +24,14 @@
   <input id="height" type="number">
   <button type="submit">Update</button>
 </form>
-<ul>
-  <li>Steps: <span id="steps"></span></li>
-  <li>Search Steps: <span id="searchSteps"></span></li>
-  <li id="searchOutput"></li>
-</ul>
-
+<div>
+  <label for="delay">Search Delay (ms):</label>
+  <input id="delay" type="number" step="100">
+</div>
+<div>Steps: <span id="steps"></span></div>
 <div id="maze"></div>
+<div><span id="searchSteps"></span></div>
+<div class="wordwrap"><span id="searchOutput"></span></div>
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.2.3.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/phaser.min.js') }}"></script>
