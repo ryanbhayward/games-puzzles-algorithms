@@ -1,14 +1,16 @@
+PIP :=pip3
+PYTHON :=python3
+
+
 .PHONY: default
-default: install test
+default: install
 
 .PHONY: test
-test: PYTHON :=python3
-test: setup.py
+test: $(PYTHON) setup.py
 	$(PYTHON) setup.py -q test --addopts '-x $(ARGS)'
 
 .PHONY: install
-install: PIP :=pip3
-install: requirements.txt
+install: $(PIP) requirements.txt
 	$(PIP) install -r requirements.txt
 
 clean:

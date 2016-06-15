@@ -124,7 +124,6 @@ class UctNode:
 
 class MctsAgent(object):
     class Mcts(object):
-        class InfiniteSearch(Exception): pass
         class TimeIsUp(Exception): pass
 
         @classmethod
@@ -182,11 +181,10 @@ class MctsAgent(object):
             complete. Negative values imply that there is not iteration
             limit. Setting this to zero will ensure that no search is done.
 
-            `time_available` and `num_iterations` cannot both be negative.
+            If `time_available` and `num_iterations` are both negative,
+            `num_iterations` will be set to 1.
             """
-            if time_available < 0 and num_iterations < 0:
-                raise self.InfiniteSearch(
-                    "Must specify a time or iteration limit.")
+            if time_available < 0 and num_iterations < 0: num_iterations = 1
             if root_state.is_terminal(): return None
 
             start_time = time.clock()

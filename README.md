@@ -1,19 +1,23 @@
 # CMPUT 396 -- Games, Puzzles, and Algorithms
 
-Software for CMPUT 396.
+Software for CMPUT 396 to allow students to explore fundamental algorithms
+that are used to play games and solve puzzles.
 
-## Games
+
+## Contents
+
+### Games
 
 - Hex
 
 
-## Puzzles
+### Puzzles
 
 - Sliding tiles
 - Maze
 
 
-## Algorithms
+### Algorithms
 
 - Uniform random game player
 - Minimax game tree search
@@ -23,12 +27,29 @@ Software for CMPUT 396.
 - A* search
 
 
-### Quick Start
+## Installation
 
-- *nix
-    `make`
-- Windows
-    <!-- TODO -->
+### Prerequisites
+
+- A Python3 interpreter (both *CPython* and *PyPy* are supported)
+<!-- TODO - FFI (`libffi-dev`)? -->
+- `virtualenv` (Optional)
+- `make` (Optional)
+
+
+### Procedure
+
+- Run `make` in the project's root directory. This will first create a Python virtual environment with `virtualenv` where the project and its Python dependencies will be installed, then install he project and its dependencies.
+    - If installing without `virtualenv`, run `make install` with the `PIP` argument, specifying a different instance of `pip` that will be used to install the project and its dependencies. For example, if you have PyPy installed to `~/.pypy`, then a command like `make install PIP=~/.pypy/bin/pip` would install this project and its dependencies for use with PyPy.
+    - If installing without `make`, see `Makefile` and `lib/Makefile` for more details on the commands that `make install` would run and run analogous commands manually.
+
+<!-- TODO How does this procedure change for Windows users? -->
+<!-- TODO CFFI? -->
+
+
+## Development and testing
+
+- Run tests with `make test` in the project root or `lib`.
 
 <!-- TODO Rework this with information on how to run all executables -->
 <!-- * Run the `main.py` within the **ui** directory
