@@ -6,11 +6,11 @@ PYTHON :=python3
 default: install
 
 .PHONY: test
-test: $(PYTHON) setup.py
+test: setup.py
 	$(PYTHON) setup.py -q test --addopts '-x $(ARGS)'
 
 .PHONY: install
-install: $(PIP) requirements.txt
+install: requirements.txt
 	$(PIP) install -r requirements.txt
 
 clean:

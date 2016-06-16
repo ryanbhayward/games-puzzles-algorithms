@@ -1,5 +1,5 @@
 .PHONY: default
-default: install
+default: venv install
 
 VENV_DIR :=.venv
 SYS_PYTHON :=python3
@@ -10,11 +10,9 @@ $(VENV_ACTIVATE):
 
 VENV_PYTHON =$(VENV_DIR)/bin/python
 $(VENV_PYTHON): $(VENV_ACTIVATE)
-../$(VENV_PYTHON): $(VENV_ACTIVATE)
 
 VENV_PIP =$(VENV_DIR)/bin/pip
 $(VENV_PIP): $(VENV_ACTIVATE)
-../$(VENV_PIP): $(VENV_ACTIVATE)
 
 PYTHON :=../$(VENV_PYTHON)
 PIP :=../$(VENV_PIP)
@@ -23,11 +21,11 @@ PIP :=../$(VENV_PIP)
 venv: $(VENV_ACTIVATE)
 
 .PHONY: test
-test: $(PYTHON) lib/Makefile
+test: lib/Makefile
 	cd lib && make test PYTHON=$(PYTHON) ARGS=$(ARGS)
 
 .PHONY: install
-install: $(PIP) lib/Makefile
+install: lib/Makefile
 	cd lib && make install PIP=$(PIP)
 
 clean:
