@@ -21,6 +21,7 @@ row_dimension = 12
 state = game.GameState.root(row_dimension, column_dimension)
 game_agent = agents.get('Uniform Random')
 
+
 @app.route('/_play_move', methods=['GET'])
 def play_move():
     global state
@@ -116,6 +117,7 @@ def select_agent():
 
     except Exception:
         return jsonify(error=True)
+
 
 @app.route('/')
 def index():
