@@ -45,6 +45,6 @@ class MinimaxAgent(object):
                     if action_value > best_value:
                         best_action = action
                         best_value = action_value
-        return best_value
+        return best_action
 
     def reset(self): pass
