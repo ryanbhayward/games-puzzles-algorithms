@@ -181,7 +181,7 @@ class Board(object):
 
 
 class GameState(object):
-    """Represents the current state of a game of dark hex (dex)."""
+    """Represents the current state of a game of hex."""
 
     @classmethod
     def clean_board(self, *dimensions):
