@@ -1,16 +1,24 @@
 (function () {
-  "use strict";
+  'use strict';
 
-  var grey = "data:image/jpeg;base64," +
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNM+Q8AAc0BZX6f84gAAAAASUVORK5CYII=";
-  var black = "data:image/jpeg;base64," +
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-  var green = "data:image/jpeg;base64," +
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkOMHwHwADYQHJEKmC9QAAAABJRU5ErkJggg==";
-  var yellow = "data:image/jpeg;base64," +
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/1/yPwAINAMYyt59LwAAAABJRU5ErkJggg==";
-  var darkYellow = "data:image/jpeg;base64," +
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMYWT4DwACnAFmA4+qdwAAAABJRU5ErkJggg==";
+  // Prevent arrow keys from scrolling screen
+  window.addEventListener("keydown", function(e) {
+    // space and arrow keys
+    if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+      e.preventDefault();
+    }
+  }, false);
+  
+  var grey = 'data:image/jpeg;base64,' +
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNM+Q8AAc0BZX6f84gAAAAASUVORK5CYII=';
+  var black = 'data:image/jpeg;base64,' +
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+  var green = 'data:image/jpeg;base64,' +
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkOMHwHwADYQHJEKmC9QAAAABJRU5ErkJggg==';
+  var yellow = 'data:image/jpeg;base64,' +
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/1/yPwAINAMYyt59LwAAAABJRU5ErkJggg==';
+  var darkYellow = 'data:image/jpeg;base64,' +
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMYWT4DwACnAFmA4+qdwAAAABJRU5ErkJggg==';
   var cellSize = 8;
 
   var game = new Phaser.Game(600, 400, Phaser.AUTO, 'maze', {preload: preload, create: create, render: render});
@@ -22,7 +30,7 @@
   var initializeState = true;
   var userSprite;
   var historySprites = [];
-  var searchDelay = 0;
+  var searchDelay = 500;
 
   function preload() {
     var iBg = new Image();
@@ -46,12 +54,12 @@
     game.input.keyboard.addCallbacks(this, onCurDown, function () {
     }, function () {
     });
-    $.get("/state", {}, getState.bind(this));
+    $.get('/maze/state', {}, getState.bind(this));
     game.time.advancedTiming = true;
   }
 
   function render() {
-    game.debug.text(game.time.fps, 2, 14, "#00ff00");
+    game.debug.text(game.time.fps, 2, 14, '#00ff00');
   }
 
   function onCurDown(x) {
@@ -66,25 +74,25 @@
     else if (['ArrowUp', 'KeyW'].indexOf(x.code) > -1)
       move = 'up';
     if (['left', 'up', 'right', 'down'].indexOf(move) > -1) {
-      $.ajax({url: '/move', type: 'PUT', data: {'move': move}, success: getState.bind(this)});
-      return
+      $.ajax({url: '/maze/move', type: 'PUT', data: {'move': move}, success: getState.bind(this)});
+      return;
     }
 
     // handle searching
     if (x.code === 'KeyX') {
-      let historyLength = historySprites.length;
+      var historyLength = historySprites.length;
       for (var i = 0; i < historyLength; i++) {
         historySprites.pop().destroy();
       }
       this.searchSteps = 0;
-      $.get("/search_step", {}, searchStep.bind(this));
-      return
+      $.get('/maze/search_step', {}, searchStep.bind(this));
+      return;
     }
     // handle reset
     if (x.code === 'KeyR') {
       $('#searchOutput').text('');
       $('#searchSteps').text('');
-      $.get("/refresh", {}, getState.bind(this));
+      $.get('/maze/refresh', {}, getState.bind(this));
       location.reload();
     }
   }
@@ -109,7 +117,7 @@
           }
           else if (cell === 3) {
             // initialize goal sprite
-            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'green');
+            game.add.tileSprite(j * cellSize, i * cellSize, cellSize, cellSize, 'green').alpha = 0.5;
           }
         }
       }
@@ -120,9 +128,17 @@
         for (j = 0; j < row.length; j++) {
           cell = row[j];
           if (cell === 2) {
-            historySprites.push(game.add.tileSprite(userSprite.x, userSprite.y, cellSize, cellSize, 'darkYellow'));
+            var historySprite = game.add.tileSprite(userSprite.x, userSprite.y, cellSize, cellSize, 'darkYellow');
+            historySprites.push(historySprite);
             userSprite.x = j * cellSize;
             userSprite.y = i * cellSize;
+            for (var k = 0; k < historySprites.length; k++) {
+              var tempHistorySprite = historySprites[k];
+              if (tempHistorySprite.x === userSprite.x && tempHistorySprite.y === userSprite.y) {
+                tempHistorySprite.destroy();
+                historySprites.splice(k, 1);
+              }
+            }
           }
         }
       }
@@ -134,12 +150,12 @@
     var solved = data.solved;
     if (solved === null) {
       $('#searchOutput').text('Impossible, no solution');
-      $.get("/state", {}, getState.bind(this));
+      $.get('/maze/state', {}, getState.bind(this));
       this.searchSteps = null;
     } else if (solved === true) {
       $('#searchOutput').text(data.solution);
-      $.get("/state", {}, getState.bind(this));
-      let historyLength = historySprites.length;
+      $.get('/maze/state', {}, getState.bind(this));
+      var historyLength = historySprites.length;
       for (var i = 0; i < historyLength; i++) {
         historySprites.pop().destroy();
       }
@@ -151,7 +167,7 @@
       this.searchSteps += 1;
       $('#searchSteps').text(this.searchSteps);
       setTimeout(function () {
-        $.get("/search_step", {}, searchStep.bind(this))
+        $.get('/maze/search_step', {}, searchStep.bind(this))
       }.bind(this), searchDelay);
     }
   }
@@ -162,23 +178,23 @@
     solver = data.solver;
     steps = data.steps;
     updateMazeState(maze);
-    $("#search").val(solver);
+    $('#search').val(solver);
     $('#steps').text(steps);
     $('#width').val(Math.floor(maze[0].length / 2));
     $('#height').val(Math.floor(maze.length / 2));
     $('#delay').val(searchDelay);
   }
 
-  $("#maze-form").submit(function () {
+  $('#maze-form').submit(function () {
     var width = $('#width').val();
     var height = $('#height').val();
     var search = $('#search').val();
-    $.post("/set_search", {'search': search}, getState);
-    $.post("/set_size", {'width': width, 'height': height}, getState);
+    $.post('/maze/set_search', {'search': search}, getState);
+    $.post('/maze/set_size', {'width': width, 'height': height}, getState);
     return true;
   });
 
-  $("#delay").change(function () {
+  $('#delay').change(function () {
     searchDelay = Number($('#delay').val());
   });
 

@@ -1,4 +1,3 @@
-
 import random
 import numpy as np
 
@@ -19,12 +18,12 @@ class SlidingTilePuzzle(object):
     B 1 2
     3 4 5
     6 7 8
-    """    
+    """
     NAME = "sliding_tile"
     BLANK = 0
     DIRECTIONS = {"up": 0, "down": 1, "right": 2, "left": 3}
     HEURISTICS = ["misplaced tiles", "manhattan distance"]
-    
+
     def __init__(self, size=3, seed=None):
         """
         Initialize a square sliding tile puzzle with size tiles per side.
@@ -32,15 +31,15 @@ class SlidingTilePuzzle(object):
         for randomizing the initial puzzle layerout if it is set, 
         so the same puzzle can be generated repeatedly by setting the same seed.
         """
-        
+
         if seed:
             random.seed(seed)
-            
+
         self.size = size
         self.puzzle = np.arange(size * size)
         random.shuffle(self.puzzle)
         self.puzzle = np.reshape(self.puzzle, (size, size))
-        
+
         self.num_correct_tiles = 0
         for i in range(size):
             for j in range(size):
@@ -48,23 +47,23 @@ class SlidingTilePuzzle(object):
                     self.blank_index = (i, j)
                 if self.puzzle[(i, j)] == self.correct_num((i, j)):
                     self.num_correct_tiles += 1
-                    
+
     def is_solved(self):
         """Return True if the puzzle is solved. False otherwise."""
         return self.num_correct_tiles == self.size * self.size
-    
+
     def correct_num(self, position):
         """
         Return the correct number to have at position in the solved puzzle.
         """
         return position[0] * self.size + position[1]
-    
+
     def correct_tile(self, num):
         """Return the correct position for num in the solved puzzle."""
         x = num % self.size
         y = num // self.size
         return (y, x)
-    
+
     def apply_move(self, direction):
         """
         Slide a tile bordering the blank one in direction.
@@ -86,7 +85,7 @@ class SlidingTilePuzzle(object):
         if (tile[0] >= self.size or tile[0] < 0
             or tile[1] >= self.size or tile[1] < 0):
             raise ValueError("Invalid move: exceeds puzzle boundaries")
-        
+
         if self.puzzle[tile] == self.correct_num(tile):
             self.num_correct_tiles -= 1
         elif self.puzzle[tile] == self.correct_num(self.blank_index):
@@ -95,24 +94,24 @@ class SlidingTilePuzzle(object):
             self.num_correct_tiles -= 1
         elif self.BLANK == self.correct_num(tile):
             self.num_correct_tiles += 1
-        
+
         self.puzzle[self.blank_index] = self.puzzle[tile]
         self.puzzle[tile] = self.BLANK
         self.blank_index = tile
-    
+
     def valid_moves(self):
         """Return a list of valid moves."""
         moves = []
         if self.blank_index[0] + 1 < self.size:
             moves.append(self.DIRECTIONS["up"])
         if self.blank_index[0] - 1 >= 0:
-            moves.append(self.DIRECTIONS["down"])    
+            moves.append(self.DIRECTIONS["down"])
         if self.blank_index[1] + 1 < self.size:
-            moves.append(self.DIRECTIONS["left"])   
+            moves.append(self.DIRECTIONS["left"])
         if self.blank_index[1] - 1 >= 0:
             moves.append(self.DIRECTIONS["right"])
         return moves
-    
+
     def str_moves(self, moves):
         strings = []
         for move in moves:
@@ -124,9 +123,9 @@ class SlidingTilePuzzle(object):
                 strings.append("left")
             elif move == self.DIRECTIONS["right"]:
                 strings.append("right")
-                
+
         return strings
-    
+
     def copy(self):
         """Return a deep copy of SlidingTilePuzzle."""
         new_puzzle = SlidingTilePuzzle(0)
@@ -137,21 +136,21 @@ class SlidingTilePuzzle(object):
         for i in range(self.size):
             for j in range(self.size):
                 new_puzzle.puzzle[(i, j)] = self.puzzle[(i, j)]
-                
+
         return new_puzzle
-        
+
     def value(self):
         """Return a tuple representing the puzzle."""
         return tuple(self.puzzle.flatten())
-        
+
     def equals(self, other):
         """Check if two maze are in the same state."""
         return np.array_equal(self.puzzle, other.puzzle)
-    
+
     def misplaced_tiles(self):
         """Return a heuristic giving the number of misplaced tiles."""
         return self.size - self.num_correct_tiles
-    
+
     def manhattan_distance(self):
         """
         Return the sum of the distances from the tiles to their goal positions.
@@ -164,14 +163,16 @@ class SlidingTilePuzzle(object):
                 distance += abs(i - correct[0])
                 distance += abs(j - correct[1])
         return distance
-    
+
     def heuristic(self, name):
         """Return a heuristic for the puzzle determined by the string name."""
         if name == "misplaced tiles":
             return self.misplaced_tiles()
         elif name == "manhattan distance":
             return self.manhattan_distance()
-    
+        # default to manhattan distane
+        return self.manhattan_distance()
+
     def __str__(self):
         """
         Return a string representation of the puzzle.
@@ -189,8 +190,22 @@ class SlidingTilePuzzle(object):
                     result.append(" " * (digits - len(num)))
                     result.append(num)
             result.append("\n")
-            
+
         space = " "
         return space.join(result)
-                
 
+    def array(self):
+        """
+        Return an array representation of the puzzle.
+        For use in the web visualization. 0 is the blank space.
+        :return:
+        """
+        result = []
+        for i in range(self.size):
+            for j in range(self.size):
+                if (i, j) == self.blank_index:
+                    result.append(0)
+                else:
+                    num = self.puzzle[(i, j)]
+                    result.append(int(num))
+        return result

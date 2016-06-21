@@ -253,7 +253,7 @@ class MazePuzzle(object):
             arrmaze.append(row)
         arrmaze.pop()
 
-        arrmaze[len(arrmaze) - ((self.position[1] + 1) * 2)][(self.position[0] * 2) + 1] = 2
         arrmaze[len(arrmaze) - ((self.goal[1] + 1) * 2)][(self.goal[0] * 2) + 1] = 3
+        arrmaze[len(arrmaze) - ((self.position[1] + 1) * 2)][(self.position[0] * 2) + 1] = 2
 
         return arrmaze
