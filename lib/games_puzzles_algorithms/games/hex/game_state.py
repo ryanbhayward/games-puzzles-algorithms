@@ -376,10 +376,6 @@ class GameState(object):
     def num_legal_actions(self):
         return self.board.num_legal_actions()
 
-    def to_s(self, player):
-        """Print an ascii representation of the game board."""
-        return self.board.to_s(player)
-
     def __str__(self):
         """Print an ascii representation of the game board."""
         return str(self.board)
