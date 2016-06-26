@@ -1,6 +1,7 @@
 class FakeGameState(object):
     def __init__(self):
         self._player_to_act = 0
+        self._player_who_acted_last = 1
 
     def num_legal_actions(self):
         return 2
@@ -16,6 +17,8 @@ class FakeGameState(object):
         (see `legal_actions`).
         Return `self`.
         '''
+        self._player_who_acted_last = self.player_to_act()
+        self._player_to_act = int(not(self._player_to_act))
         return self
 
     def __enter__(self):
@@ -45,13 +48,17 @@ class FakeGameState(object):
 
     def undo(self):
         '''Reverse the effect of the last action that was played'''
-        pass
+        self._player_who_acted_last = self.player_to_act()
+        self._player_to_act = int(not(self._player_to_act))
 
     def set_player_to_act(self, player):
         self._player_to_act = player
 
     def player_to_act(self):
         return self._player_to_act
+
+    def player_who_acted_last(self):
+        return self._player_who_acted_last
 
     def is_terminal(self):
         return False

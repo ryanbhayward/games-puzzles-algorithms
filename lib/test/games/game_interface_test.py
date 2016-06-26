@@ -43,6 +43,18 @@ def test_player_to_act(game_state, player):
     assert game_state.player_to_act() == player
 
 
+@pytest.mark.parametrize('game_state, player', [
+    (g, 0) for g in game_states()] + [(g, 1) for g in game_states()
+])
+def test_player_who_acted_last(game_state, player):
+    game_state.set_player_to_act(player)
+    game_state.play(0)
+    assert game_state.player_who_acted_last() == player
+    game_state.play(1)
+    game_state.undo()
+    assert game_state.player_who_acted_last() == player
+
+
 @pytest.mark.parametrize('game_state', game_states())
 def test_is_terminal(game_state):
     game_state.is_terminal()

@@ -3,7 +3,6 @@ from .color import IllegalAction, COLORS, ORIENTATION, COLOR_SYMBOLS, \
     NUM_PLAYERS, color_to_player, next_player, player_to_color, cell_str, \
     cell_str_to_cell
 from array import array
-from games_puzzles_algorithms.debug import log
 
 
 def prod(*l):
@@ -182,7 +181,7 @@ class Board(object):
 
 
 class GameState(object):
-    """Represents the current state of a game of dark hex (dex)."""
+    """Represents the current state of a game of hex."""
 
     @classmethod
     def clean_board(self, *dimensions):
@@ -211,6 +210,11 @@ class GameState(object):
 
     def __getitem__(self, cell):
         return self.board.color(*cell)
+
+    def player_who_acted_last(self):
+        return self._previous_acting_players[-1] \
+            if self._previous_acting_players \
+            else None
 
     def could_terminate_in_one_action(self, player=None):
         '''
