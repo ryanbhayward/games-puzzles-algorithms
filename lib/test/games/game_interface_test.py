@@ -1,4 +1,3 @@
-from games_puzzles_algorithms.games.dex.game_state import GameState as DexGameState
 from games_puzzles_algorithms.games.hex.game_state import GameState as HexGameState
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
 import pytest
@@ -7,7 +6,6 @@ import pytest
 def game_states():
     return [
         FakeGameState(),
-        DexGameState.root(),
         HexGameState.root()
     ]
 
