@@ -125,6 +125,7 @@
       console.log('solved', data);
       $('#searchOutput').text(data.solution);
       $.get('/sliding_tile/state', {}, getState.bind(this));
+      applyMoves(data.solution);
     } else {
       this.sliding_tile = data.sliding_tile;
       prepareBoard(this.sliding_tile);
@@ -150,6 +151,17 @@
     $('#delay').val(searchDelay);
     prepareBoard();
   }
+
+  function applyMoves(moves) {
+    for(var i = 0; i < moves.length; i++) {
+      var move = moves[i];
+      if (['left', 'up', 'right', 'down'].indexOf(move) > -1) {
+        $.ajax({url: '/sliding_tile/move', type: 'PUT', data: {'move': move}, success: getState.bind(this)});
+      }
+    }
+  }
+
+
   $('#sliding-tile-form').submit(function () {
     var size = $('#size').val();
     var search = $('#search').val();

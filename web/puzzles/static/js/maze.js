@@ -159,6 +159,7 @@
       for (var i = 0; i < historyLength; i++) {
         historySprites.pop().destroy();
       }
+      applyMoves(data.solution);
     } else {
       this.maze = data.maze;
       updateMazeState(this.maze);
@@ -183,6 +184,15 @@
     $('#width').val(Math.floor(maze[0].length / 2));
     $('#height').val(Math.floor(maze.length / 2));
     $('#delay').val(searchDelay);
+  }
+
+  function applyMoves(moves) {
+    for(var i = 0; i < moves.length; i++) {
+      var move = moves[i];
+      if (['left', 'up', 'right', 'down'].indexOf(move) > -1) {
+        $.ajax({url: '/maze/move', type: 'PUT', data: {'move': move}, success: getState.bind(this)});
+      }
+    }
   }
 
   $('#maze-form').submit(function () {
