@@ -7,13 +7,13 @@ import games_puzzles_algorithms.games.hex.color as color
 
 
 class GameAndPlayerManager(object):
-    AGENTS = {
-        'MCTS': mcts.MctsAgent
+    ALGORITHMS = {
+        'MCTS': mcts.MctsAgent.Mcts
     }
 
-    def __init__(self, app, num_rows=2, num_columns=2, agent_name='MCTS'):
+    def __init__(self, app, num_rows=2, num_columns=2, alg_name='MCTS'):
         self._state = game.GameState.root(num_rows, num_columns)
-        self._agent = self.AGENTS[agent_name]()
+        self._alg = self.ALGORITHMS[alg_name]()
 
         @app.route('/', methods=['GET'])
         def index():
@@ -21,11 +21,11 @@ class GameAndPlayerManager(object):
 
         @app.route('/_search', methods=['GET'])
         def search():
-            stats = self._agent.search(self._state, num_iterations=10)
+            stats = self._alg.search(self._state, num_iterations=10)
             return jsonify(
                 error=False,
-                board=state.board._cells.tolist(),
-                data={'statistics': stats, 'tree': self._agent.todict()})
+                board=self._state.board._cells.tolist(),
+                data={'statistics': stats, 'tree': self._alg.to_dict()})
 
 
 if __name__ == '__main__':

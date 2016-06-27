@@ -104,7 +104,7 @@ class UctNode:
     def num_nodes(self):
         return self.num_children() + 1
 
-    def info_strings_to_json(self):
+    def info_strings_to_dict(self):
         d = {}
         d['info'] = "| Q: {} N: {}".format(self.Q, self.N)
         if self.action is not None:
@@ -114,10 +114,22 @@ class UctNode:
         if not self.is_leaf():
             d['children'] = []
             for n in self.child_nodes():
-                d['children'].append(n.info_strings_to_json())
+                d['children'].append(n.info_strings_to_dict())
         return d
 
-    def __str__(self): return json.dumps(self.info_strings_to_json(),
+    def to_dict(self):
+        d = {'Q': self.Q, 'N': self.N}
+        if self.action is not None:
+            d["A"] = self.action
+        if self.acting_player is not None:
+            d['P'] = self.acting_player
+        if not self.is_leaf():
+            d['children'] = []
+            for n in self.child_nodes():
+                d['children'].append(n.to_dict())
+        return d
+
+    def __str__(self): return json.dumps(self.info_strings_to_dict(),
                                          sort_keys=True,
                                          indent=4)
 
@@ -195,7 +207,7 @@ class MctsAgent(object):
             self._root.expand(root_state)
 
             debug.log({'Initial search tree': (
-                          self._root.info_strings_to_json()
+                          self._root.info_strings_to_dict()
                        ),
                        'Time available in seconds': time_available,
                        '# iterations': num_iterations}, level=logging.INFO)
@@ -229,7 +241,7 @@ class MctsAgent(object):
                 node.backup(**rollout_results)
 
                 debug.log({'Updated search tree': (
-                                self._root.info_strings_to_json()),
+                                self._root.info_strings_to_dict()),
                            'Seconds used': time_used_s,
                            '# iterations completed': (num_iterations_completed
                                                       + 1)})
@@ -300,6 +312,12 @@ class MctsAgent(object):
             """Return the number of nodes in search tree."""
             return len(self._root)
 
+        def info_strings_to_dict(self):
+            return self._root.info_strings_to_dict()
+
+        def to_dict(self):
+            return self._root.to_dict()
+
     def __init__(self,
                  node_generator=UctNode,
                  exploration=1,
@@ -314,3 +332,9 @@ class MctsAgent(object):
              num_iterations=self.num_search_iterations)
 
     def reset(self): self._search_tree.reset()
+
+    def info_strings_to_dict(self):
+        return self._search_tree.info_strings_to_dict()
+
+    def to_dict(self):
+        return self._search_tree.to_dict()
