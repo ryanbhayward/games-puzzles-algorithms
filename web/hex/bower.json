@@ -1,0 +1,18 @@
+{
+  "name": "hex-web-ui",
+  "homepage": "https://github.com/ryanbhayward/games-puzzles-algorithms",
+  "authors": [
+    "Jesse Huard <jhuard@ualberta.ca>"
+  ],
+  "description": "Minimal Web Interface for Hex Agents.",
+  "main": "static/js/main.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
