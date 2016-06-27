@@ -27,7 +27,9 @@ test: lib/Makefile
 .PHONY: install
 install: lib/Makefile
 	cd lib && make install PIP=$(PIP)
+	cd web/hex && make install PIP=$(PIP)
 
 clean:
 	rm -rf $(VENV_DIR) 2> /dev/null
 	cd lib && make clean
+	cd web/hex && make clean
