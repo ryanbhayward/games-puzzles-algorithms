@@ -1,7 +1,7 @@
 .PHONY: default
 default: venv install
 
-VENV_DIR :=.venv
+VENV_DIR :=$(shell pwd)/.venv
 SYS_PYTHON :=python3
 
 VENV_ACTIVATE =$(VENV_DIR)/bin/activate
@@ -14,8 +14,8 @@ $(VENV_PYTHON): $(VENV_ACTIVATE)
 VENV_PIP =$(VENV_DIR)/bin/pip
 $(VENV_PIP): $(VENV_ACTIVATE)
 
-PYTHON :=../$(VENV_PYTHON)
-PIP :=../$(VENV_PIP)
+PYTHON :=$(VENV_PYTHON)
+PIP :=$(VENV_PIP)
 
 .PHONY: venv
 venv: $(VENV_ACTIVATE)
