@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "jquery": "^3.0.0",
-    "semantic": "^2.1.8"
+    "semantic": "^2.1.8",
+    "phaser": "^2.5.0"
   }
 }
