@@ -117,6 +117,7 @@ def test_search():
     assert stats['num_nodes_expanded'] == 11
 
 
+# import json
 # def test_verbose_search():
 #     logging.basicConfig(level=logging.DEBUG)
 #
@@ -130,3 +131,5 @@ def test_search():
 #     assert stats['num_iterations_completed'] == 10
 #     assert stats['time_used_s'] is not None
 #     assert stats['num_nodes_expanded'] == 11
+#
+#     print(json.dumps({'statistics': stats, 'tree': patient.to_json()}, sort_keys=True, indent=4))
