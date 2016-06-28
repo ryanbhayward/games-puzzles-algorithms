@@ -1,12 +1,14 @@
 from games_puzzles_algorithms.games.hex.game_state import GameState as HexGameState
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
+from games_puzzles_algorithms.games.ttt.game_state import GameState as TttGameState
 import pytest
 
 
 def game_states():
     return [
         FakeGameState(),
-        HexGameState.root()
+        HexGameState.root(),
+        TttGameState()
     ]
 
 
