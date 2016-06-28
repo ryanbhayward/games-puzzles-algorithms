@@ -3,25 +3,18 @@ from games_puzzles_algorithms.search.a_star import AStar
 from games_puzzles_algorithms.search.breadth_first_search import BreadthFirstSearch
 from games_puzzles_algorithms.search.depth_first_search import DepthFirstSearch
 from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
-from games_puzzles_algorithms.puzzles.maze_puzzle import MazePuzzle
-
+from games_puzzles_algorithms.puzzles.solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle
 
 class Interface(Cmd):
     """
     Generalized interface for puzzles and solvers.
     """
 
-    SOLVERS = {
-        "A*": AStar,
-        "bfs": BreadthFirstSearch,
-        "dfs": DepthFirstSearch
-    }
-    PUZZLES = {
-        SlidingTilePuzzle.NAME: SlidingTilePuzzle,
-        MazePuzzle.NAME: MazePuzzle
-    }
+    SOLVERS = {"A*": AStar, "breadth_first_search": BreadthFirstSearch}
+    PUZZLES = {"sliding_tile": SlidingTilePuzzle,
+               "solvable_sliding_tile": SolvableSlidingTilePuzzle}
 
-    def __init__(self, puzzle, solver, verbose, heuristic=None):
+    def __init__(self, puzzle, solver, heuristic=None):
         """
         Initialize the interface.
         puzzle, solver, and heuristic are all strings giving the names of
@@ -30,46 +23,30 @@ class Interface(Cmd):
         """
         Cmd.__init__(self)
         self.time_limit = 30
-        self.verbose = verbose
+        self.verbose = False
 
-        if puzzle == SlidingTilePuzzle.NAME:
-            self.size = 3
-            if solver == "A*" and heuristic is None:
-                heuristic = "manhattan distance"
-            self.heuristic = heuristic
+        self.size1 = 3
+        self.size2 = 3
+        if solver == "A*" and heuristic is None:
+            heuristic = "manhattan distance"
+        self.heuristic = heuristic
+        if puzzle in self.PUZZLES:
             self.puzzle_name = self.PUZZLES[puzzle]
-            self.puzzle = self.puzzle_name(self.size)
-        elif puzzle == MazePuzzle.NAME:
-            self.width = 5
-            self.height = 5
-            self.heuristic = ""
-            self.puzzle_name = self.PUZZLES[puzzle]
-            self.puzzle = MazePuzzle(self.width, self.height)
-        else:
-            raise Exception("Specified puzzle " + puzzle + " is not defined!")
+            self.puzzle = self.puzzle_name(size1=self.size1, size2=self.size2)
 
         if solver in self.SOLVERS:
-            self.solver_name = solver
-            self.solver = self._instantiate_solver()
+            self.solver_name = self.SOLVERS[solver]
+            self.new_solver()
+
+    def new_solver(self):
+        """Create a new solver based on the current attribute values."""
+        if self.solver_name == self.SOLVERS['A*']:
+            self.solver = self.solver_name(self.puzzle, self.time_limit,
+                                           self.heuristic)
         else:
-            raise Exception("Specified solver " + solver + " is not defined!")
+            self.solver = self.solver_name(self.puzzle, self.time_limit)
 
-        print(puzzle)
-        self.do_show_puzzle("")
-        print("Type 'help' for a list of commands.")
-
-    def _instantiate_solver(self):
-        """
-        Wrapper for the search constructors, given that A* takes different params than BFS/DFS
-        :return: Constructor function for search object
-        """
-        if self.solver_name == "A*":
-            return Interface.SOLVERS[self.solver_name](self.puzzle, self.time_limit, self.heuristic)
-        return Interface.SOLVERS[self.solver_name](self.puzzle, self.time_limit)
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def do_quit(arg):
+    def do_quit(self, args):
         """Exit the program."""
         return True
 
@@ -88,43 +65,32 @@ class Interface(Cmd):
         print("set_heuristic")
         print("set_solver")
         print("is_solved")
+        print("verbose")
 
     def do_set_size(self, args):
-        """Set the size of the puzzle problem."""
-        if self.puzzle_name.NAME == SlidingTilePuzzle.NAME:
-            try:
-                size = int(args)
-            except ValueError:
-                print("Error: invalid size")
-                return
-            if size < 1:
-                print("Error: invalid size")
-                return
-            self.size = size
-            self.do_new_puzzle("")
-        elif self.puzzle_name.NAME == MazePuzzle.NAME:
-            sizes = args.split(" ")
-            if len(sizes) != 2:
-                print("Error: invalid sizes. Expected 2 numbers")
-                return
-            try:
-                width = int(sizes[0])
-                if width <= 0:
-                    print("Error: width cannot be less than 1")
-                    return
-                height = int(sizes[1])
-                if height <= 0:
-                    print("Error: height cannot be less than 1")
-                    return
-                if width < 2 and height < 2:
-                    print("Error: width and height cannot both be less than 2")
-                    return
-                self.width = width
-                self.height = height
-            except ValueError:
-                print("Error: invalid sizes. Expected 2 numbers")
-                return
-            self.do_new_puzzle("")
+        """
+        Set the size of the puzzle problem.
+        args should be one or two positive numbers separated by a space.
+        The first number is the number of rows, and the second if given is the
+        number of columns. Otherwise the number of columns and rows are equal.
+        """
+        try:
+            args = args.split(' ')
+            size1 = int(args[0])
+            if len(args) > 1:
+                size2 = int(args[1])
+            else:
+                size2 = size1
+        except ValueError:
+            print("Error: invalid size")
+            return
+        if size1 < 1 or size2 < 1:
+            print("Error: invalid size")
+            return
+
+        self.size1 = size1
+        self.size2 = size2
+        self.do_new_puzzle("")
 
     def do_set_time(self, args):
         """Set the time limit for search."""
@@ -136,10 +102,8 @@ class Interface(Cmd):
         if time < 0:
             print("Error: invalid time")
             return
-        self.time_limit = time
-        self.solver = self._instantiate_solver()
+        self.solver.set_time(time)
 
-    # noinspection PyUnusedLocal
     def do_show_puzzle(self, args):
         """Print a string representation of the puzzle."""
         print(self.puzzle)
@@ -173,8 +137,10 @@ class Interface(Cmd):
             print("The puzzle has no solution.")
         elif not result:
             print("The search timed out.""")
-            print(str(self.solver.num_nodes_generated()) + " nodes were generated")
-        print(result)
+            print(str(self.solver.num_nodes_generated()) + " nodes were "
+                  "generated")
+        else:
+            print(', '.join(self.puzzle.str_moves(result)))
 
     def do_new_puzzle(self, args):
         """Generate a new puzzle of the same size as the current one"""
@@ -184,29 +150,32 @@ class Interface(Cmd):
                 seed = int(args)
             except ValueError:
                 print("Error: invalid seed")
-        if self.puzzle_name.NAME == SlidingTilePuzzle.NAME:
-            self.puzzle = self.puzzle_name(self.size, seed)
-        elif self.puzzle_name.NAME == MazePuzzle.NAME:
-            self.puzzle = self.puzzle_name(self.width, self.height, seed)
-        self.solver = self._instantiate_solver()
-        print(self.puzzle.NAME)
-        print(self.puzzle)
+                return
+
+        self.puzzle = self.puzzle_name(self.size1, seed, self.size2)
+        self.new_solver()
 
     def do_set_heuristic(self, args):
         """Set the heuristic for the search."""
         if args in self.puzzle_name.HEURISTICS:
             self.heuristic = args
-            self.solver = self._instantiate_solver()
+            self.new_solver()
 
-    def do_set_solver(self, args):
-        """Set the solver for the puzzle."""
-        if args in self.SOLVERS:
-            self.solver_name = args
-            self.solver = self._instantiate_solver()
-        else:
-            print("Invalid solver " + args)
-
-    # noinspection PyUnusedLocal
     def do_is_solved(self, args):
         """Print True if the puzzle is solved. False otherwise."""
         print(self.puzzle.is_solved())
+
+    def do_verbose(self, args):
+        """
+        Set the verbosity of the output.
+        args should be True or False or t or f as a string.
+        """
+        if args[0].lower() == 't':
+            verbose = True
+        elif args[0].lower() == 'f':
+            verbose = False
+        else:
+            print('Error: invalid argument, should be t or f')
+            return
+
+        self.solver.set_verbose(verbose)

@@ -1,6 +1,6 @@
 
 import random
-import numpy as np
+from games_puzzles_algorithms.twod_array import TwoDArray
 
 
 class SlidingTilePuzzle(object):
@@ -25,7 +25,7 @@ class SlidingTilePuzzle(object):
     DIRECTIONS = {"up": 0, "down": 1, "right": 2, "left": 3}
     HEURISTICS = ["misplaced tiles", "manhattan distance"]
     
-    def __init__(self, size=3, seed=None):
+    def __init__(self, size1=3, seed=None, size2=None):
         """
         Initialize a square sliding tile puzzle with size tiles per side.
         The opptional seed argument is used to seed the random number generator
@@ -36,14 +36,17 @@ class SlidingTilePuzzle(object):
         if seed:
             random.seed(seed)
             
-        self.size = size
-        self.puzzle = np.arange(size * size)
+        self.size1 = size1
+        self.size2 = size2
+        if size2 is None:
+            self.size2 = size1
+        self.puzzle = list(range(self.size1 * self.size2))
         random.shuffle(self.puzzle)
-        self.puzzle = np.reshape(self.puzzle, (size, size))
+        self.puzzle = TwoDArray((self.size1, self.size2), self.puzzle)
         
         self.num_correct_tiles = 0
-        for i in range(size):
-            for j in range(size):
+        for i in range(self.size1):
+            for j in range(self.size2):
                 if self.puzzle[(i, j)] == self.BLANK:
                     self.blank_index = (i, j)
                 if self.puzzle[(i, j)] == self.correct_num((i, j)):
@@ -51,18 +54,18 @@ class SlidingTilePuzzle(object):
                     
     def is_solved(self):
         """Return True if the puzzle is solved. False otherwise."""
-        return self.num_correct_tiles == self.size * self.size
+        return self.num_correct_tiles == self.size1 * self.size2
     
     def correct_num(self, position):
         """
         Return the correct number to have at position in the solved puzzle.
         """
-        return position[0] * self.size + position[1]
+        return position[0] * self.size2 + position[1]
     
     def correct_tile(self, num):
         """Return the correct position for num in the solved puzzle."""
-        x = num % self.size
-        y = num // self.size
+        x = num % self.size2
+        y = num // self.size2
         return (y, x)
     
     def apply_move(self, direction):
@@ -83,8 +86,8 @@ class SlidingTilePuzzle(object):
             tile = (self.blank_index[0], self.blank_index[1] + 1)
         elif self.DIRECTIONS["right"] == direction:
             tile = (self.blank_index[0], self.blank_index[1] - 1)
-        if (tile[0] >= self.size or tile[0] < 0
-            or tile[1] >= self.size or tile[1] < 0):
+        if (tile[0] >= self.size1 or tile[0] < 0
+            or tile[1] >= self.size2 or tile[1] < 0):
             raise ValueError("Invalid move: exceeds puzzle boundaries")
         
         if self.puzzle[tile] == self.correct_num(tile):
@@ -103,11 +106,11 @@ class SlidingTilePuzzle(object):
     def valid_moves(self):
         """Return a list of valid moves."""
         moves = []
-        if self.blank_index[0] + 1 < self.size:
+        if self.blank_index[0] + 1 < self.size1:
             moves.append(self.DIRECTIONS["up"])
         if self.blank_index[0] - 1 >= 0:
             moves.append(self.DIRECTIONS["down"])    
-        if self.blank_index[1] + 1 < self.size:
+        if self.blank_index[1] + 1 < self.size2:
             moves.append(self.DIRECTIONS["left"])   
         if self.blank_index[1] - 1 >= 0:
             moves.append(self.DIRECTIONS["right"])
@@ -129,13 +132,14 @@ class SlidingTilePuzzle(object):
     
     def copy(self):
         """Return a deep copy of SlidingTilePuzzle."""
-        new_puzzle = SlidingTilePuzzle(0)
-        new_puzzle.size = self.size
+        new_puzzle = SlidingTilePuzzle(1)
+        new_puzzle.size1 = self.size1
+        new_puzzle.size2 = self.size2
         new_puzzle.num_correct_tiles = self.num_correct_tiles
-        new_puzzle.puzzle = np.zeros((self.size, self.size))
+        new_puzzle.puzzle = TwoDArray((self.size1, self.size2))
         new_puzzle.blank_index = self.blank_index
-        for i in range(self.size):
-            for j in range(self.size):
+        for i in range(self.size1):
+            for j in range(self.size2):
                 new_puzzle.puzzle[(i, j)] = self.puzzle[(i, j)]
                 
         return new_puzzle
@@ -146,19 +150,19 @@ class SlidingTilePuzzle(object):
         
     def equals(self, other):
         """Check if two puzzles are in the same state."""
-        return np.array_equal(self.puzzle, other.puzzle)
+        return self.puzzle == other.puzzle
     
     def misplaced_tiles(self):
         """Return a heuristic giving the number of misplaced tiles."""
-        return self.size - self.num_correct_tiles
+        return self.size1 * self.size2 - self.num_correct_tiles
     
     def manhattan_distance(self):
         """
         Return the sum of the distances from the tiles to their goal positions.
         """
         distance = 0
-        for i in range(self.size):
-            for j in range(self.size):
+        for i in range(self.size1):
+            for j in range(self.size2):
                 num = self.puzzle[(i, j)]
                 correct = self.correct_tile(num)
                 distance += abs(i - correct[0])
@@ -177,10 +181,10 @@ class SlidingTilePuzzle(object):
         Return a string representation of the puzzle.
         The blank space is represented by a letter B.
         """
-        digits = len(str(self.size * self.size - 1))
+        digits = len(str(self.size1 * self.size2 - 1))
         result = ["\n"]
-        for i in range(self.size):
-            for j in range(self.size):
+        for i in range(self.size1):
+            for j in range(self.size2):
                 if (i, j) == self.blank_index:
                     result.append(" " * (digits - 1))
                     result.append("B")
