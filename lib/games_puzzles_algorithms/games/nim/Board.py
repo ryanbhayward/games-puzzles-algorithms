@@ -5,7 +5,7 @@ import random
 
 class Board:
 
-
+    ''' game initial set up'''
     heapNum = 5
     heap = [1,2,3,4,5]
 

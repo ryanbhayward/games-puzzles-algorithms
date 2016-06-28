@@ -1,0 +1,15 @@
+Liar’s dice rule:
+
+1 each player rolls 6 dies so 12 dies in total
+2 player raise bid with a quantity and a face value (e.g   (7,2) means bidding there’s seven twos in the pile)
+
+3 ones counts towards wild cards unless the bidding is still on the face value of one, can be counted as any face value.
+
+4 now opponent can choose to challenge, a challenge is successful if only the bid is a lie (there’s not enough bidded face value in the total dice pile, counting the wild cards). game ends when the winner successfully challenges opponent or successfully defends a challenge from the opponent.
+
+5 if opponent decides not to challenge, then he or she must raise the bid. The bid must increase in the following manner:
+
+you can either raise a higher quantity of the same face value, or any quantity of a higher face value.
+
+if the last bid was (12,12) then you cannot raise therefore must challenge.
+

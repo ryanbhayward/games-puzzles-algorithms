@@ -1,0 +1,6 @@
+1. Write different player strategy(reserved player, aggressive bidder, probabilistic bidder, learner)
+
+
+
+2. Write a different rule set 
+since all that needed is evaluation rule a validating rule) 
