@@ -8,6 +8,13 @@ A minimal web interface for hex game agents.
 
 - A Python3 interpreter
 - [`bower`](https://bower.io/)
+    - To install `bower`: `npm install -g bower` (Requires [`npm`](https://www.npmjs.com/))
+        - To install `npm`:
+            - Ubuntu/Debian: `apt-get install npm`
+            - OSX: `brew install npm` (Requires [`homebrew`](http://brew.sh/))
+            - Fedora: `dnf install npm`
+            - Arch: `pacman -S npm`
+            - openSUSE: `zypper install npm`
 - `make` (Optional)
 - `venv` (Optional)
 
