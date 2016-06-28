@@ -1,5 +1,6 @@
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
 from games_puzzles_algorithms.games.hex.game_state import GameState
+import logging
 
 
 def test_one_by_one():

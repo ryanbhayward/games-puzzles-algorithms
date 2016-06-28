@@ -15,7 +15,7 @@ def uniform_random_roll_out_policy(state):
     return choose_legal_action_uniformly_randomly(state, random.random())
 
 
-class UctNode(object):
+class UctNode:
     def __init__(self, action=None, parent=None, acting_player=None):
         self.action = action
         self.parent = parent
@@ -202,6 +202,8 @@ class MctsAgent(object):
 
             start_time = time.clock()
 
+            my_root_state = deepcopy(root_state)
+
             self._root = self._node_generator()
             self._root.expand(root_state)
 
@@ -210,7 +212,7 @@ class MctsAgent(object):
                        ),
                        'Time available in seconds': time_available,
                        '# iterations': num_iterations}, level=logging.INFO)
-            debug.log(str(root_state), level=logging.INFO)
+            debug.log(str(my_root_state), level=logging.INFO)
 
             num_iterations_completed = 0
 
@@ -224,7 +226,7 @@ class MctsAgent(object):
                 try:
                     node, game_state, num_actions = self.select_node(
                         self._root,
-                        root_state,
+                        my_root_state,
                         time_is_available=time_is_available)
                 except self.TimeIsUp:
                     break
@@ -232,7 +234,7 @@ class MctsAgent(object):
                 debug.log("Executing roll-out from (player {} is acting):"
                             .format(game_state.player_to_act()),
                           level=logging.INFO)
-                debug.log(str(root_state), level=logging.INFO)
+                debug.log(str(my_root_state), level=logging.INFO)
 
                 rollout_results = self.roll_out(game_state,
                                                 game_state.player_to_act())
