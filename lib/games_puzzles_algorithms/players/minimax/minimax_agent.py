@@ -120,4 +120,4 @@ class MinimaxAgent(object):
                    'Tree': self.to_dict()}, level=logging.INFO)
         return best_action
 
-    def reset(self): pass
+    def reset(self): self._tree = {}
