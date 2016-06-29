@@ -15,7 +15,7 @@ def uniform_random_roll_out_policy(state):
     return choose_legal_action_uniformly_randomly(state, random.random())
 
 
-class UctNode:
+class UctNode(object):
     def __init__(self, action=None, parent=None, acting_player=None):
         self.action = action
         self.parent = parent
