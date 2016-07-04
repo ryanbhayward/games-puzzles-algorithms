@@ -1,5 +1,6 @@
 from array import array
 from enum import IntEnum
+from string import ascii_uppercase as alphabet
 
 class BoardValues(IntEnum):
     X = 0
@@ -80,25 +81,25 @@ class GameState(object):
             self._actions = []
 
         def __str__(self):
-            ret = "\n"
-            coord_size = len(str(self._spaces.num_rows()))
-            offset = 1
-            ret += ' ' * (offset + 1)
-            for x in range(self._spaces.num_columns()):
-                ret += chr(ord('A') + x) + ' ' * offset
-            ret = ret.rstrip() + '\n'
-            for i in range(self._spaces.num_rows()):
-                if i != 0:
-                    ret += ("  "
-                            + "|".join(['-']*self._spaces.num_columns())
-                            + "\n")
-                ret += (str(i + 1) + ' '
-                                   * (offset + coord_size - len(str(i + 1))))
-                for j in range(self._spaces.num_columns()):
-                    if j > 0: ret += '|'
-                    ret += chr(self._spaces[i, j])
-                ret += "\n"
-            return ret
+            rows = self._spaces.num_rows()
+            columns = self._spaces.num_columns()
+
+
+            row_offset = ' ' * (len(str(rows)) + 1)
+            row_edge = "\n{}{}\n".format(row_offset, "|".join(['-'] * columns))
+
+            column_header = '\n{}{}\n'.format(row_offset,
+                                              ' '.join(alphabet[:columns]))
+
+            def row_repr(i):
+                row_header = str(i + 1).ljust(len(row_offset))
+                row = "|".join(str(BoardValues(self._spaces[i, j])) for j
+                               in range(columns))
+                return row_header + row
+
+
+            board = row_edge.join(row_repr(i) for i in range(rows))
+            return column_header + board + '\n'
 
         def cell_index(self, row, column):
             return self._spaces.index(row, column)
@@ -123,12 +124,12 @@ class GameState(object):
             self._actions.append({'player': player, 'action': action})
 
         def undo(self):
-            if len(self._actions) > 0:
-                last_action = self._actions.pop()
-                row = self._spaces.row(last_action['action'])
-                column = self._spaces.column(last_action['action'])
-                self._spaces[row, column] = BoardValues.Empty
-                return last_action['player']
+            if len(self._actions) == 0:
+                raise UndoException("Board is empty. Nothing to undo!")
+
+            last_action = self._actions.pop()
+            self._spaces.set_index(last_action['action'], BoardValues.Empty)
+            return last_action['player']
 
         def space_is_on_positive_diagonal(self, row, column):
             return row == column
@@ -225,7 +226,11 @@ class GameState(object):
         return self
 
     def undo(self):
-        self._next_to_act = self._board.undo()
+        try:
+            self._next_to_act = self._board.undo()
+        except UndoException:
+            pass # An UndoException signifies there's no change to make.
+
         return self
 
     def set_player_to_act(self, p):
