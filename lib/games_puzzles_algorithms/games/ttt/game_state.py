@@ -17,6 +17,11 @@ class BoardValues(IntEnum):
 
         return BoardValues.X if self is BoardValues.O else BoardValues.O
 
+
+class UndoException(Exception):
+    pass
+
+
 class GameState(object):
     class Board(object):
         class TwoDimensionalTable(object):
