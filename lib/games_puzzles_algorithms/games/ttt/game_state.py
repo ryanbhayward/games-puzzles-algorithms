@@ -47,6 +47,12 @@ class GameState(object):
 
             def column(self, index): return index // self.num_rows()
 
+            def get_index(self, index):
+                return self._data[index]
+
+            def set_index(self, index, val):
+                self._data[index] = val
+
             def __getitem__(self, indices):
                 return self._data[self.index(*indices)]
 
