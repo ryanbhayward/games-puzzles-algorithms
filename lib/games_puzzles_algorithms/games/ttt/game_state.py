@@ -77,17 +77,15 @@ class GameState(object):
             self._actions = []
 
         def __str__(self):
-            string = ""
-            for i in range(self._spaces.num_rows()):
-                if i > 0:
-                    string += (
-                        "\n"
-                        + "|".join(['-']*self._spaces.num_columns())
-                        + "\n")
-                for j in range(self._spaces.num_columns()):
-                    if j > 0: string += '|'
-                    string += str(BoardValues(self._spaces[i, j]))
-            return string
+            rows = self._spaces.num_rows()
+            columns = self._spaces.num_columns()
+            row_edge = "\n{}\n".format("|".join(['-'] * columns))
+
+            def row_repr(i):
+                return "|".join(str(BoardValues(self._spaces[i, j])) for j
+                                in range(columns))
+
+            return row_edge.join(row_repr(i) for i in range(rows))
 
         def num_actions_played(self): return len(self._actions)
 
