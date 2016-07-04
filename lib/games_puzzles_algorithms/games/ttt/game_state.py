@@ -1,6 +1,16 @@
 from array import array
 from enum import IntEnum
 
+class BoardValues(IntEnum):
+    X = 0
+    O = 1
+    Empty = 3
+
+    def __str__(self):
+        if self is self.Empty:
+            return ' '
+        return self.name
+
 
 class GameState(object):
     class Board(object):
@@ -32,21 +42,12 @@ class GameState(object):
             def __len__(self):
                 return self.num_rows() * self.num_columns()
 
-        class BoardValues(IntEnum):
-            X = 0
-            O = 1
-            Empty = 3
-
-            def __str__(self):
-                if self is self.Empty:
-                    return ' '
-                return self.name
 
         def __init__(self, size=3):
             self._spaces = self.TwoDimensionalTable(
                 size,
                 size,
-                initial_elem=self.BoardValues.Empty,
+                initial_elem=BoardValues.Empty,
                 elem_type='b')
             self._actions = []
 
@@ -80,7 +81,7 @@ class GameState(object):
 
         def legal_actions(self):
             return [i for i in range(len(self._spaces))
-                    if self._spaces._data[i] == self.BoardValues.Empty]
+                    if self._spaces._data[i] == BoardValues.Empty]
 
         def num_legal_actions(self):
             return len(self.legal_actions())
@@ -89,8 +90,8 @@ class GameState(object):
             ''' Execute an action on the board '''
             row = self._spaces.row(action)
             column = self._spaces.column(action)
-            if (self._spaces[row, column] == self.BoardValues.X
-                or self._spaces[row, column] == self.BoardValues.O):
+            if (self._spaces[row, column] == BoardValues.X
+                or self._spaces[row, column] == BoardValues.O):
                 raise IndexError(
                     "Cannot play in the same space as another player!")
             self._spaces[row, column] = player
@@ -101,7 +102,7 @@ class GameState(object):
                 last_action = self._actions.pop()
                 row = self._spaces.row(last_action['action'])
                 column = self._spaces.column(last_action['action'])
-                self._spaces[row, column] = self.BoardValues.Empty
+                self._spaces[row, column] = BoardValues.Empty
                 return last_action['player']
 
         def space_is_on_positive_diagonal(self, row, column):
@@ -113,9 +114,9 @@ class GameState(object):
         def winner(self):
             '''
             Returns: None if the game is unfinished
-                     GameState.Board.BoardValues.X if the x player has won
-                     GameState.Board.BoardValues.O if the o player has won
-                     GameState.Board.BoardValues.Empty if the game is a draw
+                     BoardValues.X if the x player has won
+                     BoardValues.O if the o player has won
+                     BoardValues.Empty if the game is a draw
             '''
             statuses = {
                 'positive_diagonal': {'has_win': True, 'char': None},
@@ -140,7 +141,7 @@ class GameState(object):
                     space = self._spaces[row, column]
                     for s in relevant_statuses:
                         if s['has_win']:
-                            if space == self.BoardValues.Empty:
+                            if space == BoardValues.Empty:
                                 s['has_win'] = False
                             elif s['char'] is None:
                                 s['char'] = space
@@ -148,7 +149,7 @@ class GameState(object):
                                 s['has_win'] = False
             for label, status in statuses.items():
                 if status['has_win']: return status['char']
-            if self.num_legal_actions() < 1: return self.BoardValues.Empty
+            if self.num_legal_actions() < 1: return BoardValues.Empty
             else: return None
 
     def __init__(self, size=3):
