@@ -56,6 +56,9 @@ class GameState(object):
             def __len__(self):
                 return self.num_rows() * self.num_columns()
 
+            def __iter__(self):
+                return (i for i in self._data)
+
 
         def __init__(self, size=3):
             self._spaces = self.TwoDimensionalTable(
@@ -81,8 +84,8 @@ class GameState(object):
         def num_actions_played(self): return len(self._actions)
 
         def legal_actions(self):
-            return [i for i in range(len(self._spaces))
-                    if self._spaces._data[i] == BoardValues.Empty]
+            return [i for (i, p) in enumerate(self._spaces)
+                    if p == BoardValues.Empty]
 
         def num_legal_actions(self):
             return len(self.legal_actions())
