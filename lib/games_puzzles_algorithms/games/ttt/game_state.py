@@ -144,9 +144,10 @@ class GameState(object):
             if self.num_legal_actions() < 1: return BoardValues.Empty
             else: return None
 
+
     def __init__(self, size=3):
         self._board = self.Board(size)
-        self._next_to_act = 0
+        self._next_to_act = BoardValues.X
 
     def __enter__(self):
         '''Allows the following type of code:
@@ -181,7 +182,7 @@ class GameState(object):
 
     def play(self, action):
         self._board.play(action, self._next_to_act)
-        self._next_to_act = int(not(self._next_to_act))
+        self._next_to_act = self._next_to_act.opponent()
         return self
 
     def undo(self):
@@ -189,23 +190,27 @@ class GameState(object):
         return self
 
     def set_player_to_act(self, p):
-        self._next_to_act = p
+        self._next_to_act = BoardValues(p)
 
     def player_to_act(self):
         return self._next_to_act
 
     def player_who_acted_last(self):
-        return int(not(self._next_to_act)) \
-            if self._board.num_actions_played() > 0 else None
+        if self._board.num_actions_played() > 0:
+            return self._next_to_act.opponent()
+
+        return None
 
     def is_terminal(self):
         return self._board.winner() is not None
 
     def score(self, player):
         winner = self._board.winner()
+        player = BoardValues(player)
+
         if player == winner:
             return 1
-        elif int(not(player)) == winner:
+        elif player.opponent() == winner:
             return -1
         elif winner is None:
             return None
