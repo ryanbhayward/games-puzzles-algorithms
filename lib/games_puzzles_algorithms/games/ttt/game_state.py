@@ -47,6 +47,9 @@ class GameState(object):
 
             def column(self, index): return index // self.num_rows()
 
+            def coordinates(self, index):
+                return (self.row(index), self.column(index))
+
             def __getitem__(self, indices):
                 return self._data[self.index(*indices)]
 
