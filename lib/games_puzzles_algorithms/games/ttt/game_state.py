@@ -31,19 +31,28 @@ class GameState(object):
                 self._data = array(
                     elem_type,
                     [initial_elem] * num_rows * num_columns)
+
             def size(self, index=None):
                 return self._dimensions if index is None \
                     else self._dimensions[index]
+
             def num_rows(self): return self.size(0)
+
             def num_columns(self): return self.size(1)
+
             def index(self, row, column):
                 return (column * self.num_rows()) + row
+
             def row(self, index): return index % self.num_rows()
+
             def column(self, index): return index // self.num_rows()
+
             def __getitem__(self, indices):
                 return self._data[self.index(*indices)]
+
             def __setitem__(self, indices, c):
                 self._data[self.index(*indices)] = c
+
             def __len__(self):
                 return self.num_rows() * self.num_columns()
 
