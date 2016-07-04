@@ -111,13 +111,10 @@ class GameState(object):
 
         def play(self, action, player):
             ''' Execute an action on the board '''
-            row = self._spaces.row(action)
-            column = self._spaces.column(action)
-            if (self._spaces[row, column] == BoardValues.X
-                or self._spaces[row, column] == BoardValues.O):
-                raise IndexError(
-                    "Cannot play in the same space as another player!")
-            self._spaces[row, column] = player
+            if (not self._spaces.get_index(action) == BoardValues.Empty):
+                raise IndexError("Cannot play in the same space as another "
+                                 "player!")
+            self._spaces.set_index(action, player)
             self._actions.append({'player': player, 'action': action})
 
         def undo(self):
