@@ -1,4 +1,5 @@
 from array import array
+from enum import IntEnum
 
 
 class GameState(object):
@@ -31,14 +32,21 @@ class GameState(object):
             def __len__(self):
                 return self.num_rows() * self.num_columns()
 
-        SPACES = {'empty': ord(' '), 'x': ord('X'), 'o': ord('O')}
-        PLAYER_NAMES = ['x', 'o']
+        class BoardValues(IntEnum):
+            X = 0
+            O = 1
+            Empty = 3
+
+            def __str__(self):
+                if self is self.Empty:
+                    return ' '
+                return self.name
 
         def __init__(self, size=3):
             self._spaces = self.TwoDimensionalTable(
                 size,
                 size,
-                initial_elem=self.SPACES['empty'],
+                initial_elem=self.BoardValues.Empty,
                 elem_type='b')
             self._actions = []
 
@@ -72,7 +80,7 @@ class GameState(object):
 
         def legal_actions(self):
             return [i for i in range(len(self._spaces))
-                    if self._spaces._data[i] == self.SPACES['empty']]
+                    if self._spaces._data[i] == self.BoardValues.Empty]
 
         def num_legal_actions(self):
             return len(self.legal_actions())
@@ -81,11 +89,11 @@ class GameState(object):
             ''' Execute an action on the board '''
             row = self._spaces.row(action)
             column = self._spaces.column(action)
-            if self._spaces[row, column] == self.SPACES['x'] \
-                    or self._spaces[row, column] == self.SPACES['o']:
+            if (self._spaces[row, column] == self.BoardValues.X
+                or self._spaces[row, column] == self.BoardValues.O):
                 raise IndexError(
                     "Cannot play in the same space as another player!")
-            self._spaces[row, column] = self.SPACES[self.PLAYER_NAMES[player]]
+            self._spaces[row, column] = player
             self._actions.append({'player': player, 'action': action})
 
         def undo(self):
@@ -93,7 +101,7 @@ class GameState(object):
                 last_action = self._actions.pop()
                 row = self._spaces.row(last_action['action'])
                 column = self._spaces.column(last_action['action'])
-                self._spaces[row, column] = self.SPACES['empty']
+                self._spaces[row, column] = self.BoardValues.Empty
                 return last_action['player']
 
         def space_is_on_positive_diagonal(self, row, column):
@@ -105,9 +113,9 @@ class GameState(object):
         def winner(self):
             '''
             Returns: None if the game is unfinished
-                     GameState.Board.SPACES['x'] if the x player has won
-                     GameState.Board.SPACES['o'] if the o player has won
-                     GameState.Board.SPACES['empty'] if the game is a draw
+                     GameState.Board.BoardValues.X if the x player has won
+                     GameState.Board.BoardValues.O if the o player has won
+                     GameState.Board.BoardValues.Empty if the game is a draw
             '''
             statuses = {
                 'positive_diagonal': {'has_win': True, 'char': None},
@@ -132,7 +140,7 @@ class GameState(object):
                     space = self._spaces[row, column]
                     for s in relevant_statuses:
                         if s['has_win']:
-                            if space == self.SPACES['empty']:
+                            if space == self.BoardValues.Empty:
                                 s['has_win'] = False
                             elif s['char'] is None:
                                 s['char'] = space
@@ -140,7 +148,7 @@ class GameState(object):
                                 s['has_win'] = False
             for label, status in statuses.items():
                 if status['has_win']: return status['char']
-            if self.num_legal_actions() < 1: return self.SPACES['empty']
+            if self.num_legal_actions() < 1: return self.BoardValues.Empty
             else: return None
 
     def __init__(self, size=3):
@@ -208,10 +216,9 @@ class GameState(object):
 
     def score(self, player):
         winner = self._board.winner()
-        if self.Board.SPACES[self.Board.PLAYER_NAMES[player]] == winner:
+        if player == winner:
             return 1
-        elif (self.Board.SPACES[self.Board.PLAYER_NAMES[int(not(player))]]
-              == winner):
+        elif int(not(player)) == winner:
             return -1
         elif winner is None:
             return None
