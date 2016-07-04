@@ -121,11 +121,11 @@ class UctNode(object):
         return d
 
     def to_dict(self):
-        d = {'avg_reward': self.avg_reward, 'N': self.num_visits}
+        d = {'avg_reward': self.avg_reward, 'num_visits': self.num_visits}
         if self.action is not None:
-            d["A"] = self.action
+            d["action"] = self.action
         if self.acting_player is not None:
-            d['P'] = self.acting_player
+            d['player'] = self.acting_player
         if not self.is_leaf():
             d['children'] = []
             for n in self.child_nodes():
@@ -217,7 +217,7 @@ class MctsAgent(object):
                        ),
                        'Time available in seconds': time_allowed_s,
                        '# iterations': num_iterations}, level=logging.INFO)
-            debug.log(str(my_root_state), level=logging.INFO)
+            debug.log(str(my_root_state), level=logging.INFO, raw=True)
 
             num_iterations_completed = 0
             player_of_interest = my_root_state.player_to_act()
@@ -240,7 +240,7 @@ class MctsAgent(object):
                 debug.log("Executing roll-out from (player {} is acting):"
                             .format(game_state.player_to_act()),
                           level=logging.INFO)
-                debug.log(str(my_root_state), level=logging.INFO)
+                debug.log(str(my_root_state), level=logging.INFO, raw=True)
 
                 rollout_results = self.roll_out(game_state, player_of_interest)
                 debug.log({'Roll-out results': rollout_results})

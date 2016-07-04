@@ -3,14 +3,17 @@ from games_puzzles_algorithms.games.fake_game_state import FakeGameState
 from games_puzzles_algorithms.debug import log
 import pytest
 import random
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
 
 
 class SimpleGameState(FakeGameState):
     def __init__(self):
         self._player_to_act = 0
         self._actions = []
+
+    def __str__(self):
+        return "SimpleGameState:\n  PTA: {},\n  actions taken: {}".format(
+            self._player_to_act,
+            self._actions)
 
     def num_legal_actions(self):
         return 0 if self.is_terminal() else 2
@@ -120,19 +123,22 @@ def test_search():
     assert stats['num_nodes_expanded'] == 7
 
 
-# import json
-# def test_verbose_search():
-#     logging.basicConfig(level=logging.DEBUG)
-#
-#     random.seed(0)
-#
-#     state = SimpleGameState()
-#     patient = MctsAgent.Mcts(random, exploration=1)
-#     num_iterations = 10
-#     stats = patient.search(state, num_iterations=num_iterations)
-#
-#     assert stats['num_iterations_completed'] == 10
-#     assert stats['time_used_s'] is not None
-#     assert stats['num_nodes_expanded'] == 11
-#
-#     print(json.dumps({'statistics': stats, 'tree': patient.to_json()}, sort_keys=True, indent=4))
+def test_verbose_search():
+    import json
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    random.seed(0)
+
+    state = SimpleGameState()
+    patient = MctsAgent.Mcts(random, exploration=1)
+    num_iterations = 2
+    stats = patient.search(state, num_iterations=num_iterations)
+
+    assert stats['num_iterations_completed'] == 2
+    assert stats['time_used_s'] is not None
+    assert stats['num_nodes_expanded'] == 3
+
+    print(json.dumps({'statistics': stats, 'tree': patient.to_dict()},
+                     sort_keys=True,
+                     indent=4))
