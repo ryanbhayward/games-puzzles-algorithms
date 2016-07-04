@@ -108,12 +108,13 @@ class GameState(object):
             self._actions.append({'player': player, 'action': action})
 
         def undo(self):
-            if len(self._actions) > 0:
-                last_action = self._actions.pop()
-                row = self._spaces.row(last_action['action'])
-                column = self._spaces.column(last_action['action'])
-                self._spaces[row, column] = BoardValues.Empty
-                return last_action['player']
+            if len(self._actions) == 0:
+                raise UndoException("Board is empty. Nothing to undo!")
+
+            last_action = self._actions.pop()
+            (row, column) = self._spaces.coordinates(last_action['action'])
+            self._spaces[row, column] = BoardValues.Empty
+            return last_action['player']
 
         def space_is_on_positive_diagonal(self, row, column):
             return row == column
@@ -204,7 +205,11 @@ class GameState(object):
         return self
 
     def undo(self):
-        self._next_to_act = self._board.undo()
+        try:
+            self._next_to_act = self._board.undo()
+        except UndoException:
+            pass # An UndoException signifies there's no change to make.
+
         return self
 
     def set_player_to_act(self, p):

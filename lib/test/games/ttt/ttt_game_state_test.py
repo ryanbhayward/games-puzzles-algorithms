@@ -1,5 +1,3 @@
-import pytest
-
 from games_puzzles_algorithms.games.ttt.game_state import GameState
 
 
@@ -120,7 +118,6 @@ def test_draw():
     assert(patient.score(0) == 0)
 
 
-@pytest.mark.xfail
 def test_empty_undo():
     '''
     Check that undoing an empty board doesn't break.
