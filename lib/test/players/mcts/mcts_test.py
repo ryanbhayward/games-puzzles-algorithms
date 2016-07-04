@@ -1,9 +1,10 @@
 from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
 from games_puzzles_algorithms.debug import log
-import logging
 import pytest
 import random
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
 
 
 class SimpleGameState(FakeGameState):
@@ -12,11 +13,13 @@ class SimpleGameState(FakeGameState):
         self._actions = []
 
     def num_legal_actions(self):
-        return 2
+        return 0 if self.is_terminal() else 2
+
+    def player_who_acted_last(self):
+        return int(not self._player_to_act)
 
     def legal_actions(self):
-        for a in range(2):
-            yield a
+        for a in range(2): yield a
 
     def play(self, action):
         '''Apply the given action.
@@ -87,7 +90,7 @@ def test_roll_out():
     random.seed(0)
 
     state = SimpleGameState()
-    patient = MctsAgent.Mcts(exploration=1)
+    patient = MctsAgent.Mcts(random, exploration=1)
     outcome = patient.roll_out(state, 0)
     assert outcome['score'] == 2
     outcome = patient.roll_out(state, 0)
@@ -108,13 +111,13 @@ def test_search():
     random.seed(0)
 
     state = SimpleGameState()
-    patient = MctsAgent.Mcts(exploration=1)
+    patient = MctsAgent.Mcts(random, exploration=1)
     num_iterations = 10
     stats = patient.search(state, num_iterations=num_iterations)
 
     assert stats['num_iterations_completed'] == 10
     assert stats['time_used_s'] is not None
-    assert stats['num_nodes_expanded'] == 11
+    assert stats['num_nodes_expanded'] == 7
 
 
 # import json
@@ -124,7 +127,7 @@ def test_search():
 #     random.seed(0)
 #
 #     state = SimpleGameState()
-#     patient = MctsAgent.Mcts(exploration=1)
+#     patient = MctsAgent.Mcts(random, exploration=1)
 #     num_iterations = 10
 #     stats = patient.search(state, num_iterations=num_iterations)
 #

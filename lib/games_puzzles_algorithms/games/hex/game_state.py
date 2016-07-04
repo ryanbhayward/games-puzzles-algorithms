@@ -378,7 +378,7 @@ class GameState(object):
             yield a
 
     def num_legal_actions(self):
-        return self.board.num_legal_actions()
+        return 0 if self.is_terminal() else self.board.num_legal_actions()
 
     def __str__(self):
         """Print an ascii representation of the game board."""

@@ -160,7 +160,7 @@ class GameState(object):
         self.undo()
 
     def legal_actions(self):
-        return self._board.legal_actions()
+        return [] if self.is_terminal() else self._board.legal_actions()
 
     def num_legal_actions(self):
         return self._board.num_legal_actions()
