@@ -95,12 +95,10 @@ class GameState(object):
 
         def play(self, action, player):
             ''' Execute an action on the board '''
-            row = self._spaces.row(action)
-            column = self._spaces.column(action)
-            if (self._spaces[row, column] == BoardValues.X
-                or self._spaces[row, column] == BoardValues.O):
-                raise IndexError(
-                    "Cannot play in the same space as another player!")
+            row, column = self._spaces.coordinates(action)
+            if (not self._spaces[row, column] == BoardValues.Empty):
+                raise IndexError("Cannot play in the same space as another "
+                                 "player!")
             self._spaces[row, column] = player
             self._actions.append({'player': player, 'action': action})
 
