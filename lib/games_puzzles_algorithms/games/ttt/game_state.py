@@ -11,6 +11,11 @@ class BoardValues(IntEnum):
             return ' '
         return self.name
 
+    def opponent(self):
+        if self is self.Empty:
+            raise ValueError("Empty piece has no opponent")
+
+        return self.X if self is self.O else self.O
 
 class GameState(object):
     class Board(object):
