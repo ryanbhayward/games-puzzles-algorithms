@@ -4,7 +4,7 @@ from games_puzzles_algorithms.players.rule_based.first_action_agent \
     import FirstActionAgent
 from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
-from games_puzzles_algorithms.players.mimimax.alpha_beta_agent \
+from games_puzzles_algorithms.players.minimax.alpha_beta_agent \
     import AlphaBetaAgent
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
 import pytest
