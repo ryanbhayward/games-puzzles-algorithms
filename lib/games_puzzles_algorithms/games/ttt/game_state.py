@@ -73,12 +73,14 @@ class GameState(object):
 
 
         def __init__(self, size=3):
+            self._size = size
             self._spaces = self.TwoDimensionalTable(
                 size,
                 size,
                 initial_elem=BoardValues.Empty,
                 elem_type='b')
             self._actions = []
+            self.initialize_win_status()
 
         def __str__(self):
             rows = self._spaces.num_rows()
@@ -122,6 +124,7 @@ class GameState(object):
                                  "player!")
             self._spaces.set_index(action, player)
             self._actions.append({'player': player, 'action': action})
+            self._update_win_status(action, player)
 
         def undo(self):
             if len(self._actions) == 0:
@@ -137,6 +140,36 @@ class GameState(object):
         def space_is_on_negative_diagonal(self, row, column):
             return row == (self._spaces.num_columns() - (column + 1))
 
+        def initialize_win_status(self):
+            self._status = {}
+            self._status[BoardValues.X] = {'positive_diagonal': 0,
+                                           'negative_diagonal': 0 }
+
+            for row in range(self._spaces.num_rows()):
+                self._status[BoardValues.X]['row' + str(row)] = 0
+
+            for column in range(self._spaces.num_columns()):
+                self._status[BoardValues.X]['column' + str(column)] = 0
+
+            self._status[BoardValues.O] = self._status[BoardValues.X].copy()
+
+        def _update_win_status(self, action, player):
+            row = self._spaces.row(action)
+            column = self._spaces.column(action)
+
+            self._status[player]['row' + str(row)] += 1
+            self._status[player]['column' + str(column)] += 1
+
+            if self.space_is_on_positive_diagonal(row, column):
+                self._status[player]['positive_diagonal'] += 1
+
+            if self.space_is_on_negative_diagonal(row, column):
+                self._status[player]['negative_diagonal'] += 1
+
+        def _has_win(self, player):
+            player_status = self._status[player]
+            return any(n == self._size for n in player_status.values())
+
         def winner(self):
             '''
             Returns: None if the game is unfinished
@@ -144,39 +177,14 @@ class GameState(object):
                      BoardValues.O if the o player has won
                      BoardValues.Empty if the game is a draw
             '''
-            statuses = {
-                'positive_diagonal': {'has_win': True, 'char': None},
-                'negative_diagonal': {'has_win': True, 'char': None}
-            }
-            for row in range(self._spaces.num_rows()):
-                statuses['row' + str(row)] = {'has_win': True, 'char': None}
-            for column in range(self._spaces.num_columns()):
-                statuses['column' + str(column)] = {
-                    'has_win': True,
-                    'char': None
-                }
-            for row in range(self._spaces.num_rows()):
-                for column in range(self._spaces.num_columns()):
-                    relevant_statuses = [
-                        statuses['row' + str(row)],
-                        statuses['column' + str(column)]]
-                    if self.space_is_on_positive_diagonal(row, column):
-                        relevant_statuses.append(statuses['positive_diagonal'])
-                    if self.space_is_on_negative_diagonal(row, column):
-                        relevant_statuses.append(statuses['negative_diagonal'])
-                    space = self._spaces[row, column]
-                    for s in relevant_statuses:
-                        if s['has_win']:
-                            if space == BoardValues.Empty:
-                                s['has_win'] = False
-                            elif s['char'] is None:
-                                s['char'] = space
-                            elif s['char'] != space:
-                                s['has_win'] = False
-            for label, status in statuses.items():
-                if status['has_win']: return status['char']
-            if self.num_legal_actions() < 1: return BoardValues.Empty
-            else: return None
+            if self._has_win(BoardValues.X):
+                return BoardValues.X
+            elif self._has_win(BoardValues.O):
+                return BoardValues.O
+            elif self.num_legal_actions() == 0:
+                return BoardValues.Empty
+            else:
+                return None
 
 
     def __init__(self, size=3):
