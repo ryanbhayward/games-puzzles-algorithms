@@ -32,8 +32,6 @@ class MinimaxAgent(object):
             tree['value'] = -game_state.score(
                 game_state.player_who_acted_last())
         elif time_available > 0 and not(time_used < time_available):
-            debug.log({'MSG': 'Ahh!!'},
-                       level=logging.INFO)
             raise self.TimeIsUp
         else:
             tree['children'] = []
