@@ -3,6 +3,7 @@
 import random
 import optparse
 from games_puzzles_algorithms.games.hex.cli import Cli as HexCli
+# from games_puzzles_algorithms.games.ttt.cli import Cli as TttCli
 from games_puzzles_algorithms.players.rule_based.random_agent \
     import RandomAgent
 from games_puzzles_algorithms.players.rule_based.first_action_agent \
@@ -11,19 +12,17 @@ from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
 
 
-GAMES = {'hex': HexCli}
-PUZZLES = {}
-GAMES_AND_PUZZLES = {}
-GAMES_AND_PUZZLES.update(GAMES)
-GAMES_AND_PUZZLES.update(PUZZLES)
-
-GAME_ALGS = {
+GAMES = {'hex': HexCli,
+         #'ttt': TttCli
+        }
+ALGS = {
     'random': lambda **kwargs: RandomAgent(kwargs['random_generator'].random),
-    'first_action': lambda **_: FirstActionAgent(),
-    'mcts': lambda **kwargs: MctsAgent(kwargs['random_generator']),
+    'first': lambda **_: FirstActionAgent(),
+    'MCTS': lambda **kwargs: MctsAgent(kwargs['random_generator']),
     'minimax': lambda **_: MinimaxAgent()}
 
-DEFAULT_GAME_OR_PUZZLE = 'hex'
+DEFAULT_GAME = 'hex'
+DEFAULT_ALG = 'MCTS'
 
 if __name__ == '__main__':
     parser = optparse.OptionParser()
@@ -41,28 +40,42 @@ if __name__ == '__main__':
     )
     parser.add_option(
         "-g",
-        "--game-or-puzzle",
-        dest="game_or_puzzle",
-        help="The game or puzzle to play. Options are {}. Default is {}"
-            .format(list(GAMES_AND_PUZZLES.keys()), DEFAULT_GAME_OR_PUZZLE)
+        "--game",
+        dest="game",
+        help="The game to play. Options are {}. Default is {}."
+            .format(list(GAMES.keys()), DEFAULT_GAME)
     )
-    parser.add_option("-v", action="store_true", dest="verbose",
-                      help="Show verbose logging information.")
-    parser.add_option("-q", action="store_false", dest="verbose",
-                      help="Show verbose logging information.")
+    parser.add_option(
+        "-a",
+        "--algorithm",
+        dest="algorithm",
+        help=("The algorithm to use to play the selected game. Options are {}."
+             + " Default is {}").format(list(ALGS.keys()), DEFAULT_ALG)
+    )
+    parser.add_option("-v", '--verbose', action="store_true", dest="verbose",
+                      help="Show verbose output.")
 
     (options, args) = parser.parse_args()
     r = random.Random(options.random_seed)
-    game_or_puzzle = GAMES_AND_PUZZLES[options.game_or_puzzle] \
-        if options.game_or_puzzle else \
-        GAMES_AND_PUZZLES[DEFAULT_GAME_OR_PUZZLE]
+
+    try:
+        game = GAMES[options.game] \
+            if options.game else GAMES[DEFAULT_GAME]
+    except IndexError:
+        print('ERROR: unrecognized game, \"{}\"'.format(options.game))
+
+    try:
+        algorithm = ALGS[options.algorithm] if options.algorithm else \
+                    ALGS[DEFAULT_ALG]
+    except IndexError:
+        print('ERROR: unrecognized algorithm, \"{}\"'.format(
+            options.algorithm))
 
     if options.verbose:
         import logging
         logging.basicConfig(level=logging.DEBUG)
     try:
-        # TODO Select algorithm
-        cli = game_or_puzzle(GAME_ALGS['mcts'](random_generator=r))
+        cli = game(algorithm(random_generator=r))
         if options.script is not None:
             with open(options.script) as f:
                 for command in f:

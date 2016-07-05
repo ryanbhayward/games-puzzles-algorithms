@@ -55,7 +55,6 @@ class Cli(Cmd, object):
             'winner',
             'analyze',
             'valid',
-            'occupied',
             'turn',
             'ls'
         ])
