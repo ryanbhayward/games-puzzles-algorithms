@@ -220,9 +220,11 @@ class Cli(Cmd, object):
 
             if len(args) > 1:
                 if args[1][0].lower() == 'w':
-                    self.game.set_turn(color_to_player(COLORS["white"]))
+                    self.game.set_player_to_act(
+                        color_to_player(COLORS["white"]))
                 elif args[1][0].lower() == 'b':
-                    self.game.set_turn(color_to_player(COLORS["black"]))
+                    self.game.set_player_to_act(
+                        color_to_player(COLORS["black"]))
                 else:
                     return (False, "Player not recognized")
             self.game.play(self.game.board.cell_index(y, x))
@@ -236,9 +238,9 @@ class Cli(Cmd, object):
         """
         if(len(args) > 0):
             if args[0][0].lower() == 'w':
-                self.game.set_turn(color_to_player(COLORS["white"]))
+                self.game.set_player_to_act(color_to_player(COLORS["white"]))
             elif args[0][0].lower() == 'b':
-                self.game.set_turn(color_to_player(COLORS["black"]))
+                self.game.set_player_to_act(color_to_player(COLORS["black"]))
             else:
                 return (False, "Player not recognized")
 
