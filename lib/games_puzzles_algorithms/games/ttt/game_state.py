@@ -124,7 +124,7 @@ class GameState(object):
                                  "player!")
             self._spaces.set_index(action, player)
             self._actions.append({'player': player, 'action': action})
-            self._update_win_status(action, player)
+            self._update_win_status(action, player, increment=True)
 
         def undo(self):
             if len(self._actions) == 0:
@@ -132,6 +132,8 @@ class GameState(object):
 
             last_action = self._actions.pop()
             self._spaces.set_index(last_action['action'], BoardValues.Empty)
+            self._update_win_status(last_action['action'],
+                                    last_action['player'], increment=False)
             return last_action['player']
 
         def space_is_on_positive_diagonal(self, row, column):
@@ -153,18 +155,20 @@ class GameState(object):
 
             self._status[BoardValues.O] = self._status[BoardValues.X].copy()
 
-        def _update_win_status(self, action, player):
+        def _update_win_status(self, action, player, increment=True):
             row = self._spaces.row(action)
             column = self._spaces.column(action)
 
-            self._status[player]['row' + str(row)] += 1
-            self._status[player]['column' + str(column)] += 1
+            modifier = 1 if increment else -1
+
+            self._status[player]['row' + str(row)] += modifier
+            self._status[player]['column' + str(column)] += modifier
 
             if self.space_is_on_positive_diagonal(row, column):
-                self._status[player]['positive_diagonal'] += 1
+                self._status[player]['positive_diagonal'] += modifier
 
             if self.space_is_on_negative_diagonal(row, column):
-                self._status[player]['negative_diagonal'] += 1
+                self._status[player]['negative_diagonal'] += modifier
 
         def _has_win(self, player):
             player_status = self._status[player]
