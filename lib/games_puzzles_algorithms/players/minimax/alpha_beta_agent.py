@@ -138,6 +138,3 @@ class AlphaBetaAgent(MinimaxAgent):
                    'Pruned nodes': self.pruned_nodes}, level=logging.INFO)                        
         return best_action
 
-    def reset(self):
-        super(AlphaBetaAgent, self).reset()
-        self.pruned_nodes = 0
