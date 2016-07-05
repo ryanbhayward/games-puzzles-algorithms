@@ -1,5 +1,3 @@
-import pytest
-
 from games_puzzles_algorithms.games.ttt.game_state import GameState
 
 
@@ -129,7 +127,6 @@ def test_empty_undo():
     assert(patient.player_to_act() == 0)
 
 
-@pytest.mark.xfail
 def test_winner_after_undo():
     '''
     Check that undoing a move after a win no longer results in a win.
