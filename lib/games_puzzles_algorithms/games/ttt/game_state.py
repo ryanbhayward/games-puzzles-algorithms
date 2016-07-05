@@ -38,8 +38,9 @@ class GameState(object):
                     [initial_elem] * num_rows * num_columns)
 
             def size(self, index=None):
-                return self._dimensions if index is None \
-                    else self._dimensions[index]
+                if index is None:
+                    return self._dimensions
+                return self._dimensions[index]
 
             def num_rows(self): return self.size(0)
 
