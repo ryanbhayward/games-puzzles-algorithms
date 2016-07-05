@@ -7,7 +7,10 @@ INF = float('inf')
 
 
 class AlphaBetaAgent(object):
-    '''Currently only solves zero-sum games where turns alternate'''
+    """
+    Alpha-Beta search class.
+    Currently only solves zero-sum games where turns alternate
+    """
     class TimeIsUp(Exception): pass
 
     def value(self, game_state, alpha, beta, time_available=-1, time_used=0):
