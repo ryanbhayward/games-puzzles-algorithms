@@ -1,19 +1,10 @@
 from cmd import Cmd
-from .game_state import GameState
-from .color import cell_str
-from .color import cell_str_to_cell
-from .color import next_player
-from .color import player_to_color
-from .color import color_to_player
-from .color import COLORS
-from .color import COLOR_SYMBOLS
-from .color import IllegalAction
 
 
 class Cli(Cmd, object):
-    """Command line interface to play hex games."""
+    """Command line interface to play hex games.""" # TODO
 
-    _header = "Go Text Protocol for Hex---Commands:"
+    _header = "Go Text Protocol for Hex---Commands:" # TODO
 
     _STOP_AND_EXIT = True
 
@@ -28,8 +19,7 @@ class Cli(Cmd, object):
 
     _protocol_version = 2
 
-    def update_prompt(self):
-        self.prompt = ""
+    def update_prompt(self): self.prompt = ""
 
     prompt = ""
 
@@ -59,12 +49,11 @@ class Cli(Cmd, object):
             'ls'
         ])
 
-    def __init__(self, agent):
+    def __init__(self, game, agent):
         super(self.__class__, self).__init__()
-        self.game = GameState.root(8)
+        self.game = game
         self.agent = agent
         self.move_time = 10
-        self.last_move = None
 
     def _nontrivial_cmd(self, cmd, arg, line):
         try: func = getattr(self, 'do_' + cmd)
@@ -123,7 +112,8 @@ class Cli(Cmd, object):
         return (True, "")
 
     def do_turn(self, arg, opts=None):
-        return (True, COLOR_SYMBOLS[self.game.player_to_act()])
+        return (True,
+                self.game.player_to_ui_player(self.game.state.player_to_act()))
 
     def do_name(self, arg, opts=None):
         """Return the name of the agent you are playing against."""
@@ -174,7 +164,7 @@ class Cli(Cmd, object):
             return (False, "Argument \"{}\" is not a valid size".format(size))
         if size < 1:
             return (False, "Argument \"{}\" is not a valid size".format(size))
-        self.game = GameState.root(size)
+        self.game.reset(size)
         self.agent.reset()
         return (True, "")
 
@@ -182,9 +172,7 @@ class Cli(Cmd, object):
 
     def do_clear_board(self, arg, opts=None):
         """Clear the game board."""
-        self.game = GameState.root(
-            *self.game.board.size()
-        )
+        self.game.reset(*self.game.state.board.size())
         self.agent.reset()
         return (True, "")
 
@@ -193,73 +181,66 @@ class Cli(Cmd, object):
     def do_play(self, arg_string, opts=None):
         """Play a stone of a given colour in a given cell.
 
-        1st arg should be the cell to play (e.g. g5).
+        1st arg should be the action to play (e.g. g5 for hex).
         2nd (optional) arg should be the colour (white/w or black/b) to play.
         Defaults to the next player to act.
         """
         args = arg_string.split(' ')
         try:
-            y, x = cell_str_to_cell(args[0].strip())
+            ui_action = args[0].strip()
+            action = self.game.ui_action_to_action(ui_action)
+        except Exception as e:
+            return (False,
+                    "Unable to interpret action, \"{}\": {}".format(ui_action,
+                                                                    str(e)))
 
-            if(
-                x < 0 or
-                y < 0 or
-                x >= self.game.board.num_columns() or
-                y >= self.game.board.num_rows()
-            ):
-                return (
-                    False,
-                    ("Cell with row {} and column {} is out of bounds on an "
-                     + "{}x{} board.").format(
-                        y,
-                        x,
-                        self.game.board.num_rows(),
-                        self.game.board.num_columns()
-                    )
-                )
+        if len(args) > 1:
+            ui_player = args[1].strip()
+            try:
+                player = self.game.ui_player_to_player(ui_player)
+            except:
+                return (False, "Unrecognized player, \"{}\"".format(ui_player))
+            else:
+                assert(player is not None)
+                self.game.state.set_player_to_act(player)
 
-            if len(args) > 1:
-                if args[1][0].lower() == 'w':
-                    self.game.set_player_to_act(
-                        color_to_player(COLORS["white"]))
-                elif args[1][0].lower() == 'b':
-                    self.game.set_player_to_act(
-                        color_to_player(COLORS["black"]))
-                else:
-                    return (False, "Player not recognized")
-            self.game.play(self.game.board.cell_index(y, x))
-            return(True, "")
-        except (ValueError, IllegalAction) as e:
-            return (False, str(e))
+        try:
+            self.game.state.play(action)
+        except Exception as e:
+            return (False,
+                    "Unable to take action, \"{}\", ({}): {}".format(ui_action,
+                                                                     action,
+                                                                     str(e)))
+
+        return (True, ui_action)
 
     def do_genmove(self, args, opts=None):
         """Allow the agent to play a stone of the given colour (white/w or
         black/b).
         """
-        if(len(args) > 0):
-            if args[0][0].lower() == 'w':
-                self.game.set_player_to_act(color_to_player(COLORS["white"]))
-            elif args[0][0].lower() == 'b':
-                self.game.set_player_to_act(color_to_player(COLORS["black"]))
+        if len(args) > 0:
+            ui_player = args[0].strip()
+            try:
+                player = self.game.ui_player_to_player(ui_player)
+            except:
+                return (False, "Unrecognized player, \"{}\"".format(ui_player))
             else:
-                return (False, "Player not recognized")
-
-        action = self.agent.select_action(
-            self.game,
-            time_allowed_s=self.move_time
-        )
+                self.game.state.set_player_to_act(player)
         try:
-            self.game.play(action)
-        except IllegalAction as e:
+            action = self.agent.select_action(
+                self.game.state,
+                time_allowed_s=self.move_time
+            )
+            self.game.state.play(action)
+        except Exception as e:
             return (True, str(e))
         else:
-            return (True, cell_str(self.game.board.row(action),
-                                   self.game.board.column(action)))
+            return (True, self.game.action_to_ui_action(action))
 
     def do_showboard(self, args, opts=None):
         """Return an ASCII representation of the current state of the game
         board."""
-        return (True, str(self.game))
+        return (True, self.game.state_to_ui_state())
 
     do_show = do_showboard
 
@@ -279,9 +260,11 @@ class Cli(Cmd, object):
         return (True, str(self.move_time))
 
     def do_winner(self, args, opts=None):
-        """Return the winner of the current game (black or white), none if
-        undecided."""
-        return (True, COLOR_SYMBOLS[self.game.winner()])
+        """Return the winner of the current game."""
+        for player in range(2):
+            if self.game.state.score(player) > 0:
+                return (True, self.game.player_to_ui_player(player))
+        return (True, None)
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""

@@ -2,8 +2,15 @@
 
 import random
 import optparse
-from games_puzzles_algorithms.games.hex.cli import Cli as HexCli
-# from games_puzzles_algorithms.games.ttt.cli import Cli as TttCli
+
+from games_puzzles_algorithms.games.hex.game_state \
+    import GameState as HexGameState
+from games_puzzles_algorithms.games.hex.color \
+    import COLOR_SYMBOLS, color_to_player, COLORS
+
+from games_puzzles_algorithms.games.ttt.game_state \
+    import GameState as TttGameState
+
 from games_puzzles_algorithms.players.rule_based.random_agent \
     import RandomAgent
 from games_puzzles_algorithms.players.rule_based.first_action_agent \
@@ -11,10 +18,76 @@ from games_puzzles_algorithms.players.rule_based.first_action_agent \
 from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
 
+from games_puzzles_algorithms.games.cli import Cli
 
-GAMES = {'hex': HexCli,
-         #'ttt': TttCli
-        }
+
+class UiGameState(object):
+    def __init__(self, *args, **kwargs): self.reset(*args, **kwargs)
+
+    def reset(self, *args, **kwargs):
+        self.state = self.new_state(*args, **kwargs)
+        return self
+
+    def ui_action_to_action(self, ui_action): return ui_action
+    def action_to_ui_action(self, action): return action
+    def state_to_ui_state(self): return str(self.state)
+    def player_to_ui_player(self, player): return player
+    def ui_player_to_player(self, ui_player): return ui_player
+
+
+class HexCliGameState(UiGameState):
+    @classmethod
+    def new_state(self, *args, **kwargs):
+        return HexGameState.root(*args, **kwargs)
+
+    def ui_action_to_action(self, ui_action):
+        column = ord(ui_action[0].lower()) - ord('a')
+        row = int(ui_action[1:]) - 1
+        return self.state.board.cell_index(row, column)
+
+    def action_to_ui_action(self, action):
+        row = self.state.board.row(action)
+        column = self.state.board.column(action)
+        return chr(ord('a') + column) + str(row + 1)
+
+    def player_to_ui_player(self, player): return COLOR_SYMBOLS[player]
+    def ui_player_to_player(self, ui_player):
+        ui_player = ui_player.strip().lower()
+        if (ui_player == 'w' or ui_player == 'white'
+                or ui_player
+                   == COLOR_SYMBOLS[color_to_player(COLORS["white"])].lower()):
+            return color_to_player(COLORS["white"])
+        elif (ui_player == 'b' or ui_player == 'black'
+                or ui_player
+                   == COLOR_SYMBOLS[color_to_player(COLORS["black"])].lower()):
+            return color_to_player(COLORS["black"])
+        else:
+            raise("Unrecognized player, \"{}\"".format(ui_player))
+
+
+class TttCliGameState(UiGameState):
+    @classmethod
+    def new_state(self, *args, **kwargs):
+        return TttGameState(*args, **kwargs)
+
+    def ui_action_to_action(self, ui_action):
+        column = ord(ui_action[0].lower()) - ord('a')
+        row = int(ui_action[1:]) - 1
+        return self.state.cell_index(row, column)
+
+    def action_to_ui_action(self, action):
+        row = self.state.row(action)
+        column = self.state.column(action)
+        return chr(ord('a') + column) + str(row + 1)
+
+    def player_to_ui_player(self, player):
+        return TttGameState.Board.PLAYER_NAMES[player]
+
+    def ui_player_to_player(self, ui_player):
+        return TttGameState.Board.PLAYER_NAMES.index(ui_player)
+
+
+GAMES = {'hex': HexCliGameState, 'ttt': TttCliGameState}
 ALGS = {
     'random': lambda **kwargs: RandomAgent(kwargs['random_generator'].random),
     'first': lambda **_: FirstActionAgent(),
@@ -75,7 +148,7 @@ if __name__ == '__main__':
         import logging
         logging.basicConfig(level=logging.DEBUG)
     try:
-        cli = game(algorithm(random_generator=r))
+        cli = Cli(game(), algorithm(random_generator=r))
         if options.script is not None:
             with open(options.script) as f:
                 for command in f:
