@@ -198,6 +198,7 @@ function draw_piece(hexagon, piece, graphics) {
 }
 
 function draw_play_area(hexagons, graphics) {
+    graphics.clear();
     graphics.lineStyle(2, 0x000000, 1);
 
     for (var i = 0; i < hexagons.length; ++i) {
@@ -209,6 +210,7 @@ function draw_play_area(hexagons, graphics) {
 }
 
 function draw_border(hexagons, graphics) {
+    graphics.clear();
     graphics.lineStyle(2, 0x000000, 1);
 
     for (var i = 0; i < hexagons.length; ++i) {
