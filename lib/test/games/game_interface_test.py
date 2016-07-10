@@ -14,8 +14,8 @@ def game_states():
 
 @pytest.mark.parametrize('game_state', game_states())
 def test_num_legal_actions(game_state):
-    game_state.num_legal_actions()
-    assert len(list(game_state.legal_actions())) == game_state.num_legal_actions()
+    assert (len(list(game_state.legal_actions()))
+            == game_state.num_legal_actions())
 
 
 @pytest.mark.parametrize('game_state', game_states())

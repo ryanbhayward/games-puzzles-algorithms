@@ -3,7 +3,7 @@ import random
 from flask import Flask, g, jsonify, render_template, request
 
 import games_puzzles_algorithms.players.rule_based.first_action_agent as fa
-import games_puzzles_algorithms.players.rule_based.uniform_random_agent as ur
+import games_puzzles_algorithms.players.rule_based.random_agent as ur
 import games_puzzles_algorithms.players.mcts.mcts_agent as mcts
 
 import games_puzzles_algorithms.games.hex.game_state as game
@@ -11,8 +11,8 @@ import games_puzzles_algorithms.games.hex.color as color
 
 agents = {
     'First Action': fa.FirstActionAgent(),
-    'Uniform Random': ur.UniformRandomAgent(random.random),
-    'MCTS': mcts.MctsAgent(),
+    'Uniform Random': ur.RandomAgent(random.random),
+    'MCTS': mcts.MctsAgent(random),
 }
 
 app = Flask(__name__)
