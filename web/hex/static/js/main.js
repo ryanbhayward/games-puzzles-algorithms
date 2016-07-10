@@ -25,8 +25,9 @@ var EMPTY = 2;
 var board;
 var border;
 var border_hexagons;
-var graphics;
 var play_hexagons;
+var border_graphics;
+var play_graphics;
 
 // Generate a hexagon centered at the given center point.
 function hexagon(center) {
@@ -218,9 +219,10 @@ function draw_border(hexagons, graphics) {
     }
 }
 
-function draw_board(play_hexagons, border_hexagons, graphics) {
-    draw_play_area(play_hexagons, graphics);
-    draw_border(border_hexagons, graphics);
+function draw_board(play_hexagons, border_hexagons, play_graphics,
+                    border_graphics) {
+    draw_play_area(play_hexagons, play_graphics);
+    draw_border(border_hexagons, border_graphics);
 }
 
 function declare_winner(winner) {
@@ -240,7 +242,7 @@ function set_board(data) {
         return;
     }
     board = data.board;
-    draw_play_area(play_hexagons, graphics);
+    draw_play_area(play_hexagons, play_graphics);
 
     if (typeof data.winner !== 'undefined' && data.winner !== 2) {
         declare_winner(data.winner);
@@ -254,8 +256,7 @@ function reset_board(data) {
     row_dimension = data.row_dimension;
     column_dimension = data.column_dimension;
     initialize_board(row_dimension, column_dimension);
-    graphics.clear();
-    draw_border(border_hexagons, graphics);
+    draw_border(border_hexagons, border_graphics);
     get_state();
 }
 
@@ -410,7 +411,8 @@ function preload() {
 function create() {
     game.stage.backgroundColor = 0xffffff;
     game.add.image(0, 0, 'wood');
-    graphics = game.add.graphics(0, 0);
+    play_graphics = game.add.graphics(0, 0);
+    border_graphics = game.add.graphics(0, 0);
 
     game.add.button(10, 550, 'undo', undo_move);
     game.add.button(180, 550, 'reset', reset_game);
@@ -419,7 +421,7 @@ function create() {
     game.add.button(690, 550, 'agent', agent_selection_modal);
 
     reset_game();
-    draw_board(play_hexagons, border_hexagons, graphics);
+    draw_board(play_hexagons, border_hexagons, play_graphics, border_graphics);
 
     game.input.onDown.add(on_click, game);
 }
