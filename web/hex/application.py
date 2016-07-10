@@ -5,6 +5,7 @@ from flask import Flask, g, jsonify, render_template, request
 import games_puzzles_algorithms.players.rule_based.first_action_agent as fa
 import games_puzzles_algorithms.players.rule_based.random_agent as ur
 import games_puzzles_algorithms.players.mcts.mcts_agent as mcts
+import games_puzzles_algorithms.players.minimax.minimax_agent as mm
 
 import games_puzzles_algorithms.games.hex.game_state as game
 import games_puzzles_algorithms.games.hex.color as color
@@ -13,6 +14,7 @@ agents = {
     'First Action': fa.FirstActionAgent(),
     'Uniform Random': ur.RandomAgent(random.random),
     'MCTS': mcts.MctsAgent(random),
+    'Minimax': mm.MinimaxAgent(),
 }
 
 app = Flask(__name__)
