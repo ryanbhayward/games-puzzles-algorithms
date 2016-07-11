@@ -11,7 +11,7 @@ test: setup.py
 
 .PHONY: install
 install: requirements.txt
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements.txt $(ARGS)
 
 clean:
 	find . -name "*.pyc" -delete

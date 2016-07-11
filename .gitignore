@@ -71,3 +71,6 @@ tmp
 
 # Virtual Environment
 venv
+
+# Web dependencies
+web/hex/static/deps

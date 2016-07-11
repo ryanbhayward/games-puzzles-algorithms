@@ -8,11 +8,13 @@ def test_empty_board():
     assert(patient.score(1) is None)
     assert(
         str(patient) ==
-        " | | \n" +
-        "-|-|-\n" +
-        " | | \n" +
-        "-|-|-\n" +
-        " | | "
+        "\n" +
+        "  A B C\n" +
+        "1  | | \n" +
+        "  -|-|-\n" +
+        "2  | | \n" +
+        "  -|-|-\n" +
+        "3  | | \n"
     )
 
 
@@ -36,11 +38,13 @@ def test_moves():
     assert(patient.score(1) is None)
     assert(
         str(patient.play(patient._board._spaces.index(1, 1))) ==
-        " | | \n" +
-        "-|-|-\n" +
-        " |X| \n" +
-        "-|-|-\n" +
-        " | | "
+        "\n" +
+        "  A B C\n" +
+        "1  | | \n" +
+        "  -|-|-\n" +
+        "2  |X| \n" +
+        "  -|-|-\n" +
+        "3  | | \n"
     )
     assert(patient.player_to_act() == 1)
 

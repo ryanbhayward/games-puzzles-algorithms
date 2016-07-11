@@ -43,17 +43,30 @@ class GameState(object):
             self._actions = []
 
         def __str__(self):
-            string = ""
+            ret = "\n"
+            coord_size = len(str(self._spaces.num_rows()))
+            offset = 1
+            ret += ' ' * (offset + 1)
+            for x in range(self._spaces.num_columns()):
+                ret += chr(ord('A') + x) + ' ' * offset
+            ret = ret.rstrip() + '\n'
             for i in range(self._spaces.num_rows()):
-                if i > 0:
-                    string += (
-                        "\n"
-                        + "|".join(['-']*self._spaces.num_columns())
-                        + "\n")
+                if i != 0:
+                    ret += ("  "
+                            + "|".join(['-']*self._spaces.num_columns())
+                            + "\n")
+                ret += (str(i + 1) + ' '
+                                   * (offset + coord_size - len(str(i + 1))))
                 for j in range(self._spaces.num_columns()):
-                    if j > 0: string += '|'
-                    string += chr(self._spaces[i, j])
-            return string
+                    if j > 0: ret += '|'
+                    ret += chr(self._spaces[i, j])
+                ret += "\n"
+            return ret
+
+        def cell_index(self, row, column):
+            return self._spaces.index(row, column)
+        def row(self, index): return self._spaces.row(index)
+        def column(self, index): return self._spaces.column(index)
 
         def num_actions_played(self): return len(self._actions)
 
@@ -159,8 +172,14 @@ class GameState(object):
         '''
         self.undo()
 
+    def cell_index(self, row, column):
+        return self._board.cell_index(row, column)
+
+    def row(self, index): return self._board.row(index)
+    def column(self, index): return self._board.column(index)
+
     def legal_actions(self):
-        return self._board.legal_actions()
+        return [] if self.is_terminal() else self._board.legal_actions()
 
     def num_legal_actions(self):
         return self._board.num_legal_actions()

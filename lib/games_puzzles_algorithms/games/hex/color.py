@@ -20,7 +20,7 @@ def player_to_color(player):
     return player
 
 
-def cell_str(cell):
+def cell_str(*cell):
     return chr(ord('a') + cell[1]) + str(cell[0] + 1)
 
 
