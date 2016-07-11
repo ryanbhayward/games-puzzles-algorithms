@@ -67,3 +67,5 @@ tmp
 # Virtual Environment
 venv
 
+# Bower Components
+bower_components
