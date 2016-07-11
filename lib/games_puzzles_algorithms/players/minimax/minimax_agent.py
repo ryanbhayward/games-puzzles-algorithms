@@ -1,7 +1,6 @@
 from __future__ import division
 import time
 import random
-from math import sqrt, log
 import games_puzzles_algorithms.debug as debug
 import logging
 INF = float('inf')
