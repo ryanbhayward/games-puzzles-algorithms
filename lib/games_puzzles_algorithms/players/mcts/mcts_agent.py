@@ -215,10 +215,10 @@ class MctsAgent(object):
             self._root.expand(root_state)
 
             debug.log({'Initial search tree': (
-                self._root.info_strings_to_dict()
-            ),
+                self._root.info_strings_to_dict()),
                 'Time available in seconds': time_allowed_s,
-                '# iterations': num_iterations}, level=logging.INFO)
+                '# iterations': num_iterations},
+                level=logging.INFO)
             debug.log(str(root_state), level=logging.INFO, raw=True)
 
             num_iterations_completed = 0
