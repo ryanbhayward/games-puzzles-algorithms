@@ -1,26 +1,24 @@
 (function () {
   'use strict';
   // Set the endpoint for the MCTS data here.
-  //var mctsDataUrl = "/static/data/data.json";
   var mctsDataUrl = "static/data/mcts_data.json";
 
   var xBuffer = 120;
   var yBuffer = 20;
 
-  var margin = {top: yBuffer, right: xBuffer, bottom: yBuffer, left: xBuffer},
-    width = 960 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
+  var margin = {top: yBuffer, right: xBuffer, bottom: yBuffer, left: xBuffer};
+  var width = 960 - margin.right - margin.left;
+  var height = 800 - margin.top - margin.bottom;
 
-  var i = 0,
-    duration = 750,
-    root;
+  var i = 0;
+  var duration = 750;
+  var root;
 
-  var tree = d3.layout.tree()
-    .size([height, width]);
+  var tree = d3.layout.tree().size([height, width]);
 
   var diagonal = d3.svg.diagonal()
     .projection(function (d) {
-      return [d.y, d.x];
+      return [d.x, d.y];
     });
 
   var svg = d3.select("body").append("svg")
@@ -44,7 +42,6 @@
       }
     }
 
-    root.tree.children.forEach(collapse);
     update(root);
   });
 
@@ -53,13 +50,8 @@
   function update(source) {
 
     // Compute the new tree layout.
-    var nodes = tree.nodes(root.tree).reverse(),
-      links = tree.links(nodes);
-
-    // Normalize for fixed-depth.
-    nodes.forEach(function (d) {
-      d.y = d.depth * 180;
-    });
+    var nodes = tree.nodes(root.tree).reverse();
+    var links = tree.links(nodes);
 
     // Update the nodes…
     var node = svg.selectAll("g.node")
@@ -90,21 +82,39 @@
         return d.children || d._children ? "end" : "start";
       })
       .text(function (d) {
-        var text = '';
-        d.A !== undefined ? text += 'A: ' + String(d.A) + ', ' : 0;
-        d.N !== undefined ? text += 'N: ' + String(d.N) + ', ' : 0;
-        d.P !== undefined ? text += 'P: ' + String(d.P) + ', ' : 0;
-        d.Q !== undefined ? text += 'Q: ' + String(d.Q) : text.substring(0, text.length - 2);
-        return text;
-        //return d.name;
+        //return d.id;
+        return '';
       })
       .style("fill-opacity", 1e-6);
+
+    nodeEnter.append("svg:title")
+      .text(function (d) {
+        var text = [];
+        for (var key in d) {
+          if (d.hasOwnProperty(key)) {
+            if (key === 'children') {
+              var numChildren = getNumChildren(d);
+              text.push('numChildren: ' + numChildren);
+            }
+            else if (isNaN(parseFloat(d[key])) || key === 'x' || key === 'y') {
+              continue;
+            }
+            else if (d[key] !== undefined) {
+              text.push(key + ': ' + String(d[key]));
+            }
+            else {
+              text.push(key + ': 0');
+            }
+          }
+        }
+        return text.join(', ');
+      });
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
       .duration(duration)
       .attr("transform", function (d) {
-        return "translate(" + d.y + "," + d.x + ")";
+        return "translate(" + d.x + "," + d.y + ")";
       });
 
     nodeUpdate.select("circle")
@@ -120,7 +130,7 @@
     var nodeExit = node.exit().transition()
       .duration(duration)
       .attr("transform", function (d) {
-        return "translate(" + source.y + "," + source.x + ")";
+        return "translate(" + source.x + "," + source.y + ")";
       })
       .remove();
 
@@ -157,29 +167,9 @@
         return diagonal({source: o, target: o});
       })
       .remove();
-
-    var dynamicX = 0;
-    var dynamicY = 0;
-    // Stash the old positions for transition.
-    nodes.forEach(function (d) {
-      if (d.x > dynamicX) {
-        dynamicX = d.x;
-      }
-      if (d.y > dynamicY) {
-        dynamicY = d.y;
-      }
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
-    height = (dynamicX + 2 * xBuffer) + margin.top + margin.bottom;
-    width = (dynamicY + 2 * yBuffer) + margin.right + margin.left;
-    var _svg = document.getElementsByTagName("svg")[0];
-    _svg.setAttribute('width', width);
-    _svg.setAttribute('height', height);
-    svg.attr("width", width).attr("height", height)
   }
 
-// Toggle children on click.
+  // Toggle children on click.
   function click(d) {
     if (d.children) {
       d._children = d.children;
@@ -189,5 +179,16 @@
       d._children = null;
     }
     update(d);
+  }
+
+  function getNumChildren(d) {
+    var countChildren = 0;
+    if (d.children) {
+      d.children.forEach(function(subD) {
+        countChildren += 1;
+        countChildren += getNumChildren(subD);
+      }.bind(this))
+    }
+    return countChildren;
   }
 })();
