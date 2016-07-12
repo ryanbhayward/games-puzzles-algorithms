@@ -129,18 +129,18 @@ class MazePuzzle(object):
         :return: Array of moves.
         """
         valid_moves = []
-        # Can move left
-        if "|" not in self.ver[len(self.ver) - 2 - self.position[1]][self.position[0]]:
-            valid_moves.append(MazePuzzle.DIRECTIONS["left"])
-        # Can move right
-        if "|" not in self.ver[len(self.ver) - 2 - self.position[1]][self.position[0] + 1]:
-            valid_moves.append(MazePuzzle.DIRECTIONS["right"])
         # Can move up
         if "-" not in self.hor[len(self.hor) - 2 - self.position[1]][self.position[0]]:
             valid_moves.append(MazePuzzle.DIRECTIONS["up"])
         # Can move down
         if "-" not in self.hor[len(self.hor) - 1 - self.position[1]][self.position[0]]:
             valid_moves.append(MazePuzzle.DIRECTIONS["down"])
+        # Can move left
+        if "|" not in self.ver[len(self.ver) - 2 - self.position[1]][self.position[0]]:
+            valid_moves.append(MazePuzzle.DIRECTIONS["left"])
+        # Can move right
+        if "|" not in self.ver[len(self.ver) - 2 - self.position[1]][self.position[0] + 1]:
+            valid_moves.append(MazePuzzle.DIRECTIONS["right"])
         return valid_moves
 
     @staticmethod

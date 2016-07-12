@@ -3,7 +3,6 @@ from .color import IllegalAction, COLORS, ORIENTATION, COLOR_SYMBOLS, \
     NUM_PLAYERS, color_to_player, next_player, player_to_color, cell_str, \
     cell_str_to_cell
 from array import array
-from games_puzzles_algorithms.debug import log
 
 
 def prod(*l):
@@ -182,7 +181,7 @@ class Board(object):
 
 
 class GameState(object):
-    """Represents the current state of a game of dark hex (dex)."""
+    """Represents the current state of a game of hex."""
 
     @classmethod
     def clean_board(self, *dimensions):
@@ -211,6 +210,11 @@ class GameState(object):
 
     def __getitem__(self, cell):
         return self.board.color(*cell)
+
+    def player_who_acted_last(self):
+        return self._previous_acting_players[-1] \
+            if self._previous_acting_players \
+            else None
 
     def could_terminate_in_one_action(self, player=None):
         '''
@@ -291,12 +295,39 @@ class GameState(object):
             self._potentially_winning_moves = None
         return action
 
-    def play(self, cell):
-        self.place(cell, self._acting_player)
+    def play(self, action):
+        '''Apply the given action.
 
-    def do_after_play(self, action):
-        self.play(action)
-        yield
+        `action` must be in the set of legal actions
+        (see `legal_actions`).
+        Return `self`.
+        '''
+        self.place(action, self._acting_player)
+        return self
+
+    def __enter__(self):
+        '''Allows the following type of code:
+
+        ```
+        with state.play(action):
+            # Do something with `state` after `action`
+            # has been applied to `state`.
+        # `action` has automatically be undone.
+        '''
+        pass
+
+    def __exit__(self,
+                 exception_type,
+                 exception_val,
+                 exception_traceback):
+        '''Allows the following type of code:
+
+        ```
+        with state.play(action):
+            # Do something with `state` after `action`
+            # has been applied to `state`.
+        # `action` has automatically be undone.
+        '''
         self.undo()
 
     def place(self, action, player):
@@ -347,11 +378,7 @@ class GameState(object):
             yield a
 
     def num_legal_actions(self):
-        return self.board.num_legal_actions()
-
-    def to_s(self, player):
-        """Print an ascii representation of the game board."""
-        return self.board.to_s(player)
+        return 0 if self.is_terminal() else self.board.num_legal_actions()
 
     def __str__(self):
         """Print an ascii representation of the game board."""

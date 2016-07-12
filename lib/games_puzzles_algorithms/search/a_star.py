@@ -26,6 +26,8 @@ class AStar(Search):
         Returns a list of moves to reach the solution if it finds one, None
         if there is not solution, or False if the time limit is reached.
         """
+        if self.solved:
+            self.reset()
         start_time = time.time()
         tick = 0
         while time.time() - start_time < self.time_limit:
@@ -85,3 +87,9 @@ class AStar(Search):
                 heappush(self.frontier, child)
 
         return False, current_node.state
+
+    def reset(self):
+        self.frontier = []
+        self.explored = set()
+        heappush(self.frontier, self.rootnode)
+        self.solved = False

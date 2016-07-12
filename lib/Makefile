@@ -1,14 +1,19 @@
+PIP :=pip3
+PYTHON :=python3
+
+
+.PHONY: default
+default: install
+
 .PHONY: test
-test: test-python
-test-%:
-	$* -m py.test ./ -svx
+test: setup.py
+	$(PYTHON) setup.py -q test --addopts '-x $(ARGS)'
 
 .PHONY: install
-install: install-pip
-install-%:
-	$* install -r requirements.txt
+install: requirements.txt
+	$(PIP) install -r requirements.txt $(ARGS)
 
 clean:
 	find . -name "*.pyc" -delete
 	find . -name "__pycache__" -delete
-	rm -rf .cache .eggs *.egg-info build
+	rm -rf .cache *.egg *.eggs *.egg-info build 2> /dev/null

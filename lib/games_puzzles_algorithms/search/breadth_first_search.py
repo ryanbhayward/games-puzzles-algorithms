@@ -79,3 +79,9 @@ class BreadthFirstSearch(Search):
                 self.frontier.append(child)
 
         return False, current_node.state
+
+    def reset(self):
+        self.frontier = deque()
+        self.frontier.append(self.rootnode)
+        self.explored = set()
+        self.solved = False

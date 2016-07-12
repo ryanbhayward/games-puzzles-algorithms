@@ -2,16 +2,26 @@ import random
 
 from flask import Flask, g, jsonify, render_template, request
 
+import games_puzzles_algorithms.players.rule_based.first_action_agent as fa
+import games_puzzles_algorithms.players.rule_based.random_agent as ur
+import games_puzzles_algorithms.players.mcts.mcts_agent as mcts
+import games_puzzles_algorithms.players.minimax.minimax_agent as mm
+
 import games_puzzles_algorithms.games.hex.game_state as game
 import games_puzzles_algorithms.games.hex.color as color
-import games_puzzles_algorithms.players.rule_based.uniform_random_agent as agent
 
+agents = {
+    'First Action': fa.FirstActionAgent(),
+    'Uniform Random': ur.RandomAgent(random.random),
+    'MCTS': mcts.MctsAgent(random),
+    'Minimax': mm.MinimaxAgent(),
+}
 
 app = Flask(__name__)
 column_dimension = 12
 row_dimension = 12
 state = game.GameState.root(row_dimension, column_dimension)
-game_agent = agent.UniformRandomAgent(random.random)
+game_agent = agents.get('Uniform Random')
 
 
 @app.route('/_play_move', methods=['GET'])
@@ -66,8 +76,9 @@ def undo_move():
 
 @app.route('/_reset_game', methods=['GET'])
 def reset_game():
-    global state, row_dimension, column_dimension
+    global game_agent, state, row_dimension, column_dimension
 
+    game_agent.reset()
     state = game.GameState.root(row_dimension, column_dimension)
 
     return jsonify(error=False, board=state.board._cells.tolist(),
@@ -88,6 +99,25 @@ def ai_move():
                        winner=state.winner())
 
     except color.IllegalAction:
+        return jsonify(error=True)
+
+
+@app.route('/_select_agent', methods=['GET'])
+def select_agent():
+    global game_agent
+
+    try:
+        agent_str = request.args.get('agent', None, type=str)
+        new_agent = agents.get(agent_str)
+
+        if new_agent is None:
+            return jsonify(error=True)
+
+        game_agent = new_agent
+
+        return jsonify(error=False)
+
+    except Exception:
         return jsonify(error=True)
 
 

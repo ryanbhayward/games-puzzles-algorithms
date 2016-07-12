@@ -1,9 +1,8 @@
-# games-puzzles-algorithms
-software for CMPUT 396: ugrad course on games, puzzles, algorithms
+# CMPUT 396 -- Games, Puzzles, and Algorithms
 
-## Puzzles
+Software for CMPUT 396 to allow students to explore fundamental algorithms
+that are used to play games and solve puzzles.
 
-Currently, Sliding Tile and Maze puzzles are defined and working.
 
 ### Quick Start (Puzzles)
 
@@ -23,12 +22,56 @@ cd lib
 pip install -r requirements.txt
 ```
 
-* If using the sliding tile puzzle, also install numpy
-```bash
-pip install numpy
-```
+## Contents
 
-* Run the `main.py` within the **ui** directory
+### Games
+
+
+- Hex
+
+
+### Puzzles
+
+- Sliding tiles
+- Maze
+
+
+### Algorithms
+
+- Uniform random game player
+- Minimax game tree search
+- Monte-Carlo tree search
+- Breadth-first search
+- Depth-first search
+- A* search
+
+
+## Installation
+
+### Prerequisites
+
+- A Python3 interpreter (both *CPython* and *PyPy* are supported)
+<!-- TODO - FFI (`libffi-dev`)? -->
+- `virtualenv` (Optional)
+- `make` (Optional)
+
+
+### Procedure
+
+- Run `make` in the project's root directory. This will first create a Python virtual environment with `virtualenv` where the project and its Python dependencies will be installed, then install he project and its dependencies.
+    - If installing without `virtualenv`, run `make install` with the `PIP` argument, specifying a different instance of `pip` that will be used to install the project and its dependencies. For example, if you have PyPy installed to `~/.pypy`, then a command like `make install PIP=~/.pypy/bin/pip` would install this project and its dependencies for use with PyPy.
+    - If installing without `make`, see `Makefile` and `lib/Makefile` for more details on the commands that `make install` would run and run analogous commands manually.
+
+<!-- TODO How does this procedure change for Windows users? -->
+<!-- TODO CFFI? -->
+
+
+## Development and testing
+
+- Run tests with `make test` in the project root or `lib`.
+
+<!-- TODO Rework this with information on how to run all executables -->
+<!-- * Run the `main.py` within the **ui** directory
 ```bash
 python3 games_puzzles_algorithms/ui/main.py
 # full version
@@ -56,3 +99,4 @@ python3 puzzles/app.py
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
  ```
 
+``` -->

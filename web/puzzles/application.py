@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, request
 
 from games_puzzles_algorithms.puzzles.maze_puzzle import MazePuzzle
-from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
+from games_puzzles_algorithms.puzzles.solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle as SlidingTilePuzzle
 from games_puzzles_algorithms.search.breadth_first_search import BreadthFirstSearch
 from games_puzzles_algorithms.search.depth_first_search import DepthFirstSearch
 from games_puzzles_algorithms.search.a_star import AStar
@@ -63,7 +63,6 @@ def maze_refresh():
     global maze, maze_search_steps, maze_steps
     width = len(maze.hor[0]) - 1
     height = len(maze.hor) - 1
-    print(width, height)
     maze = MazePuzzle(width=width, height=height)
     _instantiate_maze_solver(maze_str_solver)
     maze_search_steps = 0
@@ -137,7 +136,7 @@ def _instantiate_maze_solver(raw_str_solver):
 # * * * * * * * * * * * * * * * * * * * *
 
 # SLIDING TILE VARIABLES
-sliding_tile = SlidingTilePuzzle(size=3)
+sliding_tile = SlidingTilePuzzle(size1=3, size2=3)
 sliding_tile_str_solver = "bfs"
 sliding_tile_solver = SOLVERS[sliding_tile_str_solver](maze, -1)
 sliding_tile_search_steps = 0
@@ -150,6 +149,7 @@ def sliding_tile_index():
     Route for the maze implementations.
     :return: HTML template for index
     """
+    sliding_tile_refresh()  # issue with the 2D array code, fixed by reinstating the sliding tile puzzle
     return render_template('sliding_tile.html')
 
 
@@ -160,14 +160,14 @@ def sliding_tile_state():
     :return: JSON object representing the state of the maze puzzle
     """
     json_state = {'sliding_tile': sliding_tile.array(), 'solver': sliding_tile_str_solver, 'steps': sliding_tile_steps,
-                  'search_steps': sliding_tile_search_steps, 'size': sliding_tile.size}
+                  'search_steps': sliding_tile_search_steps, 'size1': sliding_tile.size1, 'size2': sliding_tile.size2}
     return json.dumps(json_state)
 
 
 @app.route("/sliding_tile/refresh", methods=['GET'])
 def sliding_tile_refresh():
     global sliding_tile, sliding_tile_search_steps, sliding_tile_steps
-    sliding_tile = SlidingTilePuzzle(size=sliding_tile.size)
+    sliding_tile = SlidingTilePuzzle(size1=sliding_tile.size1, size2=sliding_tile.size2)
     _instantiate_sliding_tile_solver(sliding_tile_str_solver)
     sliding_tile_search_steps = 0
     sliding_tile_steps = 0
@@ -201,8 +201,9 @@ def sliding_tile_set_size():
     """
     global sliding_tile
     try:
-        raw_size = int(request.form['size'])
-        sliding_tile = SlidingTilePuzzle(size=raw_size)
+        raw_size_1 = int(request.form['size1'])
+        raw_size_2 = int(request.form['size2'])
+        sliding_tile = SlidingTilePuzzle(size1=raw_size_1, size2=raw_size_2)
         _instantiate_sliding_tile_solver(sliding_tile_str_solver)
     except ValueError:
         pass

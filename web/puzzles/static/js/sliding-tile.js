@@ -28,7 +28,8 @@
   var solver;
   var steps;
   var searchSteps;
-  var size;
+  var size1;
+  var size2;
 
   /**
    * Preload the 600 x 600 image
@@ -144,10 +145,12 @@
     slidingTile = data.sliding_tile;
     solver = data.solver;
     steps = data.steps;
-    size = data.size;
+    size1 = data.size1;
+    size2 = data.size2;
     $('#search').val(solver);
     $('#steps').text(steps);
-    $('#size').val(Math.floor(size));
+    $('#size1').val(Math.floor(size1));
+    $('#size2').val(Math.floor(size2));
     $('#delay').val(searchDelay);
     prepareBoard();
   }
@@ -163,10 +166,11 @@
 
 
   $('#sliding-tile-form').submit(function () {
-    var size = $('#size').val();
+    size1 = $('#size1').val();
+    size2 = $('#size2').val();
     var search = $('#search').val();
     $.post('/sliding_tile/set_search', {'search': search}, getState);
-    $.post('/sliding_tile/set_size', {'size': size}, getState);
+    $.post('/sliding_tile/set_size', {'size1': size1, 'size2': size2}, getState);
     return true;
   });
 

@@ -1,3 +1,7 @@
+(function() {
+
+'use strict';
+
 var frame_width = 1000;
 var frame_height = 600;
 var board_width = 1000 - 10;
@@ -19,7 +23,10 @@ var WHITE = 1;
 var EMPTY = 2;
 
 var board;
-var hexagons;
+var border;
+var border_hexagons;
+var graphics;
+var play_hexagons;
 
 // Generate a hexagon centered at the given center point.
 function hexagon(center) {
@@ -50,13 +57,24 @@ function generate_column(start, row_dimension) {
     return hexagons;
 }
 
+//Generate one row of the board.
+function generate_row(start, column_dimension) {
+    var center = start.clone();
+    var hexagons = [];
+
+    for (var i = 0; i < column_dimension; ++i) {
+        hexagons.push(hexagon(center));
+        center.add(width, 0);
+    }
+
+    return hexagons;
+}
+
 // Generate the hexagons that make up the board.
 function generate_board(row_dimension, column_dimension) {
     var hexagons = [];
 
-    set_size(row_dimension, column_dimension);
-
-    var column_start = new Phaser.Point(width / 2, height / 2);
+    var column_start = new Phaser.Point(1.5 * width, 1.5 * height);
 
     for (var i = 0; i < column_dimension; ++i) {
         Array.prototype.push.apply(hexagons,
@@ -67,15 +85,56 @@ function generate_board(row_dimension, column_dimension) {
     return hexagons;
 }
 
+// Generate the hexagons that will make up the board border.
+function generate_border(row_dimension, column_dimension) {
+    var column_start, row_start, i;
+    var hexagons = [];
+    border = [];
+
+    // Add column along left.
+    column_start = new Phaser.Point(width, 2.25 * height);
+    Array.prototype.push.apply(hexagons, generate_column(column_start,
+                                                         row_dimension - 1));
+
+    // Add column along right.
+    column_start = new Phaser.Point((column_dimension + 1.5) * width,
+                                    1.5 * height);
+    Array.prototype.push.apply(hexagons, generate_column(column_start,
+                                                         row_dimension - 1));
+
+    // Push white pieces into border.
+    for (i = 0; i < 2 * (row_dimension - 1); ++i) {
+        border.push(WHITE);
+    }
+
+    // Add row along top.
+    row_start = new Phaser.Point(2 * width, 0.75 * height);
+    Array.prototype.push.apply(hexagons, generate_row(row_start,
+                                                      column_dimension - 1));
+
+    // Add row along bottom.
+    row_start = new Phaser.Point((0.5 * (row_dimension + 1) + 1) * width,
+                                 (0.75 * row_dimension + 1.5) * height);
+    Array.prototype.push.apply(hexagons, generate_row(row_start,
+                                                      column_dimension - 1));
+
+    // Push black pieces into border.
+    for (i = 0; i < 2 * (column_dimension - 1); ++i) {
+        border.push(BLACK);
+    }
+
+    return hexagons;
+}
+
 // Calculate the maximum unit size based on board frame height.
-function max_size_height(column_dimension, board_height) {
-    var height_multiple = 1 + (3 / 4) * (column_dimension - 1);
+function max_size_height(row_dimension, board_height) {
+    var height_multiple = 2 + (3 / 4) * (row_dimension - 1);
     return board_height / height_multiple / 2;
 }
 
 // Calculate the maximum unit size based on board frame width.
 function max_size_width(row_dimension, column_dimension, board_width) {
-    var width_multiple = column_dimension + (row_dimension - 1) / 2;
+    var width_multiple = 2 + column_dimension + (row_dimension - 1) / 2;
     return board_width / width_multiple / Math.sqrt(3);
 }
 
@@ -87,8 +146,8 @@ function set_dimensions(size) {
 
 // Set the size of the board units.
 function set_size(row_dimension, column_dimension) {
-    var from_height = max_size_height(column_dimension, board_height);
-    var from_width = max_size_width(row_dimension, column_dimension,
+    var from_height = max_size_height(row_dimension + 2, board_height);
+    var from_width = max_size_width(row_dimension + 2, column_dimension + 2,
                                     board_width);
 
     if (from_height < from_width) {
@@ -98,6 +157,12 @@ function set_size(row_dimension, column_dimension) {
     }
 
     set_dimensions(size);
+}
+
+function initialize_board(row_dimension, column_dimension) {
+    set_size(row_dimension, column_dimension);
+    play_hexagons = generate_board(row_dimension, column_dimension);
+    border_hexagons = generate_border(row_dimension, column_dimension);
 }
 
 // Calculate the center of mass of the given polygon.
@@ -124,29 +189,46 @@ function draw_piece(hexagon, piece, graphics) {
         return;
     }
 
-    center = poly_center(hexagon);
+    var center = poly_center(hexagon);
 
     graphics.beginFill(board_colors[piece]);
     graphics.drawCircle(center[0], center[1], diameter);
     graphics.endFill();
 }
 
-function draw_board(hexagons, graphics) {
-    graphics.lineStyle(3, 0x000000, 1);
+function draw_play_area(hexagons, graphics) {
+    graphics.lineStyle(2, 0x000000, 1);
 
     for (var i = 0; i < hexagons.length; ++i) {
-        graphics.beginFill(0xffffff);
+        graphics.beginFill(0xffffff, 0);
         graphics.drawPolygon(hexagons[i]);
         draw_piece(hexagons[i], board[i], graphics);
         graphics.endFill();
     }
 }
 
+function draw_border(hexagons, graphics) {
+    graphics.lineStyle(2, 0x000000, 1);
+
+    for (var i = 0; i < hexagons.length; ++i) {
+        graphics.beginFill(0xffffff, 0);
+        graphics.drawPolygon(hexagons[i]);
+        draw_piece(hexagons[i], border[i], graphics);
+        graphics.endFill();
+    }
+}
+
+function draw_board(play_hexagons, border_hexagons, graphics) {
+    draw_play_area(play_hexagons, graphics);
+    draw_border(border_hexagons, graphics);
+}
+
 function declare_winner(winner) {
+    var win_string;
     if (winner === BLACK) {
-        var win_string = "Black wins!";
+        win_string = "Black wins!";
     } else if (winner === WHITE) {
-        var win_string = "White wins!";
+        win_string = "White wins!";
     }
 
     $("#who_wins").html(win_string);
@@ -158,7 +240,7 @@ function set_board(data) {
         return;
     }
     board = data.board;
-    draw_board(hexagons, graphics);
+    draw_play_area(play_hexagons, graphics);
 
     if (typeof data.winner !== 'undefined' && data.winner !== 2) {
         declare_winner(data.winner);
@@ -171,9 +253,9 @@ function reset_board(data) {
     }
     row_dimension = data.row_dimension;
     column_dimension = data.column_dimension;
-    set_size(row_dimension, column_dimension);
-    hexagons = generate_board(row_dimension, column_dimension);
+    initialize_board(row_dimension, column_dimension);
     graphics.clear();
+    draw_border(border_hexagons, graphics);
     get_state();
 }
 
@@ -204,7 +286,7 @@ function board_index(row, column) {
 function on_click(key) {
     for (var i = 0; i < column_dimension; ++i) {
         for (var j = 0; j < row_dimension; ++j) {
-            var hex = hexagons[board_index(j, i)];
+            var hex = play_hexagons[board_index(j, i)];
             if (hex.contains(this.input.x, this.input.y)) {
                 make_move(j, i);
                 break;
@@ -245,7 +327,7 @@ function resize_board() {
     var row_dimension = $form.form('get value', 'row_dimension');
     var column_dimension = $form.form('get value', 'column_dimension');
 
-    $('#resize_modal').modal('hide')
+    $('#resize_modal').modal('hide');
 
     $.ajax({ url: $SCRIPT_ROOT + '/_resize_board',
              dataType: 'json',
@@ -290,6 +372,26 @@ function resize_board_modal() {
     modal_element.modal('show');
 }
 
+function set_agent(text, value)  {
+    $('#agent_modal').modal('hide');
+    $('.ui.dropdown').dropdown('hide');
+
+    $.ajax({ url: $SCRIPT_ROOT + '/_select_agent',
+             dataType: 'json',
+             async: false,
+             data: {'agent': text},
+           });
+
+    return false;
+}
+
+function agent_selection_modal() {
+    $('#agent_modal').modal('show');
+    $('.ui.dropdown').dropdown({
+        action: set_agent
+    });
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -297,25 +399,30 @@ function preload() {
     game.scale.pageAlignVertically = true;
 
     // Load the image assets.
-    game.load.image('undo', '../static/assets/undo.png');
-    game.load.image('reset', '../static/assets/reset.png');
-    game.load.image('aimove', '../static/assets/aimove.png');
-    game.load.image('resize', '../static/assets/resize.png');
+    game.load.image('undo', $SCRIPT_ROOT + '/static/assets/undo.png');
+    game.load.image('reset', $SCRIPT_ROOT + '/static/assets/reset.png');
+    game.load.image('aimove', $SCRIPT_ROOT + '/static/assets/aimove.png');
+    game.load.image('resize', $SCRIPT_ROOT + '/static/assets/resize.png');
+    game.load.image('agent', $SCRIPT_ROOT + '/static/assets/agent.png');
+    game.load.image('wood', $SCRIPT_ROOT + '/static/assets/wood.jpg');
 }
 
 function create() {
     game.stage.backgroundColor = 0xffffff;
+
+    game.add.image(0, 0, 'wood');
     graphics = game.add.graphics(0, 0);
 
-    hexagons = generate_board(row_dimension, column_dimension);
-
-    var button = game.add.button(10, 550, 'undo', undo_move);
-    var button = game.add.button(180, 550, 'reset', reset_game);
-    var button = game.add.button(350, 550, 'aimove', ai_move);
-    var button = game.add.button(520, 550, 'resize', resize_board_modal);
+    game.add.button(10, 550, 'undo', undo_move);
+    game.add.button(180, 550, 'reset', reset_game);
+    game.add.button(350, 550, 'aimove', ai_move);
+    game.add.button(520, 550, 'resize', resize_board_modal);
+    game.add.button(690, 550, 'agent', agent_selection_modal);
 
     reset_game();
-    draw_board(hexagons, graphics);
+    draw_board(play_hexagons, border_hexagons, graphics);
 
     game.input.onDown.add(on_click, game);
 }
+
+})();

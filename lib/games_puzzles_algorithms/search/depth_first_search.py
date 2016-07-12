@@ -77,3 +77,9 @@ class DepthFirstSearch(Search):
                 self.frontier.append(child)
 
         return False, current_node.state
+
+    def reset(self):
+        self.frontier = []
+        self.frontier.append(self.rootnode)
+        self.explored = set()
+        self.solved = False
