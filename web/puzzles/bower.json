@@ -1,0 +1,21 @@
+{
+  "name": "web-puzzles",
+  "homepage": "https://github.com/ryanbhayward/games-puzzles-algorithms",
+  "authors": [
+    "Alexander Wong <admin@alexander-wong.com>"
+  ],
+  "description": "Web puzzles component client dependencies for CMPUT 396 course",
+  "main": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phaser": "^2.6.1",
+    "jquery": "^3.1.0"
+  }
+}

@@ -72,5 +72,8 @@ tmp
 # Virtual Environment
 venv
 
+# Bower Components
+bower_components
+
 # Web dependencies
 web/hex/static/deps
