@@ -28,6 +28,7 @@ class DepthFirstSearch(Search):
 
         while time.time() - start < self.time_limit:
             solved, state = self.step(verbose, tick)
+            self.solved = solved
             if solved is None:
                 return None
             if solved:

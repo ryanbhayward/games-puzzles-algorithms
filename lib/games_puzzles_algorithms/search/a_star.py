@@ -32,6 +32,7 @@ class AStar(Search):
         tick = 0
         while time.time() - start_time < self.time_limit:
             solved, state = self.step(verbose, tick)
+            self.solved = solved
             if solved is None:
                 return None
             if solved:
