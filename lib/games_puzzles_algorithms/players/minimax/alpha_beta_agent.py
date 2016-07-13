@@ -16,8 +16,8 @@ class AlphaBetaAgent(MinimaxAgent):
     def __init__(self):
         self.pruned_nodes = 0
 
-    def value(self, game_state, alpha, beta, time_available=-1, time_used=0,
-              max_depth=-1, tree=None):
+    def value(self, game_state, alpha=-INF, beta=INF, time_available=-1,
+              time_used=0, max_depth=-1, tree=None):
         """
         Return the game theoretic value of game state, `game_state`.
 
