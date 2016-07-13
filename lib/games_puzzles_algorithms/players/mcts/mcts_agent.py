@@ -1,9 +1,7 @@
 from __future__ import division
 import time
 from math import sqrt, log
-from copy import deepcopy
-from games_puzzles_algorithms.choose \
-    import choose_legal_action_randomly
+from games_puzzles_algorithms.choose import choose_legal_action_randomly
 import games_puzzles_algorithms.debug as debug
 import logging
 import json
@@ -15,6 +13,7 @@ def random_roll_out_policy(state, r):
 
 
 class UctNode(object):
+
     def __init__(self, action=None, parent=None, acting_player=None):
         self.action = action
         self.parent = parent
@@ -94,7 +93,7 @@ class UctNode(object):
         max_value = max(
             self.child_nodes(),
             key=lambda n: n.value(exploration)).value(exploration)
-        return [n for n in self.child_nodes() \
+        return [n for n in self.child_nodes()
                 if (n.value(exploration) == max_value)]
 
     def num_children(self):
@@ -139,8 +138,11 @@ class UctNode(object):
 
 
 class MctsAgent(object):
+
     class Mcts(object):
-        class TimeIsUp(Exception): pass
+
+        class TimeIsUp(Exception):
+            pass
 
         @classmethod
         def with_same_parameters(self, other):
@@ -202,26 +204,27 @@ class MctsAgent(object):
             If `time_allowed_s` and `num_iterations` are both negative,
             `num_iterations` will be set to 1.
             """
-            if time_allowed_s < 0 and num_iterations < 0: num_iterations = 1
-            if root_state.is_terminal(): return None
+            if time_allowed_s < 0 and num_iterations < 0:
+                num_iterations = 1
+            if root_state.is_terminal():
+                return None
 
             start_time = time.clock()
-
-            my_root_state = deepcopy(root_state)
 
             self._root = self._node_generator()
             self._root.expand(root_state)
 
             debug.log({'Initial search tree': (
-                          self._root.info_strings_to_dict()
-                       ),
-                       'Time available in seconds': time_allowed_s,
-                       '# iterations': num_iterations}, level=logging.INFO)
-            debug.log(str(my_root_state), level=logging.INFO, raw=True)
+                self._root.info_strings_to_dict()),
+                'Time available in seconds': time_allowed_s,
+                '# iterations': num_iterations},
+                level=logging.INFO)
+            debug.log(str(root_state), level=logging.INFO, raw=True)
 
             num_iterations_completed = 0
-            player_of_interest = my_root_state.player_to_act()
+            player_of_interest = root_state.player_to_act()
             time_used_s = 0
+
             def time_is_available():
                 nonlocal time_used_s
                 time_used_s = time.clock() - start_time
@@ -232,26 +235,27 @@ class MctsAgent(object):
                 try:
                     node, game_state, num_actions = self.select_node(
                         self._root,
-                        my_root_state,
+                        root_state,
                         time_is_available=time_is_available)
                 except self.TimeIsUp:
                     break
 
                 debug.log("Executing roll-out from (player {} is acting):"
-                            .format(game_state.player_to_act()),
+                          .format(game_state.player_to_act()),
                           level=logging.INFO)
-                debug.log(str(my_root_state), level=logging.INFO, raw=True)
+                debug.log(str(game_state), level=logging.INFO, raw=True)
 
                 rollout_results = self.roll_out(game_state, player_of_interest)
                 debug.log({'Roll-out results': rollout_results})
                 node.backup(**rollout_results)
 
                 debug.log({'Updated search tree': (
-                                self._root.info_strings_to_dict()),
-                           'Seconds used': time_used_s,
-                           '# iterations completed': (num_iterations_completed
-                                                      + 1)})
-                for _ in range(num_actions): game_state.undo()
+                    self._root.info_strings_to_dict()),
+                    'Seconds used': time_used_s,
+                    '# iterations completed': (num_iterations_completed
+                                               + 1)})
+                for _ in range(num_actions):
+                    game_state.undo()
                 num_iterations_completed += 1
             return {'num_iterations_completed': num_iterations_completed,
                     'time_used_s': time_used_s,
@@ -269,7 +273,8 @@ class MctsAgent(object):
             num_actions = 0
             my_child_nodes = node.child_nodes()
             while len(my_child_nodes) > 0:
-                if not time_is_available(): raise self.TimeIsUp()
+                if not time_is_available():
+                    raise self.TimeIsUp()
 
                 max_value = self.node_value(
                     max(
@@ -345,9 +350,9 @@ class MctsAgent(object):
                       num_iterations=-1,
                       **_):
         return self._search_tree.good_action(
-             game_state,
-             time_allowed_s=time_allowed_s,
-             num_iterations=num_iterations)
+            game_state,
+            time_allowed_s=time_allowed_s,
+            num_iterations=num_iterations)
 
     def reset(self): self._search_tree.reset()
 
