@@ -26,7 +26,7 @@ def choose_from_distribution(distribution, random_number):
     return last_key
 
 
-def choose_legal_action_uniformly_randomly(state, random_number):
+def choose_legal_action_randomly(state, random_number):
     s = 0
     uniform_weight = 1.0 / state.num_legal_actions()
     for action in state.legal_actions():

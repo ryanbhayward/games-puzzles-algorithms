@@ -409,6 +409,7 @@ function preload() {
 
 function create() {
     game.stage.backgroundColor = 0xffffff;
+
     game.add.image(0, 0, 'wood');
     graphics = game.add.graphics(0, 0);
 
