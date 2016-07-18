@@ -14,7 +14,7 @@ import random
 @pytest.mark.parametrize('player', [
     RandomAgent(lambda: 0.54),
     FirstActionAgent(),
-    MctsAgent(random, num_iterations=0),
+    MctsAgent(random),
     MinimaxAgent(),
     AlphaBetaAgent()
 ])
