@@ -69,7 +69,7 @@ class MinimaxAgent(object):
 
         debug.log({'Time available in seconds': time_allowed_s},
                   level=logging.INFO)
-        debug.log(str(game_state), level=logging.INFO)
+        debug.log(str(game_state), level=logging.INFO, raw=True)
 
         self._tree = {'children': [], 'value': action_value}
 

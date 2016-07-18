@@ -1,8 +1,15 @@
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
+from games_puzzles_algorithms.players.minimax.alpha_beta_agent \
+    import AlphaBetaAgent
 from games_puzzles_algorithms.games.hex.game_state import GameState
+import pytest
 
 
-def test_one_by_one():
+@pytest.mark.parametrize('player', [
+    MinimaxAgent(),
+    AlphaBetaAgent()
+])
+def test_one_by_one(player):
     state = GameState.root(1)
     assert str(state) == (
 '''
@@ -10,11 +17,14 @@ def test_one_by_one():
 1  .  O
     @''')
 
-    patient = MinimaxAgent()
-    assert patient.value(state) == 1
+    assert player.value(state) == 1
 
 
-def test_one_by_one_action():
+@pytest.mark.parametrize('player', [
+    MinimaxAgent(),
+    AlphaBetaAgent()
+])
+def test_one_by_one_action(player):
     state = GameState.root(1)
     assert str(state) == (
 '''
@@ -22,11 +32,14 @@ def test_one_by_one_action():
 1  .  O
     @''')
 
-    patient = MinimaxAgent()
-    assert patient.select_action(state) == 0
+    assert player.select_action(state) == 0
 
 
-def test_two_by_two():
+@pytest.mark.parametrize('player', [
+    MinimaxAgent(),
+    AlphaBetaAgent()
+])
+def test_two_by_two(player):
     state = GameState.root(2)
     assert str(state) == (
 '''
@@ -35,8 +48,7 @@ def test_two_by_two():
  2  .  .  O
      @  @''')
 
-    patient = MinimaxAgent()
-    assert patient.value(state) == 1
+    assert player.value(state) == 1
 
     state.play(0)
     assert str(state) == (
@@ -46,7 +58,7 @@ def test_two_by_two():
  2  .  .  O
      @  @''')
 
-    assert patient.value(state) == 1
+    assert player.value(state) == 1
 
     state.undo()
     state.play(1)
@@ -57,10 +69,14 @@ def test_two_by_two():
  2  O  .  O
      @  @''')
 
-    assert patient.value(state) == -1
+    assert player.value(state) == -1
 
 
-def test_two_by_two_action():
+@pytest.mark.parametrize('player', [
+    MinimaxAgent(),
+    AlphaBetaAgent()
+])
+def test_two_by_two_action(player):
     state = GameState.root(2)
     assert str(state) == (
 '''
@@ -69,8 +85,7 @@ def test_two_by_two_action():
  2  .  .  O
      @  @''')
 
-    patient = MinimaxAgent()
-    assert patient.select_action(state) == 1
+    assert player.select_action(state) == 1
 
     state.play(0)
     assert str(state) == (
@@ -80,7 +95,7 @@ def test_two_by_two_action():
  2  .  .  O
      @  @''')
 
-    assert patient.select_action(state) == 2
+    assert player.select_action(state) == 2
 
     state.undo()
     state.play(1)
@@ -91,4 +106,4 @@ def test_two_by_two_action():
  2  O  .  O
      @  @''')
 
-    assert patient.select_action(state) == 0
+    assert player.select_action(state) == 0
