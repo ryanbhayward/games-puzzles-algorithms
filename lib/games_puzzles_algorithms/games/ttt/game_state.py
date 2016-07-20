@@ -8,15 +8,14 @@ class BoardValues(IntEnum):
     Empty = 3
 
     def __str__(self):
-        if self is self.Empty:
+        if self is type(self).Empty:
             return ' '
         return self.name
 
     def opponent(self):
-        if self is self.Empty:
+        if self is type(self).Empty:
             raise ValueError("Empty piece has no opponent")
-
-        return BoardValues.X if self is BoardValues.O else BoardValues.O
+        return type(self).X if self is type(self).O else type(self).O
 
 
 class UndoException(Exception):
