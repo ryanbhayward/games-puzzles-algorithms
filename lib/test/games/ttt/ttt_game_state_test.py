@@ -95,6 +95,8 @@ def test_row_win():
         .play(patient._board._spaces.index(0, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_column_win():
@@ -111,6 +113,8 @@ def test_column_win():
         .play(patient._board._spaces.index(2, 0))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_diag_1_win():
@@ -128,6 +132,8 @@ def test_diag_1_win():
         .play(patient._board._spaces.index(2, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_draw():
@@ -148,6 +154,8 @@ def test_draw():
         .play(patient._board._spaces.index(2, 2))
     assert(patient.is_terminal())
     assert(patient.score(0) == 0)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_empty_undo():
@@ -173,6 +181,10 @@ def test_winner_after_undo():
         .play(patient._board._spaces.index(2, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
     patient.undo()
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
+    assert(not patient.is_terminal())
+    assert(patient.num_legal_actions() == 5)

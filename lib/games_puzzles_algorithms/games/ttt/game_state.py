@@ -8,14 +8,14 @@ class BoardValues(IntEnum):
     Empty = 3
 
     def __str__(self):
-        if self is type(self).Empty:
+        if self is BoardValues.Empty:
             return ' '
         return self.name
 
     def opponent(self):
-        if self is type(self).Empty:
+        if self is BoardValues.Empty:
             raise ValueError("Empty piece has no opponent")
-        return type(self).X if self is type(self).O else type(self).O
+        return BoardValues.X if self is BoardValues.O else BoardValues.O
 
 
 class UndoException(Exception):
@@ -107,7 +107,8 @@ class GameState(object):
             return self._spaces.index(row, column)
         def row(self, index): return self._spaces.row(index)
         def column(self, index): return self._spaces.column(index)
-
+        def num_rows(self): return self._spaces.num_rows()
+        def num_columns(self): return self._spaces.num_columns()
         def num_actions_played(self): return len(self._actions)
 
         def legal_actions(self):
@@ -230,7 +231,7 @@ class GameState(object):
         return [] if self.is_terminal() else self._board.legal_actions()
 
     def num_legal_actions(self):
-        return self._board.num_legal_actions()
+        return 0 if self.is_terminal() else self._board.num_legal_actions()
 
     def play(self, action):
         self._board.play(action, self._next_to_act)
@@ -274,3 +275,7 @@ class GameState(object):
             return 0
 
     def __str__(self): return str(self._board)
+    def reset(self):
+        self._board = self.Board(self._board.num_rows())
+        self._next_to_act = BoardValues.X
+        return self

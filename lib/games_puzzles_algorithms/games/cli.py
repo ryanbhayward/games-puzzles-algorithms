@@ -1,4 +1,5 @@
 from cmd import Cmd
+from copy import deepcopy
 
 
 class Cli(Cmd, object):
@@ -172,7 +173,7 @@ class Cli(Cmd, object):
 
     def do_clear_board(self, arg, opts=None):
         """Clear the game board."""
-        self.game.reset(*self.game.state.board.size())
+        self.game.reset_state()
         self.agent.reset()
         return (True, "")
 
@@ -228,12 +229,12 @@ class Cli(Cmd, object):
                 self.game.state.set_player_to_act(player)
         try:
             action = self.agent.select_action(
-                self.game.state,
+                deepcopy(self.game.state),
                 time_allowed_s=self.move_time
             )
             self.game.state.play(action)
         except Exception as e:
-            return (True, str(e))
+            return (True, "Unable to take action: " + str(e))
         else:
             return (True, self.game.action_to_ui_action(action))
 
