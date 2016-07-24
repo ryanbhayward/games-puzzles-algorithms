@@ -10,6 +10,8 @@ from games_puzzles_algorithms.games.hex.color \
 
 from games_puzzles_algorithms.games.ttt.game_state \
     import GameState as TttGameState
+from games_puzzles_algorithms.games.ttt.game_state \
+    import BoardValues as TttBoardValues
 
 from games_puzzles_algorithms.players.rule_based.random_agent \
     import RandomAgent
@@ -64,6 +66,10 @@ class HexCliGameState(UiGameState):
         else:
             raise("Unrecognized player, \"{}\"".format(ui_player))
 
+    def reset_state(self):
+        self.state.reset(*self.state.board.size())
+        return self
+
 
 class TttCliGameState(UiGameState):
     @classmethod
@@ -81,10 +87,14 @@ class TttCliGameState(UiGameState):
         return chr(ord('a') + column) + str(row + 1)
 
     def player_to_ui_player(self, player):
-        return TttGameState.Board.PLAYER_NAMES[player]
+        return str(TttBoardValues(player))
 
     def ui_player_to_player(self, ui_player):
-        return TttGameState.Board.PLAYER_NAMES.index(ui_player)
+        return TttBoardValues[ui_player.upper()]
+
+    def reset_state(self):
+        self.state.reset()
+        return self
 
 
 GAMES = {'hex': HexCliGameState, 'ttt': TttCliGameState}
