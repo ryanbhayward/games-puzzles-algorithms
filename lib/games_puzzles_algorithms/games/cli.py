@@ -3,9 +3,9 @@ from copy import deepcopy
 
 
 class Cli(Cmd, object):
-    """Command line interface to play hex games.""" # TODO
+    """Command line interface to play hex games."""  # TODO
 
-    _header = "Go Text Protocol for Hex---Commands:" # TODO
+    _header = "Go Text Protocol for Hex---Commands:"  # TODO
 
     _STOP_AND_EXIT = True
 
@@ -57,8 +57,10 @@ class Cli(Cmd, object):
         self.move_time = 10
 
     def _nontrivial_cmd(self, cmd, arg, line):
-        try: func = getattr(self, 'do_' + cmd)
-        except AttributeError: return self.default(line)
+        try:
+            func = getattr(self, 'do_' + cmd)
+        except AttributeError:
+            return self.default(line)
         if cmd in self._GTP_COMMANDS:
             result = func(arg)
             try:
@@ -92,12 +94,14 @@ class Cli(Cmd, object):
         commands by the interpreter should stop.
         """
         cmd, arg, line = self.parseline(line)
-        if not line: return self.emptyline()
-        if cmd is None: return self.default(line)
+        if not line:
+            return self.emptyline()
+        if cmd is None:
+            return self.default(line)
 
         self.lastcmd = '' if line == 'EOF' else line
         return self.default(line) if cmd == '' else \
-               self._nontrivial_cmd(cmd, arg, line)
+            self._nontrivial_cmd(cmd, arg, line)
 
     def postcmd(self, stop, line):
         self.update_prompt()
@@ -154,18 +158,34 @@ class Cli(Cmd, object):
     do_q = do_quit
     do_EOF = do_quit
 
-    def do_boardsize(self, args, opts=None):
+    def do_boardsize(self, arg_string, opts=None):
         """Set the size of the game board and clear the board."""
-        num_arguments = 1
-        if(len(args) < num_arguments):
+        args = arg_string.split(' ')
+        if len(args) < 1:
             return (False, "Requires an argument: A board size > 0")
         try:
-            size = int(args)
+            num_rows = int(args[0])
         except ValueError:
-            return (False, "Argument \"{}\" is not a valid size".format(size))
-        if size < 1:
-            return (False, "Argument \"{}\" is not a valid size".format(size))
-        self.game.reset(size)
+            return (False,
+                    "Argument \"{}\" is not a valid size".format(num_rows))
+        if num_rows < 1:
+            return (False,
+                    "Argument \"{}\" is not a valid size".format(num_rows))
+        num_columns = num_rows
+        if len(args) > 1:
+            try:
+                num_columns = int(args[1])
+            except ValueError:
+                return (
+                    False,
+                    "Argument \"{}\" is not a valid number of columns".format(
+                        num_columns))
+            if num_columns < 1:
+                return (
+                    False,
+                    "Argument \"{}\" is not a valid number of columns".format(
+                        num_columns))
+        self.game.reset(num_rows, num_columns)
         self.agent.reset()
         return (True, "")
 
@@ -263,9 +283,10 @@ class Cli(Cmd, object):
     def do_winner(self, args, opts=None):
         """Return the winner of the current game."""
         for player in range(2):
-            if self.game.state.score(player) > 0:
+            score_for_player = self.game.state.score(player)
+            if score_for_player and self.game.state.score(player) > 0:
                 return (True, self.game.player_to_ui_player(player))
-        return (True, None)
+        return (True, "")
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""
