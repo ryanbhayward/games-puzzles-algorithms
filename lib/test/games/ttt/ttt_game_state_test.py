@@ -1,6 +1,53 @@
 from games_puzzles_algorithms.games.ttt.game_state import GameState
 
 
+def test_m_x_n_board():
+    patient = GameState(2, 4)
+    assert(patient.score(0) is None)
+    assert(patient.score(1) is None)
+    assert(
+        str(patient) ==
+        "\n" +
+        "  A B C D\n" +
+        "1  | | | \n" +
+        "  -|-|-|-\n" +
+        "2  | | | \n"
+    )
+
+
+def test_k_win():
+    patient = GameState(3, k=2)
+    assert(patient.score(0) is None)
+    assert(patient.score(1) is None)
+    assert(
+        str(patient) ==
+        "\n" +
+        "  A B C\n" +
+        "1  | | \n" +
+        "  -|-|-\n" +
+        "2  | | \n" +
+        "  -|-|-\n" +
+        "3  | | \n"
+    )
+
+    patient.play(0)
+    patient.play(1)
+    patient.play(3)
+    assert(
+        str(patient) ==
+        "\n" +
+        "  A B C\n" +
+        "1 X|X| \n" +
+        "  -|-|-\n" +
+        "2 O| | \n" +
+        "  -|-|-\n" +
+        "3  | | \n"
+    )
+    assert(patient.score(0) == 1)
+    assert(patient.score(1) == -1)
+    assert(patient.winner() == 0)
+
+
 def test_empty_board():
     '''Check that GameState instance is created with an empty board'''
     patient = GameState(3)

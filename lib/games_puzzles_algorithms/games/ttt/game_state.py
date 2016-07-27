@@ -2,6 +2,7 @@ from array import array
 from enum import IntEnum
 from string import ascii_uppercase as alphabet
 
+
 class BoardValues(IntEnum):
     X = 0
     O = 1
@@ -23,8 +24,11 @@ class UndoException(Exception):
 
 
 class GameState(object):
+
     class Board(object):
+
         class TwoDimensionalTable(object):
+
             def __init__(
                 self,
                 num_rows,
@@ -71,12 +75,15 @@ class GameState(object):
             def __iter__(self):
                 return (i for i in self._data)
 
-
-        def __init__(self, size=3):
-            self._size = size
+        def __init__(self, num_rows=3, num_columns=None, k=None):
+            if num_columns is None:
+                num_columns = num_rows
+            if k is None:
+                k = num_rows
+            self._k = k
             self._spaces = self.TwoDimensionalTable(
-                size,
-                size,
+                num_rows,
+                num_columns,
                 initial_elem=BoardValues.Empty,
                 elem_type='b')
             self._actions = []
@@ -85,7 +92,6 @@ class GameState(object):
         def __str__(self):
             rows = self._spaces.num_rows()
             columns = self._spaces.num_columns()
-
 
             row_offset = ' ' * (len(str(rows)) + 1)
             row_edge = "\n{}{}\n".format(row_offset, "|".join(['-'] * columns))
@@ -99,16 +105,20 @@ class GameState(object):
                                in range(columns))
                 return row_header + row
 
-
             board = row_edge.join(row_repr(i) for i in range(rows))
             return column_header + board + '\n'
 
         def cell_index(self, row, column):
             return self._spaces.index(row, column)
+
         def row(self, index): return self._spaces.row(index)
+
         def column(self, index): return self._spaces.column(index)
+
         def num_rows(self): return self._spaces.num_rows()
+
         def num_columns(self): return self._spaces.num_columns()
+
         def num_actions_played(self): return len(self._actions)
 
         def legal_actions(self):
@@ -146,7 +156,7 @@ class GameState(object):
         def initialize_win_status(self):
             self._status = {}
             self._status[BoardValues.X] = {'positive_diagonal': 0,
-                                           'negative_diagonal': 0 }
+                                           'negative_diagonal': 0}
 
             for row in range(self._spaces.num_rows()):
                 self._status[BoardValues.X]['row' + str(row)] = 0
@@ -173,7 +183,9 @@ class GameState(object):
 
         def _has_win(self, player):
             player_status = self._status[player]
-            return any(n == self._size for n in player_status.values())
+            return any(n == self._k for n in player_status.values())
+
+        def k(self): return self._k
 
         def winner(self):
             '''
@@ -191,9 +203,12 @@ class GameState(object):
             else:
                 return None
 
-
-    def __init__(self, size=3):
-        self._board = self.Board(size)
+    def __init__(self, num_rows=3, num_columns=None, k=None):
+        if num_columns is None:
+            num_columns = num_rows
+        if k is None:
+            k = num_rows
+        self._board = self.Board(num_rows, num_columns, k)
         self._next_to_act = BoardValues.X
 
     def __enter__(self):
@@ -225,6 +240,7 @@ class GameState(object):
         return self._board.cell_index(row, column)
 
     def row(self, index): return self._board.row(index)
+
     def column(self, index): return self._board.column(index)
 
     def legal_actions(self):
@@ -242,8 +258,7 @@ class GameState(object):
         try:
             self._next_to_act = self._board.undo()
         except UndoException:
-            pass # An UndoException signifies there's no change to make.
-
+            pass  # An UndoException signifies there's no change to make.
         return self
 
     def set_player_to_act(self, p):
@@ -255,14 +270,13 @@ class GameState(object):
     def player_who_acted_last(self):
         if self._board.num_actions_played() > 0:
             return self._next_to_act.opponent()
-
         return None
 
     def is_terminal(self):
-        return self._board.winner() is not None
+        return self.winner() is not None
 
     def score(self, player):
-        winner = self._board.winner()
+        winner = self.winner()
         player = BoardValues(player)
 
         if player == winner:
@@ -274,8 +288,14 @@ class GameState(object):
         else:
             return 0
 
+    def winner(self):
+        return self._board.winner()
+
     def __str__(self): return str(self._board)
+
     def reset(self):
-        self._board = self.Board(self._board.num_rows())
+        self._board = self.Board(self._board.num_rows(),
+                                 self._board.num_columns(),
+                                 self._board.k())
         self._next_to_act = BoardValues.X
         return self
