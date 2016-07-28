@@ -21,7 +21,7 @@ class Node(object):
 
     def set_heuristic(self, heuristic):
         """Store a string naming the heuristic to use with heuristic search."""
-        self.heuristic = heuristic
+        self.heuristic_name = heuristic
 
     def __eq__(self, other):
         """Compare nodes based on the heuristic + depth in the search tree."""
@@ -37,7 +37,7 @@ class Node(object):
 class Search(object):
     """Abstract search class."""
 
-    def __init__(self, problem, time_limit):
+    def __init__(self, problem, time_limit, verbose=False):
         """
         Initialize the search.
         Create the root node with the problem and set a time limit for search.
@@ -45,8 +45,10 @@ class Search(object):
         self.explored = set()
         self.time_limit = time_limit
         self.rootnode = Node(problem, None, None)
+        self.verbose = verbose
+        self.solved = False
 
-    def search(self, verbose=False):
+    def search(self):
         """Abstract search method. Should be overridden in child classes"""
         raise NotImplementedError("Search should not be instantiated directly")
 
@@ -59,10 +61,29 @@ class Search(object):
         Return a list of moves to reach a solution state.
         The list is generated from a node representing the solution state.
         """
+        if self.verbose:
+            print('Backtracking to find the move sequence to the solution.')
         solution = []
         while node.parent is not None:
             solution.append(node.move)
             node = node.parent
 
+        if self.verbose:
+            print('Rootnode reached.')
+            print(str(len(solution)) + ' nodes backtracked.')
         solution.reverse()
         return solution
+
+    def set_verbose(self, verbose):
+        self.verbose = verbose
+
+    def print_verbose_statement(self, start_time):
+        time_remaining = self.time_limit - (time.time() - start_time)
+        print('time remaining = %.3f, '%(time_remaining)
+              + str(self.num_nodes_generated()) + ' nodes generated')
+
+    def set_time(self, time):
+        self.time_limit = time
+
+    def reset(self):
+        raise NotImplementedError("Search should not be instantiated directly")

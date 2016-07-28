@@ -1,19 +1,21 @@
 from games_puzzles_algorithms.games.hex.game_state import GameState as HexGameState
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
+from games_puzzles_algorithms.games.ttt.game_state import GameState as TttGameState
 import pytest
 
 
 def game_states():
     return [
         FakeGameState(),
-        HexGameState.root()
+        HexGameState.root(),
+        TttGameState()
     ]
 
 
 @pytest.mark.parametrize('game_state', game_states())
 def test_num_legal_actions(game_state):
-    game_state.num_legal_actions()
-    assert len(list(game_state.legal_actions())) == game_state.num_legal_actions()
+    assert (len(list(game_state.legal_actions()))
+            == game_state.num_legal_actions())
 
 
 @pytest.mark.parametrize('game_state', game_states())

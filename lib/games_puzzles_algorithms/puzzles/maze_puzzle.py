@@ -114,7 +114,7 @@ class MazePuzzle(object):
         if not type_match:
             return False
         return self.position == other.position and self.goal == other.goal and \
-            self.hor == other.hor and self.ver == other.ver
+               self.hor == other.hor and self.ver == other.ver
 
     def is_solved(self):
         """
@@ -217,3 +217,43 @@ class MazePuzzle(object):
     def equals(self, other):
         """Check if two puzzles are in the same state."""
         return self == other
+
+    def array(self):
+        """
+        Represent self as an array for web visualization.
+        :return maze as 2D array of integers
+        - 0: free space
+        - 1: wall
+        - 2: player
+        - 3: goal
+        """
+        arrmaze = []
+        for (a, b) in zip(self.hor, self.ver):
+            row = []
+            for xVal in a:
+                if xVal == '+---':
+                    row.append(1)
+                    row.append(1)
+                elif xVal == '+   ':
+                    row.append(1)
+                    row.append(0)
+                else:
+                    row.append(1)
+            arrmaze.append(row)
+            row = []
+            for yVal in b:
+                if yVal == '|   ':
+                    row.append(1)
+                    row.append(0)
+                elif yVal == '    ':
+                    row.append(0)
+                    row.append(0)
+                else:
+                    row.append(1)
+            arrmaze.append(row)
+        arrmaze.pop()
+
+        arrmaze[len(arrmaze) - ((self.goal[1] + 1) * 2)][(self.goal[0] * 2) + 1] = 3
+        arrmaze[len(arrmaze) - ((self.position[1] + 1) * 2)][(self.position[0] * 2) + 1] = 2
+
+        return arrmaze

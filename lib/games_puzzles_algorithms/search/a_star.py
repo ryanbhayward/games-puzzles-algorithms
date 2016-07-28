@@ -26,30 +26,17 @@ class AStar(Search):
         Returns a list of moves to reach the solution if it finds one, None
         if there is not solution, or False if the time limit is reached.
         """
+        if self.solved:
+            self.reset()
         start_time = time.time()
         tick = 0
         while time.time() - start_time < self.time_limit:
-            if len(self.frontier) == 0:
+            solved, state = self.step(verbose, tick)
+            self.solved = solved
+            if solved is None:
                 return None
-            current_node = heappop(self.frontier)
-
-            if verbose:
-                print("Step {0}".format(tick))
-                print(current_node.state)
-
-            if current_node.state.is_solved():
-                if verbose:
-                    print("Took {0} steps using A Star.".format(tick))
-                return self.solution(current_node)
-
-            self.explored.add(current_node.state.value())
-            for move in current_node.state.valid_moves():
-                new_state = current_node.state.copy()
-                new_state.apply_move(move)
-                child = Node(new_state, move, current_node, self.heuristic)
-                in_frontier = self._update_frontier(child)
-                if not (new_state.value() in self.explored or in_frontier):
-                    heappush(self.frontier, child)
+            if solved:
+                return state
             tick += 1
         return False
 
@@ -67,3 +54,43 @@ class AStar(Search):
                 return True
 
         return False
+
+    def step(self, verbose=False, tick=0):
+        """
+        Perform one step of the search.
+        :param verbose: boolean, verbose mode
+        :param tick: integer, number of steps elapsed
+        :return: 2-tuple.
+        * (None, None) for no solution,
+        * (True, [Steps]) for solved,
+        * (False, <state>) for unsolved, searching
+        """
+        if len(self.frontier) == 0:
+            return None, None
+        current_node = heappop(self.frontier)
+
+        if verbose:
+            print("Step {0}".format(tick))
+            print(current_node.state)
+
+        if current_node.state.is_solved():
+            if verbose:
+                print("Took {0} steps using A Star.".format(tick))
+            return True, self.solution(current_node)
+
+        self.explored.add(current_node.state.value())
+        for move in current_node.state.valid_moves():
+            new_state = current_node.state.copy()
+            new_state.apply_move(move)
+            child = Node(new_state, move, current_node, self.heuristic)
+            in_frontier = self._update_frontier(child)
+            if not (new_state.value() in self.explored or in_frontier):
+                heappush(self.frontier, child)
+
+        return False, current_node.state
+
+    def reset(self):
+        self.frontier = []
+        self.explored = set()
+        heappush(self.frontier, self.rootnode)
+        self.solved = False

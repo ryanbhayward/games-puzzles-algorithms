@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CMPUT 396 Sliding Tile</title>
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css"/>
+</head>
+
+<body>
+<h1>CMPUT 396 Sliding Tile</h1>
+<p>Move with arrow keys or <strong>WASD</strong>.
+  Press <strong>R</strong> to reset.
+  Press <strong>X</strong> to search.
+  <a href="{{ url_for('static', filename='img/bl.jpg')}}">Image</a> for reference.
+</p>
+<form id="sliding-tile-form">
+  <label for="search">Search</label>
+  <select id="search">
+    <option value="bfs">Breadth First Search</option>
+    <option value="dfs">Depth First Search</option>
+    <option value="A*">A Star</option>
+  </select>
+  <label for="size1">Size X</label>
+  <input id="size1" type="number" disabled>
+  <label for="size2">Size Y</label>
+  <input id="size2" type="number" disabled>
+  <button type="submit">Update</button>
+</form>
+<div>
+  <label for="delay">Search Delay (ms):</label>
+  <input id="delay" type="number" step="100">
+</div>
+<div>Steps: <span id="steps"></span></div>
+<div id="sliding-tile"></div>
+<div><span id="searchSteps"></span></div>
+<div class="wordwrap"><span id="searchOutput"></span></div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='bower_components/phaser/build/phaser.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sliding-tile.js') }}"></script>
+</body>
+</html>
