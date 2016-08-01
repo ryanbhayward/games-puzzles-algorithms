@@ -1,6 +1,8 @@
 import argparse
-from interface import Interface
 import sys
+
+from interface import Interface
+
 
 def main():
     """Main function to get and respond to user input."""
