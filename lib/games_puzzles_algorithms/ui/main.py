@@ -1,26 +1,19 @@
 import argparse
-import sys
 
 from interface import Interface
 
 
 def main():
     """Main function to get and respond to user input."""
-    puzzle = 'solvable_sliding_tile'
-    solver = 'A*'
-    if len(sys.argv) > 1:
-        if sys.argv[1] in Interface.PUZZLES.keys():
-            puzzle = sys.argv[1]
-        else:
-            print('Error: invalid puzzle name')
-            return
-    if len(sys.argv) > 2:
-        if sys.argv[2] in Interface.SOLVERS.keys():
-            solver = sys.argv[2]
-        else:
-            print('Error: invalid solver name')
-            return
-    interface = Interface(puzzle, solver)
+    parser = argparse.ArgumentParser('Interact with puzzles and solvers.')
+    parser.add_argument('puzzle', choices=Interface.PUZZLES.keys(),
+                        default='solvable_sliding_tile', nargs='?')
+    parser.add_argument('solver', choices=Interface.SOLVERS.keys(),
+                        default='A*', nargs='?')
+
+    args = parser.parse_args()
+
+    interface = Interface(args.puzzle, args.solver)
     interface.prompt = '\n'
     interface.cmdloop()
 
