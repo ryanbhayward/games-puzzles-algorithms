@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+import argparse
 import random
-import optparse
 
 from games_puzzles_algorithms.games.hex.game_state \
     import GameState as HexGameState
@@ -57,14 +57,14 @@ class HexCliGameState(UiGameState):
         ui_player = ui_player.strip().lower()
         if (ui_player == 'w' or ui_player == 'white'
                 or ui_player
-                   == COLOR_SYMBOLS[color_to_player(COLORS["white"])].lower()):
-            return color_to_player(COLORS["white"])
+                   == COLOR_SYMBOLS[color_to_player(COLORS['white'])].lower()):
+            return color_to_player(COLORS['white'])
         elif (ui_player == 'b' or ui_player == 'black'
                 or ui_player
-                   == COLOR_SYMBOLS[color_to_player(COLORS["black"])].lower()):
-            return color_to_player(COLORS["black"])
+                   == COLOR_SYMBOLS[color_to_player(COLORS['black'])].lower()):
+            return color_to_player(COLORS['black'])
         else:
-            raise("Unrecognized player, \"{}\"".format(ui_player))
+            raise('Unrecognized player, \'{}\''.format(ui_player))
 
     def reset_state(self):
         self.state.reset(*self.state.board.size())
@@ -108,62 +108,41 @@ DEFAULT_GAME = 'hex'
 DEFAULT_ALG = 'MCTS'
 
 if __name__ == '__main__':
-    parser = optparse.OptionParser()
-    parser.add_option(
-        "-r",
-        "--random-seed",
-        dest="random_seed",
-        help="A seed for agents with randomness. Defaults to system time."
-    )
-    parser.add_option(
-        "-s",
-        "--script",
-        dest="script",
-        help="A script of commands to play out."
-    )
-    parser.add_option(
-        "-g",
-        "--game",
-        dest="game",
-        help="The game to play. Options are {}. Default is {}."
-            .format(list(GAMES.keys()), DEFAULT_GAME)
-    )
-    parser.add_option(
-        "-a",
-        "--algorithm",
-        dest="algorithm",
-        help=("The algorithm to use to play the selected game. Options are {}."
-             + " Default is {}").format(list(ALGS.keys()), DEFAULT_ALG)
-    )
-    parser.add_option("-v", '--verbose', action="store_true", dest="verbose",
-                      help="Show verbose output.")
+    parser = argparse.ArgumentParser('Interact with a game agent using the GTP'
+                                     'protocol.')
 
-    (options, args) = parser.parse_args()
-    r = random.Random(options.random_seed)
+    parser.add_argument('-r', '--random-seed', type=int,
+                        help=('A seed for agents with randomness. Defaults to '
+                              'system time.'))
+    parser.add_argument('-s', '--script',
+                        help='A script of commands to play out.')
+    parser.add_argument('-g', '--game', choices=GAMES.keys(),
+                        default=DEFAULT_GAME,
+                        help=('The game to play. Default is %(default)s.'))
+    parser.add_argument('-a', '--algorithm', choices=ALGS.keys(),
+                        default=DEFAULT_ALG,
+                        help=('The algorithm to use to play the selected game. '
+                              'Default is %(default)s.'))
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Show verbose output.')
 
-    try:
-        game = GAMES[options.game] \
-            if options.game else GAMES[DEFAULT_GAME]
-    except IndexError:
-        print('ERROR: unrecognized game, \"{}\"'.format(options.game))
+    args = parser.parse_args()
+    r = random.Random(args.random_seed)
 
-    try:
-        algorithm = ALGS[options.algorithm] if options.algorithm else \
-                    ALGS[DEFAULT_ALG]
-    except IndexError:
-        print('ERROR: unrecognized algorithm, \"{}\"'.format(
-            options.algorithm))
+    game = GAMES[args.game]
+    algorithm = ALGS[args.algorithm]
 
-    if options.verbose:
+    if args.verbose:
         import logging
         logging.basicConfig(level=logging.DEBUG)
+
     try:
         cli = Cli(game(), algorithm(random_generator=r))
-        if options.script is not None:
-            with open(options.script) as f:
+        if args.script is not None:
+            with open(args.script) as f:
                 for command in f:
                     command = command.strip()
-                    print("< " + command)
+                    print('< ' + command)
                     cli.onecmd(command)
         cli.cmdloop()
     except KeyboardInterrupt:
