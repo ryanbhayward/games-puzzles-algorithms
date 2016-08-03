@@ -67,7 +67,7 @@ class HexCliGameState(UiGameState):
             raise("Unrecognized player, \"{}\"".format(ui_player))
 
     def reset_state(self):
-        self.state.reset(*self.state.board.size())
+        self.state.reset()
         return self
 
 
