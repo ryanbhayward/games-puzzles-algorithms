@@ -50,6 +50,10 @@ class Interface(Cmd):
         """Exit the program."""
         return True
 
+    def do_EOF(self, args):
+        """EOF reached, exit the program."""
+        return True
+
     def do_help(self, args):
         """Print a list of available commands."""
         print("The available commands are:")
