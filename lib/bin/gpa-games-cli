@@ -64,7 +64,7 @@ class HexCliGameState(UiGameState):
                    == COLOR_SYMBOLS[color_to_player(COLORS['black'])].lower()):
             return color_to_player(COLORS['black'])
         else:
-            raise('Unrecognized player, \'{}\''.format(ui_player))
+            raise('Unrecognized player, "{}"'.format(ui_player))
 
     def reset_state(self):
         self.state.reset(*self.state.board.size())
