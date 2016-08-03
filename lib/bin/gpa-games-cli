@@ -68,7 +68,6 @@ class HexCliGameState(UiGameState):
 
     def reset_state(self):
         self.state.reset()
-        return self
 
 
 class TttCliGameState(UiGameState):
@@ -94,7 +93,6 @@ class TttCliGameState(UiGameState):
 
     def reset_state(self):
         self.state.reset()
-        return self
 
 
 GAMES = {'hex': HexCliGameState, 'ttt': TttCliGameState}
