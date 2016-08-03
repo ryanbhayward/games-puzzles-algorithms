@@ -383,3 +383,8 @@ class GameState(object):
     def __str__(self):
         """Print an ascii representation of the game board."""
         return str(self.board)
+    
+    def rave_moves(self):
+        return {COLORS['white']: self.board.my_cells(COLORS['white']),
+                COLORS['black']: self.board.my_cells(COLORS['black'])}
+        
