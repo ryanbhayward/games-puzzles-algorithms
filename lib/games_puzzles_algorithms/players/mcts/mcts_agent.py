@@ -16,6 +16,9 @@ def uniform_random_roll_out_policy(state):
 
 
 class UctNode:
+    
+    class RootNodeError(Exception): pass
+    
     def __init__(self, action=None, parent=None, acting_player=None):
         self.action = action
         self.parent = parent
@@ -54,7 +57,9 @@ class UctNode:
         which means that the action with the highest winrate will have
         the greatest value.
         """
-        if self.N == 0:
+        if self.is_root():
+            raise self.RootNodeError("ucb is undefined for the root")
+        elif self.N == 0:
             if explore == 0:
                 return 0
             else:
@@ -73,6 +78,8 @@ class UctNode:
         the greatest value.
         """
         # unless explore is set to zero, maximally favor unexplored nodes
+        if self.is_root():
+            raise self.RootNodeError("lcb is undefined for the root")
         if self.N == 0:
             return 0
         else:

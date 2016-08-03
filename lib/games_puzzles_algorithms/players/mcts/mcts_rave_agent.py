@@ -2,6 +2,7 @@ from games_puzzles_algorithms.choose \
     import choose_legal_action_uniformly_randomly
 from games_puzzles_algorithms.players.mcts.mcts_agent \
     import UctNode, MctsAgent, uniform_random_roll_out_policy
+from math import sqrt, log
 
 
 class RaveNode(UctNode):
@@ -14,7 +15,9 @@ class RaveNode(UctNode):
         self.generator = RaveNode
         
     def lcb(self, explore=0):
-        if self.N == 0:
+        if self.is_root():
+            raise UctNode.RootNodeError("lcb is undefined for the root")
+        elif self.N == 0:
             return 0
         else:
             alpha = max(0, self.rave_limit - self.N / self.rave_limit)
