@@ -6,6 +6,7 @@
   ],
   "description": "Web puzzles component client dependencies for CMPUT 396 course",
   "main": "",
+  "license": "MIT",
   "private": true,
   "ignore": [
     "**/.*",
