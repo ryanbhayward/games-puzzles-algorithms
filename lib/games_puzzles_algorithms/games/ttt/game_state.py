@@ -79,7 +79,7 @@ class GameState(object):
             if num_columns is None:
                 num_columns = num_rows
             if k is None:
-                k = num_rows
+                k = min(num_rows, num_columns)
             self._k = k
             self._spaces = self.TwoDimensionalTable(
                 num_rows,
@@ -207,7 +207,7 @@ class GameState(object):
         if num_columns is None:
             num_columns = num_rows
         if k is None:
-            k = num_rows
+            k = min(num_rows, num_columns)
         self._board = self.Board(num_rows, num_columns, k)
         self._next_to_act = BoardValues.X
 
