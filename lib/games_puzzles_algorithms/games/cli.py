@@ -262,10 +262,16 @@ class Cli(Cmd, object):
 
     def do_winner(self, args, opts=None):
         """Return the winner of the current game."""
-        for player in range(2):
-            if self.game.state.score(player) > 0:
-                return (True, self.game.player_to_ui_player(player))
-        return (True, None)
+        scores = [(self.game.state.score(p), p) for p in range(2)]
+
+        if any(s is None for (s, _) in scores):
+            return (True, "") # Game is not over yet.
+
+        (score, winner) = max(scores)
+
+        if score == 0:
+            return (True, "0")
+        return (True, self.game.player_to_ui_player(winner))
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""
