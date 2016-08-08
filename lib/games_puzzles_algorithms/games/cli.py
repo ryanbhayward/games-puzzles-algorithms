@@ -271,7 +271,8 @@ class Cli(Cmd, object):
 
         if score == 0:
             return (True, "0")
-        return (True, self.game.player_to_ui_player(winner))
+        return (True, "{}+{}".format(self.game.player_to_ui_player(winner),
+                                     score))
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""
