@@ -162,7 +162,7 @@ class Cli(Cmd, object):
         try:
             size = int(args)
         except ValueError:
-            return (False, "Argument \"{}\" is not a valid size".format(size))
+            return (False, "Argument \"{}\" is not a valid size".format(args))
         if size < 1:
             return (False, "Argument \"{}\" is not a valid size".format(size))
         self.game.reset(size)
