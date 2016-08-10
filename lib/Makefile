@@ -9,6 +9,10 @@ default: install
 test: setup.py
 	$(PYTHON) setup.py -q test --addopts '-x $(ARGS)'
 
+.PHONY: test-cov
+test-cov: ARGS=--cov games_puzzles_algorithms --cov-report term:skip-covered
+test-cov: test
+
 .PHONY: install
 install: requirements.txt
 	$(PIP) install -r requirements.txt $(ARGS)
