@@ -114,7 +114,18 @@ def test_search():
 
     assert stats['num_iterations_completed'] == 10
     assert stats['time_used_s'] is not None
-    assert stats['num_nodes_expanded'] == 11
+    assert stats['num_nodes_expanded'] == 9
+    
+    
+def test_select_action():
+    random.seed(0)
+    
+    state = SimpleGameState()
+    patient = MctsAgent(exploration=1, num_iterations=100)
+    action = patient.select_action(state)
+    assert action == 1
+    state.play(action)
+    assert patient.select_action(state) == 0
 
 
 def test_child_nodes():
@@ -195,14 +206,14 @@ def test_backup_with_lcb():
     root.expand(state)
     children = root.child_nodes()
     children[0].expand(state)
-    children[0].child_nodes()[0].backup(1)
+    children[0].child_nodes()[0].backup(-1)
     with pytest.raises(UctNode.RootNodeError):
         root.lcb()
     assert children[0].lcb() == -1
     assert children[1].lcb() == 0
     assert children[0].child_nodes()[0].lcb() == 1
     assert children[0].child_nodes()[1].lcb() == 0
-    children[0].child_nodes()[1].backup(-1)
+    children[0].child_nodes()[1].backup(1)
     assert children[0].lcb() == 0
     assert children[0].child_nodes()[0].lcb() == 1
     assert children[0].child_nodes()[1].lcb() == -1    
@@ -213,14 +224,14 @@ def test_backup_with_ucb():
     root.expand(state)
     children = root.child_nodes()
     children[0].expand(state)
-    children[0].child_nodes()[0].backup(1)
+    children[0].child_nodes()[0].backup(-1)
     with pytest.raises(UctNode.RootNodeError):
         root.ucb()
     assert children[0].ucb() == -1
     assert children[1].ucb() == 0
     assert children[0].child_nodes()[0].ucb() == 1
     assert children[0].child_nodes()[1].ucb() == 0
-    children[0].child_nodes()[1].backup(-1)
+    children[0].child_nodes()[1].backup(1)
     assert children[0].ucb() == 0
     assert children[0].child_nodes()[0].ucb() == 1
     assert children[0].child_nodes()[1].ucb() == -1       
@@ -231,14 +242,14 @@ def test_backup_with_value():
     root.expand(state)
     children = root.child_nodes()
     children[0].expand(state)
-    children[0].child_nodes()[0].backup(1)
+    children[0].child_nodes()[0].backup(-1)
     with pytest.raises(UctNode.RootNodeError):
         root.value()
     assert children[0].value() == -1
     assert children[1].value() == 0
     assert children[0].child_nodes()[0].value() == 1
     assert children[0].child_nodes()[1].value() == 0
-    children[0].child_nodes()[1].backup(-1)
+    children[0].child_nodes()[1].backup(1)
     assert children[0].value() == 0
     assert children[0].child_nodes()[0].value() == 1
     assert children[0].child_nodes()[1].value() == -1       
@@ -249,14 +260,14 @@ def test_backup_with_ucb_explore():
     root.expand(state)
     children = root.child_nodes()
     children[0].expand(state)
-    children[0].child_nodes()[0].backup(1)
+    children[0].child_nodes()[0].backup(-1)
     with pytest.raises(UctNode.RootNodeError):
         root.ucb()
     assert children[0].ucb(1) == -1
     assert children[1].ucb(1) == float("inf")
     assert children[0].child_nodes()[0].ucb(1) == 1
     assert children[0].child_nodes()[1].ucb(1) == float("inf")
-    children[0].child_nodes()[1].backup(-1)
+    children[0].child_nodes()[1].backup(1)
     assert children[0].ucb(1) > 0
     assert children[0].child_nodes()[0].ucb(1) > 1
     assert children[0].child_nodes()[1].ucb(1) > -1    
@@ -281,8 +292,8 @@ def test_info_strings_to_json():
     children[1].backup(-1)
     info = root.info_strings_to_json()
     assert info["info"] == "P: 0 | Q: 0 N: 2"
-    assert info["children"][0]["info"] == "A: 0 | Q: 1 N: 1"
-    assert info["children"][1]["info"] == "A: 1 | Q: -1 N: 1"
+    assert info["children"][0]["info"] == "A: 0 | Q: -1 N: 1"
+    assert info["children"][1]["info"] == "A: 1 | Q: 1 N: 1"
     
 def test_str():
     root = UctNode()

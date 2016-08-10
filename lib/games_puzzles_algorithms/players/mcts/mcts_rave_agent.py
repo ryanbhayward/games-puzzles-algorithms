@@ -14,25 +14,56 @@ class RaveNode(UctNode):
         self.rave_limit=rave_limit
         self.generator = RaveNode
         
-    def lcb(self, explore=0):
-        if self.is_root():
-            raise UctNode.RootNodeError("lcb is undefined for the root")
-        elif self.N == 0:
-            return 0
-        else:
-            alpha = max(0, self.rave_limit - self.N / self.rave_limit)
-            value = self.Q * (1 - alpha) / self.N
-            value += self.rave_Q * alpha / self.rave_N
-            return (value - explore * sqrt(2 * log(self.parent.N) / self.N))
+        def ucb(self, explore=0):
+            """Return the upper confidence bound of this node.
+    
+            The parameter `explore` specifies how much the value should favor
+            nodes that have yet to be thoroughly explored versus nodes that
+            seem to have a high win rate. `explore` is set to zero by default
+            which means that the action with the highest winrate will have
+            the greatest value.
+            """
+            if self.is_root():
+                raise UctNode.RootNodeError("ucb is undefined for the root")
+            elif self.N == 0:
+                if explore == 0:
+                    return 0
+                else:
+                    return INF
+            else:
+                alpha = max(0, self.rave_limit - self.N / self.rave_limit)
+                value = self.Q * (1 - alpha) / self.N
+                value += self.rave_Q * alpha / self.rave_N
+                return value + explore * sqrt(2 * log(self.parent.N) / self.N)
+    
+        def lcb(self, explore=0):
+            """Return the lower confidence bound of this node.
+    
+            The parameter `explore` specifies how much the value should favor
+            nodes that have yet to be thoroughly explored versus nodes that
+            seem to have a high win rate. `explore` is set to zero by default
+            which means that the action with the highest winrate will have
+            the greatest value.
+            """
+            # unless explore is set to zero, maximally favor unexplored nodes
+            if self.is_root():
+                raise UctNode.RootNodeError("lcb is undefined for the root")
+            elif self.N == 0:
+                return 0
+            else:
+                alpha = max(0, self.rave_limit - self.N / self.rave_limit)
+                value = self.Q * (1 - alpha) / self.N
+                value += self.rave_Q * alpha / self.rave_N
+                return value - explore * sqrt(2 * log(self.parent.N) / self.N)            
         
     def backup(self, score=0, rave_moves={}):
         self.N += 1
-        self.Q += score
+        self.Q += -score
         if self.acting_player in rave_moves:
             for child in self._children:
                 if child.action in rave_moves[self.acting_player]:
                     child.rave_N += 1
-                    child.rave_Q += -score
+                    child.rave_Q += score
         if self.parent:
             self.parent.backup(score=-score, rave_moves=rave_moves)  
             

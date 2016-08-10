@@ -29,32 +29,33 @@ def test_backup_with_lcb():
     root.expand(state)
     children = root.child_nodes()
     children[0].expand(state)
-    children[0].child_nodes()[0].backup(1, rave_moves)
+    children[0].child_nodes()[0].backup(-1, rave_moves)
     with pytest.raises(UctNode.RootNodeError):
         root.lcb()
     assert children[0].lcb() == -1
     assert children[1].lcb() == 0
     assert children[0].child_nodes()[0].lcb() == 1
     assert children[0].child_nodes()[1].lcb() == 0
-    children[0].child_nodes()[1].backup(-1, rave_moves)
+    children[0].child_nodes()[1].backup(1, rave_moves)
     assert children[0].lcb() == 0
-    #assert children[0].child_nodes()[0].lcb() == 1
+    assert children[0].child_nodes()[0].lcb() == 1
     assert children[0].child_nodes()[1].lcb() == -1
     
 def test_backup_with_value():
+    rave_moves = {0: [0]}
     root = RaveNode()
     state = SimpleRaveGameState()
     root.expand(state)
     children = root.child_nodes()
     children[0].expand(state)
-    children[0].child_nodes()[0].backup(1, state.rave_moves())
+    children[0].child_nodes()[0].backup(-1, rave_moves)
     with pytest.raises(UctNode.RootNodeError):
         root.value()
     assert children[0].value() == -1
     assert children[1].value() == 0
     assert children[0].child_nodes()[0].value() == 1
     assert children[0].child_nodes()[1].value() == 0
-    children[0].child_nodes()[1].backup(-1, state.rave_moves)
+    children[0].child_nodes()[1].backup(1, rave_moves)
     assert children[0].value() == 0
     assert children[0].child_nodes()[0].value() == 1
     assert children[0].child_nodes()[1].value() == -1
@@ -91,4 +92,4 @@ def test_search():
 
     assert stats['num_iterations_completed'] == 10
     assert stats['time_used_s'] is not None
-    assert stats['num_nodes_expanded'] == 11    
+    assert stats['num_nodes_expanded'] == 9

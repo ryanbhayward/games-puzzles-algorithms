@@ -35,18 +35,19 @@ class UctNode:
             self._children.append(self.generator(
                 action=action,
                 parent=self))
+        return len(self._children) > 0
 
     def backup(self, score=0, **_):
         """Update the node statistics on the path from the passed node to
         root to reflect the value of the given `simulation_statistics`.
         """
         self.N += 1
-        self.Q += score
+        self.Q += -score
         if self.parent:
             self.parent.backup(score=-score)
 
     def value(self, explore=0):
-        return self.lcb(explore=explore)
+        return self.ucb(explore=explore)
 
     def ucb(self, explore=0):
         """Return the upper confidence bound of this node.
@@ -220,7 +221,8 @@ class MctsAgent(object):
             time_used_s = time.clock() - start_time
             return (time_available < 0 or time_used_s < time_available)
 
-        for num_iterations_completed in range(num_iterations):
+        while num_iterations_completed < num_iterations or num_iterations < 0:
+            num_iterations_completed += 1
             try:
                 node, game_state, num_actions = self.select_node(
                     self._root,
@@ -236,16 +238,16 @@ class MctsAgent(object):
 
             rollout_results = self.roll_out(game_state,
                                             game_state.player_to_act())
-            debug.log({'Roll-out results': rollout_results})
+            debug.log({'Roll-out results': rollout_results['score']})
             node.backup(**rollout_results)
 
             debug.log({'Updated search tree': (
                             self._root.info_strings_to_json()),
                        'Seconds used': time_used_s,
-                       '# iterations completed': (num_iterations_completed
-                                                  + 1)})
+                       '# iterations completed': (num_iterations_completed)})
             for _ in range(num_actions): game_state.undo()
-        return {'num_iterations_completed': num_iterations_completed + 1,
+        
+        return {'num_iterations_completed': num_iterations_completed,
                 'time_used_s': time_used_s,
                 'num_nodes_expanded': self._root.num_nodes()}
 
@@ -270,7 +272,7 @@ class MctsAgent(object):
             max_nodes = [n for n in my_child_nodes if (self.node_value(n)
                                                        == max_value)]
             node = random.choice(max_nodes)
-
+            
             game_state.play(node.action)
             num_actions += 1
 
@@ -283,9 +285,11 @@ class MctsAgent(object):
 
         # If we reach a leaf node generate its children and
         # return one of them
-        if node.expand(game_state):
-            node = random.choice(node.child_nodes())
-            game_state.play(node.action)
+        if not game_state.is_terminal():
+            if node.expand(game_state):
+                node = random.choice(node.child_nodes())
+                game_state.play(node.action)
+                num_actions += 1
         return (node, game_state, num_actions)
 
     def roll_out(self,
@@ -316,5 +320,3 @@ class MctsAgent(object):
              game_state,
              time_available=time_available,
              num_iterations=self.num_search_iterations)
-
-    def reset(self): self._search_tree.reset()
