@@ -156,7 +156,7 @@ To install a package locally:
 
 To update a package locally:
 
-`npm update`
+`npm update <package>`
 
 To uninstall a package locally:
 
