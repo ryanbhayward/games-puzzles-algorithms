@@ -168,7 +168,7 @@ To install a package globally (needed for command-line tools):
 
 To update a package globally:
 
-`npm install -g <package>`
+`npm update -g <package>`
 
 To uninstall a package globally:
 
