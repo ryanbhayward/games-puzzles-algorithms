@@ -57,6 +57,9 @@ class RaveNode(UctNode):
                 return value - explore * sqrt(2 * log(self.parent.N) / self.N)            
         
     def backup(self, score=0, rave_moves={}):
+        """Update the node statistics on the path from the passed node to
+        root to reflect the value of the given `simulation_statistics`.
+        """        
         self.N += 1
         self.Q += -score
         if self.acting_player in rave_moves:
@@ -69,6 +72,7 @@ class RaveNode(UctNode):
             
 
 class RaveAgent(MctsAgent):
+    """A Monte Carle Tree Search Agent with Rapid Action Value Estimation."""
     
     def __init__(self,
                  node_generator=RaveNode,
