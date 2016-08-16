@@ -31,7 +31,7 @@ install: lib/Makefile
 	cd web/puzzles && make install PIP=$(PIP)
 
 clean:
-	rm -rf $(VENV_DIR) 2> /dev/null
+	rm -rf $(VENV_DIR) .cache 2> /dev/null
 	cd lib && make clean
 	cd web/hex && make clean
 	cd web/puzzles && make clean
