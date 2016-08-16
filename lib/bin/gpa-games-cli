@@ -114,8 +114,8 @@ class TttCliGameState(UiGameState):
 ALGS = [
     {
         'name': 'random',
-        'factory': \
-            lambda args: RandomAgent(random.Random(args.random_seed).random),
+        'factory':
+        lambda args: RandomAgent(random.Random(args.random_seed).random),
         'arguments': [
             {
                 'aliases': ['-r', '--random-seed'],
@@ -134,7 +134,8 @@ ALGS = [
     },
     {
         'name': 'mcts',
-        'factory': lambda args: MctsAgent(random.Random(args.random_seed)),
+        'factory': lambda args: \
+            MctsAgent(random.Random(args.random_seed), exploration=args.ucb),
         'arguments': [
             {
                 'aliases': ['-r', '--random-seed'],
@@ -142,6 +143,16 @@ ALGS = [
                     'type': int,
                     'default': datetime.now(),
                     'help': 'Defaults to system time.'
+                }
+            },
+            {
+                'aliases': ['--ucb'],
+                'info': {
+                    'type': float,
+                    'default': 0.1,
+                    'help': ('The exploration constant for the ' +
+                             'Upper Confidence Bound algorithm used to ' +
+                             'select nodes during search.')
                 }
             }
         ]
