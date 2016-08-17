@@ -201,6 +201,13 @@ class GameState(object):
             WinDetector.root(NUM_PLAYERS)
         )
 
+    def reset(self):
+        """Reset the board."""
+        player = color_to_player(COLORS["white"])
+        board = self.clean_board(*self.board.size())
+        win_detector = WinDetector.root(NUM_PLAYERS)
+        self.__init__(player, board, self.win_detector)
+
     def __init__(self, acting_player, board, win_detector):
         self._acting_player = acting_player
         self._previous_acting_players = []

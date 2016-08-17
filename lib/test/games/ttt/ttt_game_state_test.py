@@ -17,6 +17,34 @@ def test_empty_board():
         "3  | | \n"
     )
 
+def test_large_board_representation():
+    '''Check that large boards are represented clearly.'''
+    patient = GameState(10)
+    print(patient)
+    assert(
+        str(patient) ==
+        "\n" +
+        "   A B C D E F G H I J\n" +
+        "1   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "2   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "3   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "4   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "5   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "6   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "7   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "8   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "9   | | | | | | | | | \n" +
+        "   -|-|-|-|-|-|-|-|-|-\n" +
+        "10  | | | | | | | | | \n"
+    )
 
 def test_first_player_to_move():
     '''
@@ -67,6 +95,8 @@ def test_row_win():
         .play(patient._board._spaces.index(0, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_column_win():
@@ -83,6 +113,8 @@ def test_column_win():
         .play(patient._board._spaces.index(2, 0))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_diag_1_win():
@@ -100,6 +132,8 @@ def test_diag_1_win():
         .play(patient._board._spaces.index(2, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
 
 
 def test_draw():
@@ -120,3 +154,37 @@ def test_draw():
         .play(patient._board._spaces.index(2, 2))
     assert(patient.is_terminal())
     assert(patient.score(0) == 0)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
+
+
+def test_empty_undo():
+    '''
+    Check that undoing an empty board doesn't break.
+    '''
+    patient = GameState(3)
+    patient.undo()
+    assert(patient.player_to_act() == 0)
+
+
+def test_winner_after_undo():
+    '''
+    Check that undoing a move after a win no longer results in a win.
+    '''
+    patient = GameState(3)
+    assert(patient.score(0) is None)
+    assert(patient.score(1) is None)
+    patient.play(patient._board._spaces.index(0, 0)) \
+        .play(patient._board._spaces.index(1, 0)) \
+        .play(patient._board._spaces.index(1, 1)) \
+        .play(patient._board._spaces.index(1, 2)) \
+        .play(patient._board._spaces.index(2, 2))
+    assert(patient.score(0) == 1)
+    assert(patient.score(1) == -1)
+    assert(patient.is_terminal())
+    assert(patient.num_legal_actions() == 0)
+    patient.undo()
+    assert(patient.score(0) is None)
+    assert(patient.score(1) is None)
+    assert(not patient.is_terminal())
+    assert(patient.num_legal_actions() == 5)

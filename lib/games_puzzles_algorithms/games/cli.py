@@ -1,4 +1,5 @@
 from cmd import Cmd
+from copy import deepcopy
 
 
 class Cli(Cmd, object):
@@ -161,7 +162,7 @@ class Cli(Cmd, object):
         try:
             size = int(args)
         except ValueError:
-            return (False, "Argument \"{}\" is not a valid size".format(size))
+            return (False, "Argument \"{}\" is not a valid size".format(args))
         if size < 1:
             return (False, "Argument \"{}\" is not a valid size".format(size))
         self.game.reset(size)
@@ -172,7 +173,7 @@ class Cli(Cmd, object):
 
     def do_clear_board(self, arg, opts=None):
         """Clear the game board."""
-        self.game.reset(*self.game.state.board.size())
+        self.game.reset_state()
         self.agent.reset()
         return (True, "")
 
@@ -228,12 +229,12 @@ class Cli(Cmd, object):
                 self.game.state.set_player_to_act(player)
         try:
             action = self.agent.select_action(
-                self.game.state,
+                deepcopy(self.game.state),
                 time_allowed_s=self.move_time
             )
             self.game.state.play(action)
         except Exception as e:
-            return (True, str(e))
+            return (True, "Unable to take action: " + str(e))
         else:
             return (True, self.game.action_to_ui_action(action))
 
@@ -261,10 +262,17 @@ class Cli(Cmd, object):
 
     def do_winner(self, args, opts=None):
         """Return the winner of the current game."""
-        for player in range(2):
-            if self.game.state.score(player) > 0:
-                return (True, self.game.player_to_ui_player(player))
-        return (True, None)
+        scores = [(self.game.state.score(p), p) for p in range(2)]
+
+        if any(s is None for (s, _) in scores):
+            return (True, "") # Game is not over yet.
+
+        (score, winner) = max(scores)
+
+        if score == 0:
+            return (True, "0")
+        return (True, "{}+{}".format(self.game.player_to_ui_player(winner),
+                                     score))
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""

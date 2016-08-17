@@ -6,7 +6,7 @@
   ],
   "description": "Minimal Web Interface for Hex Agents.",
   "main": "static/js/main.js",
-  "license": "",
+  "license": "MIT",
   "private": true,
   "ignore": [
     "**/.*",
