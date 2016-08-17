@@ -240,6 +240,13 @@ class Board(object):
         return ret.rstrip()
     
     def dijkstra_distance(self, player, source, destination):
+        """
+        Return the two distance between source and destination for player.
+        
+        The two distance is 0 if source = destination, 1 if source is adjacent 
+        to destination, and 1 + the second smallest two distance between
+        source and destination's neighbors otherwise.
+        """
         cell_set = heapdict()
         second = {}
         
@@ -477,6 +484,10 @@ class GameState(object):
         return str(self.board)
     
     def heuristic(self, player):
+        """
+        Return a heuristic for player based on the two distance.
+        
+        The value is between -1 and 1."""
         dist1 = self.board.dijkstra_distance(player, -1, -2)
         dist2 = self.board.dijkstra_distance(player, -2, -1)
         opponent1 = self.board.dijkstra_distance(next_player(player), -1, -2)
