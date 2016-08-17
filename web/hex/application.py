@@ -1,4 +1,5 @@
 import random
+import json
 
 from flask import Flask, g, jsonify, render_template, request
 
@@ -125,6 +126,16 @@ def select_agent():
 def index():
     return render_template('index.html')
 
+
+@app.route('/tree_view')
+def tree_view():
+    return render_template('tree_viewer.html')
+
+
+@app.route('/tree_data')
+def tree_data():
+    # Currently only supports MCTS.
+    return json.dumps(agents.get('MCTS').to_dict())
 
 if __name__ == '__main__':
     app.debug = True

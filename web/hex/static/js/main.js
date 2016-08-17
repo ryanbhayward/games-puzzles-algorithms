@@ -392,6 +392,10 @@ function agent_selection_modal() {
     });
 }
 
+function show_tree() {
+    window.open('/tree_view');
+}
+
 function preload() {
     // Set the game to scale automatically.
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -405,6 +409,7 @@ function preload() {
     game.load.image('resize', $SCRIPT_ROOT + '/static/assets/resize.png');
     game.load.image('agent', $SCRIPT_ROOT + '/static/assets/agent.png');
     game.load.image('wood', $SCRIPT_ROOT + '/static/assets/wood.jpg');
+    game.load.image('tree', $SCRIPT_ROOT + '/static/assets/tree.png');
 }
 
 function create() {
@@ -418,6 +423,7 @@ function create() {
     game.add.button(350, 550, 'aimove', ai_move);
     game.add.button(520, 550, 'resize', resize_board_modal);
     game.add.button(690, 550, 'agent', agent_selection_modal);
+    game.add.button(850, 550, 'tree', show_tree);
 
     reset_game();
     draw_board(play_hexagons, border_hexagons, graphics);

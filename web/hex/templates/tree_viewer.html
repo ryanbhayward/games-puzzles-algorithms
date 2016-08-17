@@ -6,9 +6,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css"/>
 </head>
 <body>
-
+<p>Will only show data if the agent is currently MCTS and a move has been played.</p>
+<p>To see raw data, visit <a href="/tree_data" target="_blank">tree_data</a>.</p>
 <!-- load the d3.js library -->
-<script src="{{ url_for('static', filename='bower_components/d3/d3.min.js') }}" charset="UTF-8"></script>
+<script src="{{ url_for('static', filename='deps/d3/d3.min.js') }}" charset="UTF-8"></script>
 <script src="{{ url_for('static', filename='js/mcts_visualizer.js') }}"></script>
 </body>
 </html>

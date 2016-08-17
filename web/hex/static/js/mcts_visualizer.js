@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   // Set the endpoint for the MCTS data here.
-  var mctsDataUrl = "static/data/mcts_data.json";
+  var mctsDataUrl = "/tree_data";
 
   var xBuffer = 120;
   var yBuffer = 20;
@@ -50,7 +50,7 @@
   function update(source) {
 
     // Compute the new tree layout.
-    var nodes = tree.nodes(root.tree).reverse();
+    var nodes = tree.nodes(root).reverse();
     var links = tree.links(nodes);
 
     // Update the nodes…
