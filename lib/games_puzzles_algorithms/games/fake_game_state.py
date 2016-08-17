@@ -10,10 +10,13 @@ class FakeGameState(object):
             self._actions)
 
     def num_legal_actions(self):
-        return 0 if self.is_terminal() else 2
+        return len(list(self.legal_actions()))
 
     def legal_actions(self):
-        for a in range(2): yield a
+        if self.is_terminal():
+            return []
+        else:
+            for a in range(2): yield a
 
     def play(self, action):
         '''Apply the given action.
@@ -64,21 +67,21 @@ class FakeGameState(object):
         return self._player_to_act
 
     def is_terminal(self):
-        return len(self._actions) == 3
+        return len(self._actions) >= 3
 
     def score(self, player):
-        if not self.is_terminal():
-            return None
-        if self._actions[0] == 0:
-            if self._actions[1] == 0:
-                return [2, -2][player]
+        '''An example arbitrary score function'''
+        if self.is_terminal():
+            if self._actions[0] == 0:
+                if self._actions[1] == 0:
+                    return [2, -2][player]
+                else:
+                    return [-3, 3][player]
             else:
-                return [-3, 3][player]
-        else:
-            if self._actions[1] == 0:
-                return [-3, 3][player]
-            else:
-                return [2, -2][player]
+                if self._actions[1] == 0:
+                    return [-3, 3][player]
+                else:
+                    return [2, -2][player]
 
     def player_who_acted_last(self):
         return int(not self._player_to_act)

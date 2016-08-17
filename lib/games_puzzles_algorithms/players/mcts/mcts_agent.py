@@ -27,7 +27,7 @@ class BanditNode(object):
         seem to have a high win rate.
         """
         if node.num_visits == 0:
-            if node.exploration > 0:
+            if exploration > 0:
                 return INF
             else:
                 return node.avg_reward
@@ -48,7 +48,7 @@ class BanditNode(object):
         """
         # unless explore is set to zero, maximally favor unexplored nodes
         if node.num_visits == 0:
-            if node.exploration > 0:
+            if exploration > 0:
                 return -INF
             else:
                 return node.avg_reward
@@ -62,7 +62,7 @@ class BanditNode(object):
 
     def reset(self, action=None, parent=None, acting_player=None):
         self.action = action
-        self.parent = parent
+        self.parent = self if parent is None else parent
         self.num_visits = 0  # times this position was visited
         self.avg_reward = 0  # average reward (wins-losses) from this position
         self._children = []
@@ -89,14 +89,14 @@ class BanditNode(object):
         """
         self.num_visits += 1
         self.avg_reward += (score - self.avg_reward) / self.num_visits
-        if self.parent:
+        if not self.is_root():
             self.parent.backup(score=-score)
 
     def child_nodes(self): return self._children
 
     def is_leaf(self): return len(self._children) < 1
 
-    def is_root(self): return self.parent is None
+    def is_root(self): return self.parent is self
 
     def value(self): return self.avg_reward
 
@@ -111,6 +111,8 @@ class BanditNode(object):
         for child in self.child_nodes():
             count += child.num_descendents() + 1
         return count
+
+    def num_children(self): return len(self._children)
 
     def num_nodes(self): return self.num_descendents() + 1
 
@@ -159,6 +161,38 @@ class UctNode(BanditNode):
                           acting_player=self.acting_player)
 
     def value(self): return BanditNode.ucb_value(self, self.exploration)
+
+    def info_strings_to_dict(self):
+        d = {}
+        d['info'] = "| ucb_value: {} avg_reward: {} num_visits: {}".format(
+            self.value(),
+            self.avg_reward,
+            self.num_visits)
+        if self.action is not None:
+            d['info'] = "action: {} ".format(self.action) + d['info']
+        if self.acting_player is not None:
+            d['info'] = "player: {} ".format(self.acting_player) + d['info']
+        if not self.is_leaf():
+            d['children'] = []
+            for n in self.child_nodes():
+                d['children'].append(n.info_strings_to_dict())
+        return d
+
+    def to_dict(self):
+        d = {
+            'ucb_value': self.value(),
+            'avg_reward': self.avg_reward,
+            'num_visits': self.num_visits
+        }
+        if self.action is not None:
+            d["action"] = self.action
+        if self.acting_player is not None:
+            d['player'] = self.acting_player
+        if not self.is_leaf():
+            d['children'] = []
+            for n in self.child_nodes():
+                d['children'].append(n.to_dict())
+        return d
 
 
 class MctsAgent(object):
