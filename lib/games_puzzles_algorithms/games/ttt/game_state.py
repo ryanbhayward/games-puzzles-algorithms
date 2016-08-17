@@ -170,6 +170,32 @@ class GameState(object):
 
             if self.space_is_on_negative_diagonal(row, column):
                 self._status[player]['negative_diagonal'] += modifier
+                
+        def heuristic(self, player):
+            value = 0.0
+            player = BoardValues(player)
+            for row in range(self._spaces.num_rows()):
+                if self._status[player]['row' + str(row)] > 0:
+                    value += 1
+                if self._status[player.opponent()]['row' + str(row)] > 0:
+                    value -= 1
+
+            for column in range(self._spaces.num_columns()):
+                if self._status[player]['column' + str(column)] > 0:
+                    value += 1
+                if self._status[player.opponent()]['column' + str(column)] > 0:
+                    value -= 1
+                    
+            if self._status[player]['positive_diagonal'] > 0:
+                value += 1
+            if self._status[player]['negative_diagonal'] > 0:
+                value += 1
+            if self._status[player.opponent()]['positive_diagonal'] > 0:
+                value -= 1
+            if self._status[player.opponent()]['negative_diagonal'] > 0:
+                value -= 1
+            scale = (self._spaces.num_columns() + self._spaces.num_rows() + 2)
+            return value / scale
 
         def _has_win(self, player):
             player_status = self._status[player]
@@ -225,6 +251,7 @@ class GameState(object):
         return self._board.cell_index(row, column)
 
     def row(self, index): return self._board.row(index)
+    
     def column(self, index): return self._board.column(index)
 
     def legal_actions(self):
@@ -273,9 +300,14 @@ class GameState(object):
             return None
         else:
             return 0
+        
+    def heuristic(self, player):
+        return self._board.heuristic(player)
 
     def __str__(self): return str(self._board)
+    
     def reset(self):
         self._board = self.Board(self._board.num_rows())
         self._next_to_act = BoardValues.X
         return self
+    

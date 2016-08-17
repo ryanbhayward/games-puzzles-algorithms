@@ -188,3 +188,15 @@ def test_winner_after_undo():
     assert(patient.score(1) is None)
     assert(not patient.is_terminal())
     assert(patient.num_legal_actions() == 5)
+    
+    
+def test_heuristic():
+    patient = GameState(3)
+    assert patient.heuristic(0) == 0
+    assert patient.heuristic(1) == 0
+    patient.play(patient._board._spaces.index(0, 0))
+    patient.play(patient._board._spaces.index(1, 0))
+    patient.play(patient._board._spaces.index(1, 1))
+    patient.play(patient._board._spaces.index(1, 2))
+    value = (6 - 3) / 8
+    assert patient.heuristic(0) == value

@@ -3,7 +3,7 @@ from .color import IllegalAction, COLORS, ORIENTATION, COLOR_SYMBOLS, \
     NUM_PLAYERS, color_to_player, next_player, player_to_color, cell_str, \
     cell_str_to_cell
 from array import array
-
+from games_puzzles_algorithms.heap_util.heapdict import heapdict
 
 def prod(*l):
     s = 1
@@ -22,6 +22,8 @@ class Board(object):
         (1, 0),   # South
         (1, -1)   # Southwest
     )
+    
+    EDGES = (-1, -2)
 
     def __init__(self, *dimensions):
         self._dimensions = list(dimensions)
@@ -147,6 +149,64 @@ class Board(object):
         for neighbor in self.every_neighbor(*cell):
             if self.cell_index(*neighbor) in self._empty_cells:
                 yield neighbor
+                
+    def border_cells(self, player, edge):
+        """Return a list of cells bordering edge edge for player."""
+        cells = []
+        if edge == self.EDGES[0]:
+            for i in range(self.size()[next_player(player)]):
+                if player == COLORS["black"]:
+                    cells.append((0, i))
+                else:
+                    cells.append((i, 0))
+        else:
+            for i in range(self.size()[next_player(player)]):
+                if player == COLORS["black"]:
+                    cells.append((self.size()[player] - 1, i))
+                else:
+                    cells.append((i, self.size()[player] - 1))
+        
+        return cells 
+                
+    def connected_neighbors(self, cell, player, seen=None):
+        """
+        Yield all empty cells connected to cell.
+        
+        Connected cells are adjacent or connected to cell by cells of color 
+        player.
+        """
+        if seen is None:
+            seen = set()
+            seen.add(cell)
+            
+        if cell in self.EDGES:
+            cells = self.border_cells(player, cell)
+            for edge_cell in cells:
+                if edge_cell not in seen:
+                    seen.add(edge_cell)
+                    if self.cell_index(*edge_cell) in self._empty_cells:
+                        yield edge_cell
+                    elif self.cell_index(*edge_cell) in self._my_cells[player]:
+                        for connected_cell in self.connected_neighbors(
+                            edge_cell, player, seen):
+                            yield connected_cell
+                        
+            return
+        
+        for neighbor in self.every_neighbor(*cell):
+            if neighbor not in seen:
+                seen.add(neighbor)
+                if self.cell_index(*neighbor) in self._empty_cells:
+                    yield neighbor
+                elif self.cell_index(*neighbor) in self._my_cells[player]:
+                    for connected_cell in self.connected_neighbors(
+                        neighbor, player, seen):
+                        yield connected_cell
+                    
+        if cell[player] == 0:
+            yield self.EDGES[0]
+        if cell[player] == self.size()[player] - 1:
+            yield self.EDGES[1]
 
     def length_separating_goal_sides(self, player):
         return self.size()[player]
@@ -178,6 +238,38 @@ class Board(object):
             self.num_columns()
         )
         return ret.rstrip()
+    
+    def dijkstra_distance(self, player, source, destination):
+        cell_set = heapdict()
+        second = {}
+        
+        for cell in self.empty_cells():
+            cell_set[cell] = float("INF")
+            second[cell] = float("INF")
+        for edge in self.EDGES:
+            cell_set[edge] = float("INF")
+            second[cell] = float("INF")
+        cell_set[source] = 0
+        second[source] = 0
+                
+        while cell_set:
+            cell, distance = cell_set.popitem()
+            if cell == destination:
+                return second[cell]
+            
+            for neighbor in self.connected_neighbors(cell, player):
+                if neighbor not in cell_set:
+                    continue
+                if cell == source:
+                    cell_set[neighbor] = 1
+                    second[neighbor] = 1
+                else:
+                    alternate = distance + 1
+                    if alternate <= cell_set[neighbor]:
+                        second[neighbor] = cell_set[neighbor]
+                        cell_set[neighbor] = alternate
+                    
+        return second[destination]    
 
 
 class GameState(object):
@@ -383,3 +475,13 @@ class GameState(object):
     def __str__(self):
         """Print an ascii representation of the game board."""
         return str(self.board)
+    
+    def heuristic(self, player):
+        dist1 = self.board.dijkstra_distance(player, -1, -2)
+        dist2 = self.board.dijkstra_distance(player, -2, -1)
+        opponent1 = self.board.dijkstra_distance(next_player(player), -1, -2)
+        opponent2 = self.board.dijkstra_distance(next_player(player), -2, -1)
+        result = min(opponent1, opponent2) - min(dist1, dist2)
+        limit = min(self.board.size())
+        result = max(-limit, min(limit, result))
+        return 1.0 * result / limit
