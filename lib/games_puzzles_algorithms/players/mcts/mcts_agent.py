@@ -14,7 +14,53 @@ class TimeIsUp(Exception):
 
 class BanditNode(object):
 
+    @staticmethod
+    def greedy_value(node):
+        return node.avg_reward
+
+    @staticmethod
+    def ucb_value(node, exploration):
+        """Return the upper confidence bound of the given node.
+
+        The parameter `exploration` specifies how much the value should favor
+        nodes that have yet to be thoroughly explored versus nodes that
+        seem to have a high win rate.
+        """
+        if node.num_visits == 0:
+            if node.exploration > 0:
+                return INF
+            else:
+                return node.avg_reward
+        else:
+            return (node.avg_reward
+                    + exploration
+                    * sqrt(2 * log(node.parent.num_visits) / node.num_visits))
+
+    @staticmethod
+    def lcb_value(node, exploration):
+        """Return the lower confidence bound of the given node.
+
+        The parameter `exploration` specifies how much the value should favor
+        nodes that have yet to be thoroughly explored versus nodes that
+        seem to have a high win rate. `exploration` is set to zero by default
+        which means that the action with the highest winrate will have
+        the greatest value.
+        """
+        # unless explore is set to zero, maximally favor unexplored nodes
+        if node.num_visits == 0:
+            if node.exploration > 0:
+                return -INF
+            else:
+                return node.avg_reward
+        else:
+            return (node.avg_reward
+                    - exploration
+                    * sqrt(2 * log(node.parent.num_visits) / node.num_visits))
+
     def __init__(self, action=None, parent=None, acting_player=None):
+        self.reset(action=action, parent=parent, acting_player=acting_player)
+
+    def reset(self, action=None, parent=None, acting_player=None):
         self.action = action
         self.parent = parent
         self.num_visits = 0  # times this position was visited
@@ -22,13 +68,20 @@ class BanditNode(object):
         self._children = []
         self.acting_player = acting_player
 
+    def clone(self):
+        return type(self)(action=self.action,
+                          parent=self.parent,
+                          acting_player=self.acting_player)
+
     def expand(self, game_state):
         if game_state.num_legal_actions() > 0:
             assert(not game_state.is_terminal())
 
             self.acting_player = game_state.player_to_act()
             for action in game_state.legal_actions():
-                self._children.append(UctNode(action=action, parent=self))
+                child = self.clone()
+                child.reset(action=action, parent=self)
+                self._children.append(child)
 
     def backup(self, score=0):
         """Update the node statistics on the path from the passed node to
@@ -95,50 +148,17 @@ class BanditNode(object):
 
 class UctNode(BanditNode):
 
-    @staticmethod
-    def value_function(explore=0): return lambda n: n.ucb(explore)
+    def __init__(self, exploration, *args, **kwargs):
+        super(UctNode, self).__init__(*args, **kwargs)
+        self.exploration = exploration
 
-    def ucb(self, explore=0):
-        """Return the upper confidence bound of this node.
+    def clone(self):
+        return type(self)(self.exploration,
+                          action=self.action,
+                          parent=self.parent,
+                          acting_player=self.acting_player)
 
-        The parameter `explore` specifies how much the value should favor
-        nodes that have yet to be thoroughly explored versus nodes that
-        seem to have a high win rate. `explore` is set to zero by default
-        which means that the action with the highest winrate will have
-        the greatest value.
-        """
-        if self.num_visits == 0:
-            if explore == 0:
-                return 0
-            else:
-                return INF
-        else:
-            return (self.avg_reward
-                    + explore
-                    * sqrt(2 * log(self.parent.num_visits) / self.num_visits))
-
-
-class LcbNode(BanditNode):
-
-    @staticmethod
-    def value_function(explore=0): return lambda n: n.lcb(explore)
-
-    def lcb(self, explore=0):
-        """Return the lower confidence bound of this node.
-
-        The parameter `explore` specifies how much the value should favor
-        nodes that have yet to be thoroughly explored versus nodes that
-        seem to have a high win rate. `explore` is set to zero by default
-        which means that the action with the highest winrate will have
-        the greatest value.
-        """
-        # unless explore is set to zero, maximally favor unexplored nodes
-        if self.num_visits == 0:
-            return 0
-        else:
-            return (self.avg_reward
-                    - explore
-                    * sqrt(2 * log(self.parent.num_visits) / self.num_visits))
+    def value(self): return BanditNode.ucb_value(self, self.exploration)
 
 
 class MctsAgent(object):
@@ -148,19 +168,16 @@ class MctsAgent(object):
 
     @classmethod
     def with_same_parameters(self, other):
-        return self(node_generator=other._node_generator,
-                    exploration=other._exploration)
+        return self(root=other._root.clone())
 
     def __init__(self,
                  random_generator,
-                 node_generator=UctNode,
-                 exploration=1):
+                 root=None):
         self._random = random_generator
-        self._node_generator = node_generator
-        self._exploration = exploration
+        self._root = UctNode(1) if root is None else root
         self.reset()
 
-    def reset(self): self._root = None
+    def reset(self): self._root.reset()
 
     def select_action(self,
                       game_state,
@@ -214,7 +231,6 @@ class MctsAgent(object):
 
         start_time = time.clock()
 
-        self._root = self._node_generator()
         self._root.expand(root_state)
 
         debug.log(
@@ -278,9 +294,7 @@ class MctsAgent(object):
             if not time_is_available():
                 raise TimeIsUp()
 
-            node = self._random.choice(
-                node.favorite_children(
-                    type(node).value_function(self._exploration)))
+            node = self._random.choice(node.favorite_children())
             game_state.play(node.action)
             num_actions += 1
 

@@ -1,4 +1,4 @@
-from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
+from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent, UctNode
 from games_puzzles_algorithms.games.fake_game_state import FakeGameState
 from games_puzzles_algorithms.debug import log
 import pytest
@@ -9,7 +9,7 @@ def test_roll_out():
     random.seed(0)
 
     state = FakeGameState()
-    patient = MctsAgent(random, exploration=1)
+    patient = MctsAgent(random, UctNode(1))
     outcome = patient.roll_out(state, 0)
     assert outcome['score'] == 2
     outcome = patient.roll_out(state, 0)
@@ -30,7 +30,7 @@ def test_search():
     random.seed(0)
 
     state = FakeGameState()
-    patient = MctsAgent(random, exploration=1)
+    patient = MctsAgent(random, UctNode(1))
     num_iterations = 10
     stats = patient.search(state, num_iterations=num_iterations)
 
@@ -47,11 +47,11 @@ def test_verbose_search():
     random.seed(0)
 
     state = FakeGameState()
-    patient = MctsAgent(random, exploration=1)
+    patient = MctsAgent(random, UctNode(1))
     num_iterations = 2
     stats = patient.search(state, num_iterations=num_iterations)
 
-    assert stats['num_iterations_completed'] == 2
+    assert stats['num_iterations_completed'] == num_iterations
     assert stats['time_used_s'] is not None
     assert stats['num_nodes_expanded'] == 3
 
