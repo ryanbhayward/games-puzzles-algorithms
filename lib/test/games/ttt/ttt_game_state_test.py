@@ -16,7 +16,7 @@ def test_m_x_n_board():
 
 
 def test_k_win():
-    patient = GameState(3, k=2)
+    patient = GameState(3, num_spaces_to_win=2)
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
     assert(

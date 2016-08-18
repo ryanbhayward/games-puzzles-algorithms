@@ -23,192 +23,194 @@ class UndoException(Exception):
     pass
 
 
-class GameState(object):
+class TwoDimensionalTable(object):
 
-    class Board(object):
+    def __init__(
+        self,
+        num_rows,
+        num_columns,
+        initial_elem=0,
+        elem_type='b'
+    ):
+        self._dimensions = (num_rows, num_columns)
+        self._data = array(
+            elem_type,
+            [initial_elem] * num_rows * num_columns)
 
-        class TwoDimensionalTable(object):
+    def size(self, index=None):
+        if index is None:
+            return self._dimensions
+        return self._dimensions[index]
 
-            def __init__(
-                self,
-                num_rows,
-                num_columns,
-                initial_elem=0,
-                elem_type='b'
-            ):
-                self._dimensions = (num_rows, num_columns)
-                self._data = array(
-                    elem_type,
-                    [initial_elem] * num_rows * num_columns)
+    def num_rows(self): return self.size(0)
 
-            def size(self, index=None):
-                if index is None:
-                    return self._dimensions
-                return self._dimensions[index]
+    def num_columns(self): return self.size(1)
 
-            def num_rows(self): return self.size(0)
+    def index(self, row, column):
+        return (column * self.num_rows()) + row
 
-            def num_columns(self): return self.size(1)
+    def row(self, index): return index % self.num_rows()
 
-            def index(self, row, column):
-                return (column * self.num_rows()) + row
+    def column(self, index): return index // self.num_rows()
 
-            def row(self, index): return index % self.num_rows()
+    def get_index(self, index):
+        return self._data[index]
 
-            def column(self, index): return index // self.num_rows()
+    def set_index(self, index, val):
+        self._data[index] = val
 
-            def get_index(self, index):
-                return self._data[index]
+    def __getitem__(self, indices):
+        return self._data[self.index(*indices)]
 
-            def set_index(self, index, val):
-                self._data[index] = val
+    def __setitem__(self, indices, c):
+        self._data[self.index(*indices)] = c
 
-            def __getitem__(self, indices):
-                return self._data[self.index(*indices)]
+    def __len__(self):
+        return self.num_rows() * self.num_columns()
 
-            def __setitem__(self, indices, c):
-                self._data[self.index(*indices)] = c
+    def __iter__(self):
+        return (i for i in self._data)
 
-            def __len__(self):
-                return self.num_rows() * self.num_columns()
 
-            def __iter__(self):
-                return (i for i in self._data)
+class Board(object):
 
-        def __init__(self, num_rows=3, num_columns=None, k=None):
-            if num_columns is None:
-                num_columns = num_rows
-            if k is None:
-                k = min(num_rows, num_columns)
-            self._k = k
-            self._spaces = self.TwoDimensionalTable(
-                num_rows,
-                num_columns,
-                initial_elem=BoardValues.Empty,
-                elem_type='b')
-            self._actions = []
-            self.initialize_win_status()
-
-        def __str__(self):
-            rows = self._spaces.num_rows()
-            columns = self._spaces.num_columns()
-
-            row_offset = ' ' * (len(str(rows)) + 1)
-            row_edge = "\n{}{}\n".format(row_offset, "|".join(['-'] * columns))
-
-            column_header = '\n{}{}\n'.format(row_offset,
-                                              ' '.join(alphabet[:columns]))
-
-            def row_repr(i):
-                row_header = str(i + 1).ljust(len(row_offset))
-                row = "|".join(str(BoardValues(self._spaces[i, j])) for j
-                               in range(columns))
-                return row_header + row
-
-            board = row_edge.join(row_repr(i) for i in range(rows))
-            return column_header + board + '\n'
-
-        def cell_index(self, row, column):
-            return self._spaces.index(row, column)
-
-        def row(self, index): return self._spaces.row(index)
-
-        def column(self, index): return self._spaces.column(index)
-
-        def num_rows(self): return self._spaces.num_rows()
-
-        def num_columns(self): return self._spaces.num_columns()
-
-        def num_actions_played(self): return len(self._actions)
-
-        def legal_actions(self):
-            return [i for (i, p) in enumerate(self._spaces)
-                    if p == BoardValues.Empty]
-
-        def num_legal_actions(self):
-            return len(self.legal_actions())
-
-        def play(self, action, player):
-            ''' Execute an action on the board '''
-            if (not self._spaces.get_index(action) == BoardValues.Empty):
-                raise IndexError("Cannot play in the same space as another "
-                                 "player!")
-            self._spaces.set_index(action, player)
-            self._actions.append({'player': player, 'action': action})
-            self._update_win_status(action, player, increment=True)
-
-        def undo(self):
-            if len(self._actions) == 0:
-                raise UndoException("Board is empty. Nothing to undo!")
-
-            last_action = self._actions.pop()
-            self._spaces.set_index(last_action['action'], BoardValues.Empty)
-            self._update_win_status(last_action['action'],
-                                    last_action['player'], increment=False)
-            return last_action['player']
-
-        def space_is_on_positive_diagonal(self, row, column):
-            return row == column
-
-        def space_is_on_negative_diagonal(self, row, column):
-            return row == (self._spaces.num_columns() - (column + 1))
-
-        def initialize_win_status(self):
-            self._status = {}
-            self._status[BoardValues.X] = {'positive_diagonal': 0,
-                                           'negative_diagonal': 0}
-
-            for row in range(self._spaces.num_rows()):
-                self._status[BoardValues.X]['row' + str(row)] = 0
-
-            for column in range(self._spaces.num_columns()):
-                self._status[BoardValues.X]['column' + str(column)] = 0
-
-            self._status[BoardValues.O] = self._status[BoardValues.X].copy()
-
-        def _update_win_status(self, action, player, increment=True):
-            row = self._spaces.row(action)
-            column = self._spaces.column(action)
-
-            modifier = 1 if increment else -1
-
-            self._status[player]['row' + str(row)] += modifier
-            self._status[player]['column' + str(column)] += modifier
-
-            if self.space_is_on_positive_diagonal(row, column):
-                self._status[player]['positive_diagonal'] += modifier
-
-            if self.space_is_on_negative_diagonal(row, column):
-                self._status[player]['negative_diagonal'] += modifier
-
-        def _has_win(self, player):
-            player_status = self._status[player]
-            return any(n == self._k for n in player_status.values())
-
-        def k(self): return self._k
-
-        def winner(self):
-            '''
-            Returns: None if the game is unfinished
-                     BoardValues.X if the x player has won
-                     BoardValues.O if the o player has won
-                     BoardValues.Empty if the game is a draw
-            '''
-            if self._has_win(BoardValues.X):
-                return BoardValues.X
-            elif self._has_win(BoardValues.O):
-                return BoardValues.O
-            elif self.num_legal_actions() == 0:
-                return BoardValues.Empty
-            else:
-                return None
-
-    def __init__(self, num_rows=3, num_columns=None, k=None):
+    def __init__(self, num_rows=3, num_columns=None, num_spaces_to_win=None):
         if num_columns is None:
             num_columns = num_rows
-        if k is None:
-            k = min(num_rows, num_columns)
-        self._board = self.Board(num_rows, num_columns, k)
+        if num_spaces_to_win is None:
+            num_spaces_to_win = min(num_rows, num_columns)
+        self._num_spaces_to_win = num_spaces_to_win
+        self._spaces = TwoDimensionalTable(
+            num_rows,
+            num_columns,
+            initial_elem=BoardValues.Empty,
+            elem_type='b')
+        self._actions = []
+        self.initialize_win_status()
+
+    def __str__(self):
+        rows = self._spaces.num_rows()
+        columns = self._spaces.num_columns()
+
+        row_offset = ' ' * (len(str(rows)) + 1)
+        row_edge = "\n{}{}\n".format(row_offset, "|".join(['-'] * columns))
+
+        column_header = '\n{}{}\n'.format(row_offset,
+                                          ' '.join(alphabet[:columns]))
+
+        def row_repr(i):
+            row_header = str(i + 1).ljust(len(row_offset))
+            row = "|".join(str(BoardValues(self._spaces[i, j])) for j
+                           in range(columns))
+            return row_header + row
+
+        board = row_edge.join(row_repr(i) for i in range(rows))
+        return column_header + board + '\n'
+
+    def cell_index(self, row, column):
+        return self._spaces.index(row, column)
+
+    def row(self, index): return self._spaces.row(index)
+
+    def column(self, index): return self._spaces.column(index)
+
+    def num_rows(self): return self._spaces.num_rows()
+
+    def num_columns(self): return self._spaces.num_columns()
+
+    def num_actions_played(self): return len(self._actions)
+
+    def legal_actions(self):
+        return [i for (i, p) in enumerate(self._spaces)
+                if p == BoardValues.Empty]
+
+    def num_legal_actions(self):
+        return len(self.legal_actions())
+
+    def play(self, action, player):
+        ''' Execute an action on the board '''
+        if (not self._spaces.get_index(action) == BoardValues.Empty):
+            raise IndexError("Cannot play in the same space as another "
+                             "player!")
+        self._spaces.set_index(action, player)
+        self._actions.append({'player': player, 'action': action})
+        self._update_win_status(action, player, increment=True)
+
+    def undo(self):
+        if len(self._actions) == 0:
+            raise UndoException("Board is empty. Nothing to undo!")
+
+        last_action = self._actions.pop()
+        self._spaces.set_index(last_action['action'], BoardValues.Empty)
+        self._update_win_status(last_action['action'],
+                                last_action['player'], increment=False)
+        return last_action['player']
+
+    def space_is_on_positive_diagonal(self, row, column):
+        return row == column
+
+    def space_is_on_negative_diagonal(self, row, column):
+        return row == (self._spaces.num_columns() - (column + 1))
+
+    def initialize_win_status(self):
+        self._status = {}
+        self._status[BoardValues.X] = {'positive_diagonal': 0,
+                                       'negative_diagonal': 0}
+
+        for row in range(self._spaces.num_rows()):
+            self._status[BoardValues.X]['row' + str(row)] = 0
+
+        for column in range(self._spaces.num_columns()):
+            self._status[BoardValues.X]['column' + str(column)] = 0
+
+        self._status[BoardValues.O] = self._status[BoardValues.X].copy()
+
+    def _update_win_status(self, action, player, increment=True):
+        row = self._spaces.row(action)
+        column = self._spaces.column(action)
+
+        modifier = 1 if increment else -1
+
+        self._status[player]['row' + str(row)] += modifier
+        self._status[player]['column' + str(column)] += modifier
+
+        if self.space_is_on_positive_diagonal(row, column):
+            self._status[player]['positive_diagonal'] += modifier
+
+        if self.space_is_on_negative_diagonal(row, column):
+            self._status[player]['negative_diagonal'] += modifier
+
+    def _has_win(self, player):
+        player_status = self._status[player]
+        return any(n == self._num_spaces_to_win for n in player_status.values())
+
+    def num_spaces_to_win(self): return self._num_spaces_to_win
+
+    def winner(self):
+        '''
+        Returns: None if the game is unfinished
+                 BoardValues.X if the x player has won
+                 BoardValues.O if the o player has won
+                 BoardValues.Empty if the game is a draw
+        '''
+        if self._has_win(BoardValues.X):
+            return BoardValues.X
+        elif self._has_win(BoardValues.O):
+            return BoardValues.O
+        elif self.num_legal_actions() == 0:
+            return BoardValues.Empty
+        else:
+            return None
+
+
+class GameState(object):
+
+    def __init__(self, num_rows=3, num_columns=None, num_spaces_to_win=None):
+        if num_columns is None:
+            num_columns = num_rows
+        if num_spaces_to_win is None:
+            num_spaces_to_win = min(num_rows, num_columns)
+        self._board = Board(num_rows, num_columns, num_spaces_to_win)
         self._next_to_act = BoardValues.X
 
     def __enter__(self):
@@ -296,6 +298,6 @@ class GameState(object):
     def reset(self):
         self._board = self.Board(self._board.num_rows(),
                                  self._board.num_columns(),
-                                 self._board.k())
+                                 self._board.num_spaces_to_win())
         self._next_to_act = BoardValues.X
         return self
