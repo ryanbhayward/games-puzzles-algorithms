@@ -232,6 +232,7 @@ class MctsAgent(object):
 
         `time_allowed_s` and `num_iterations` cannot both be negative.
         """
+        self.reset()
         self.search(game_state,
                     time_allowed_s=time_allowed_s,
                     num_iterations=num_iterations)
