@@ -112,7 +112,7 @@ def test_moves():
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
     assert(
-        str(patient.play(patient._board._spaces.index(1, 1))) ==
+        str(patient.play(patient._spaces.index(1, 1))) ==
         "\n" +
         "  A B C\n" +
         "1  | | \n" +
@@ -123,7 +123,7 @@ def test_moves():
     )
     assert(patient.player_to_act() == 1)
 
-    try: patient.play(patient._board._spaces.index(1, 1))
+    try: patient.play(patient._spaces.index(1, 1))
     except IndexError: pass
     else: raise "Should have raised IndexError"
 
@@ -135,11 +135,11 @@ def test_row_win():
     patient = GameState(3)
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
-    patient.play(patient._board._spaces.index(0, 0)) \
-        .play(patient._board._spaces.index(1, 0)) \
-        .play(patient._board._spaces.index(0, 1)) \
-        .play(patient._board._spaces.index(1, 2)) \
-        .play(patient._board._spaces.index(0, 2))
+    patient.play(patient._spaces.index(0, 0)) \
+        .play(patient._spaces.index(1, 0)) \
+        .play(patient._spaces.index(0, 1)) \
+        .play(patient._spaces.index(1, 2)) \
+        .play(patient._spaces.index(0, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
     assert(patient.is_terminal())
@@ -153,11 +153,11 @@ def test_column_win():
     patient = GameState(3)
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
-    patient.play(patient._board._spaces.index(0, 0)) \
-        .play(patient._board._spaces.index(1, 1)) \
-        .play(patient._board._spaces.index(1, 0)) \
-        .play(patient._board._spaces.index(1, 2)) \
-        .play(patient._board._spaces.index(2, 0))
+    patient.play(patient._spaces.index(0, 0)) \
+        .play(patient._spaces.index(1, 1)) \
+        .play(patient._spaces.index(1, 0)) \
+        .play(patient._spaces.index(1, 2)) \
+        .play(patient._spaces.index(2, 0))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
     assert(patient.is_terminal())
@@ -172,11 +172,11 @@ def test_diag_1_win():
     patient = GameState(3)
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
-    patient.play(patient._board._spaces.index(0, 0)) \
-        .play(patient._board._spaces.index(1, 0)) \
-        .play(patient._board._spaces.index(1, 1)) \
-        .play(patient._board._spaces.index(1, 2)) \
-        .play(patient._board._spaces.index(2, 2))
+    patient.play(patient._spaces.index(0, 0)) \
+        .play(patient._spaces.index(1, 0)) \
+        .play(patient._spaces.index(1, 1)) \
+        .play(patient._spaces.index(1, 2)) \
+        .play(patient._spaces.index(2, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
     assert(patient.is_terminal())
@@ -190,15 +190,15 @@ def test_draw():
     patient = GameState(3)
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
-    patient.play(patient._board._spaces.index(0, 0)) \
-        .play(patient._board._spaces.index(1, 0)) \
-        .play(patient._board._spaces.index(0, 1)) \
-        .play(patient._board._spaces.index(1, 1)) \
-        .play(patient._board._spaces.index(1, 2)) \
-        .play(patient._board._spaces.index(0, 2)) \
-        .play(patient._board._spaces.index(2, 0)) \
-        .play(patient._board._spaces.index(2, 1)) \
-        .play(patient._board._spaces.index(2, 2))
+    patient.play(patient._spaces.index(0, 0)) \
+        .play(patient._spaces.index(1, 0)) \
+        .play(patient._spaces.index(0, 1)) \
+        .play(patient._spaces.index(1, 1)) \
+        .play(patient._spaces.index(1, 2)) \
+        .play(patient._spaces.index(0, 2)) \
+        .play(patient._spaces.index(2, 0)) \
+        .play(patient._spaces.index(2, 1)) \
+        .play(patient._spaces.index(2, 2))
     assert(patient.is_terminal())
     assert(patient.score(0) == 0)
     assert(patient.is_terminal())
@@ -221,11 +221,11 @@ def test_winner_after_undo():
     patient = GameState(3)
     assert(patient.score(0) is None)
     assert(patient.score(1) is None)
-    patient.play(patient._board._spaces.index(0, 0)) \
-        .play(patient._board._spaces.index(1, 0)) \
-        .play(patient._board._spaces.index(1, 1)) \
-        .play(patient._board._spaces.index(1, 2)) \
-        .play(patient._board._spaces.index(2, 2))
+    patient.play(patient._spaces.index(0, 0)) \
+        .play(patient._spaces.index(1, 0)) \
+        .play(patient._spaces.index(1, 1)) \
+        .play(patient._spaces.index(1, 2)) \
+        .play(patient._spaces.index(2, 2))
     assert(patient.score(0) == 1)
     assert(patient.score(1) == -1)
     assert(patient.is_terminal())
