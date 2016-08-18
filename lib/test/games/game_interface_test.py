@@ -13,6 +13,15 @@ def game_states():
 
 
 @pytest.mark.parametrize('game_state', game_states())
+def test_last_action(game_state):
+    game_state.set_player_to_act(0)
+    game_state.play(0)
+    assert game_state.last_action() == 0
+    game_state.play(1)
+    assert game_state.last_action() == 1
+
+
+@pytest.mark.parametrize('game_state', game_states())
 def test_num_legal_actions(game_state):
     assert (len(list(game_state.legal_actions()))
             == game_state.num_legal_actions())

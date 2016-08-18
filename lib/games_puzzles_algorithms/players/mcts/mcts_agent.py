@@ -204,9 +204,7 @@ class MctsAgent(object):
     def with_same_parameters(self, other):
         return self(root=other._root.clone())
 
-    def __init__(self,
-                 random_generator,
-                 root=None):
+    def __init__(self, random_generator, root=None):
         self._random = random_generator
         self._root = UctNode(1) if root is None else root
         self.reset()
@@ -354,6 +352,9 @@ class MctsAgent(object):
         '''Random roll-out policy.'''
         return choose_legal_action_randomly(state, self._random.random())
 
+    def evaluation(self, state, player_of_interest):
+        return {'score': state.score(player_of_interest)}
+
     def roll_out(self, state, player_of_interest):
         """
         Simulate a play-out from the passed game state, `state`.
@@ -362,7 +363,7 @@ class MctsAgent(object):
         `player_of_interest`.
         """
         if state.is_terminal():
-            return {'score': state.score(player_of_interest)}
+            return self.evaluation(state, player_of_interest)
         else:
             outcome = None
             action = self.roll_out_policy(state)

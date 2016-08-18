@@ -60,6 +60,10 @@ class FakeGameState(object):
             self._actions.pop()
             self.set_player_to_act(int(not self._player_to_act))
 
+    def last_action(self):
+        if len(self._actions) > 0:
+            return self._actions[-1]
+
     def set_player_to_act(self, player):
         self._player_to_act = player
 

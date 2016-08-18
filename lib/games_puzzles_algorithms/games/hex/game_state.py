@@ -86,6 +86,10 @@ class Board(object):
         yield color
         self.undo(player)
 
+    def last_action(self, player):
+        if len(self._actions[player]) > 0:
+            return self._actions[player][-1]
+
     def undo(self, player):
         '''Undo `player`'s last action.'''
         action = self._actions[player].pop()
@@ -210,6 +214,10 @@ class GameState(object):
 
     def __getitem__(self, cell):
         return self.board.color(*cell)
+
+    def last_action(self):
+        if len(self._previous_acting_players) > 0:
+            return self.board.last_action(self._previous_acting_players[-1])
 
     def player_who_acted_last(self):
         return self._previous_acting_players[-1] \
