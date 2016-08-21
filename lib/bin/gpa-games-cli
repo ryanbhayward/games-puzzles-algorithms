@@ -233,7 +233,8 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Show verbose output.')
 
-    subparsers = parser.add_subparsers(title='games')
+    subparsers = parser.add_subparsers(title='games', dest='game')
+    subparsers.required = True
 
     for game_option in GAMES:
         game_parser = subparsers.add_parser(
@@ -244,7 +245,10 @@ if __name__ == '__main__':
         for argument in game_option['arguments']:
             game_parser.add_argument(*argument['aliases'], **argument['info'])
 
-        game_subparsers = game_parser.add_subparsers(title='algorithms')
+        game_subparsers = game_parser.add_subparsers(title='algorithms',
+                                                     dest='algorithm')
+        game_subparsers.required = True
+
         for algorithm_option in game_option['algorithms']:
             algorithm_parser = game_subparsers.add_parser(
                 algorithm_option['name'],
