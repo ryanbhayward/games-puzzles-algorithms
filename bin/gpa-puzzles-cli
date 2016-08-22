@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 import argparse
 
-from interface import Interface
+from games_puzzles_algorithms.puzzles.cli import Interface
 
 
 def main():
