@@ -86,8 +86,7 @@ class TttCliGameState(UiGameState):
 
     @classmethod
     def from_cli_args(self, args):
-        # , args.num_columns, args.num_spaces_to_win)
-        return self(args.num_rows)
+        return self(args.num_rows, args.num_columns, args.num_spaces_to_win)
 
     def ui_action_to_action(self, ui_action):
         column = ord(ui_action[0].lower()) - ord('a')
