@@ -93,7 +93,7 @@ class Tournament(object):
             self._notify_players(move, player_index)
             player_index = self._next_player(player_index)
 
-        (winner, _) = player.winner()
+        (winner, _) = player.final_score()
 
         # We currently make the assumption that wins are detected immediately
         # by both players, and thus the last player to act is the winner if a
