@@ -46,7 +46,7 @@ class Cli(Cmd, object):
             'winner',
             'analyze',
             'valid',
-            'turn',
+            'player_to_move',
             'ls'
         ])
 
@@ -112,7 +112,7 @@ class Cli(Cmd, object):
         been played.'''
         return (True, "")
 
-    def do_turn(self, arg, opts=None):
+    def do_player_to_move(self, arg, opts=None):
         return (True,
                 self.game.player_to_ui_player(self.game.state.player_to_act()))
 
