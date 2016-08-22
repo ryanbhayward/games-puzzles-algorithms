@@ -172,29 +172,38 @@ class GameState(object):
                 self._status[player]['negative_diagonal'] += modifier
                 
         def heuristic(self, player):
+            """
+            Return a heuristic value of the game state for player.
+            
+            Values are between -1 and 1, and values closer to 1 are better for
+            player.
+            """
             value = 0.0
             player = BoardValues(player)
             for row in range(self._spaces.num_rows()):
-                if self._status[player]['row' + str(row)] > 0:
-                    value += 1
-                if self._status[player.opponent()]['row' + str(row)] > 0:
-                    value -= 1
+                if self._status[player.opponent()]['row' + str(row)] == 0:
+                    value += self._status[player]['row' + str(row)]
+                if self._status[player]['row' + str(row)] == 0:
+                    value -= self._status[player.opponent()]['row' + str(row)]
 
             for column in range(self._spaces.num_columns()):
-                if self._status[player]['column' + str(column)] > 0:
-                    value += 1
-                if self._status[player.opponent()]['column' + str(column)] > 0:
-                    value -= 1
-                    
-            if self._status[player]['positive_diagonal'] > 0:
-                value += 1
-            if self._status[player]['negative_diagonal'] > 0:
-                value += 1
-            if self._status[player.opponent()]['positive_diagonal'] > 0:
-                value -= 1
-            if self._status[player.opponent()]['negative_diagonal'] > 0:
-                value -= 1
-            scale = (self._spaces.num_columns() + self._spaces.num_rows() + 2)
+                str_col = 'column' + str(column)
+                if self._status[player.opponent()][str_col] == 0:
+                    value += self._status[player][str_col]
+                if self._status[player][str_col] == 0:
+                    value -= self._status[player.opponent()][str_col]
+            
+            if self._status[player.opponent()]['positive_diagonal'] == 0:
+                value += self._status[player]['positive_diagonal']
+            if self._status[player.opponent()]['negative_diagonal'] == 0:
+                value += self._status[player]['negative_diagonal']
+            if  self._status[player]['positive_diagonal'] == 0:
+                value -= self._status[player.opponent()]['positive_diagonal']
+            if self._status[player]['negative_diagonal'] == 0:
+                value -= self._status[player.opponent()]['negative_diagonal']
+            cols = self._spaces.num_columns()
+            rows = self._spaces.num_rows()
+            scale = cols * rows * 2 + max(cols, rows) * 2
             return value / scale
 
         def _has_win(self, player):

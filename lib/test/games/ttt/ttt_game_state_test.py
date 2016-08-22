@@ -198,5 +198,5 @@ def test_heuristic():
     patient.play(patient._board._spaces.index(1, 0))
     patient.play(patient._board._spaces.index(1, 1))
     patient.play(patient._board._spaces.index(1, 2))
-    value = (6 - 3) / 8
+    value = (5 - 1) / 24
     assert patient.heuristic(0) == value
