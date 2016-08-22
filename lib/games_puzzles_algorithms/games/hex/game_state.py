@@ -151,7 +151,7 @@ class Board(object):
                 yield neighbor
                 
     def border_cells(self, player, edge):
-        """Return a list of cells bordering edge edge for player."""
+        """Return a list of cells bordering edge for player."""
         cells = []
         if edge == self.EDGES[0]:
             for i in range(self.size()[next_player(player)]):
@@ -172,8 +172,8 @@ class Board(object):
         """
         Yield all empty cells connected to cell.
         
-        Connected cells are adjacent or connected to cell by cells of color 
-        player.
+        Connected cells are adjacent or connected to cell by cells of player's
+        color.
         """
         if seen is None:
             seen = set()
@@ -487,7 +487,9 @@ class GameState(object):
         """
         Return a heuristic for player based on the two distance.
         
-        The value is between -1 and 1."""
+        The value is between -1 and 1, with higher values representing better
+        states for player.
+        """
         dist1 = self.board.dijkstra_distance(player, -1, -2)
         dist2 = self.board.dijkstra_distance(player, -2, -1)
         opponent1 = self.board.dijkstra_distance(next_player(player), -1, -2)
