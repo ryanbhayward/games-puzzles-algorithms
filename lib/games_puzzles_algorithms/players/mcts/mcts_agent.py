@@ -90,7 +90,9 @@ class BanditNode(object):
         self.num_visits += 1
         self.avg_reward += (score - self.avg_reward) / self.num_visits
         if not self.is_root():
-            self.parent.backup(score=-score)
+            if self.acting_player != self.parent.acting_player:
+                score *= -1
+            self.parent.backup(score=score)
 
     def child_nodes(self): return self._children
 
