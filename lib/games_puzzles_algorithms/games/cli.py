@@ -43,7 +43,7 @@ class Cli(Cmd, object):
             'showboard',
             'clear',
             'time',
-            'winner',
+            'final_score',
             'analyze',
             'valid',
             'player_to_move',
@@ -260,8 +260,8 @@ class Cli(Cmd, object):
     def do_time(self, args, opts=None):
         return (True, str(self.move_time))
 
-    def do_winner(self, args, opts=None):
-        """Return the winner of the current game."""
+    def do_final_score(self, args, opts=None):
+        """Return the final_score of the current game."""
         scores = [(self.game.state.score(p), p) for p in range(2)]
 
         if any(s is None for (s, _) in scores):

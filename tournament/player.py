@@ -82,8 +82,8 @@ class Player(object):
     def _clear_board(self):
         self._cmd('clear_board')
 
-    def _winner(self):
-        return self._cmd('winner')
+    def _final_score(self):
+        return self._cmd('final_score')
 
     def _board(self):
         return self._cmd('showboard')
@@ -105,21 +105,21 @@ class Player(object):
 
     def game_finished(self):
         # An empty string indicates the game is ongoing.
-        win_string = self._winner()
-        return bool(win_string)
+        score_string = self._final_score()
+        return bool(score_string)
 
-    def winner(self):
-        win_string = self._winner()
+    def final_score(self):
+        score_string = self._final_score()
 
-        if win_string == '0':
+        if score_string == '0':
             return ('0', '0')
 
         regex = r'(?P<winner>.*)\+(?P<score>.*)'
-        result = re.match(regex, win_string)
+        result = re.match(regex, score_string)
 
         if result is None:
             raise PlayerException('Could not parse win string: '
-                                  '{}'.format(win_string))
+                                  '{}'.format(score_string))
 
         return (result.group('winner'), result.group('score'))
 
