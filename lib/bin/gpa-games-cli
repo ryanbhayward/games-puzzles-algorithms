@@ -2,6 +2,7 @@
 
 import argparse
 import random
+from datetime import datetime
 
 from games_puzzles_algorithms.games.hex.game_state \
     import GameState as HexGameState
@@ -24,6 +25,7 @@ from games_puzzles_algorithms.games.cli import Cli
 
 
 class UiGameState(object):
+
     def __init__(self, *args, **kwargs): self.reset(*args, **kwargs)
 
     def reset(self, *args, **kwargs):
@@ -31,13 +33,18 @@ class UiGameState(object):
         return self
 
     def ui_action_to_action(self, ui_action): return ui_action
+
     def action_to_ui_action(self, action): return action
+
     def state_to_ui_state(self): return str(self.state)
+
     def player_to_ui_player(self, player): return player
+
     def ui_player_to_player(self, ui_player): return ui_player
 
 
 class HexCliGameState(UiGameState):
+
     @classmethod
     def new_state(self, *args, **kwargs):
         return HexGameState.root(*args, **kwargs)
@@ -53,15 +60,16 @@ class HexCliGameState(UiGameState):
         return chr(ord('a') + column) + str(row + 1)
 
     def player_to_ui_player(self, player): return COLOR_SYMBOLS[player]
+
     def ui_player_to_player(self, ui_player):
         ui_player = ui_player.strip().lower()
         if (ui_player == 'w' or ui_player == 'white'
                 or ui_player
-                   == COLOR_SYMBOLS[color_to_player(COLORS['white'])].lower()):
+                == COLOR_SYMBOLS[color_to_player(COLORS['white'])].lower()):
             return color_to_player(COLORS['white'])
         elif (ui_player == 'b' or ui_player == 'black'
                 or ui_player
-                   == COLOR_SYMBOLS[color_to_player(COLORS['black'])].lower()):
+              == COLOR_SYMBOLS[color_to_player(COLORS['black'])].lower()):
             return color_to_player(COLORS['black'])
         else:
             raise('Unrecognized player, "{}"'.format(ui_player))
@@ -71,9 +79,14 @@ class HexCliGameState(UiGameState):
 
 
 class TttCliGameState(UiGameState):
+
     @classmethod
     def new_state(self, *args, **kwargs):
         return TttGameState(*args, **kwargs)
+
+    @classmethod
+    def from_cli_args(self, args):
+        return self(args.num_rows, args.num_columns, args.num_spaces_to_win)
 
     def ui_action_to_action(self, ui_action):
         column = ord(ui_action[0].lower()) - ord('a')
@@ -95,47 +108,164 @@ class TttCliGameState(UiGameState):
         self.state.reset()
 
 
-GAMES = {'hex': HexCliGameState, 'ttt': TttCliGameState}
-ALGS = {
-    'random': lambda **kwargs: RandomAgent(kwargs['random_generator'].random),
-    'first': lambda **_: FirstActionAgent(),
-    'MCTS': lambda **kwargs: MctsAgent(kwargs['random_generator']),
-    'minimax': lambda **_: MinimaxAgent()}
+ALGS = [
+    {
+        'name': 'random',
+        'factory':
+        lambda args: RandomAgent(random.Random(args.random_seed).random),
+        'arguments': [
+            {
+                'aliases': ['-r', '--random-seed'],
+                'info': {
+                    'type': int,
+                    'default': datetime.now(),
+                    'help': 'Defaults to system time.'
+                }
+            }
+        ]
+    },
+    {
+        'name': 'first',
+        'factory': lambda args: FirstActionAgent(),
+        'arguments': []
+    },
+    {
+        'name': 'mcts',
+        'factory': lambda args: \
+            MctsAgent(random.Random(args.random_seed), exploration=args.ucb),
+        'arguments': [
+            {
+                'aliases': ['-r', '--random-seed'],
+                'info': {
+                    'type': int,
+                    'default': datetime.now(),
+                    'help': 'Defaults to system time.'
+                }
+            },
+            {
+                'aliases': ['--ucb'],
+                'info': {
+                    'type': float,
+                    'default': 0.1,
+                    'help': ('The exploration constant for the ' +
+                             'Upper Confidence Bound algorithm used to ' +
+                             'select nodes during search.')
+                }
+            }
+        ]
+    },
+    {
+        'name': 'minimax',
+        'factory': lambda args: MinimaxAgent(),
+        'arguments': []
+    }
+]
 
-DEFAULT_GAME = 'hex'
-DEFAULT_ALG = 'MCTS'
+
+GAMES = [
+    {
+        'name': 'hex',
+        'factory':
+        lambda args: HexCliGameState(args.num_rows, args.num_columns),
+        'arguments': [
+            {
+                'aliases': ['-n', '--num_rows'],
+                'info': {
+                    'type': int,
+                    'default': 10,
+                    'help': 'The number of rows on the board.'
+                }
+            },
+            {
+                'aliases': ['-m', '--num_columns'],
+                'info': {
+                    'type': int,
+                    'default': 10,
+                    'help': 'The number of columns on the board.'
+                }
+            }
+        ],
+        'algorithms': ALGS
+    },
+    {
+        'name': 'ttt',
+        'factory': TttCliGameState.from_cli_args,
+        'arguments': [
+            {
+                'aliases': ['-n', '--num_rows'],
+                'info': {
+                    'type': int,
+                    'default': 3,
+                    'help': 'The number of rows on the board.'
+                }
+            },
+            {
+                'aliases': ['-m', '--num_columns'],
+                'info': {
+                    'type': int,
+                    'default': 3,
+                    'help': 'The number of columns on the board.'
+                }
+            },
+            {
+                'aliases': ['-k', '--num_spaces_to_win'],
+                'info': {
+                    'type': int,
+                    'default': 3,
+                    'help': 'The number of spaces in a row required to win.'
+                }
+            }
+        ],
+        'algorithms': ALGS
+    }
+]
+
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser('Interact with a game agent using the GTP'
-                                     'protocol.')
-
-    parser.add_argument('-r', '--random-seed', type=int,
-                        help=('A seed for agents with randomness. Defaults to '
-                              'system time.'))
+    parser = argparse.ArgumentParser(
+        'Interact with a game agent using the GTP protocol.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-s', '--script',
                         help='A script of commands to play out.')
-    parser.add_argument('-g', '--game', choices=GAMES.keys(),
-                        default=DEFAULT_GAME,
-                        help=('The game to play. Default is %(default)s.'))
-    parser.add_argument('-a', '--algorithm', choices=ALGS.keys(),
-                        default=DEFAULT_ALG,
-                        help=('The algorithm to use to play the selected game. '
-                              'Default is %(default)s.'))
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Show verbose output.')
 
-    args = parser.parse_args()
-    r = random.Random(args.random_seed)
+    subparsers = parser.add_subparsers(title='games', dest='game')
+    subparsers.required = True
 
-    game = GAMES[args.game]
-    algorithm = ALGS[args.algorithm]
+    for game_option in GAMES:
+        game_parser = subparsers.add_parser(
+            game_option['name'],
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        game_parser.set_defaults(select_game=game_option['factory'])
+
+        for argument in game_option['arguments']:
+            game_parser.add_argument(*argument['aliases'], **argument['info'])
+
+        game_subparsers = game_parser.add_subparsers(title='algorithms',
+                                                     dest='algorithm')
+        game_subparsers.required = True
+
+        for algorithm_option in game_option['algorithms']:
+            algorithm_parser = game_subparsers.add_parser(
+                algorithm_option['name'],
+                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+            algorithm_parser.set_defaults(
+                select_algorithm=algorithm_option['factory'])
+
+            for argument in algorithm_option['arguments']:
+                algorithm_parser.add_argument(*argument['aliases'],
+                                              **argument['info'])
+
+    args = parser.parse_args()
+    selected_game = args.select_game(args)
+    selected_algorithm = args.select_algorithm(args)
 
     if args.verbose:
         import logging
         logging.basicConfig(level=logging.DEBUG)
-
     try:
-        cli = Cli(game(), algorithm(random_generator=r))
+        cli = Cli(selected_game, selected_algorithm)
         if args.script is not None:
             with open(args.script) as f:
                 for command in f:
