@@ -27,6 +27,19 @@ def test_roll_out():
     assert outcome['score'] == -2
 
 
+def test_search_explore3():
+    random.seed(0)
+
+    state = FakeGameState()
+    patient = MctsAgent(random, UctNode(3))
+    num_iterations = 10
+    stats = patient.search(state, num_iterations=num_iterations)
+
+    assert stats['num_iterations_completed'] == 10
+    assert stats['time_used_s'] is not None
+    assert stats['num_nodes_expanded'] == 11
+
+
 def test_search_explore2():
     random.seed(0)
 
@@ -50,7 +63,7 @@ def test_search_explore1():
 
     assert stats['num_iterations_completed'] == 10
     assert stats['time_used_s'] is not None
-    assert stats['num_nodes_expanded'] == 7
+    assert stats['num_nodes_expanded'] == 9
 
 
 def test_child_nodes():
@@ -87,13 +100,13 @@ def test_is_root():
         assert not child.is_root()
 
 
-def test_num_children():
+def test_child_nodes():
     root = BanditNode()
     state = FakeGameState()
     root.expand(state)
-    assert root.num_children() == 2
+    assert len(root.child_nodes()) == 2
     for child in root.child_nodes():
-        assert child.num_children() == 0
+        assert len(child.child_nodes()) == 0
 
 
 def test_num_nodes():
@@ -119,19 +132,22 @@ def test_backup():
     state = FakeGameState()
     root.expand(state)
     children = root.child_nodes()
+
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(-1)
-    assert children[0].child_nodes()[0].avg_reward == -1
-    assert children[0].child_nodes()[1].avg_reward == 0
-    assert children[0].avg_reward == 1
-    assert children[1].num_children() == 0
-    assert children[1].avg_reward == 0
+    assert children[0].child_nodes()[0].avg_reward() == -1
+    assert children[0].child_nodes()[1].avg_reward() == 0
+    assert children[0].avg_reward() == 1
+    assert len(children[1].child_nodes()) == 0
+    assert children[1].avg_reward() == 0
     children[0].child_nodes()[1].backup(1)
-    assert children[0].child_nodes()[0].avg_reward == -1
-    assert children[0].child_nodes()[1].avg_reward == 1
-    assert children[0].avg_reward == 0
-    assert children[1].num_children() == 0
-    assert children[1].avg_reward == 0
+    assert children[0].child_nodes()[0].avg_reward() == -1
+    assert children[0].child_nodes()[1].avg_reward() == 1
+    assert children[0].avg_reward() == 0
+    assert len(children[1].child_nodes()) == 0
+    assert children[1].avg_reward() == 0
 
 
 def test_backup_with_lcb():
@@ -139,7 +155,10 @@ def test_backup_with_lcb():
     state = FakeGameState()
     root.expand(state)
     children = root.child_nodes()
+
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(-1)
     children[0].child_nodes()[1].backup(1)
     assert BanditNode.lcb_value(children[0], 1) == -0.8325546111576977
@@ -154,7 +173,10 @@ def test_backup_with_ucb():
     state = FakeGameState()
     root.expand(state)
     children = root.child_nodes()
+
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(-1)
     children[0].child_nodes()[1].backup(1)
     assert BanditNode.ucb_value(children[0], 1) == 0.8325546111576977
@@ -169,7 +191,10 @@ def test_backup_with_value():
     state = FakeGameState()
     root.expand(state)
     children = root.child_nodes()
+
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(1)
     assert children[0].value() == -1
     assert children[1].value() == 0
@@ -186,7 +211,10 @@ def test_backup_with_ucb_explore():
     state = FakeGameState()
     root.expand(state)
     children = root.child_nodes()
+
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(1)
     assert children[0].value() == -1
     assert children[1].value() == float("inf")
@@ -218,9 +246,11 @@ def test_info_strings_to_json():
     children[0].backup(1)
     children[1].backup(-1)
     info = root.info_strings_to_dict()
-    assert info["info"] == "player: 0 | avg_reward: 0.0 num_visits: 2"
-    assert info["children"][0]["info"] == "action: 0 | avg_reward: 1.0 num_visits: 1"
-    assert info["children"][1]["info"] == "action: 1 | avg_reward: -1.0 num_visits: 1"
+    assert info["info"] == "avg_reward: 0.0 num_visits: 2"
+    assert info["children"][0][
+        "info"] == "player: 0 action: 0 | avg_reward: 1.0 num_visits: 1"
+    assert info["children"][1][
+        "info"] == "player: 0 action: 1 | avg_reward: -1.0 num_visits: 1"
 
 
 def test_info_strings_to_json_ucb():
@@ -231,15 +261,18 @@ def test_info_strings_to_json_ucb():
     children[0].backup(1)
     children[1].backup(-1)
     info = root.info_strings_to_dict()
-    assert info["info"] == "player: 0 | ucb_value: 0.8325546111576977 avg_reward: 0.0 num_visits: 2"
-    assert info["children"][0]["info"] == "action: 0 | ucb_value: 2.177410022515475 avg_reward: 1.0 num_visits: 1"
-    assert info["children"][1]["info"] == "action: 1 | ucb_value: 0.17741002251547466 avg_reward: -1.0 num_visits: 1"
+    assert info[
+        "info"] == "avg_reward: 0.0 num_visits: 2 ucb_value: 0.8325546111576977"
+    assert info["children"][0][
+        "info"] == "player: 0 action: 0 | avg_reward: 1.0 num_visits: 1 ucb_value: 2.177410022515475"
+    assert info["children"][1][
+        "info"] == "player: 0 action: 1 | avg_reward: -1.0 num_visits: 1 ucb_value: 0.17741002251547466"
 
 
 def test_str():
     root = BanditNode()
     state = FakeGameState()
-    assert str(root) == '{\n    "info": "| avg_reward: 0 num_visits: 0"\n}'
+    assert str(root) == '{\n    "info": "avg_reward: 0 num_visits: 0"\n}'
 
 
 def test_verbose_search():

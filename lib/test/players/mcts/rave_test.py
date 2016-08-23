@@ -13,19 +13,23 @@ def test_backup():
     RaveNode.enable_rave(state)
     root.expand(state)
     children = root.child_nodes()
+
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(-1, rave_moves)
-    assert children[0].child_nodes()[0].avg_reward == -1
-    assert children[0].child_nodes()[1].avg_reward == 0
-    assert children[0].avg_reward == 1
-    assert children[1].num_children() == 0
-    assert children[1].avg_reward == 0
+    assert children[0].child_nodes()[0].avg_reward() == -1
+    assert children[0].child_nodes()[1].avg_reward() == 0
+
+    assert children[0].avg_reward() == 1
+    assert len(children[1].child_nodes()) == 0
+    assert children[1].avg_reward() == 0
     children[0].child_nodes()[1].backup(1, rave_moves)
-    assert children[0].child_nodes()[0].avg_reward == -1
-    assert children[0].child_nodes()[1].avg_reward == 1
-    assert children[0].avg_reward == 0
-    assert children[1].num_children() == 0
-    assert children[1].avg_reward == 0
+    assert children[0].child_nodes()[0].avg_reward() == -1
+    assert children[0].child_nodes()[1].avg_reward() == 1
+    assert children[0].avg_reward() == 0
+    assert len(children[1].child_nodes()) == 0
+    assert children[1].avg_reward() == 0
 
 
 def test_backup_with_value():
@@ -33,12 +37,15 @@ def test_backup_with_value():
     root = RaveNode(1, 300)
     state = FakeGameState()
     root.expand(state)
+
     children = root.child_nodes()
+    state.play(children[0].action)
     children[0].expand(state)
+
     children[0].child_nodes()[0].backup(-1, rave_moves)
     assert children[0].child_nodes()[0].rave_num_visits == 1
     assert children[0].child_nodes()[1].rave_num_visits == 0
-    assert children[0].value() == 1
+    assert children[0].value() == 0.0033333333333332993
     assert children[1].value() == INF
     assert children[0].child_nodes()[0].value() == -1
     assert children[0].child_nodes()[1].value() == INF
@@ -58,7 +65,6 @@ def test_roll_out():
     patient = RaveAgent(random)
     outcome = patient.roll_out(state, 0)
     assert outcome['score'] == 2
-    print(outcome)
     assert len(outcome['rave_moves'][0]) == 2
     outcome = patient.roll_out(state, 0)
     assert outcome['score'] == -3
@@ -83,4 +89,4 @@ def test_search():
 
     assert stats['num_iterations_completed'] == 10
     assert stats['time_used_s'] is not None
-    assert stats['num_nodes_expanded'] == 9
+    assert stats['num_nodes_expanded'] == 11

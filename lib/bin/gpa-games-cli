@@ -18,7 +18,9 @@ from games_puzzles_algorithms.players.rule_based.random_agent \
     import RandomAgent
 from games_puzzles_algorithms.players.rule_based.first_action_agent \
     import FirstActionAgent
-from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent
+from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent, UctNode
+from games_puzzles_algorithms.players.mcts.rave_agent import RaveAgent
+from games_puzzles_algorithms.players.mcts.rave_agent import RaveNode
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
 
 from games_puzzles_algorithms.games.cli import Cli
@@ -131,8 +133,8 @@ ALGS = [
     },
     {
         'name': 'mcts',
-        'factory': lambda args: \
-            MctsAgent(random.Random(args.random_seed), exploration=args.ucb),
+        'factory': lambda args:
+            MctsAgent(random.Random(args.random_seed), UctNode(args.ucb)),
         'arguments': [
             {
                 'aliases': ['-r', '--random-seed'],
@@ -152,7 +154,44 @@ ALGS = [
                              'select nodes during search.')
                 }
             }
-        ]
+                ]
+    },
+    {
+        'name': 'rave',
+        'factory': lambda args:
+            RaveAgent(random.Random(args.random_seed),
+                      RaveNode(args.ucb, args.limit)),
+        'arguments': [
+            {
+                'aliases': ['-r', '--random-seed'],
+                'info': {
+                    'type': int,
+                    'default': datetime.now(),
+                    'help': 'Defaults to system time.'
+                }
+            },
+            {
+                'aliases': ['--ucb'],
+                'info': {
+                    'type': float,
+                    'default': 0.1,
+                    'help': ('The exploration constant for the ' +
+                             'Upper Confidence Bound algorithm used to ' +
+                             'select nodes during search.')
+                }
+            },
+            {
+                'aliases': ['--limit'],
+                'info': {
+                    'type': float,
+                    'default': 300,
+                    'help': ('The limit parameter to the RAVE algorithm. '
+                             + 'Smaller limits will make RAVE more like UCT '
+                             + 'and they behave identically when limit is set '
+                             + 'to zero.')
+                }
+            }
+                ]
     },
     {
         'name': 'minimax',
