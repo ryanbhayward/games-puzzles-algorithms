@@ -268,7 +268,7 @@ class Board(object):
             return self._actions[-1]['action']
 
     def play(self, action, player):
-        ''' Execute an action on the board '''
+        """ Execute an action on the board """
         if (not self._spaces.get_index(action) == BoardValues.Empty):
             raise IndexError("Cannot play in the same space as another "
                              "player!")
@@ -292,12 +292,12 @@ class Board(object):
     def num_spaces_to_win(self): return self._num_spaces_to_win
 
     def winner(self):
-        '''
+        """
         Returns: None if the game is unfinished
                  BoardValues.X if the x player has won
                  BoardValues.O if the o player has won
                  BoardValues.Empty if the game is a draw
-        '''
+        """
         if self._has_win(BoardValues.X):
             return BoardValues.X
         elif self._has_win(BoardValues.O):
@@ -356,28 +356,28 @@ class GameState(Board):
         self._next_to_act = BoardValues.X
 
     def __enter__(self):
-        '''Allows the following type of code:
+        """Allows the following type of code:
 
         ```
         with state.play(action):
             # Do something with `state` after `action`
             # has been applied to `state`.
         # `action` has automatically be undone.
-        '''
+        """
         pass
 
     def __exit__(self,
                  exception_type,
                  exception_val,
                  exception_traceback):
-        '''Allows the following type of code:
+        """Allows the following type of code:
 
         ```
         with state.play(action):
             # Do something with `state` after `action`
             # has been applied to `state`.
         # `action` has automatically be undone.
-        '''
+        """
         self.undo()
 
     def cell_index(self, row, column):
