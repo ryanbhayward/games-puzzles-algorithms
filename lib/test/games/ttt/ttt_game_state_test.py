@@ -228,8 +228,59 @@ def test_winner_after_undo():
     assert_no_winner(patient)
     assert(not patient.is_terminal())
     assert(patient.num_legal_actions() == 5)
-    
-    
+
+
+def test_win_detection():
+    patient = GameState(4, 6, 2)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 5))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 3))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 2))
+    assert_O_wins(patient)
+
+
+def test_row_win_k_in_a_row():
+    patient = GameState(3, 4, 2)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 0))
+    patient.play(patient._spaces.index(1, 0))
+    patient.play(patient._spaces.index(0, 1))
+    assert_X_wins(patient)
+
+
+def test_column_win_k_in_a_row():
+    patient = GameState(3, 4, 2)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 0))
+    patient.play(patient._spaces.index(0, 1))
+    patient.play(patient._spaces.index(1, 0))
+    assert_X_wins(patient)
+
+
+def test_diagonal_win_k_in_a_row():
+    patient = GameState(3, 4, 2)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 0))
+    patient.play(patient._spaces.index(0, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 1))
+    assert_X_wins(patient)
+
+
+def test_anti_diagonal_win_k_in_a_row():
+    patient = GameState(3, 4, 2)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 2))
+    patient.play(patient._spaces.index(0, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 1))
+    assert_X_wins(patient)
+
+
 def test_heuristic():
     patient = GameState(3)
     assert patient.heuristic(0) == 0
