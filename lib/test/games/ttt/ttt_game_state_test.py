@@ -84,7 +84,6 @@ def test_empty_board():
 def test_large_board_representation():
     '''Check that large boards are represented clearly.'''
     patient = GameState(10)
-    print(patient)
     assert(
         str(patient) ==
         "\n" +
