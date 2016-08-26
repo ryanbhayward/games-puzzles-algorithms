@@ -1,9 +1,13 @@
 from cmd import Cmd
+# TODO Ideally this module shouldn't know about the modules in search.
+#   Instead, the executable that uses this interface should hold that
+#   information and only pass in the necessary instances, like
+#   the games CLI module.
 from games_puzzles_algorithms.search.a_star import AStar
 from games_puzzles_algorithms.search.breadth_first_search import BreadthFirstSearch
 from games_puzzles_algorithms.search.depth_first_search import DepthFirstSearch
-from games_puzzles_algorithms.puzzles.sliding_tile_puzzle import SlidingTilePuzzle
-from games_puzzles_algorithms.puzzles.solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle
+from .sliding_tile_puzzle import SlidingTilePuzzle
+from .solvable_sliding_tile_puzzle import SolvableSlidingTilePuzzle
 
 class Interface(Cmd):
     """

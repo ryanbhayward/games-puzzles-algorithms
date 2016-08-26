@@ -6,9 +6,6 @@ setup(
     version='0.0.1',
     license='MIT',
     packages=find_packages(),
-    scripts=['bin/gpa-games-cli',
-             #'bin/gpa-puzzles-cli'
-            ],
     install_requires=[
         'future == 0.15.2',
         'setuptools == 20.2.2'
