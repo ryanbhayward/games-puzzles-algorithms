@@ -380,3 +380,75 @@ def test_undo():
     5  .  .  .  .  .  O
         @  @  @  @  @'''
     )
+    
+def test_border_cells():
+    patient = GameState.root(5)
+    border_cells = patient.board.border_cells(0, -1)
+    expected_cells = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]
+    assert border_cells == expected_cells
+    border_cells = patient.board.border_cells(0, -2)
+    expected_cells = [(4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
+    assert border_cells == expected_cells
+    border_cells = patient.board.border_cells(1, -1)
+    expected_cells = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0)]
+    assert border_cells == expected_cells
+    border_cells = patient.board.border_cells(1, -2)
+    expected_cells = [(0, 4), (1, 4), (2, 4), (3, 4), (4, 4)]
+    assert border_cells == expected_cells
+    
+def test_connected_neighbors_with_edge():
+    patient = GameState.root(5)
+    neighbors = []
+    for neighbor in patient.board.connected_neighbors(-1, 1):
+        neighbors.append(neighbor)
+    
+    neighbors.sort()
+    expected = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0)]
+    assert expected == neighbors
+    
+def test_connected_neighbors_with_border_cell():
+    patient = GameState.root(5)
+    neighbors = []
+    for neighbor in patient.board.connected_neighbors((0, 0), 0):
+        neighbors.append(neighbor)
+    
+    assert -1 in neighbors
+    neighbors.remove(-1)
+    neighbors.sort()
+    expected = [(0, 1), (1, 0)]
+    assert expected == neighbors
+    
+def test_connected_neighbors_with_played_cell():
+    patient = GameState.root(5)
+    patient.play(patient.board.cell_index(4, 4))
+    patient.play(patient.board.cell_index(1, 1))
+    neighbors = []
+    for neighbor in patient.board.connected_neighbors((0, 1), 0):
+        neighbors.append(neighbor)
+    
+    assert -1 in neighbors
+    neighbors.remove(-1)
+    neighbors.sort()
+    expected = [(1, 0), (0, 0), (0, 2), (2, 0), (1, 2), (2, 1)]
+    expected.sort()
+    assert expected == neighbors
+    
+def test_dijkstra_distance():
+    patient = GameState.root(5)
+    distance = patient.board.dijkstra_distance(0, -1, -2)
+    assert distance == 6
+    
+def test_dijkstra_distance_with_played_cell():
+    patient = GameState.root(5)
+    patient.play(patient.board.cell_index(2, 0))
+    distance = patient.board.dijkstra_distance(1, -1, -2)
+    assert distance == 5
+    
+def test_heuristic():
+    patient = GameState.root(5)
+    assert patient.heuristic(0) == 0
+    
+def test_heuristic_with_played_cell():
+    patient = GameState.root(5)
+    patient.play(patient.board.cell_index(2, 0))
+    assert patient.heuristic(1) == 1 / 5
