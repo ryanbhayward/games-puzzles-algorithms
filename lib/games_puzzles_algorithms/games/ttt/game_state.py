@@ -77,7 +77,7 @@ class WinDetector(object):
     The WinDetector is used to track the win state of a game of tic-tac-toe.
     This is done by tracking run-lengths on the board for each direction. We
     perform this count from left to right and top to bottom along the board.
-    The value in any given cell if the length of the run ending in that cell.
+    The value in any given cell is the length of the run ending in that cell.
     """
     def __init__(self, rows, columns, spaces_to_win):
         self.rows = rows
@@ -189,14 +189,14 @@ class WinDetector(object):
             self._cascade_state_update(state, row, column, iterator)
 
     def _states(self):
-        """A generator of the WinDetector states."""
+        """A generator over the WinDetector states."""
         yield self._rows
         yield self._columns
         yield self._diagonals
         yield self._anti_diagonals
 
     def win_detected(self):
-        """Return whether any runs exist that meet the winning length."""
+        """Return whether any runs exist which meet the winning length."""
         for state in self._states():
             if any(run_length >= self.spaces_to_win for run_length in state):
                 return True
