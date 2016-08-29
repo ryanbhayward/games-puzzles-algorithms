@@ -79,36 +79,36 @@ class WinDetector(object):
     perform this count from left to right and top to bottom along the board.
     The value in any given cell is the length of the run ending in that cell.
     """
-    def __init__(self, rows, columns, spaces_to_win):
-        self.rows = rows
-        self.columns = columns
+    def __init__(self, num_rows, num_columns, spaces_to_win):
+        self._num_rows = num_rows
+        self._num_columns = num_columns
         self.spaces_to_win = spaces_to_win
-        self._rows = TwoDimensionalTable(rows, columns)
-        self._columns = TwoDimensionalTable(rows, columns)
-        self._diagonals = TwoDimensionalTable(rows, columns)
-        self._anti_diagonals = TwoDimensionalTable(rows, columns)
+        self._rows = TwoDimensionalTable(num_rows, num_columns)
+        self._columns = TwoDimensionalTable(num_rows, num_columns)
+        self._diagonals = TwoDimensionalTable(num_rows, num_columns)
+        self._anti_diagonals = TwoDimensionalTable(num_rows, num_columns)
 
     def _iter_row(self, row, column):
         """Iterate along a row starting at the given coordinate."""
-        for c in range(column, self.columns):
+        for c in range(column, self._num_columns):
             yield (row, c)
 
     def _iter_column(self, row, column):
         """Iterate along a column starting at the given coordinate."""
-        for r in range(row, self.rows):
+        for r in range(row, self._num_rows):
             yield (r, column)
 
     def _iter_diagonal(self, row, column):
         """Iterate along a diagonal starting at the given coordinate."""
-        row_difference = self.rows - row
-        column_difference = self.columns - column
+        row_difference = self._num_rows - row
+        column_difference = self._num_columns - column
 
         for i in range(min(row_difference, column_difference)):
             yield(row + i, column + i)
 
     def _iter_anti_diagonal(self, row, column):
         """Iterate along an anti-diagonal starting at the given coordinate."""
-        row_difference = self.rows - row
+        row_difference = self._num_rows - row
         for i in range(min(row_difference, column)):
             yield(row - i, column - i)
 
@@ -157,7 +157,7 @@ class WinDetector(object):
         Calculate the existing run-length in this anti-diagonal ending at the
         given coordinate.
         """
-        if row == 0 or column == self.columns - 1:
+        if row == 0 or column == self._num_columns - 1:
             return 0
         else:
             return self._anti_diagonals[row - 1, column + 1]
