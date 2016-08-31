@@ -183,10 +183,11 @@ class Board(object):
     def _has_win(self, player):
         player_status = self._status[player]
         return any(n == self._num_spaces_to_win for n in player_status.values())
+
     def heuristic(self, player):
         """
         Return a heuristic value of the game state for player.
-        
+
         Values are between -1 and 1, and values closer to 1 are better for
         player.
         """
@@ -204,7 +205,7 @@ class Board(object):
                 value += self._status[player][str_col]
             if self._status[player][str_col] == 0:
                 value -= self._status[player.opponent()][str_col]
-        
+
         if self._status[player.opponent()]['positive_diagonal'] == 0:
             value += self._status[player]['positive_diagonal']
         if self._status[player.opponent()]['negative_diagonal'] == 0:
@@ -282,10 +283,10 @@ class GameState(Board):
         return super().cell_index(row, column)
 
     def row(self, index): return self._board.row(index)
-    
+
     def column(self, index): return self._board.column(index)
 
-    
+
     def legal_actions(self):
         return [] if self.is_terminal() else super().empty_spaces()
 
@@ -328,7 +329,7 @@ class GameState(Board):
             return None
         else:
             return 0
-        
+
     def heuristic(self, player):
         return self._board.heuristic(player)
 
@@ -337,10 +338,8 @@ class GameState(Board):
 
     def __str__(self):
         return super().__str__()
-    
+
     def reset(self):
         super().__init__(super().num_rows())
         self._next_to_act = BoardValues.X
         return self
-    
-
