@@ -357,7 +357,13 @@ class MctsAgent(object):
     def reset(self): self._search_tree.reset()
 
     def info_strings_to_dict(self):
-        return self._search_tree.info_strings_to_dict()
+        try:
+            return self._search_tree.info_strings_to_dict()
+        except AttributeError:
+            return {}
 
     def to_dict(self):
-        return self._search_tree.to_dict()
+        try:
+            return self._search_tree.to_dict()
+        except AttributeError:
+            return {}
