@@ -326,12 +326,6 @@ class GameState(Board):
         else:
             return 0
 
-    def winner(self):
-        return super().winner()
-
-    def __str__(self):
-        return super().__str__()
-
     def reset(self):
         super().__init__(super().num_rows())
         self._next_to_act = BoardValues.X
