@@ -282,7 +282,6 @@ class GameState(Board):
 
     def column(self, index): return self._board.column(index)
 
-
     def legal_actions(self):
         return [] if self.is_terminal() else super().empty_spaces()
 
