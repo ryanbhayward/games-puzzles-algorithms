@@ -232,7 +232,7 @@ class Board(object):
             return BoardValues.X
         elif self._has_win(BoardValues.O):
             return BoardValues.O
-        elif self.num_legal_actions() == 0:
+        elif self.num_empty_spaces() == 0:
             return BoardValues.Empty
         else:
             return None
