@@ -79,10 +79,10 @@ class WinDetector(object):
     perform this count from left to right and top to bottom along the board.
     The value in any given cell is the length of the run ending in that cell.
     """
-    def __init__(self, num_rows, num_columns, spaces_to_win):
+    def __init__(self, num_rows, num_columns, num_spaces_to_win):
         self._num_rows = num_rows
         self._num_columns = num_columns
-        self.spaces_to_win = spaces_to_win
+        self._num_spaces_to_win = num_spaces_to_win
         self._rows = TwoDimensionalTable(num_rows, num_columns)
         self._columns = TwoDimensionalTable(num_rows, num_columns)
         self._diagonals = TwoDimensionalTable(num_rows, num_columns)
@@ -197,8 +197,11 @@ class WinDetector(object):
 
     def win_detected(self):
         """Return whether any runs exist which meet the winning length."""
+        def run_is_win(run_length):
+            return run_length >= self._num_spaces_to_win
+
         for state in self._states():
-            if any(run_length >= self.spaces_to_win for run_length in state):
+            if any(run_is_win(run_length) for run_length in state):
                 return True
         return False
 
