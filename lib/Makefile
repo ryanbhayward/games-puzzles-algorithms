@@ -21,4 +21,4 @@ clean:
 	find . -name "*.pyc" -delete
 	find . -name "__pycache__" -delete
 	find games_puzzles_algorithms -name "*.so" -delete
-	rm -rf .cache *.egg *.eggs *.egg-info build 2> /dev/null
+	rm -rf .cache *.egg .eggs *.egg-info build 2> /dev/null

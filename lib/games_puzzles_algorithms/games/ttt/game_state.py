@@ -127,6 +127,10 @@ class Board(object):
     def num_empty_spaces(self):
         return len(self.empty_spaces())
 
+    def last_action(self):
+        if len(self._actions) > 0:
+            return self._actions[-1]['action']
+
     def play(self, action, player):
         ''' Execute an action on the board '''
         if (not self._spaces.get_index(action) == BoardValues.Empty):
