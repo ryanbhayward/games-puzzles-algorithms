@@ -1,9 +1,11 @@
+from array import array
+from heapdict import heapdict
+
 from .win_detector import WinDetector
 from .color import IllegalAction, COLORS, ORIENTATION, COLOR_SYMBOLS, \
     NUM_PLAYERS, color_to_player, next_player, player_to_color, cell_str, \
     cell_str_to_cell
-from array import array
-from games_puzzles_algorithms.heap_util.heapdict import heapdict
+
 
 def prod(*l):
     s = 1
@@ -22,7 +24,7 @@ class Board(object):
         (1, 0),   # South
         (1, -1)   # Southwest
     )
-    
+
     EDGES = (-1, -2)
 
     def __init__(self, *dimensions):
@@ -149,7 +151,7 @@ class Board(object):
         for neighbor in self.every_neighbor(*cell):
             if self.cell_index(*neighbor) in self._empty_cells:
                 yield neighbor
-                
+
     def border_cells(self, player, edge):
         """Return a list of cells bordering edge for player."""
         cells = []
@@ -165,20 +167,20 @@ class Board(object):
                     cells.append((self.size()[player] - 1, i))
                 else:
                     cells.append((i, self.size()[player] - 1))
-        
-        return cells 
-                
+
+        return cells
+
     def connected_neighbors(self, cell, player, seen=None):
         """
         Yield all empty cells connected to cell.
-        
+
         Connected cells are adjacent or connected to cell by cells of player's
         color.
         """
         if seen is None:
             seen = set()
             seen.add(cell)
-            
+
         if cell in self.EDGES:
             cells = self.border_cells(player, cell)
             for edge_cell in cells:
@@ -190,9 +192,9 @@ class Board(object):
                         for connected_cell in self.connected_neighbors(
                             edge_cell, player, seen):
                             yield connected_cell
-                        
+
             return
-        
+
         for neighbor in self.every_neighbor(*cell):
             if neighbor not in seen:
                 seen.add(neighbor)
@@ -202,7 +204,7 @@ class Board(object):
                     for connected_cell in self.connected_neighbors(
                         neighbor, player, seen):
                         yield connected_cell
-                    
+
         if cell[player] == 0:
             yield self.EDGES[0]
         if cell[player] == self.size()[player] - 1:
@@ -238,18 +240,18 @@ class Board(object):
             self.num_columns()
         )
         return ret.rstrip()
-    
+
     def dijkstra_distance(self, player, source, destination):
         """
         Return the two distance between source and destination for player.
-        
-        The two distance is 0 if source = destination, 1 if source is adjacent 
+
+        The two distance is 0 if source = destination, 1 if source is adjacent
         to destination, and 1 + the second smallest two distance between
         source and destination's neighbors otherwise.
         """
         cell_set = heapdict()
         second = {}
-        
+
         for cell in self.empty_cells():
             cell_set[cell] = float("INF")
             second[cell] = float("INF")
@@ -258,12 +260,12 @@ class Board(object):
             second[cell] = float("INF")
         cell_set[source] = 0
         second[source] = 0
-                
+
         while cell_set:
             cell, distance = cell_set.popitem()
             if cell == destination:
                 return second[cell]
-            
+
             for neighbor in self.connected_neighbors(cell, player):
                 if neighbor not in cell_set:
                     continue
@@ -275,8 +277,8 @@ class Board(object):
                     if alternate <= cell_set[neighbor]:
                         second[neighbor] = cell_set[neighbor]
                         cell_set[neighbor] = alternate
-                    
-        return second[destination]    
+
+        return second[destination]
 
 
 class GameState(object):
@@ -489,11 +491,11 @@ class GameState(object):
     def __str__(self):
         """Print an ascii representation of the game board."""
         return str(self.board)
-    
+
     def heuristic(self, player):
         """
         Return a heuristic for player based on the two distance.
-        
+
         The value is between -1 and 1, with higher values representing better
         states for player.
         """
