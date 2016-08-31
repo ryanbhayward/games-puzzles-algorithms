@@ -1,9 +1,11 @@
+from array import array
+from heapdict import heapdict
+
 from .win_detector import WinDetector
 from .color import IllegalAction, COLORS, ORIENTATION, COLOR_SYMBOLS, \
     NUM_PLAYERS, color_to_player, next_player, player_to_color, cell_str, \
     cell_str_to_cell
-from array import array
-from games_puzzles_algorithms.heap_util.heapdict import heapdict
+
 
 def prod(*l):
     s = 1
