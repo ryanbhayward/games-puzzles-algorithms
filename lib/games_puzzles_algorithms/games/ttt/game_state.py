@@ -326,9 +326,6 @@ class GameState(Board):
         else:
             return 0
 
-    def heuristic(self, player):
-        return self._board.heuristic(player)
-
     def winner(self):
         return super().winner()
 
