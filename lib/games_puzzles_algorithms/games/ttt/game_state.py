@@ -1,6 +1,7 @@
 from array import array
 from enum import IntEnum
 from string import ascii_uppercase as alphabet
+from copy import deepcopy
 
 
 class BoardValues(IntEnum):
@@ -75,10 +76,16 @@ class TwoDimensionalTable(object):
 class Board(object):
 
     def __init__(self, num_rows=3, num_columns=None, num_spaces_to_win=None):
+        num_rows = max(num_rows, 1)
         if num_columns is None:
             num_columns = num_rows
-        if num_spaces_to_win is None:
-            num_spaces_to_win = min(num_rows, num_columns)
+        else:
+            num_columns = max(num_columns, 1)
+        # TODO Cannot support arbitrary num_spaces_to_win
+        # if num_spaces_to_win is None:
+        num_spaces_to_win = min(num_rows, num_columns)
+        # else:
+        #     num_spaces_to_win = max(min(max(num_rows, num_columns), num_spaces_to_win), 1)
         self._num_spaces_to_win = num_spaces_to_win
         self._spaces = TwoDimensionalTable(
             num_rows,
@@ -134,7 +141,7 @@ class Board(object):
                              "player!")
         self._spaces.set_index(action, player)
         self._actions.append({'player': player, 'action': action})
-        self._update_win_status(action, player, increment=True)
+        self._update_win_status(action, player, add_symbol=True)
 
     def undo(self):
         if len(self._actions) == 0:
@@ -143,7 +150,7 @@ class Board(object):
         last_action = self._actions.pop()
         self._spaces.set_index(last_action['action'], BoardValues.Empty)
         self._update_win_status(last_action['action'],
-                                last_action['player'], increment=False)
+                                last_action['player'], add_symbol=False)
         return last_action['player']
 
     def space_is_on_positive_diagonal(self, row, column):
@@ -154,35 +161,53 @@ class Board(object):
 
     def initialize_win_status(self):
         self._status = {}
-        self._status[BoardValues.X] = {'positive_diagonal': 0,
-                                       'negative_diagonal': 0}
+        self._status[BoardValues.X] = {}
+        length_of_smallest_dimension = max(self._spaces.size())
+        for i in range(length_of_smallest_dimension - self._num_spaces_to_win + 1):
+            self._status[BoardValues.X]['positive-diagonal' + str(i)] = [False] * length_of_smallest_dimension
+            self._status[BoardValues.X]['negative-diagonal' + str(i)] = [False] * length_of_smallest_dimension
 
         for row in range(self._spaces.num_rows()):
-            self._status[BoardValues.X]['row' + str(row)] = 0
+            self._status[BoardValues.X][
+                'row' + str(row)] = [False] * self._spaces.num_columns()
 
         for column in range(self._spaces.num_columns()):
-            self._status[BoardValues.X]['column' + str(column)] = 0
+            self._status[BoardValues.X]['column' +
+                                        str(column)] = [False] * self._spaces.num_rows()
 
-        self._status[BoardValues.O] = self._status[BoardValues.X].copy()
+        self._status[BoardValues.O] = deepcopy(self._status[BoardValues.X])
 
-    def _update_win_status(self, action, player, increment=True):
+    def _update_win_status(self, action, player, add_symbol=True):
         row = self._spaces.row(action)
         column = self._spaces.column(action)
+        space = (row, column)
+        smallest_dimension = 0
+        if self._spaces.num_rows() < self._spaces.num_columns():
+            smallest_dimension = 1
 
-        modifier = 1 if increment else -1
+        modifier = True if add_symbol else False
 
-        self._status[player]['row' + str(row)] += modifier
-        self._status[player]['column' + str(column)] += modifier
+        self._status[player]['row' + str(row)][column] = modifier
+        self._status[player]['column' + str(column)][row] = modifier
 
-        if self.space_is_on_positive_diagonal(row, column):
-            self._status[player]['positive_diagonal'] += modifier
+        adjusted_space = list(space)
+        for i in range(self._spaces.size(smallest_dimension) - self._num_spaces_to_win + 1):
+            if self.space_is_on_positive_diagonal(*adjusted_space):
+                self._status[player]['positive-diagonal' + str(i)][column] = modifier
+            if self.space_is_on_negative_diagonal(*adjusted_space):
+                self._status[player]['negative-diagonal' + str(i)][column] = modifier
+            if adjusted_space[int(not(smallest_dimension))] < 1:
+                break
+            adjusted_space[int(not(smallest_dimension))] -= 1
 
-        if self.space_is_on_negative_diagonal(row, column):
-            self._status[player]['negative_diagonal'] += modifier
 
     def _has_win(self, player):
         player_status = self._status[player]
-        return any(n == self._num_spaces_to_win for n in player_status.values())
+        for line in player_status.values():
+            for initial_offset in range(len(line) - self._num_spaces_to_win + 1):
+                if all([line[initial_offset + pos] for pos in range(self._num_spaces_to_win)]):
+                    return True
+        return False
 
     def heuristic(self, player):
         """
