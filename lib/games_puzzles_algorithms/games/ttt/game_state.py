@@ -219,10 +219,6 @@ class Board(object):
         scale = cols * rows * 2 + max(cols, rows) * 2
         return value / scale
 
-    def _has_win(self, player):
-        player_status = self._status[player]
-        return any(n == self._size for n in player_status.values())
-
     def num_spaces_to_win(self): return self._num_spaces_to_win
 
     def winner(self):
