@@ -128,6 +128,10 @@ class Board(object):
     def num_empty_spaces(self):
         return len(self.empty_spaces())
 
+    def last_action(self):
+        if len(self._actions) > 0:
+            return self._actions[-1]['action']
+
     def play(self, action, player):
         ''' Execute an action on the board '''
         if (not self._spaces.get_index(action) == BoardValues.Empty):
@@ -184,10 +188,11 @@ class Board(object):
     def _has_win(self, player):
         player_status = self._status[player]
         return any(n == self._num_spaces_to_win for n in player_status.values())
+
     def heuristic(self, player):
         """
         Return a heuristic value of the game state for player.
-        
+
         Values are between -1 and 1, and values closer to 1 are better for
         player.
         """
@@ -205,7 +210,7 @@ class Board(object):
                 value += self._status[player][str_col]
             if self._status[player][str_col] == 0:
                 value -= self._status[player.opponent()][str_col]
-        
+
         if self._status[player.opponent()]['positive_diagonal'] == 0:
             value += self._status[player]['positive_diagonal']
         if self._status[player.opponent()]['negative_diagonal'] == 0:
@@ -219,9 +224,6 @@ class Board(object):
         scale = cols * rows * 2 + max(cols, rows) * 2
         return value / scale
 
-##    def _has_win(self, player):
-##        player_status = self._status[player]
-##        return any(n == self._size for n in player_status.values())
 
     def num_spaces_to_win(self): return self._num_spaces_to_win
 
@@ -236,7 +238,7 @@ class Board(object):
             return BoardValues.X
         elif self._has_win(BoardValues.O):
             return BoardValues.O
-        elif self.num_legal_actions() == 0:
+        elif self.num_empty_spaces() == 0:
             return BoardValues.Empty
         else:
             return None
@@ -283,10 +285,9 @@ class GameState(Board):
         return super().cell_index(row, column)
 
     def row(self, index): return self._board.row(index)
-    
+
     def column(self, index): return self._board.column(index)
 
-    
     def legal_actions(self):
         return [] if self.is_terminal() else super().empty_spaces()
 
@@ -329,19 +330,8 @@ class GameState(Board):
             return None
         else:
             return 0
-        
-    def heuristic(self, player):
-        return self._board.heuristic(player)
 
-    def winner(self):
-        return super().winner()
-
-    def __str__(self):
-        return super().__str__()
-    
     def reset(self):
         super().__init__(super().num_rows())
         self._next_to_act = BoardValues.X
         return self
-    
-
