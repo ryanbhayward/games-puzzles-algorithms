@@ -28,6 +28,9 @@ pip install -r requirements.txt
 
 
 - Hex
+- Go
+- Tic-tac-toe
+- Nim
 
 
 ### Puzzles
