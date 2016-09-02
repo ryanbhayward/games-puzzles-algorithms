@@ -28,6 +28,9 @@ pip install -r requirements.txt
 
 
 - Hex
+- Go
+- Tic-tac-toe
+- Nim
 
 
 ### Puzzles
@@ -70,33 +73,64 @@ pip install -r requirements.txt
 
 - Run tests with `make test` in the project root or `lib`.
 
-<!-- TODO Rework this with information on how to run all executables -->
-<!-- * Run the `main.py` within the **ui** directory
+
+## Running
+
+### Go text protocol games CLI
+
+For Hex and tic-tac-toe. To see usage run:
+
 ```bash
-python3 games_puzzles_algorithms/ui/main.py
-# full version
-python3 games_puzzles_algorithms/ui/main.py --puzzle maze --search A*
-# alternatively
-python3 games_puzzles_algorithms/ui/main.py --puzzle sliding_tile --search A*
+bin/gpa-games-cli -h
 ```
 
+For example, to run Hex with the MCTS agent:
 
-#### Flask Web Application
-
-* Navigate to the **web** directory and install the requirements
 ```bash
-cd web
-pip install -r requirements.txt
-# alternatively, ensure the games-puzzles-algorithms is installed
-# and only install flask
+bin/gpa-games-cli hex mcts
 ```
 
-* Run the `app.py` within the **web/puzzles** directory
-    * Within your web browser, navigate to [localhost:5000](http://localhost:5000).
+Then, type help to get a list of available commands.
+
+### Puzzles CLI
+
+For sliding tile puzzles. To see usage run:
 
 ```bash
-python3 puzzles/app.py
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
- ```
+bin/gpa-puzzles-cli -h
+```
 
-``` -->
+Example usage:
+
+```bash
+bin/gpa-puzzles-cli solvable_sliding_tile "A*"
+```
+
+Then, type help to get a list of available commands.
+
+### Web GUI
+
+For hex:
+```bash
+python3 web/hex/application.py
+```
+
+For puzzles:
+```bash
+python3 web/puzzles/application.py
+```
+
+Then, visit http://127.0.0.1:5000/ in your browser to access the GUI.
+
+### Tournament
+
+To see usage run:
+```bash
+python3 tournament/play_tournament.py -h
+```
+
+For example, to play the MCTS hex player against the random hex player:
+
+```bash
+python3 tournament/play_tournament.py "bin/gpa-games-cli hex mcts" "bin/gpa-games-cli hex random"
+```
