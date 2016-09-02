@@ -112,6 +112,21 @@ class WinDetector(object):
         for i in range(min(row_difference, column)):
             yield(row - i, column - i)
 
+    def row_count(self, row):
+        return sum(self._rows[r, c] > 0 for (r, c) in self._iter_row(row, 0))
+
+    def column_count(self, column):
+        return sum(self._columns[r, c] > 0 for (r, c)
+                   in self._iter_column(0, column))
+
+    def diagonal_count(self, row, column):
+        return sum(self._diagonals[r, c] > 0 for (r, c)
+                   in self._iter_diagonal(row, column))
+
+    def anti_diagonal_count(self, row, column):
+        return sum(self._anti_diagonals[r, c] > 0 for (r, c)
+                   in self._iter_anti_diagonal(row, column))
+
     def _cascade_state_update(self, state, row, column, iterator):
         """
         Starting from the given coordinate, increment the run-length along the
@@ -318,30 +333,37 @@ class Board(object):
         player.
         """
         value = 0.0
-        player = BoardValues(player)
-        for row in range(self._spaces.num_rows()):
-            if self._status[player.opponent()]['row' + str(row)] == 0:
-                value += self._status[player]['row' + str(row)]
-            if self._status[player]['row' + str(row)] == 0:
-                value -= self._status[player.opponent()]['row' + str(row)]
+        board_player = BoardValues(player)
+        player_state = self._win_detectors[board_player]
+        opponent_state = self._win_detectors[board_player.opponent()]
 
-        for column in range(self._spaces.num_columns()):
-            str_col = 'column' + str(column)
-            if self._status[player.opponent()][str_col] == 0:
-                value += self._status[player][str_col]
-            if self._status[player][str_col] == 0:
-                value -= self._status[player.opponent()][str_col]
-
-        if self._status[player.opponent()]['positive_diagonal'] == 0:
-            value += self._status[player]['positive_diagonal']
-        if self._status[player.opponent()]['negative_diagonal'] == 0:
-            value += self._status[player]['negative_diagonal']
-        if  self._status[player]['positive_diagonal'] == 0:
-            value -= self._status[player.opponent()]['positive_diagonal']
-        if self._status[player]['negative_diagonal'] == 0:
-            value -= self._status[player.opponent()]['negative_diagonal']
         cols = self._spaces.num_columns()
         rows = self._spaces.num_rows()
+
+        def value_change(player_count, opponent_count):
+            if player_count == 0:
+                return -opponent_count
+            elif opponent_count == 0:
+                return player_count
+            else:
+                return 0
+
+        for row in range(self._spaces.num_rows()):
+            player_length = player_state.row_count(row)
+            opponent_length = opponent_state.row_count(row)
+            value += value_change(player_length, opponent_length)
+
+        for column in range(self._spaces.num_columns()):
+            player_length = player_state.column_count(column)
+            opponent_length = opponent_state.column_count(column)
+            value += value_change(player_length, opponent_length)
+
+        value += value_change(player_state.diagonal_count(0, 0),
+                              opponent_state.diagonal_count(0, 0))
+
+        value += value_change(player_state.anti_diagonal_count(0, cols - 1),
+                              opponent_state.anti_diagonal_count(0, cols - 1))
+
         scale = cols * rows * 2 + max(cols, rows) * 2
         return value / scale
 
