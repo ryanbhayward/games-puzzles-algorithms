@@ -119,6 +119,19 @@ python3 web/puzzles/application.py
 
 Then, visit http://127.0.0.1:5000/ in your browser to access the GUI.
 
+### Tournament
+
+To see usage run:
+```bash
+python3 tournament/play_tournament.py -h
+```
+
+For example, to play the MCTS hex player against the random hex player:
+
+```bash
+python3 tournament/play_tournament.py "bin/gpa-games-cli hex mcts" "bin/gpa-games-cli hex random"
+```
+
 <!-- TODO Rework this with information on how to run all executables -->
 <!-- * Run the `main.py` within the **ui** directory
 ```bash
