@@ -1,14 +1,12 @@
 # CMPUT 396 -- Games, Puzzles, and Algorithms
 
-Software for CMPUT 396 to allow students to explore fundamental algorithms
-that are used to play games and solve puzzles.
-
+CMPUT 396 software to solve puzzles and play games.
 
 ### Quick Start (Puzzles)
 
 #### Common Steps
 
-* Create a new virtual environment and activate the environment
+* (optional?) Create a new virtual environment and activate the environment
 ```bash
 virtualenv -p python3 venv
 source venv/bin/activate
@@ -16,7 +14,7 @@ source venv/bin/activate
 
 #### Python Shell Interface
 
-* Navigate to the **lib** directory and install the requirements
+* (optional?) Navigate to the **lib** directory and install the requirements
 ```bash
 cd lib
 pip install -r requirements.txt
@@ -24,16 +22,17 @@ pip install -r requirements.txt
 
 ## Contents
 
-### Games
-
-
-- Hex
-
-
 ### Puzzles
 
+- Maze traversal
 - Sliding tiles
-- Maze
+
+### Games
+
+- Tic-tac-toe
+- Nim
+- Hex
+- Go
 
 
 ### Algorithms
@@ -51,9 +50,10 @@ pip install -r requirements.txt
 ### Prerequisites
 
 - A Python3 interpreter (both *CPython* and *PyPy* are supported)
-<!-- TODO - FFI (`libffi-dev`)? -->
 - `virtualenv` (Optional)
-- `make` (Optional)
+- `make` (Optional) 
+
+<!-- TODO - FFI (`libffi-dev`)? -->
 
 
 ### Procedure
@@ -70,33 +70,64 @@ pip install -r requirements.txt
 
 - Run tests with `make test` in the project root or `lib`.
 
-<!-- TODO Rework this with information on how to run all executables -->
-<!-- * Run the `main.py` within the **ui** directory
+
+## How to run programs
+
+### how to run the game-text-protocol using command-line-interface
+
+For Hex and tic-tac-toe. To see usage run:
+
 ```bash
-python3 games_puzzles_algorithms/ui/main.py
-# full version
-python3 games_puzzles_algorithms/ui/main.py --puzzle maze --search A*
-# alternatively
-python3 games_puzzles_algorithms/ui/main.py --puzzle sliding_tile --search A*
+bin/gpa-games-cli -h
 ```
 
+Example usage (here, Hex with the MCTS agent):
 
-#### Flask Web Application
-
-* Navigate to the **web** directory and install the requirements
 ```bash
-cd web
-pip install -r requirements.txt
-# alternatively, ensure the games-puzzles-algorithms is installed
-# and only install flask
+bin/gpa-games-cli hex mcts
 ```
 
-* Run the `app.py` within the **web/puzzles** directory
-    * Within your web browser, navigate to [localhost:5000](http://localhost:5000).
+Then, type help to get a list of available commands.
+
+### Puzzles CLI
+
+For sliding tile puzzles. To see usage run:
 
 ```bash
-python3 puzzles/app.py
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
- ```
+bin/gpa-puzzles-cli -h
+```
 
-``` -->
+Example usage (solvable sliding tile with A*):
+
+```bash
+bin/gpa-puzzles-cli solvable_sliding_tile "A*"
+```
+
+Then, type help to get a list of available commands.
+
+### Web GUI
+
+For hex:
+```bash
+python3 web/hex/application.py
+```
+
+For puzzles:
+```bash
+python3 web/puzzles/application.py
+```
+
+Then, visit http://127.0.0.1:5000/ in your browser to access the GUI.
+
+### Tournament
+
+Help:
+```bash
+python3 tournament/play_tournament.py -h
+```
+
+Example usage (MCTS hex player versus random hex player):
+
+```bash
+python3 tournament/play_tournament.py "bin/gpa-games-cli hex mcts" "bin/gpa-games-cli hex random"
+```
