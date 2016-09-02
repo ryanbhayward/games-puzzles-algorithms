@@ -134,34 +134,3 @@ For example, to play the MCTS hex player against the random hex player:
 ```bash
 python3 tournament/play_tournament.py "bin/gpa-games-cli hex mcts" "bin/gpa-games-cli hex random"
 ```
-
-<!-- TODO Rework this with information on how to run all executables -->
-<!-- * Run the `main.py` within the **ui** directory
-```bash
-python3 games_puzzles_algorithms/ui/main.py
-# full version
-python3 games_puzzles_algorithms/ui/main.py --puzzle maze --search A*
-# alternatively
-python3 games_puzzles_algorithms/ui/main.py --puzzle sliding_tile --search A*
-```
-
-
-#### Flask Web Application
-
-* Navigate to the **web** directory and install the requirements
-```bash
-cd web
-pip install -r requirements.txt
-# alternatively, ensure the games-puzzles-algorithms is installed
-# and only install flask
-```
-
-* Run the `app.py` within the **web/puzzles** directory
-    * Within your web browser, navigate to [localhost:5000](http://localhost:5000).
-
-```bash
-python3 puzzles/app.py
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
- ```
-
-``` -->
