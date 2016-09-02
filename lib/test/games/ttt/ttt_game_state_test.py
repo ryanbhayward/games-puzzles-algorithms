@@ -281,6 +281,16 @@ def test_anti_diagonal_win_k_in_a_row():
     assert_X_wins(patient)
 
 
+def test_anti_diagonal_win_k_in_a_row_downwards():
+    patient = GameState(3, 4, 2)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 1))
+    patient.play(patient._spaces.index(0, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 2))
+    assert_X_wins(patient)
+
+
 def test_heuristic():
     patient = GameState(3)
     assert patient.heuristic(0) == 0
