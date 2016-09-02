@@ -70,6 +70,55 @@ pip install -r requirements.txt
 
 - Run tests with `make test` in the project root or `lib`.
 
+
+## Running
+
+### Go text protocol games CLI
+
+For Hex and tic-tac-toe. To see usage run:
+
+```bash
+bin/gpa-games-cli -h
+```
+
+For example, to run Hex with the MCTS agent:
+
+```bash
+bin/gpa-games-cli hex mcts
+```
+
+Then, type help to get a list of available commands.
+
+### Puzzles CLI
+
+For sliding tile puzzles. To see usage run:
+
+```bash
+bin/gpa-puzzles-cli -h
+```
+
+Example usage:
+
+```bash
+bin/gpa-puzzles-cli solvable_sliding_tile "A*"
+```
+
+Then, type help to get a list of available commands.
+
+### Web GUI
+
+For hex:
+```bash
+python3 web/hex/application.py
+```
+
+For puzzles:
+```bash
+python3 web/puzzles/application.py
+```
+
+Then, visit http://127.0.0.1:5000/ in your browser to access the GUI.
+
 <!-- TODO Rework this with information on how to run all executables -->
 <!-- * Run the `main.py` within the **ui** directory
 ```bash
