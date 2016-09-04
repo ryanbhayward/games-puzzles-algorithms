@@ -15,10 +15,8 @@ class Board:
     def printHeap(self):
         print("Num of heaps left: {}".format(self.heapNum))
         print("items in heaps :")
-        i = 1
-        for a in self.heap:
-            print("heap {} : {}".format(i, a))
-            i += 1
+        for i, a in enumerate(self.heap):
+            print("heap {} : {}".format(i + 1, a))
 
     def makeMove(self, row, num):
         a = self.heap[row]
@@ -70,14 +68,12 @@ class Board:
         # make the winning move
         else:
             s = self.nimSum()
-            i = 0
-            for row in self.heap:
+            for i, row in enumerate(self.heap):
                 x = s ^ row
                 if x < row:
                     x = row ^ s
                     self.makeMove(i, row - x)
                     break
-                i += 1
 
         if self.isItEnd():
             print("YOU LOST")
