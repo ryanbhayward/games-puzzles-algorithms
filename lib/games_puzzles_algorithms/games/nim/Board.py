@@ -10,11 +10,11 @@ class Board:
     heap = [1, 2, 3, 4, 5]
 
     def __init__(self):
-        print("board initialized")
+        print("Board Initialized")
 
     def print_heap(self):
-        print("Num of heaps left: {}".format(self.heap_num))
-        print("items in heaps :")
+        print("Number of heaps left: {}".format(self.heap_num))
+        print("Items in heaps :")
         for i, a in enumerate(self.heap):
             print("heap {} : {}".format(i + 1, a))
 
@@ -41,8 +41,8 @@ class Board:
         return result
 
     def user_move(self):
-        row, num = input("Enter row and num of items you want to take "
-                         "separated with space ex.(1 2):  ").split()
+        row, num = input("Enter row and number of items you want to take "
+                         "separated with a space ex.(1 2):  ").split()
 
         row, num = int(row) - 1, int(num)
 
@@ -92,7 +92,7 @@ class Board:
         if self.nim_sum() == 0:
             return "Next player to play has a winning move"
         else:
-            return "current player has a winning move"
+            return "Current player has a winning move"
 
     def board_reset(self, heap):
         self.heap = heap
