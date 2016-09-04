@@ -109,7 +109,8 @@ class WinDetector(object):
     def _iter_anti_diagonal(self, row, column):
         """Iterate along an anti-diagonal starting at the given coordinate."""
         row_difference = self._num_rows - row
-        for i in range(min(row_difference, column)):
+
+        for i in range(min(row_difference, column + 1)):
             yield(row + i, column - i)
 
     def row_count(self, row):

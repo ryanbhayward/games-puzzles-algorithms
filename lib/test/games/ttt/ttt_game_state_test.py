@@ -243,6 +243,40 @@ def test_win_detection():
     assert_O_wins(patient)
 
 
+def test_win_detection_full_game():
+    patient = GameState(3, 3, 3)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(2, 2))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(2, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(2, 0))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 0))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 2))
+    assert_O_wins(patient)
+
+
+def test_win_detection_full_game2():
+    patient = GameState(3, 3, 3)
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(2, 0))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(1, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(2, 1))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(2, 2))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 2))
+    assert_no_winner(patient)
+    patient.play(patient._spaces.index(0, 0))
+    assert_O_wins(patient)
+
+
 def test_row_win_k_in_a_row():
     patient = GameState(3, 4, 2)
     assert_no_winner(patient)
