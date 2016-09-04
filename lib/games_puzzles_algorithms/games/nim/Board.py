@@ -2,14 +2,14 @@ import random
 
 
 class Board:
-    """
-    Manually set up board here.
-    any size you want
-    """
-    num_heaps = 5
-    heap = [1, 2, 3, 4, 5]
+    def __init__(self, heap=None, num_heaps=5):
+        if heap is None:
+            self.num_heaps = num_heaps
+            self.heap = [i + 1 for i in range(num_heaps)]
+        else:
+            self.num_heaps = len(heap)
+            self.heap = heap
 
-    def __init__(self):
         print("Board Initialized")
 
     def print_heap(self):
