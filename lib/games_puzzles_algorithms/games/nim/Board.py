@@ -62,7 +62,7 @@ class Board:
             print("WRONG ROW TRY AGAIN")
             self.user_move()
 
-        if self.is_it_end():
+        if self.is_game_over():
             print("YOU WIN")
 
     def computer_move(self):
@@ -85,10 +85,10 @@ class Board:
                     self.make_move(i, row - x)
                     break
 
-        if self.is_it_end():
+        if self.is_game_over():
             print("YOU LOST")
 
-    def is_it_end(self):
+    def is_game_over(self):
         return all(z == 0 for z in self.heap)
 
     def who_has_wins(self):
