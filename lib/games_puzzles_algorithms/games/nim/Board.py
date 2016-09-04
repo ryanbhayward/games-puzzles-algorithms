@@ -42,7 +42,8 @@ class Board:
         num = self.nimSum()
 
     def userMove(self):
-        row, num = input("Enter row and num of items you want to take separated with space ex.(1 2):  ").split()
+        row, num = input("Enter row and num of items you want to take "
+                         "separated with space ex.(1 2):  ").split()
         row, num = int(row)-1,int(num)
         #handles input here
         try:
