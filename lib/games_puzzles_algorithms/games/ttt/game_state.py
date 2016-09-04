@@ -138,7 +138,8 @@ class WinDetector(object):
         for r, c in iterator(row, column):
             # A zero run-length indicates no piece in this cell.
             if state[r, c] == 0:
-                break
+                run_length = 1
+                continue
 
             state[r, c] = run_length
             run_length += 1
