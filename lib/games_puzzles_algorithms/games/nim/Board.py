@@ -88,7 +88,7 @@ class Board:
     def is_game_over(self):
         return all(z == 0 for z in self.heap)
 
-    def who_has_wins(self):
+    def who_has_win(self):
         if self.nim_sum() == 0:
             return "Next player to play has a winning move"
         else:
