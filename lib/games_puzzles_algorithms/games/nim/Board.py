@@ -88,7 +88,7 @@ class Board:
     def whoHasWins(self):
         if (self.nimSum() == 0):
             return "Next player to play has a winning move"
-        else
+        else:
             return "current player has a winning move"
 
     def boardReset(self, Heap):
