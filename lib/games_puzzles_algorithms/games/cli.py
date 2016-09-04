@@ -180,6 +180,12 @@ class Cli(Cmd, object):
 
     do_clear = do_clear_board
 
+    def _handle_no_move_action(self):
+        next_player = self.game.state.player_to_act()
+        self.game.state.set_player_to_act(self.game.opponent(next_player))
+
+        return (True, "")
+
     def do_play(self, arg_string, opts=None):
         """Play a stone of a given colour in a given cell.
 
@@ -190,7 +196,11 @@ class Cli(Cmd, object):
         args = arg_string.split(' ')
         try:
             ui_action = args[0].strip()
-            action = self.game.ui_action_to_action(ui_action)
+
+            if ui_action in ["pass", "resign"]:
+                return self._handle_no_move_action()
+            else:
+                action = self.game.ui_action_to_action(ui_action)
         except Exception as e:
             return (False,
                     "Unable to interpret action, \"{}\": {}".format(ui_action,
