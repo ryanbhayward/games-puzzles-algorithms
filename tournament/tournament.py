@@ -105,15 +105,18 @@ class Tournament(object):
             self._notify_players(move, player_index)
             player_index = self._next_player(player_index)
 
-        (winner, _) = player.final_score()
+        if self._player_has_resigned:
+            winner = player.player_to_move()
+        else:
+            (winner, score) = player.final_score()
 
-        # We currently make the assumption that wins are detected immediately
-        # by both players, and thus the last player to act is the winner if a
-        # draw has not occurred.
+        if winner == '0':
+            self._logger.debug('Round ends in a draw.')
+        else:
+            self._logger.debug('{} wins round {} as {}'.format(player,
+                                                               self._round,
+                                                               winner))
         self._results.increment_win_count(str(player), winner)
-        self._logger.debug('{} wins round {} as {}'.format(player, self._round,
-                                                           winner))
-
         self._round += 1
 
     def play_tournament(self):
