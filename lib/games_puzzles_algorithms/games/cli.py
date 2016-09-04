@@ -213,8 +213,18 @@ class Cli(Cmd, object):
                     "Unable to take action, \"{}\", ({}): {}".format(ui_action,
                                                                      action,
                                                                      str(e)))
-
         return (True, ui_action)
+
+    def _take_terminal_action(self, player):
+        """
+        Determine whether to resign or pass for the given player, returning a
+        GTP status containing the result.
+        """
+        self.game.state.set_player_to_act(self.game.opponent(player))
+        if self.game.state.score(player) < 0:
+            return (True, "resign")
+        else:
+            return (True, "pass")
 
     def do_genmove(self, args, opts=None):
         """Allow the agent to play a stone of the given colour (white/w or
@@ -228,6 +238,11 @@ class Cli(Cmd, object):
                 return (False, "Unrecognized player, \"{}\"".format(ui_player))
             else:
                 self.game.state.set_player_to_act(player)
+
+        if self.game.state.is_terminal():
+            next_player = self.game.state.player_to_act()
+            return self._take_terminal_action(next_player)
+
         try:
             action = self.agent.select_action(
                 deepcopy(self.game.state),
