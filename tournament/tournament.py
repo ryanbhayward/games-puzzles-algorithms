@@ -57,6 +57,10 @@ class Tournament(object):
         for player in self._players:
             player.configure(size=self._size, time_limit=self._time_limit)
 
+    def _initialize_round(self):
+        for player in self._players:
+            player.clear()
+
     def _round_finished(self):
         """Ask if players agree the game is finished."""
         return all(p.game_finished() for p in self._players)
@@ -78,9 +82,7 @@ class Tournament(object):
 
     def _play_round(self, first_to_play):
         """Play a single round of a tournament."""
-        for player in self._players:
-            player.clear()
-
+        self._initialize_round()
         player_index = first_to_play
 
         while not self._round_finished():
