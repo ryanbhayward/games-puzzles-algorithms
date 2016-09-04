@@ -6,14 +6,14 @@ class Board:
     Manually set up board here.
     any size you want
     """
-    heap_num = 5
+    num_heaps = 5
     heap = [1, 2, 3, 4, 5]
 
     def __init__(self):
         print("Board Initialized")
 
     def print_heap(self):
-        print("Number of heaps left: {}".format(self.heap_num))
+        print("Number of heaps left: {}".format(self.num_heaps))
         print("Items in heaps :")
         for i, a in enumerate(self.heap):
             print("heap {} : {}".format(i + 1, a))
@@ -23,7 +23,7 @@ class Board:
 
         if a == num:
             self.heap.pop(row)
-            self.heap_num -= 1
+            self.num_heaps -= 1
         else:
             a = a - num
             self.heap[row] = a
@@ -67,7 +67,7 @@ class Board:
 
         # no winning move, make a random move
         if self.nim_sum() == 0:
-            row = random.randint(0, self.heap_num - 1)
+            row = random.randint(0, self.num_heaps - 1)
             num = random.randint(1, self.heap[row])
             self.make_move(row, num)
 
@@ -96,4 +96,4 @@ class Board:
 
     def board_reset(self, heap):
         self.heap = heap
-        self.heap_num = len(heap)
+        self.num_heaps = len(heap)
