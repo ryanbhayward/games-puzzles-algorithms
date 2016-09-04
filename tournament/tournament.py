@@ -88,8 +88,14 @@ class Tournament(object):
         self._initialize_round()
         player_index = first_to_play
 
+        player_mapping = {}
+
         while not self._round_finished():
             player = self._players[player_index]
+
+            if player not in player_mapping.values():
+                player_mapping[player.player_to_move()] = player
+
             move = player.play()
 
             self._logger.debug('{} plays {}\n{}'.format(player, move,
@@ -112,11 +118,14 @@ class Tournament(object):
 
         if winner == '0':
             self._logger.debug('Round ends in a draw.')
+            self._results.increment_win_count('', winner)
         else:
-            self._logger.debug('{} wins round {} as {}'.format(player,
+            winning_player = player_mapping[winner]
+            self._logger.debug('{} wins round {} as {}'.format(winning_player,
                                                                self._round,
                                                                winner))
-        self._results.increment_win_count(str(player), winner)
+            self._results.increment_win_count(winning_player, winner)
+
         self._round += 1
 
     def play_tournament(self):
