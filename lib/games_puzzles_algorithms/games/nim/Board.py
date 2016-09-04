@@ -57,7 +57,8 @@ class Board:
         except:
             print("WRONG ROW TRY AGAIN")
             self.userMove()
-        if self.isItEnd(): print("YOU WIN")
+        if self.isItEnd():
+            print("YOU WIN")
 
     def computerMove(self):
         print("Now it's my turn")
@@ -78,7 +79,8 @@ class Board:
                     break
                 i += 1
 
-        if self.isItEnd(): print("YOU LOST")
+        if self.isItEnd():
+            print("YOU LOST")
 
     def isItEnd(self):
         return all(z == 0 for z in self.heap)
