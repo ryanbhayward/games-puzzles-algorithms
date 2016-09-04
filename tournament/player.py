@@ -88,6 +88,9 @@ class Player(object):
     def _board(self):
         return self._cmd('showboard')
 
+    def _player_to_move(self):
+        return self._cmd('player_to_move')
+
     def configure(self, size=None, time_limit=None):
         if size is not None:
             self._set_size(size)
@@ -125,6 +128,9 @@ class Player(object):
 
     def board(self):
         return self._board()
+
+    def player_to_move(self):
+        return self._player_to_move()
 
     def __str__(self):
         return '{}-{}'.format(self._name(), self._process.pid)
