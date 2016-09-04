@@ -20,20 +20,24 @@ class Board:
 
     def makeMove(self, row, num):
         a = self.heap[row]
+
         if a == num:
             self.heap.pop(row)
             self.heapNum -= 1
         else:
             a = a - num
             self.heap[row] = a
+
         print("Removed {} items from heap {}, now the board looks like "
               "this:".format(num, row + 1))
         self.printHeap()
 
     def nimSum(self):
         result = 0
+
         for a in self.heap:
             result = result ^ a
+
         return result
 
     def winningHeap(self):
@@ -42,7 +46,9 @@ class Board:
     def userMove(self):
         row, num = input("Enter row and num of items you want to take "
                          "separated with space ex.(1 2):  ").split()
+
         row, num = int(row) - 1, int(num)
+
         # handles input here
         try:
             if row <= -1:
@@ -55,21 +61,26 @@ class Board:
         except:
             print("WRONG ROW TRY AGAIN")
             self.userMove()
+
         if self.isItEnd():
             print("YOU WIN")
 
     def computerMove(self):
         print("Now it's my turn")
+
         # no winning move, make a random move
         if self.nimSum() == 0:
             row = random.randint(0, self.heapNum - 1)
             num = random.randint(1, self.heap[row])
             self.makeMove(row, num)
+
         # make the winning move
         else:
             s = self.nimSum()
+
             for i, row in enumerate(self.heap):
                 x = s ^ row
+
                 if x < row:
                     x = row ^ s
                     self.makeMove(i, row - x)
