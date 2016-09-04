@@ -40,9 +40,6 @@ class Board:
 
         return result
 
-    def winning_heap(self):
-        num = self.nim_sum()
-
     def user_move(self):
         row, num = input("Enter row and num of items you want to take "
                          "separated with space ex.(1 2):  ").split()
