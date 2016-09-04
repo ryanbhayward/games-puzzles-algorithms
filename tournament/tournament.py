@@ -58,12 +58,15 @@ class Tournament(object):
             player.configure(size=self._size, time_limit=self._time_limit)
 
     def _initialize_round(self):
+        self._player_has_resigned = False
+        self._consecutive_passes = 0
+
         for player in self._players:
             player.clear()
 
     def _round_finished(self):
         """Ask if players agree the game is finished."""
-        return all(p.game_finished() for p in self._players)
+        return self._player_has_resigned or self._consecutive_passes > 1
 
     def _notify_players(self, move, skip_index):
         """
@@ -91,6 +94,13 @@ class Tournament(object):
 
             self._logger.debug('{} plays {}\n{}'.format(player, move,
                                                         player.board()))
+
+            if move == 'resign':
+                self._player_has_resigned = True
+            elif move == 'pass':
+                self._consecutive_passes += 1
+            else:
+                self._consecutive_passes = 0
 
             self._notify_players(move, player_index)
             player_index = self._next_player(player_index)
