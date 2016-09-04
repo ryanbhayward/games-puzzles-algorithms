@@ -47,15 +47,16 @@ class Board:
         row, num = int(row)-1,int(num)
         #handles input here
         try:
-                if row <= -1: raise
-                if num>0 and num<=self.heap[row]:
-                        self.makeMove(row,num)
-                else:
-                        print ("WRONG NUMBER TRY AGAIN")
-                        self.userMove()
-        except:
-                print ("WRONG ROW TRY AGAIN")
+            if row <= -1:
+                raise
+            if num>0 and num<=self.heap[row]:
+                self.makeMove(row,num)
+            else:
+                print ("WRONG NUMBER TRY AGAIN")
                 self.userMove()
+        except:
+            print ("WRONG ROW TRY AGAIN")
+            self.userMove()
         if self.isItEnd(): print ("YOU WIN")
 
     def computerMove(self):
