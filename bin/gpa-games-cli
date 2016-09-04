@@ -7,7 +7,7 @@ from datetime import datetime
 from games_puzzles_algorithms.games.hex.game_state \
     import GameState as HexGameState
 from games_puzzles_algorithms.games.hex.color \
-    import COLOR_SYMBOLS, color_to_player, COLORS
+    import COLOR_SYMBOLS, color_to_player, COLORS, next_player
 
 from games_puzzles_algorithms.games.ttt.game_state \
     import GameState as TttGameState
@@ -76,6 +76,9 @@ class HexCliGameState(UiGameState):
         else:
             raise('Unrecognized player, "{}"'.format(ui_player))
 
+    def opponent(self, player):
+        return next_player(player)
+
     def reset_state(self):
         self.state.reset()
 
@@ -105,6 +108,9 @@ class TttCliGameState(UiGameState):
 
     def ui_player_to_player(self, ui_player):
         return TttBoardValues[ui_player.upper()]
+
+    def opponent(self, player):
+        return TttBoardValues(player).opponent()
 
     def reset_state(self):
         self.state.reset()
