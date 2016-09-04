@@ -13,11 +13,11 @@ class Board:
         print("board initialized")
 
     def printHeap(self):
-        print("Num of heaps left:" + str(self.heapNum))
+        print("Num of heaps left: {}".format(self.heapNum))
         print("items in heaps :")
         i = 1
         for a in self.heap:
-            print ("heap " + str(i) +" : "+str(a))
+            print ("heap {} : {}".format(i, a))
             i+=1
 
     def makeMove(self,row,num):
@@ -28,8 +28,8 @@ class Board:
         else:
             a = a- num
             self.heap[row] = a
-        print("Removed "+str(num) +" items from heap "+str(row+1)+", now the board looks like this:")
-
+        print("Removed {} items from heap {}, now the board looks like "
+              "this:".format(num, row + 1))
         self.printHeap()
 
     def nimSum(self):
