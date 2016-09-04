@@ -47,7 +47,8 @@ class Cli(Cmd, object):
             'analyze',
             'valid',
             'player_to_move',
-            'ls'
+            'ls',
+            'undo'
         ])
 
     def __init__(self, game, agent):
@@ -276,4 +277,8 @@ class Cli(Cmd, object):
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""
+        return (True, "")
+
+    def do_undo(self, arg, opts=None):
+        self.game.state.undo()
         return (True, "")
