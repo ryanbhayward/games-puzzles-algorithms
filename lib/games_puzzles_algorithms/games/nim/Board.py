@@ -93,7 +93,7 @@ class Board:
         return all(z == 0 for z in self.heap)
 
     def whoHasWins(self):
-        if (self.nimSum() == 0):
+        if self.nimSum() == 0:
             return "Next player to play has a winning move"
         else:
             return "current player has a winning move"
