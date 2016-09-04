@@ -2,12 +2,12 @@ import Board
 
 
 b = Board.Board()
-b.printHeap()
+b.print_heap()
 
-while not b.isItEnd():
-    b.userMove()
+while not b.is_it_end():
+    b.user_move()
 
-    if b.isItEnd():
+    if b.is_it_end():
         break
 
-    b.computerMove()
+    b.computer_move()
