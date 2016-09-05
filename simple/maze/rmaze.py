@@ -27,8 +27,8 @@ class Maze:
       for line in self.lines:
         assert((line[0]==wall_ch and (line[self.cols-1]==wall_ch)))
         # top and bottom of maze must be solid wall
-      for j in self.lines[0]: assert(j == wall_ch) # left wall not solid
-      for j in self.lines[self.rows-1]: assert(j == wall_ch) # rt wall not solid
+      for j in self.lines[0]: assert(j == wall_ch) # left wall must be solid
+      for j in self.lines[self.rows-1]: assert(j == wall_ch) # rt wall must be solid
 
   def showpretty(self):
     for line in self.lines:
