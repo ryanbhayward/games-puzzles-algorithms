@@ -1,5 +1,5 @@
 # simple program to illustrate bfs, dfs maze traversal  (RBH+Noah 2016)
-from collections import deque
+from collections import deque # double-ended queue, can pop from either end
 from random import shuffle
 from time import sleep
 from sys import stdin
@@ -57,7 +57,8 @@ class Maze:
     fringe = deque()  # the empty cells we encounter
     fringe.append(psn)
     while len(fringe) > 0:
-      psn = fringe.pop() # what if we change to fringe.popleft() ?
+      psn = fringe.pop() # pop from end, FILO, so queue, so BFS
+                         # what if we change to fringe.popleft() ?
       if self.char_at(psn)!=orgn_ch:
         self.mark_location(psn,done_ch)
         self.showpretty()
