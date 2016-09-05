@@ -4,11 +4,18 @@ from random import shuffle
 from time import sleep
 from sys import stdin
 
+# we represent a maze as a list of strings, one for each row
+# you can think of this as a 2-dimensional Cartesian map,
+#   where each cell is either wall, empty, origin, or destination
+# we will use an extra character to mark the current cell
+#   as we wander randomly thru the maze, seeking the destination
 wall_ch = 'X'  # maze wall
 empt_ch = ' '  # maze empty space, not yet seen
 orgn_ch = '+'  # traversal origin
 dest_ch = '!'  # traversal destination
 curr_ch = '?'  # current cell
+# here are the Cartesian shifts that give us a cell's neighbours
+#   1st position is row index, 2nd psn is column index
 nbr_offsets = [(0,-1), (0,1), (-1,0), (1,0)]
 
 def newstring(s,index,ch):  # replace character in string
@@ -45,6 +52,7 @@ class Maze:
     assert(False) # did not find orgn_ch
 
   def char_at(self,psn): # the character at this position
+    # psn[0] is the row index   psn[1] is the column index
     s = self.lines[psn[0]]
     return s[psn[1]]
 
@@ -52,24 +60,25 @@ class Maze:
     self.lines[psn[0]] = newstring(self.lines[psn[0]],psn[1],ch)
 
   def rwander(self,psn): # recursive random walk
-    if self.char_at(psn) == empt_ch:
+    if self.char_at(psn) == empt_ch:  # mark current cell if empty
       self.mark_location(psn,curr_ch)
-    self.showpretty()
-    shuffle(nbr_offsets)
+    self.showpretty() # print maze, so we can watch the traversal
+    shuffle(nbr_offsets)  # we consider neighbours in random order
     for shift in nbr_offsets:
       new_psn = psn[0]+shift[0], psn[1]+shift[1]
-      new_ch = self.char_at(new_psn)
-      if new_ch == dest_ch:
+      new_ch = self.char_at(new_psn) # look at the char at new_psn
+      if new_ch == dest_ch:          # are we done ?
         return new_psn
-      elif new_ch != wall_ch:
+      elif new_ch != wall_ch:        # if not, and not at a wall...
         if self.char_at(psn) == curr_ch:
           self.mark_location(psn,empt_ch)
-        rec = self.rwander(new_psn)
-        if rec is not None:
-          return rec
+        rec = self.rwander(new_psn)  # recursively traverse from new_psn
+        if rec is not None:          # did recursive call find exit?
+          return rec                 #   if yes, rwander(self,psn) terminates
+                                     #   if no, execution returns to for loop
 
-maze = Maze()
-maze.showpretty()
-startpsn = maze.find_start()
-psn = maze.rwander(startpsn)
-print('finish at location',psn)
+maze = Maze() # Maze() calls __init__(maze) of class Maze
+maze.showpretty() # print the initial maze
+startpsn = maze.find_start() # scan the maze to find the origin location
+psn = maze.rwander(startpsn) # return the value found by recursive wandering
+print('finish at location',psn) # print the destination location
