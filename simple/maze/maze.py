@@ -58,8 +58,8 @@ class Maze:
     fringe.append(psn)
     while len(fringe) > 0:
       # comment out one of these two lines
-      #psn = fringe.pop() # pop from end, FIFO, stack, so DFS
-      psn = fringe.popleft() # pop from front, FIFO, queue, so BFS
+      psn = fringe.pop() # pop from end of list, LIFO, stack, so DFS
+      #psn = fringe.popleft() # pop from front, FIFO, queue, so BFS
       if self.char_at(psn)!=orgn_ch:
         self.mark_location(psn,done_ch)
         self.showpretty()
@@ -69,7 +69,7 @@ class Maze:
         new_ch = self.char_at(new_psn)
         if new_ch == dest_ch: return new_psn
         elif new_ch == empt_ch: 
-          fringe.append(new_psn)
+          fringe.append(new_psn)  # append to end of list
           self.mark_location(new_psn,seen_ch)
           self.showpretty()
 
