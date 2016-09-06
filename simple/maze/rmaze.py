@@ -78,7 +78,6 @@ class Maze:
                                      #   if no, execution returns to for loop
 
 maze = Maze() # Maze() calls __init__(maze) of class Maze
-maze.showpretty() # print the initial maze
 startpsn = maze.find_start() # scan the maze to find the origin location
 psn = maze.rwander(startpsn) # return the value found by recursive wandering
 print('finish at location',psn) # print the destination location

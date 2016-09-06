@@ -37,7 +37,7 @@ class Maze:
         print(x,' ',end='') # add spaces for readability
       print('')
     print('') 
-    sleep(.3)
+    sleep(1)
 
   def find_start(self):
     for r in range(self.rows):
@@ -57,8 +57,9 @@ class Maze:
     fringe = deque()  # the empty cells we encounter
     fringe.append(psn)
     while len(fringe) > 0:
-      psn = fringe.pop() # pop from end, FILO, so queue, so BFS
-                         # what if we change to fringe.popleft() ?
+      # comment out one of these two lines
+      #psn = fringe.pop() # pop from end, FIFO, stack, so DFS
+      psn = fringe.popleft() # pop from front, FIFO, queue, so BFS
       if self.char_at(psn)!=orgn_ch:
         self.mark_location(psn,done_ch)
         self.showpretty()
