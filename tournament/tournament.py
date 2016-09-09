@@ -57,9 +57,16 @@ class Tournament(object):
         for player in self._players:
             player.configure(size=self._size, time_limit=self._time_limit)
 
+    def _initialize_round(self):
+        self._player_has_resigned = False
+        self._consecutive_passes = 0
+
+        for player in self._players:
+            player.clear()
+
     def _round_finished(self):
         """Ask if players agree the game is finished."""
-        return all(p.game_finished() for p in self._players)
+        return self._player_has_resigned or self._consecutive_passes > 1
 
     def _notify_players(self, move, skip_index):
         """
@@ -78,29 +85,46 @@ class Tournament(object):
 
     def _play_round(self, first_to_play):
         """Play a single round of a tournament."""
-        for player in self._players:
-            player.clear()
-
+        self._initialize_round()
         player_index = first_to_play
+
+        player_mapping = {}
 
         while not self._round_finished():
             player = self._players[player_index]
+
+            if player not in player_mapping.values():
+                player_mapping[player.player_to_move()] = player
+
             move = player.play()
 
             self._logger.debug('{} plays {}\n{}'.format(player, move,
                                                         player.board()))
 
+            if move == 'resign':
+                self._player_has_resigned = True
+            elif move == 'pass':
+                self._consecutive_passes += 1
+            else:
+                self._consecutive_passes = 0
+
             self._notify_players(move, player_index)
             player_index = self._next_player(player_index)
 
-        (winner, _) = player.winner()
+        if self._player_has_resigned:
+            winner = player.player_to_move()
+        else:
+            (winner, score) = player.final_score()
 
-        # We currently make the assumption that wins are detected immediately
-        # by both players, and thus the last player to act is the winner if a
-        # draw has not occurred.
-        self._results.increment_win_count(str(player), winner)
-        self._logger.debug('{} wins round {} as {}'.format(player, self._round,
-                                                           winner))
+        if winner == '0':
+            self._logger.debug('Round ends in a draw.')
+            self._results.increment_win_count('', winner)
+        else:
+            winning_player = player_mapping[winner]
+            self._logger.debug('{} wins round {} as {}'.format(winning_player,
+                                                               self._round,
+                                                               winner))
+            self._results.increment_win_count(winning_player, winner)
 
         self._round += 1
 

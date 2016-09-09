@@ -109,7 +109,8 @@ class WinDetector(object):
     def _iter_anti_diagonal(self, row, column):
         """Iterate along an anti-diagonal starting at the given coordinate."""
         row_difference = self._num_rows - row
-        for i in range(min(row_difference, column)):
+
+        for i in range(min(row_difference, column + 1)):
             yield(row + i, column - i)
 
     def row_count(self, row):
@@ -138,7 +139,8 @@ class WinDetector(object):
         for r, c in iterator(row, column):
             # A zero run-length indicates no piece in this cell.
             if state[r, c] == 0:
-                break
+                run_length = 1
+                continue
 
             state[r, c] = run_length
             run_length += 1
@@ -404,13 +406,6 @@ class GameState(Board):
         # `action` has automatically be undone.
         """
         self.undo()
-
-    def cell_index(self, row, column):
-        return super().cell_index(row, column)
-
-    def row(self, index): return self._board.row(index)
-
-    def column(self, index): return self._board.column(index)
 
     def legal_actions(self):
         return [] if self.is_terminal() else super().empty_spaces()

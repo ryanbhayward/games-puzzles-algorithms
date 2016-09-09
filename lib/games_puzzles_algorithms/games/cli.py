@@ -43,11 +43,12 @@ class Cli(Cmd, object):
             'showboard',
             'clear',
             'time',
-            'winner',
+            'final_score',
             'analyze',
             'valid',
-            'turn',
-            'ls'
+            'player_to_move',
+            'ls',
+            'undo'
         ])
 
     def __init__(self, game, agent):
@@ -112,7 +113,7 @@ class Cli(Cmd, object):
         been played.'''
         return (True, "")
 
-    def do_turn(self, arg, opts=None):
+    def do_player_to_move(self, arg, opts=None):
         return (True,
                 self.game.player_to_ui_player(self.game.state.player_to_act()))
 
@@ -179,6 +180,12 @@ class Cli(Cmd, object):
 
     do_clear = do_clear_board
 
+    def _handle_no_move_action(self):
+        next_player = self.game.state.player_to_act()
+        self.game.state.set_player_to_act(self.game.opponent(next_player))
+
+        return (True, "")
+
     def do_play(self, arg_string, opts=None):
         """Play a stone of a given colour in a given cell.
 
@@ -189,7 +196,11 @@ class Cli(Cmd, object):
         args = arg_string.split(' ')
         try:
             ui_action = args[0].strip()
-            action = self.game.ui_action_to_action(ui_action)
+
+            if ui_action in ["pass", "resign"]:
+                return self._handle_no_move_action()
+            else:
+                action = self.game.ui_action_to_action(ui_action)
         except Exception as e:
             return (False,
                     "Unable to interpret action, \"{}\": {}".format(ui_action,
@@ -212,8 +223,18 @@ class Cli(Cmd, object):
                     "Unable to take action, \"{}\", ({}): {}".format(ui_action,
                                                                      action,
                                                                      str(e)))
-
         return (True, ui_action)
+
+    def _take_terminal_action(self, player):
+        """
+        Determine whether to resign or pass for the given player, returning a
+        GTP status containing the result.
+        """
+        self.game.state.set_player_to_act(self.game.opponent(player))
+        if self.game.state.score(player) < 0:
+            return (True, "resign")
+        else:
+            return (True, "pass")
 
     def do_genmove(self, args, opts=None):
         """Allow the agent to play a stone of the given colour (white/w or
@@ -227,6 +248,11 @@ class Cli(Cmd, object):
                 return (False, "Unrecognized player, \"{}\"".format(ui_player))
             else:
                 self.game.state.set_player_to_act(player)
+
+        if self.game.state.is_terminal():
+            next_player = self.game.state.player_to_act()
+            return self._take_terminal_action(next_player)
+
         try:
             action = self.agent.select_action(
                 deepcopy(self.game.state),
@@ -260,8 +286,8 @@ class Cli(Cmd, object):
     def do_time(self, args, opts=None):
         return (True, str(self.move_time))
 
-    def do_winner(self, args, opts=None):
-        """Return the winner of the current game."""
+    def do_final_score(self, args, opts=None):
+        """Return the final_score of the current game."""
         scores = [(self.game.state.score(p), p) for p in range(2)]
 
         if any(s is None for (s, _) in scores):
@@ -276,4 +302,8 @@ class Cli(Cmd, object):
 
     def do_analyze(self, arg, opts=None):
         """Added to avoid crashing with GTP tools but not yet implemented."""
+        return (True, "")
+
+    def do_undo(self, arg, opts=None):
+        self.game.state.undo()
         return (True, "")
