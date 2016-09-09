@@ -13,9 +13,9 @@ class SlidingTilePuzzle(object):
     successive rows below that from left to right, beginning with tile number 1
     in the space one to the right of the blank and ending with the highest
     numbered tile in the bottom right corner.
-    
+
     A completed 3 x 3 puzzle:
-    B 1 2
+    _ 1 2
     3 4 5
     6 7 8
     """
@@ -28,7 +28,7 @@ class SlidingTilePuzzle(object):
         """
         Initialize a square sliding tile puzzle with size tiles per side.
         The opptional seed argument is used to seed the random number generator
-        for randomizing the initial puzzle layerout if it is set, 
+        for randomizing the initial puzzle layerout if it is set,
         so the same puzzle can be generated repeatedly by setting the same seed.
         """
 
@@ -42,7 +42,7 @@ class SlidingTilePuzzle(object):
         self.puzzle = list(range(self.size1 * self.size2))
         random.shuffle(self.puzzle)
         self.puzzle = TwoDArray((self.size1, self.size2), self.puzzle)
-        
+
         self.num_correct_tiles = 0
         for i in range(self.size1):
             for j in range(self.size2):
@@ -54,13 +54,13 @@ class SlidingTilePuzzle(object):
     def is_solved(self):
         """Return True if the puzzle is solved. False otherwise."""
         return self.num_correct_tiles == self.size1 * self.size2
-    
+
     def correct_num(self, position):
         """
         Return the correct number to have at position in the solved puzzle.
         """
         return position[0] * self.size2 + position[1]
-    
+
     def correct_tile(self, num):
         """Return the correct position for num in the solved puzzle."""
         x = num % self.size2
@@ -110,7 +110,7 @@ class SlidingTilePuzzle(object):
         if self.blank_index[0] - 1 >= 0:
             moves.append(self.DIRECTIONS["down"])
         if self.blank_index[1] + 1 < self.size2:
-            moves.append(self.DIRECTIONS["left"])   
+            moves.append(self.DIRECTIONS["left"])
         if self.blank_index[1] - 1 >= 0:
             moves.append(self.DIRECTIONS["right"])
         return moves
@@ -150,11 +150,11 @@ class SlidingTilePuzzle(object):
     def equals(self, other):
         """Check if two puzzles are in the same state."""
         return self.puzzle == other.puzzle
-    
+
     def misplaced_tiles(self):
         """Return a heuristic giving the number of misplaced tiles."""
         return self.size1 * self.size2 - self.num_correct_tiles
-    
+
     def manhattan_distance(self):
         """
         Return the sum of the distances from the tiles to their goal positions.
@@ -180,7 +180,7 @@ class SlidingTilePuzzle(object):
     def __str__(self):
         """
         Return a string representation of the puzzle.
-        The blank space is represented by a letter B.
+        The blank space is represented by an underscore.
         """
         digits = len(str(self.size1 * self.size2 - 1))
         result = ["\n"]
@@ -188,7 +188,7 @@ class SlidingTilePuzzle(object):
             for j in range(self.size2):
                 if (i, j) == self.blank_index:
                     result.append(" " * (digits - 1))
-                    result.append("B")
+                    result.append("_")
                 else:
                     num = str(self.puzzle[(i, j)])
                     result.append(" " * (digits - len(num)))
