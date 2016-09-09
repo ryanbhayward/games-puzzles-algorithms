@@ -27,7 +27,7 @@ class Interface(Cmd):
         """
         Cmd.__init__(self)
         self.time_limit = 30
-        self.verbose = False
+        self.verbose = True
 
         self.size1 = 3
         self.size2 = 3
@@ -41,6 +41,7 @@ class Interface(Cmd):
         if solver in self.SOLVERS:
             self.solver_name = self.SOLVERS[solver]
             self.new_solver()
+        self.solver.set_verbose(self.verbose)
 
     def new_solver(self):
         """Create a new solver based on the current attribute values."""
@@ -179,11 +180,11 @@ class Interface(Cmd):
         args should be True or False or t or f as a string.
         """
         if args[0].lower() == 't':
-            verbose = True
+            self.verbose = True
         elif args[0].lower() == 'f':
-            verbose = False
+            self.verbose = False
         else:
             print('Error: invalid argument, should be t or f')
             return
 
-        self.solver.set_verbose(verbose)
+        self.solver.set_verbose(self.verbose)
