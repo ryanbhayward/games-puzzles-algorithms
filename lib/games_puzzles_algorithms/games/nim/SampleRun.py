@@ -1,10 +1,13 @@
 import Board
 
-b = Board.Board()
-b.printHeap()
-while (not b.isItEnd()):
-    b.userMove()
-    if(b.isItEnd()):
-        break
-    b.computerMove()
 
+b = Board.Board()
+b.print_heap()
+
+while not b.is_game_over():
+    b.user_move()
+
+    if b.is_game_over():
+        break
+
+    b.computer_move()
