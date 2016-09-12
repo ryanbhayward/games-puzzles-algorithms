@@ -125,7 +125,7 @@ class Tile:
       if nodes_this_level == 0:
         nodes_this_level = len(Fringe)
         Levels.append(nodes_this_level)
-        print('   ', iteration,"it'ns, level", len(Levels),'has',nodes_this_level,'nodes\n')
+        print(' ',iteration,'iterations, level',len(Levels),'has',nodes_this_level,'nodes')
         sleep(1)
     print('\nno solution found')
     report(iteration, Parent, Levels)
