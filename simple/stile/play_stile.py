@@ -16,6 +16,8 @@ class Tile:
     # these shifts of .state indices effect moves of the blank:
     self.LF, self.RT, self.UP, self.DN = -1, 1, -self.cols, self.cols
     self.shifts = [self.LF, self.RT, self.UP, self.DN] #left right up down
+  
+  def coord(self,x): return x // self.cols, x % self.cols
 
   def legal_shifts(self,psn):
     S = []
@@ -42,6 +44,32 @@ class Tile:
       else: outstring      +=       str(x) + ' '
       if count%self.cols == 0: outstring += '\n'
     print('\n'+outstring)
+    print('inversions', self.inversions(), 
+          ' misplaced',self.misplaced(),
+          ' taxicab', self.taxicab())
+
+  def taxicab(self):
+    total, L, n = 0, self.state, len(self.state)
+    for j in range(n):
+     if L[j] != 0: 
+       final = self.coord(L[j]-1)
+       current = self.coord(j)
+       for k in range(len(final)):
+         total += abs(final[k]-current[k])
+    return total
+
+  def inversions(self):
+    count, L, n = 0, self.state, len(self.state)
+    for x in range(n-1):
+      for y in range(x+1,n):
+        if L[x] != 0 and L[y] != 0 and L[x] > L[y] : count += 1
+    return count
+
+  def misplaced(self):
+    count, L, n = 0, self.state, len(self.state)
+    for x in range(n):
+      if L[x] != 0 and L[x] != x+1: count += 1
+    return count
 
 def get_dimensions():
   instr = input('rows columns, e.g. 5 3:  ')
