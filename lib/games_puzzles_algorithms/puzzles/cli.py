@@ -116,6 +116,10 @@ class Interface(Cmd):
     def do_show_puzzle(self, args):
         """Print a string representation of the puzzle."""
         print(self.puzzle)
+        print(self.heuristic)
+        print('time limit', self.solver.time_limit)
+        if self.verbose: print('verbose')
+        else: print('not verbose')
 
     def do_move(self, args):
         """Apply the move given by args to the puzzle."""
