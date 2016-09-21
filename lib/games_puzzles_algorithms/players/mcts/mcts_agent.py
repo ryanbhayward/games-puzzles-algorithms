@@ -94,7 +94,7 @@ class BanditNode(object):
         self.num_visits += 1
         self._avg_reward += (score - self._avg_reward) / self.num_visits
 
-        debug.log(
+        debug.log(lambda:
             {
                 'num_visits': self.num_visits,
                 'score': score,
@@ -108,7 +108,7 @@ class BanditNode(object):
                     and self.acting_player != self.parent.acting_player):
                 score = -score
 
-            debug.log(
+            debug.log(lambda:
                 {
                     'parent.is_decision_node': self.parent.is_decision_node(),
                     'parent.acting_player': self.parent.acting_player,
@@ -285,14 +285,14 @@ class MctsAgent(object):
 
         self._root.expand(root_state)
 
-        debug.log(
+        debug.log(lambda:
             {
                 'Initial search tree': self._root.info_strings_to_dict(),
                 'Time available in seconds': time_allowed_s,
                 '# iterations': num_iterations
             },
             level=logging.INFO)
-        debug.log(str(root_state), level=logging.INFO, raw=True)
+        debug.log(lambda: str(root_state), level=logging.INFO, raw=True)
 
         num_iterations_completed = 0
         time_used_s = 0
@@ -312,16 +312,16 @@ class MctsAgent(object):
             except TimeIsUp:
                 break
 
-            debug.log("Executing roll-out from (player {} is acting):"
+            debug.log(lambda:"Executing roll-out from (player {} is acting):"
                       .format(game_state.player_to_act()),
                       level=logging.INFO)
-            debug.log(str(game_state), level=logging.INFO, raw=True)
+            debug.log(lambda:str(game_state), level=logging.INFO, raw=True)
 
             rollout_results = self.roll_out(game_state, node.acting_player)
-            debug.log({'Roll-out results': rollout_results})
+            debug.log(lambda:{'Roll-out results': rollout_results})
             node.backup(**rollout_results)
 
-            debug.log(
+            debug.log(lambda:
                 {
                     'Updated search tree': self._root.info_strings_to_dict(),
                     'Seconds used': time_used_s,
@@ -332,6 +332,7 @@ class MctsAgent(object):
             for _ in range(num_actions):
                 game_state.undo()
             num_iterations_completed += 1
+
         return {'num_iterations_completed': num_iterations_completed,
                 'time_used_s': time_used_s,
                 'num_nodes_expanded': self._root.num_nodes()}

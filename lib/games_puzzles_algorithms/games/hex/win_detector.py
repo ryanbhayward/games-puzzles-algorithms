@@ -1,5 +1,5 @@
 from games_puzzles_algorithms.union_find import UnionFind
-from .color import COLORS, NUM_PLAYERS, player_to_color
+from .color import COLOR_NONE, COLOR_BLACK, COLOR_WHITE, NUM_PLAYERS, player_to_color
 from games_puzzles_algorithms.debug import log
 
 
@@ -18,7 +18,7 @@ class WinDetector(object):
         num_players = len(groups)
         self.history_of_player_groups = []
         self.current_groups = []
-        self._winner = COLORS['none']
+        self._winner = COLOR_NONE
         for player in range(num_players):
             self.history_of_player_groups.append([])
             self.current_groups.append(groups[player])
@@ -29,7 +29,7 @@ class WinDetector(object):
         return self._winner
 
     def is_terminal(self):
-        return self.winner() != COLORS['none']
+        return self.winner() != COLOR_NONE
 
     def undo(self, acting_player):
         self.current_groups[acting_player].set_from_raw(
@@ -37,7 +37,7 @@ class WinDetector(object):
                 acting_player
             ].pop()
         )
-        self._winner = COLORS['none']
+        self._winner = COLOR_NONE
 
     def update(self, board, acting_player, cell, cell_index):
         self.history_of_player_groups[acting_player].append(

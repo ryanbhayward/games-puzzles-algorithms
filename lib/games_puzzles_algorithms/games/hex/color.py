@@ -2,7 +2,9 @@ class IllegalAction(Exception):
     pass
 
 
-COLORS = {"none": 2, "white": 1, "black": 0}
+COLOR_NONE = 2
+COLOR_WHITE = 1
+COLOR_BLACK = 0
 ORIENTATION = ['row', 'column']
 COLOR_SYMBOLS = ['@', 'O', '.']
 NUM_PLAYERS = len(ORIENTATION)
