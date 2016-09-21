@@ -1,7 +1,7 @@
-# simple program to solve sliding tile; under construction
+# simple bfs program to solve sliding tile
 from collections import deque
-from random import shuffle
-from time import sleep
+#from random import shuffle
+from time import sleep, time
 from sys import stdin
 
 def int2chr(t): # nonneg int to single in '0123456789ABCDEFGHIJ...'
@@ -31,7 +31,7 @@ def pretty(s,cols,monochar): # string to printable matrix
       elif x in ' 123456789': outstr += '  ' + x         # digit
       else:                   outstr += ' ' + str(chr2int(x))   # 2 digits
     if count%cols == 0: outstr += '\n'
-  sleep(.005)
+  #sleep(.005)
   return outstr
 
 def str_swap(s,lcn,shift): # swap chars at s[lcn], s[lcn+shift]
@@ -79,8 +79,8 @@ class Tile:
     return S
 
   def bfs(self):
-    def report(i, d, L):
-      print(i,'iterations')    
+    def report(i, d, L, s):
+      print(i,'iterations',s,'seconds',i/s,'itn/s')
       print(len(d), 'states')
       print('nodes by level')
       for j in range(len(L)):  print(j, L[j])
@@ -101,21 +101,23 @@ class Tile:
     Fringe = deque() # the sliding tile states, as strings, we encounter
     Fringe.append(start)
     iteration, nodes_this_level, Levels = 0, 1, [1]
+    start_time = time()
     while len(Fringe) > 0:
       iteration +=1
       stst = Fringe.popleft() # popleft() and append() give FIFO
-      print(pretty(stst, self.cols, True))
+      #print(pretty(stst, self.cols, True))
       ndx0 = stst.index('0')
       for shift in self.legal_shifts(ndx0):
         nbr = str_swap(stst,ndx0,shift)
         if nbr == target: 
           print('found target')
           while True:  # show the sequence, backwards
-            sleep(.5)
+            #sleep(.5)
             print(pretty(stst, self.cols, True))
             p = Parent[stst]
             if p == stst: 
-              report(iteration, Parent, Levels)
+              end_time = time()
+              report(iteration, Parent, Levels, end_time-start_time)
               return
             stst = p
         elif nbr not in Parent:
@@ -126,9 +128,10 @@ class Tile:
         nodes_this_level = len(Fringe)
         Levels.append(nodes_this_level)
         print(' ',iteration,'iterations, level',len(Levels),'has',nodes_this_level,'nodes')
-        sleep(1)
+        #sleep(1)
     print('\nno solution found')
-    report(iteration, Parent, Levels)
+    end_time = time()
+    report(iteration, Parent, Levels, end_time-start_time)
 
 st = Tile()
 st.bfs()
