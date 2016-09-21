@@ -2,7 +2,7 @@ from array import array
 from heapdict import heapdict
 
 from .win_detector import WinDetector
-from .color import IllegalAction, COLORS, ORIENTATION, COLOR_SYMBOLS, \
+from .color import IllegalAction, COLOR_NONE, COLOR_BLACK, COLOR_WHITE, ORIENTATION, COLOR_SYMBOLS, \
     NUM_PLAYERS, color_to_player, next_player, player_to_color, cell_str, \
     cell_str_to_cell
 
@@ -33,7 +33,7 @@ class Board(object):
             self._dimensions.append(10)
         if len(self._dimensions) < 2:
             self._dimensions.append(self._dimensions[0])
-        self._cells = array('I', [COLORS['none']] * len(self))
+        self._cells = array('I', [COLOR_NONE] * len(self))
 
         self._actions = [[] for _ in range(NUM_PLAYERS)]
         self._empty_cells = {}
@@ -97,7 +97,7 @@ class Board(object):
     def undo(self, player):
         '''Undo `player`'s last action.'''
         action = self._actions[player].pop()
-        self._cells[action] = COLORS['none']
+        self._cells[action] = COLOR_NONE
         self._empty_cells[action] = True
         del self._my_cells[player][action]
         return action
@@ -113,7 +113,7 @@ class Board(object):
         opponent = next_player(player)
 
         # Already has a stone.
-        if self._cells[action] != COLORS["none"]:
+        if self._cells[action] != COLOR_NONE:
             raise IllegalAction(
                 ("Attempted to place for {} but collided with {} stone already"
                  " on cell {}").format(
@@ -161,13 +161,13 @@ class Board(object):
         cells = []
         if edge == self.EDGES[0]:
             for i in range(self.size()[next_player(player)]):
-                if player == COLORS["black"]:
+                if player == COLOR_BLACK:
                     cells.append((0, i))
                 else:
                     cells.append((i, 0))
         else:
             for i in range(self.size()[next_player(player)]):
-                if player == COLORS["black"]:
+                if player == COLOR_BLACK:
                     cells.append((self.size()[player] - 1, i))
                 else:
                     cells.append((i, self.size()[player] - 1))
@@ -236,11 +236,11 @@ class Board(object):
             for x in range(self.num_columns()):
                 ret += COLOR_SYMBOLS[get_color_fn(y, x)]
                 ret += ' ' * offset * 2
-            ret += COLOR_SYMBOLS[COLORS['white']]
+            ret += COLOR_SYMBOLS[COLOR_WHITE]
             ret = ret.rstrip() + "\n" + ' ' * offset * (y + 1)
         ret += (
             (' ' * (offset * 2 + 1)) +
-            (COLOR_SYMBOLS[COLORS['black']] + ' ' * offset * 2) *
+            (COLOR_SYMBOLS[COLOR_BLACK] + ' ' * offset * 2) *
             self.num_columns()
         )
         return ret.rstrip()
@@ -301,14 +301,14 @@ class GameState(object):
             num_rows = dimensions[0]
         num_columns = num_rows if len(dimensions) < 2 else dimensions[1]
         return self(
-            color_to_player(COLORS["white"]),
+            color_to_player(COLOR_WHITE),
             self.clean_board(num_rows, num_columns),
             WinDetector.root(NUM_PLAYERS)
         )
 
     def reset(self):
         """Reset the board."""
-        player = color_to_player(COLORS["white"])
+        player = color_to_player(COLOR_WHITE)
         board = self.clean_board(*self.board.size())
         win_detector = WinDetector.root(NUM_PLAYERS)
         self.__init__(player, board, self.win_detector)
@@ -371,7 +371,7 @@ class GameState(object):
                                 (self.win_detector
                                  .current_groups[self._acting_player]
                                  .copy_from_raw(original_group))
-                                self.win_detector._winner = COLORS['none']
+                                self.win_detector._winner = COLOR_NONE
                                 self._potentially_winning_moves[a] = True
                                 yield a
                             else:

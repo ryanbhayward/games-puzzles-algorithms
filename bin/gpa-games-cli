@@ -7,7 +7,7 @@ from datetime import datetime
 from games_puzzles_algorithms.games.hex.game_state \
     import GameState as HexGameState
 from games_puzzles_algorithms.games.hex.color \
-    import COLOR_SYMBOLS, color_to_player, COLORS, next_player
+    import COLOR_SYMBOLS, color_to_player, COLOR_BLACK, COLOR_WHITE, next_player
 
 from games_puzzles_algorithms.games.ttt.game_state \
     import GameState as TttGameState
@@ -67,12 +67,12 @@ class HexCliGameState(UiGameState):
         ui_player = ui_player.strip().lower()
         if (ui_player == 'w' or ui_player == 'white'
                 or ui_player
-                == COLOR_SYMBOLS[color_to_player(COLORS['white'])].lower()):
-            return color_to_player(COLORS['white'])
+                == COLOR_SYMBOLS[color_to_player(COLOR_WHITE)].lower()):
+            return color_to_player(COLOR_WHITE)
         elif (ui_player == 'b' or ui_player == 'black'
                 or ui_player
-              == COLOR_SYMBOLS[color_to_player(COLORS['black'])].lower()):
-            return color_to_player(COLORS['black'])
+              == COLOR_SYMBOLS[color_to_player(COLOR_BLACK)].lower()):
+            return color_to_player(COLOR_BLACK)
         else:
             raise('Unrecognized player, "{}"'.format(ui_player))
 

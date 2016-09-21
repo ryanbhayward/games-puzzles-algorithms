@@ -67,9 +67,9 @@ class MinimaxAgent(object):
         best_action = None
         action_value = -INF
 
-        debug.log({'Time available in seconds': time_allowed_s},
+        debug.log(lambda:{'Time available in seconds': time_allowed_s},
                   level=logging.INFO)
-        debug.log(str(game_state), level=logging.INFO, raw=True)
+        debug.log(lambda:str(game_state), level=logging.INFO, raw=True)
 
         self._tree = {'children': [], 'value': action_value}
 
@@ -86,13 +86,13 @@ class MinimaxAgent(object):
                     if best_action is None:
                         best_action = action
                         self._tree['value'] = action_value
-                    debug.log({'Time is up': True,
+                    debug.log(lambda:{'Time is up': True,
                                'Best action so far:': best_action,
                                'Value': self._tree['value']},
                               level=logging.INFO)
                     break
                 else:
-                    debug.log({'Time remaining in seconds': (
+                    debug.log(lambda:{'Time remaining in seconds': (
                         time_allowed_s
                         - (time.clock() - start_time)),
                         'Best action so far:': best_action,
@@ -104,13 +104,13 @@ class MinimaxAgent(object):
                         best_action = action
                         self._tree['value'] = action_value
 
-                        debug.log({'Time remaining in seconds': (
+                        debug.log(lambda:{'Time remaining in seconds': (
                             time_allowed_s
                             - (time.clock() - start_time)),
                             'Best action so far:': best_action,
                             'Value': self._tree['value']},
                             level=logging.INFO)
-        debug.log({'Time remaining in seconds': (
+        debug.log(lambda:{'Time remaining in seconds': (
             time_allowed_s
             - (time.clock() - start_time)),
             'Best action so far:': best_action,

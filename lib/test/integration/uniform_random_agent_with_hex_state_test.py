@@ -2,7 +2,7 @@ from games_puzzles_algorithms.players.rule_based.random_agent \
     import RandomAgent
 from games_puzzles_algorithms.games.hex.game_state import GameState
 from games_puzzles_algorithms.games.hex.color import \
-    COLORS, color_to_player, cell_str, cell_str_to_cell
+    color_to_player, cell_str, cell_str_to_cell
 import random
 
 
