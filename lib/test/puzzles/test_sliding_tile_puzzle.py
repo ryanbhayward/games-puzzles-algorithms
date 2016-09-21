@@ -291,14 +291,14 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         size = 2
         seed = 1
         puzzle = SlidingTilePuzzle(size, seed)
-        expected_str = '\n  3  B \n  2  1 \n'
+        expected_str = '\n  3  _ \n  2  1 \n'
         self.assertEqual(str(puzzle), expected_str)
 
     def test_str_double_digits(self):
         size = 4
         seed = 1
         puzzle = SlidingTilePuzzle(size, seed)
-        expected_str = ('\n   2  10   B  14 '
+        expected_str = ('\n   2  10   _  14 '
                         '\n   6   5   3   8 '
                         '\n   7  11  15   1 '
                         '\n  12  13   9   4 \n')
@@ -309,7 +309,7 @@ class TestSlidingTilePuzzle(unittest.TestCase):
         size2 = 3
         seed = 1
         puzzle = SlidingTilePuzzle(size1, seed, size2)
-        expected_str = '\n  2  3  5 \n  B  4  1 \n'
+        expected_str = '\n  2  3  5 \n  _  4  1 \n'
         self.assertEqual(str(puzzle), expected_str)
         
 
