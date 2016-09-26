@@ -97,7 +97,7 @@ class Maze:
           psn = new_psn
           break
 
-  def clear(self):
+  def clear(self): #erase any curr_ch symbols
     for r in range(self.rows):
       for j in range(len(self.lines[r])):
         if self.lines[r][j] == curr_ch:
