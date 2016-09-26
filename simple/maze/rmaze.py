@@ -77,7 +77,37 @@ class Maze:
           return rec                 #   if yes, rwander(self,psn) terminates
                                      #   if no, execution returns to for loop
 
+  def wander2(self,psn):
+    num_iterations = 0
+    while True:
+      num_iterations += 1
+      if self.char_at(psn) == empt_ch:
+        self.mark_location(psn,curr_ch)
+      self.showpretty()
+      shuffle(nbr_offsets)
+      for shift in nbr_offsets:
+        new_psn = psn[0]+shift[0],psn[1]+shift[1]
+        new_ch = self.char_at(new_psn)
+        if new_ch == dest_ch:
+          print(num_iterations,'looks')
+          return new_psn
+        elif new_ch != wall_ch:
+          if self.char_at(psn) == curr_ch:
+            self.mark_location(psn,empt_ch)
+          psn = new_psn
+          break
+
+  def clear(self):
+    for r in range(self.rows):
+      for j in range(len(self.lines[r])):
+        if self.lines[r][j] == curr_ch:
+          self.lines[r] = newstring(self.lines[r],j,empt_ch)
+
 maze = Maze() # Maze() calls __init__(maze) of class Maze
 startpsn = maze.find_start() # scan the maze to find the origin location
 psn = maze.rwander(startpsn) # return the value found by recursive wandering
+print('finish at location',psn) # print the destination location
+maze.clear() # erase any left-over curr_ch
+sleep(2)
+psn = maze.wander2(startpsn) # return the value found by recursive wandering
 print('finish at location',psn) # print the destination location
