@@ -8,7 +8,7 @@ def main():
     """Main function to get and respond to user input."""
     parser = argparse.ArgumentParser('Interact with puzzles and solvers.')
     parser.add_argument('puzzle', choices=Interface.PUZZLES.keys(),
-                        default='solvable_sliding_tile', nargs='?')
+                        default='sst', nargs='?')
     parser.add_argument('solver', choices=Interface.SOLVERS.keys(),
                         default='A*', nargs='?')
 
