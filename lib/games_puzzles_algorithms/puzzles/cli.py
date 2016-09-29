@@ -14,9 +14,9 @@ class Interface(Cmd):
     Generalized interface for puzzles and solvers.
     """
 
-    SOLVERS = {"A*": AStar, "breadth_first_search": BreadthFirstSearch}
+    SOLVERS = {"A*": AStar, "bfs": BreadthFirstSearch}
     PUZZLES = {"sliding_tile": SlidingTilePuzzle,
-               "solvable_sliding_tile": SolvableSlidingTilePuzzle}
+               "sst": SolvableSlidingTilePuzzle}
 
     def __init__(self, puzzle, solver, heuristic=None):
         """
