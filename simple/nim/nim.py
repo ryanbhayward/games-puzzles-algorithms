@@ -4,9 +4,27 @@ from sys import stdin
 from time import sleep
 from random import randint
 
+def sorted(L):
+  return all(L[j] <= L[j+1] for j in range(len(L)-1))
+
+def numdiff(L,M): # number of different entries
+  assert(len(L)==len(M))
+  count = 0
+  for j in range(len(L)):
+    if L[j] != M[j]: count += 1
+  return count
+
 class Nimgame:
   def psn(self, coord):
     return sum([a*b for a,b in zip(coord,self.M)])
+
+  def crd(self, psn):
+    r, crd = psn, []
+    for j in self.M:
+      d = r // j
+      r = r - d*j
+      crd.append(d)
+    return crd
 
   def __init__(self):
     while True:
@@ -29,6 +47,20 @@ class Nimgame:
     print(self.M)
     rc = [ randint(0,d) for d in self.dim ]
     print(rc, self.psn(rc), self.psn((0,0,0)), self.psn(self.dim))
+    
+    self.size = 1
+    for j in self.dim:  self.size *= j+1
+    self.wins = [False]*self.size
+    print(self.size)
+    print(self.wins)
+    for j in range(self.size):
+      print(j, self.crd(j))
+    for j in range(1, self.size+1):
+      c = self.crd(j)
+      if sorted(c): 
+        print(c)
+        d = self.crd(j+1)
+        print(d, numdiff(c,d))
 
 def psn(coord, multiplier):
   return sum([a*b for a,b in zip(coord,multiplier)])
