@@ -1,27 +1,20 @@
 # play nim RBH 2016
-# under construction
+# solve values using dynamic programming
+# ... exercise: solve values using exclusive or :)
+
 from sys import stdin
-from time import sleep
-from random import randint
-
-def sorted(L):
-  return all(L[j] <= L[j+1] for j in range(len(L)-1))
-
-def numdiff(L,M): # number of different entries
-  assert(len(L)==len(M))
-  count = 0
-  for j in range(len(L)):
-    if L[j] != M[j]: count += 1
-  return count
+from copy import deepcopy
 
 class Nimgame:
-# dim: original pile sizes, as coordinates  eg. [ 3, 5, 7 ]
-# M: multiplier cooefficients to convert from coord to psn,
-#    eg. [ (7+1)*(5+1), (7+1), (0+1) ]
-# state: current pile sizes, as psn
-# for states, convert between 
-#    coordinates          eg. [ 1, 0, 4]  and
-#    psns (linear offset) eg. 1 * M[0] + 0 * M[1] + 4 * M[2]
+#        two different state representations
+# - coordinates: eg. [ 1, 0, 4 ]     vector of current pile sizes
+# - psn:         eg.  52    linear "offset" of coordinates
+#                  52 = 1 * M[0] + 0 * M[1] + 4 * M[2]
+# dim:  original pile sizes, as coordinates  eg. [ 3, 5, 7 ]
+# M:    multiplier coefficients, used in coord-to-psn conversion
+#            eg. M = [ (7+1)*(5+1), (7+1), (0+1) ]
+# state:  current pile sizes, as psn
+
   def gameover(self):
     return self.state == 0
 
@@ -37,25 +30,27 @@ class Nimgame:
     return crd
 
   def showboard(self):
-    print('\n')
     st = self.crd(self.state)
-    for j in range(self.rows):
+    print('\n')
+    for j in range(max(st)):
+      rowstr = ' '
       for k in range(self.cols):
-        if j + st[k] >= self.rows: print('*',end='   ')
-        else:                 print(' ',end='   ')
-      print('')
-    print('')
+        if j + st[k] >= max(st): rowstr += '*   '
+        else:                    rowstr += '    '
+      print(rowstr)
+    rowstr = ' '
     for k in range(len(st)):
-      print(chr(ord('a')+k), end='   ')
-    print('')
+      rowstr += chr(ord('a')+k) + '   '
+    print(rowstr)
+    rowstr= ' '
     for k in st:
-      print(k, end='   ')
-    print('')
-    print('')
+      if k>0: rowstr += str(k) + '   '
+      else:   rowstr +=         '    '
+    print(rowstr,'\n')
 
   def makemove(self, cmd):
     if len(cmd) < 2 or not cmd[1].isdigit() or len(cmd[0])!=1:
-      print('  invalid request: move format a 1\n')
+      print('\n  invalid request: move format a 1\n')
       return
     pile, n = ord(cmd[0])-ord('a'), int(cmd[1])
     if pile < 0 or pile > self.cols:
@@ -67,36 +62,35 @@ class Nimgame:
       return
     coords[pile] -= n
     self.state = self.psn(coords)
-    if not sorted(coords):
-      self.showboard()
-      coords.sort()
-      self.state = self.psn(coords)
-      print('sort columns, relabel')
-
 
   def __init__(self):
-    def solve(j, cj):
-      print('solving',cj,end=': ')
-      for k in range(j):
-        ck = self.crd(k)
-        ck.sort()
-        if numdiff(cj,ck)==1 and not self.wins[k]:
-          print('to',ck,'wins')
-          self.wins[j], self.winmove[j] = True, k
-          sleep(.1)
-          return
+    def solveall():
+      print('\ngame initialization: find all position win/loss values')
+      # for each losing state, find winning states that reach it
+      for j in range(len(self.wins) - 1): # nothing reaches last state
+        if not self.wins[j]: # loss, so find all psns that reach j
+          cj = self.crd(j)
+          print(cj,'loses, find all wins that reach this')
+          for x in range(len(cj)):
+            cjcopy = deepcopy(cj)
+            for t in range(1+cj[x], 1+self.dim[x]):
+              cjcopy[x] = t
+              pjc = self.psn(cjcopy)
+              self.wins[pjc], self.winmove[pjc] = True, j
       print('')
 
-    while True:
-      dim = input('nim game pile sizes (eg. 3 5 7)   ')
-      try:
-        self.dim = tuple( int(x) for x in dim.split() )
-        if len(self.dim) > 0 and all(d >= 0 for d in self.dim):
-          break
-        else:
-          print('invalid, try again')
-      except ValueError: 
+    def getdim():
+      while True:
+        raw = input('nim game pile sizes (eg. 3 5 7)   ')
+        try:
+          dim = tuple( int(x) for x in raw.split() )
+          if len(dim) > 0 and all(d >= 0 for d in dim):
+            return dim
+        except ValueError: 
+          pass
         print('invalid, try again')
+
+    self.dim = getdim()
     self.rows, self.cols = max(self.dim), len(self.dim)
     m, self.M = 1, [1]
     for j in reversed(self.dim):
@@ -104,47 +98,41 @@ class Nimgame:
       self.M.append(m)
     self.M.pop()
     self.M.reverse()
-    print(self.M)
     self.state = self.psn(self.dim)
     self.showboard()
-    rc = [ randint(0,d) for d in self.dim ]
-    print(rc, self.psn(rc), self.psn((0,0,0)), self.psn(self.dim))
     
     self.size = 1
     for j in self.dim:  self.size *= j+1
     self.wins, self.winmove = [False]*self.size, [None]*self.size
-    #print(self.size)
-    #print(self.wins)
-    #for j in range(self.size):
-    #  print(j, self.crd(j))
-    for j in range(1, self.size+1):
-      cj = self.crd(j)
-      if sorted(cj): solve(j,cj)
-        #print(cj,self.wins[j])
+    solveall()
+
+def printmenu():
+  print('nim game commands')
+  print('  a 2      remove  2  stones from pile a')
+  print('  ?             game value')
+  print('  h        help -- print this menu')
+  print('  [return]          quit')
 
 def playgame():
   g = Nimgame()
+  printmenu()
   while True:
     g.showboard()
     if g.gameover():
-      print('\ngame over!  player who just moved wins ...\n')
+      print('\n game over!  player who just moved wins ...\n')
       return
-    cmd = input('')
+    cmd = input(' ')
     if len(cmd)==0:
       print('\n ... adios :)\n')
       return
     elif cmd[0][0]=='h':
-      print('a 2      remove 2 stones from pile a')
-      print('?        generate computer move')
-      print('h        help')
-      print('[return] quit')
+      printmenu()
       g.showboard()
     elif cmd[0][0]=='?':
-      print('computer move:', end=' ')
       if g.wins[g.state]:
-        print('win to', g.crd(g.winmove[g.state]))
+        print(' win,  eg. to', g.crd(g.winmove[g.state]))
       else:
-        print('lose')
+        print(' loss')
     else: 
       cmd = cmd.split()
       g.makemove(cmd)
