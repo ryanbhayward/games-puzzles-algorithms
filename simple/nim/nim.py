@@ -4,6 +4,7 @@
 
 from sys import stdin
 from copy import deepcopy
+from operator import xor
 
 class Nimgame:
 #        two different state representations
@@ -70,7 +71,7 @@ class Nimgame:
       for j in range(len(self.wins) - 1): # nothing reaches last state
         if not self.wins[j]: # loss, so find all psns that reach j
           cj = self.crd(j)
-          print(cj,'loses, find all wins that reach this')
+          #print(cj,'loses, find all wins that reach this')
           for x in range(len(cj)):
             cjcopy = deepcopy(cj)
             for t in range(1+cj[x], 1+self.dim[x]):
@@ -104,14 +105,36 @@ class Nimgame:
     self.size = 1
     for j in self.dim:  self.size *= j+1
     self.wins, self.winmove = [False]*self.size, [None]*self.size
-    solveall()
+    #solveall()
 
 def printmenu():
   print('nim game commands')
   print('  a 2      remove  2  stones from pile a')
-  print('  ?             game value')
+  print('  ?        value, one winmove, dp algorithm')
+  print('  !        value, all winmoves, nim formula')
   print('  h        help -- print this menu')
   print('  [return]          quit')
+
+def xorsum(L):
+  xsum = 0
+  for j in L: xsum ^= j
+  return xsum
+
+def nimreport(P): # report all winning nim moves from P, use formula
+  total = xorsum(P)
+  if total==0:
+    print(' loss')
+    return
+  for j in P:
+    tj = total^j
+    if j >= tj: 
+      print(' win: take',j - tj,'from pile with',j)
+
+def nimdpreport(g):
+  if g.wins[g.state]:
+    print(' win,  eg. to', g.crd(g.winmove[g.state]))
+  else:
+    print(' loss')
 
 def playgame():
   g = Nimgame()
@@ -129,10 +152,9 @@ def playgame():
       printmenu()
       g.showboard()
     elif cmd[0][0]=='?':
-      if g.wins[g.state]:
-        print(' win,  eg. to', g.crd(g.winmove[g.state]))
-      else:
-        print(' loss')
+      nimdpreport(g)
+    elif cmd[0][0]=='!':
+      nimreport(g.crd(g.state))
     else: 
       cmd = cmd.split()
       g.makemove(cmd)
