@@ -91,21 +91,25 @@ class Nimgame:
           pass
         print('invalid, try again')
 
+    def initmultiplier(dim):
+      m, M = 1, [1]
+      for j in reversed(dim):
+        m = m*(j+1)
+        M.append(m)
+      M.pop()
+      M.reverse()
+      return M
+
     self.dim = getdim()
     self.rows, self.cols = max(self.dim), len(self.dim)
-    m, self.M = 1, [1]
-    for j in reversed(self.dim):
-      m = m*(j+1)
-      self.M.append(m)
-    self.M.pop()
-    self.M.reverse()
+    self.M = initmultiplier(self.dim)
     self.state = self.psn(self.dim)
     self.showboard()
     
     self.size = 1
     for j in self.dim:  self.size *= j+1
     self.wins, self.winmove = [False]*self.size, [None]*self.size
-    #solveall()
+    solveall()
 
 def printmenu():
   print('nim game commands')
