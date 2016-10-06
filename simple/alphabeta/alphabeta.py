@@ -1,4 +1,7 @@
 # simple alpha-beta-search demo  rbh 2016
+# ** this code emits comments to help user understand
+# **   the alphabeta algorithm ...
+# ** code could be simplified if comments not wanted
 from time import sleep
 from sys import stdin
 
@@ -46,26 +49,44 @@ def showtree(L,T,V):
     print('')
   print('')
 
+def offset(d):
+  for j in range(d): print('  ',end='')
+
 def alphabetanega(d, T, V, v, alpha, beta):
-# assume leaf scores are for root player
+# assume leaf scores are input for root player
   def showdata():
     sleep(.5)
-    for j in range(d): print('  ',end='')
+    offset(d)
     print(v, alpha, beta, so_far)
 
   so_far = NEGINF  # best score so far
   showdata()
-  if v in V: # all leaves are in V
-  #if len(T[v])==0: # v has no children
-    # convert to score for player to move, so
-    # if odd depth, negate score
-    if 0==d%2: return  V[v]
-    else:      return -V[v]
+  if v in V: # V is set of leaves
+    # leaf scores are for first player,
+    # need to convert for player-to-move:
+    # *** val needed only if we want to print comment
+    if 0==d%2: val = V[v]  # even depth, no change
+    else:      val = -V[v]  # odd depth, negate score
+    offset(d)
+    print(v,'leaf value',val)
+    return val
   for c in T[v]:
-    so_far = max(so_far, -alphabetanega(d+1,T,V,c, -beta, -alpha) )
-    alpha = max(alpha, so_far)
+    # if no comment needed, use following line instead
+    # so_far = max(so_far,-alphabetanega(d+1,T,V,c, -beta, -alpha))
+    cval = -alphabetanega(d+1,T,V,c, -beta, -alpha)
+    if cval > so_far:
+      offset(d+1)
+      print(c,'now best child of',v)
+      so_far = cval
+    # if no comment needed, use following line instead
+    # alpha = max(alpha, so_far)
+    if alpha < so_far:
+      alpha = so_far
+      offset(d+1)
+      print(c,'improved alpha(',v,') to',alpha)
     if alpha >= beta:
-      print('         cutoff')
+      offset(d+1)
+      print('alpha >= beta, prune remaining children of', v)
       break
   showdata()
   return so_far
