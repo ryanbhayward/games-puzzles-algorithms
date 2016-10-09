@@ -22,6 +22,7 @@ from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent, UctNode
 from games_puzzles_algorithms.players.mcts.rave_agent import RaveAgent
 from games_puzzles_algorithms.players.mcts.rave_agent import RaveNode
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
+from games_puzzles_algorithms.players.minimax.alpha_beta_agent import AlphaBetaAgent 
 
 from games_puzzles_algorithms.games.cli import Cli
 
@@ -202,6 +203,11 @@ ALGS = [
     {
         'name': 'minimax',
         'factory': lambda args: MinimaxAgent(),
+        'arguments': []
+    },
+    {
+        'name': 'alphabeta',
+        'factory': lambda args: AlphaBetaAgent(),
         'arguments': []
     }
 ]
