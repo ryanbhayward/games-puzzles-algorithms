@@ -22,8 +22,7 @@ from games_puzzles_algorithms.players.mcts.mcts_agent import MctsAgent, UctNode
 from games_puzzles_algorithms.players.mcts.rave_agent import RaveAgent
 from games_puzzles_algorithms.players.mcts.rave_agent import RaveNode
 from games_puzzles_algorithms.players.minimax.minimax_agent import MinimaxAgent
-from games_puzzles_algorithms.players.minimax.alpha_beta_agent import AlphaBetaAgent 
-
+from games_puzzles_algorithms.players.minimax.alpha_beta_agent import AlphaBetaAgent
 from games_puzzles_algorithms.games.cli import Cli
 
 
@@ -278,8 +277,11 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-s', '--script',
                         help='A script of commands to play out.')
-    parser.add_argument('-v', '--verbose', action='store_true',
+    logging_group = parser.add_mutually_exclusive_group()
+    logging_group.add_argument('-v', '--verbose', action='store_true',
                         help='Show verbose output.')
+    logging_group.add_argument('-t', '--teaching', action='store_true',
+                        help='Show teaching output.')
 
     subparsers = parser.add_subparsers(title='games', dest='game')
     subparsers.required = True
@@ -315,6 +317,9 @@ if __name__ == '__main__':
     if args.verbose:
         import logging
         logging.basicConfig(level=logging.DEBUG)
+    if args.teaching:
+        import logging
+        logging.basicConfig(level=logging.INFO)
     try:
         cli = Cli(selected_game, selected_algorithm)
         if args.script is not None:
