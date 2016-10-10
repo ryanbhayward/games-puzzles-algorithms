@@ -116,6 +116,11 @@ class MinimaxAgent(object):
             'Best action so far:': best_action,
             'Value': self._tree['value'],
             'Tree': self.to_dict()}, level=logging.INFO)
+        debug.log_t(lambda:{'Time remaining in seconds': (
+            time_allowed_s
+            - (time.clock() - start_time)),
+            'Best action so far:': best_action,
+            'Value': self._tree['value']}, level=logging.INFO)
         return best_action
 
     def reset(self): self._tree = {}
