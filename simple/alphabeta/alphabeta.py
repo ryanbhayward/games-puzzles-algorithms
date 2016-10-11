@@ -37,7 +37,7 @@ def readtree():
   for node in T:
     for nbr in T[node]:
       assert(nbr in T or nbr in V)
-  return L,T,V
+  return L,T,V, L[0]
 
 def showtree(L,T,V):
   for v in sorted(L):
@@ -91,6 +91,6 @@ def alphabetanega(d, T, V, v, alpha, beta):
   showdata()
   return so_far
 
-L,T,V = readtree()
+L,T,V,root = readtree()
 showtree(L,T,V)
-alphabetanega(0, T, V, 'A', NEGINF, INF)
+alphabetanega(0, T, V, root, NEGINF, INF)
