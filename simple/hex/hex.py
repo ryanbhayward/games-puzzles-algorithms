@@ -45,10 +45,11 @@ class Hexstate:
     self.brd += (self.chBW * self.pad + self.c * self.chB + self.chBW * self.pad) * self.pad
 
   def showboard(self):
-    rowlabelfield = '   '
-    pretty, row = '\n ' + rowlabelfield, 0
-    for c in range(self.c):   
-      pretty += ' ' + chr(ord('a')+c)
+    rowlabelfield = '  '
+    if self.r > 9: rowlabelfield += ' '
+    pretty, row = '\n' + rowlabelfield, 0
+    for x in range(self.pad - 1): pretty += '  '
+    for c in range(self.c): pretty += ' ' + chr(ord('a')+c)
     pretty += '\n' + rowlabelfield
     for j in range(self.bsize):
       pretty += self.brd[j] + ' '
@@ -56,7 +57,8 @@ class Hexstate:
         row += 1
         pretty += '\n' + ' '*row
         rowonboard = 1 + row - self.pad
-        if rowonboard > self.r: pretty += rowlabelfield
+        if rowonboard < 1 or rowonboard > self.r:
+          pretty += rowlabelfield
         if rowonboard > 0 and rowonboard <= self.r:
           if rowonboard < 10 and self.r >= 10:
             pretty += ' ' + str(rowonboard) + ' '
