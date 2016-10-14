@@ -2,23 +2,26 @@
 import numpy as np
 from random import shuffle
 
-# each cell is empty, black, white, or both black and white 
-#   (cells both black and white are dead, and effectively ignored)
-class Cell(): e, b, w, bw  = -1, 0, 1, 2
+# global constants
+Rings      = 1  # wrapping around the playing board
+Cell_chars = '*@-.'
 
-#bvals = [Cell.e, Cell.b, Cell.w, Cell.bw]
-#B = np.array(bvals,dtype=np.int8)
-#print(B)
-#C = np.array([[Cell.e]*3]*2, dtype = np.int8)
-#print(C)
-#for row in C:
-  #for col in row: print(col, end='')
-  #print('')
+# each cell is empty, black, white, or black-and-white (e.g. dead)
+class Cell(): 
+  b, w, bw, e  = 0, 1, 2, 3
+  
+def cell_to_char(n): return Cell_chars[n]
+  #if   c==Cell.e:  return '.'
+  #elif c==Cell.b:  return '*'
+  #elif c==Cell.w:  return '@'
+  #elif c==Cell.bw: return '-'
+  #else: assert(False)
+
+def char_to_cell(c): return Cell_chars.index(c)
 
 class Hexstate:
-#  board encircled with rings of offboard markers:
-#    black at top, white on sides
-#  must be at least one ring
+#  board encircled with rings: top/btm black, sides white
+#    must be at least one ring
 
 #  --******--
 #   --******--
@@ -30,56 +33,55 @@ class Hexstate:
 #         oo......oo
 #          --******--
 #           --******--
-  def psn(self, row, col):
-    return (self.rings + row)*(2*self.rings + self.c) + self.rings + col
-
   def gameover(self):
     return False
 
-  def putstone(self, row, col, ch):
-    p = self.psn(row,col)
-    self.brd = self.brd[0:p] + ch + self.brd[p+1:]
+  def putstone(self, row, col, color):
+    self.brd[Rings + row][Rings + col] = color
 
   def __init__(self, rows, cols):
-    self.rings = 1 # number of ringsding rings around board
-    assert(self.rings > 0)
-    self.r, self.c, self.bsize =  rows, cols, (2*self.rings+rows)*(2*self.rings+cols)
-    # cell can be black, white, blackwhite (both), empty
-    self.chBW, self.chB, self.chW, self.chE = '-', '*', '@', '.'
-    self.brd = ''
-    # top rows (ringsding)
-    self.brd += (self.chBW * self.rings + self.c * self.chB + self.chBW * self.rings) * self.rings
-    # next rows 
-    self.brd += (self.chW  * self.rings + self.c * self.chE + self.chW  * self.rings) * self.r
-    # bottom rows (ringsding)
-    self.brd += (self.chBW * self.rings + self.c * self.chB + self.chBW * self.rings) * self.rings
+    Rings = 1 # number of ringsding rings around board
+    assert(Rings > 0)
+    self.r, self.c, self.bsize =  rows, cols, (2*Rings+rows)*(2*Rings+cols)
+    # all empty cells to start
+    self.brd = np.array([[Cell.e]*(2*Rings+cols)] *(2*Rings+rows), dtype = np.int8)
+    # set cells in outer rings
+    for j in range(self.brd.shape[0]):
+      for k in range(self.brd.shape[1]):
+        if (j < Rings) or (j>= Rings + rows):
+          if (k < Rings) or (k>= Rings + cols):
+            self.brd[j][k] = Cell.bw
+          else:
+            self.brd[j][k] = Cell.b
+        elif (k< Rings) or (k >= Rings + cols):
+          self.brd[j][k] = Cell.w
 
   def showboard(self):
     rowlabelfield = '  '
-    if self.r > 9: rowlabelfield += ' '
-    pretty, row = '\n' + rowlabelfield, 0
-    for x in range(self.rings - 1): pretty += '  '
-    for c in range(self.c): pretty += ' ' + chr(ord('a')+c)
-    pretty += '\n' + rowlabelfield
-    for j in range(self.bsize):
-      pretty += self.brd[j] + ' '
-      if j%(2*self.rings + self.c) == (2*self.rings - 1) + self.c: 
-        row += 1
-        pretty += '\n' + ' '*row
-        rowonboard = 1 + row - self.rings
-        if rowonboard < 1 or rowonboard > self.r:
-          pretty += rowlabelfield
-        if rowonboard > 0 and rowonboard <= self.r:
-          if rowonboard < 10 and self.r >= 10:
-            pretty += ' ' + str(rowonboard) + ' '
-          else:           
-            pretty +=       str(rowonboard) + ' '
+    pretty = '\n' + rowlabelfield
+    pretty += '  ' * (Rings-1) + ' '
+    for c in range(self.c): 
+      pretty += ' ' + chr(ord('a')+c)
+    pretty += '\n'
+    for j in range(self.brd.shape[0]):
+      pretty += j*' '
+      if j < Rings or j >= Rings + self.r:
+        pretty += rowlabelfield
+      else:
+        if j+1-Rings < 10:
+          pretty += ' ' + str(j+1 - Rings)
+        else:
+          pretty +=       str(j+1 - Rings)
+      for k in range(self.brd.shape[1]):
+        pretty += ' ' + cell_to_char(self.brd[j][k])
+      pretty += '\n'
     print(pretty)
 
   def genmove(self, cmd):
     assert(cmd[0][0]=='g')
     cmd = cmd.split()
-    if len(cmd)==2 and (cmd[1][0]==self.chB or cmd[1][0]==self.chW):
+    if len(cmd)==2 and (char_to_cell(cmd[1][0]) == Cell.b or   
+                        char_to_cell(cmd[1][0]) == Cell.w):
       print(' genmove coming soon')
     else:
       print(' invalid genmove request')
@@ -88,12 +90,12 @@ class Hexstate:
     parseok, cmd = False, cmd.split()
     if len(cmd)==2:
       ch = cmd[0][0]
-      if ch== self.chB or ch==self.chW:
+      if char_to_cell(ch) == Cell.b or char_to_cell(ch) == Cell.w:
         q, n = cmd[1][0], cmd[1][1:]
         if q.isalpha() and n.isdigit():
           x, y = int(n) - 1, ord(q)-ord('a')
           if x>=0 and x < self.r and y>=0 and y < 1+self.c:
-            self.putstone(x, y, ch)
+            self.putstone(x, y, char_to_cell(ch))
             return
           else: print('\n  coordinate off board')
     print('\n  ... please try again ...\n')
@@ -116,7 +118,7 @@ def playgame():
     print('\n invalid boardsize request\n')
     return h
 
-  h = Hexstate(5,3)
+  h = Hexstate(2,3)
   printmenu()
   while True:
     h.showboard()
