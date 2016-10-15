@@ -3,26 +3,37 @@ import numpy as np
 from random import shuffle
 
 # global constants
-Rings      = 1  # wrapping around the playing board
+Rings      = 2  # wrapping around the playing board
 Cell_chars = '*@-.'
+escape_ch   = '\033['
+colorend    =  escape_ch + '0m'
+textcolor   =  escape_ch + '0;37m'
+stonecolors = (escape_ch + '0;35m',\
+               escape_ch + '0;32m',\
+               textcolor,\
+               textcolor)
 
-# each cell is empty, black, white, or black-and-white (e.g. dead)
-class Cell(): 
+class Cell():  # black, white, blackwhite (dead), empty
   b, w, bw, e  = 0, 1, 2, 3
   
-def cell_to_char(n): return Cell_chars[n]
-  #if   c==Cell.e:  return '.'
-  #elif c==Cell.b:  return '*'
-  #elif c==Cell.w:  return '@'
-  #elif c==Cell.bw: return '-'
-  #else: assert(False)
+def cell_to_char(n): 
+  return Cell_chars[n]
 
-def char_to_cell(c): return Cell_chars.index(c)
+def char_to_cell(c): 
+  return Cell_chars.index(c)
+
+def paint(string):
+  if len(string)>1 and string[0]==' ': 
+   return ' ' + paint(string[1:])
+  x = Cell_chars.find(string[0])
+  if x >= 0:
+    return stonecolors[x] + string + colorend
+  elif string.isalnum():
+    return textcolor + string + colorend
+  return string
 
 class Hexstate:
-#  board encircled with rings: top/btm black, sides white
-#    must be at least one ring
-
+#  board encircled with ring(s): top/btm black, sides white
 #  --******--
 #   --******--
 #    oo......oo
@@ -40,12 +51,11 @@ class Hexstate:
     self.brd[Rings + row][Rings + col] = color
 
   def __init__(self, rows, cols):
-    Rings = 1 # number of ringsding rings around board
     assert(Rings > 0)
     self.r, self.c, self.bsize =  rows, cols, (2*Rings+rows)*(2*Rings+cols)
-    # all empty cells to start
-    self.brd = np.array([[Cell.e]*(2*Rings+cols)] *(2*Rings+rows), dtype = np.int8)
-    # set cells in outer rings
+    self.brd = np.array(  # to start, all empty
+      [[Cell.e]*(2*Rings+cols)] *(2*Rings+rows), dtype = np.int8)
+    # init ring(s)
     for j in range(self.brd.shape[0]):
       for k in range(self.brd.shape[1]):
         if (j < Rings) or (j>= Rings + rows):
@@ -61,19 +71,16 @@ class Hexstate:
     pretty = '\n' + rowlabelfield
     pretty += '  ' * (Rings-1) + ' '
     for c in range(self.c): 
-      pretty += ' ' + chr(ord('a')+c)
+      pretty += ' ' + paint(chr(ord('a')+c))
     pretty += '\n'
     for j in range(self.brd.shape[0]):
       pretty += j*' '
       if j < Rings or j >= Rings + self.r:
         pretty += rowlabelfield
       else:
-        if j+1-Rings < 10:
-          pretty += ' ' + str(j+1 - Rings)
-        else:
-          pretty +=       str(j+1 - Rings)
+        pretty += paint('{:2}'.format(j+1-Rings))
       for k in range(self.brd.shape[1]):
-        pretty += ' ' + cell_to_char(self.brd[j][k])
+        pretty += ' ' + paint(cell_to_char(self.brd[j][k]))
       pretty += '\n'
     print(pretty)
 
@@ -119,7 +126,6 @@ def playgame():
     return h
 
   h = Hexstate(2,3)
-  printmenu()
   while True:
     h.showboard()
     if h.gameover():
