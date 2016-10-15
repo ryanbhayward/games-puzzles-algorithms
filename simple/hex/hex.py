@@ -3,7 +3,7 @@ import numpy as np
 from random import shuffle
 
 # global constants
-Rings      = 2  # wrapping around the playing board
+Rings      = 1  # wrapping around the playing board
 Cell_chars = '*@-.'
 escape_ch   = '\033['
 colorend    =  escape_ch + '0m'
@@ -55,15 +55,14 @@ class Hexstate:
     self.r, self.c, self.bsize =  rows, cols, (2*Rings+rows)*(2*Rings+cols)
     self.brd = np.array(  # to start, all empty
       [[Cell.e]*(2*Rings+cols)] *(2*Rings+rows), dtype = np.int8)
-    # init ring(s)
+    # non-empty values
     for j in range(self.brd.shape[0]):
       for k in range(self.brd.shape[1]):
-        if (j < Rings) or (j>= Rings + rows):
-          if (k < Rings) or (k>= Rings + cols):
-            self.brd[j][k] = Cell.bw
-          else:
-            self.brd[j][k] = Cell.b
-        elif (k< Rings) or (k >= Rings + cols):
+        if (j < Rings and k < Rings + cols) or \
+           (j >= Rings + rows and k >= Rings):
+          self.brd[j][k] = Cell.b
+        elif (k < Rings and j >= Rings) or \
+             (k >= Rings + cols and j <= Rings + rows):
           self.brd[j][k] = Cell.w
 
   def showboard(self):
