@@ -6,12 +6,12 @@ class Cell: # each cell is one of these: empty, x, o
 
 # each board position 0,1,2, so we can think of a board
 #   position as a 9-digit number base 3
-# so number of different states is same as max 9-digit base_3 integer
-ttt_max_states = 19682  # 3**Cell.n - 1
+# so number of states is same as max 9-digit base_3 integer
+ttt_states = 19683  # 3**Cell.n
 
 # convert from integer for board position
 def base_3( y ): 
-  assert(y <= ttt_max_states)
+  assert(y <= ttt_states)
   L = [0]*Cell.n
   for j in range(9):
     y, L[j] = divmod(y,3)
@@ -89,6 +89,21 @@ Win_lines = ( # psn tuples of 8 winning lines
 def rc_to_psn(r,c): return r*3 + c
 
 class Position: # ttt board with x,o,e cells
+  def solve(self):
+    self.static_win = np.array( [0]*ttt_states, dtype = np.int8)
+    tmp = self.brd
+    for j in range(len(self.static_win)):
+      self.brd = base_3(j)
+      bitset = 0               
+      if self.has_win(Cell.x): bitset += 2
+      if self.has_win(Cell.o): bitset += 1
+      self.static_win[j] = bitset
+      # bitset 3: both    win
+      # bitset 2: x only  win
+      # bitset 1: o only  win
+      # bitset 0: neither win
+    self.brd = tmp
+    
   def legal_moves(self):
     L = []
     for j in range(Cell.n):
@@ -123,7 +138,7 @@ class Position: # ttt board with x,o,e cells
   # position 2 1 2 0 0 ... hashes to 2*3^0 + 1*3^1 + 2*3^2 ...
   # return min hash in set of 8 symmetric positions
   def hash(self):
-    best = ttt_max_states + 1 # equivalent to plus infinity
+    best = ttt_states + 1 # equivalent to plus infinity
     for j in range(len(Syms)):
       ttl, multiplier = 0, 1
       for t in Syms[j]:
@@ -133,7 +148,9 @@ class Position: # ttt board with x,o,e cells
     return best
 
   def __init__(self, y):
-    self.brd = np.array( base_3(y) )
+    self.brd = base_3(y)
+    self.static_win = None
+    #np.array( [0]*ttt_states, dtype = np.int8)
     #print(self.brd)
 
   def genmove(self, request):
@@ -157,12 +174,13 @@ class Position: # ttt board with x,o,e cells
     print('  ... ? ... sorry ...\n')
 
 def playgame():
-  p = Position()
+  p = Position(0)
+  p.solve()
   while True:
     showboard(p)
     print('legal moves', p.legal_moves())
     if p.game_over():
-      return
+      pass
     cmd = input(' ')
     if len(cmd)==0:
       print('\n ... adios :)\n')
@@ -176,12 +194,12 @@ def playgame():
     else:
       print('\n try again \n')
 
-#playgame()
-for j in range(20):
-  p = Position(j)
-  showboard(p)
+playgame()
+#for j in range(20):
+  #p = Position(j)
+  #showboard(p)
 
-for j in range(3**9):
-  p = Position(j)
+#for j in range(3**9):
+  #p = Position(j)
 
-for j in reversed(range(10)): print(j)
+#for j in reversed(range(10)): print(j)
