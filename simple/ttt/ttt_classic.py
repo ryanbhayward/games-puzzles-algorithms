@@ -2,12 +2,21 @@
 import numpy as np
 
 class Cell: # each cell is one of these: empty, x, o
-  e,x,o,n,chars = 0,1,2,9,'.xo' 
+  n,e,x,o,chars = 9,0,1,2,'.xo' 
 
 # each board position 0,1,2, so we can think of a board
 #   position as a 9-digit number base 3
 # so number of states is same as max 9-digit base_3 integer
 ttt_states = 19683  # 3**Cell.n
+powers_of_3 = np.array( # for converting position to base_3 int
+  [1, 3, 9, 27, 81, 243, 729, 2187, 6561], dtype=np.int16)
+
+def board_to_int(B):
+  return sum(B*powers_of_3) # numpy multiplies vectors componentwise
+
+# consider all possible symmetric positions, return min
+def hash(L): # using numpy array indexing here
+  return min([board_to_int( L[Syms[j]] ) for j in range(8)])
 
 # convert from integer for board position
 def base_3( y ): 
@@ -16,7 +25,7 @@ def base_3( y ):
   for j in range(9):
     y, L[j] = divmod(y,3)
     if y==0: break
-  return np.array( L, dtype = np.int8)
+  return np.array( L, dtype = np.int16)
 
 # input-output ################################################
 def char_to_cell(c): 
@@ -67,20 +76,22 @@ def showboard(psn):
       pretty += ' ' + paint(Cell.chars[psn.brd[rc_to_psn(j,k)]])
     pretty += '\n'
   print(pretty)
-  print('hash ',psn.hash(),'  empty cells', psn.num_empty())
+  print('hash ',hash(psn.brd),'  empty cells', psn.num_empty())
 
 ### position tuples of 8 symmetric ttt board permutations
-Syms = ( (0,1,2,3,4,5,6,7,8),
+Syms = np.array(( (0,1,2,3,4,5,6,7,8),
          (0,3,6,1,4,7,2,5,8),
          (2,1,0,5,4,3,8,7,6),
          (2,5,8,1,4,7,0,3,6),
          (8,7,6,5,4,3,2,1,0),
          (8,5,2,7,1,4,6,3,0),
          (6,7,8,3,4,5,0,1,2),
-         (6,3,0,7,4,1,8,5,2))
+         (6,3,0,7,4,1,8,5,2)
+         ), dtype = np.int8)
 
-Win_lines = ( # psn tuples of 8 winning lines
-  (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6))
+Win_lines = np.array(( # psn tuples of 8 winning lines
+  (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)
+  ), dtype=np.int8)
 
 # board positions
 #   0 1 2
@@ -111,6 +122,23 @@ class Position: # ttt board with x,o,e cells
         L.append(j)
     return L
 
+  def asym_moves(self,cell):
+    L = self.legal_moves()
+    H, X = [], []
+    for j in range(len(L)):
+      p = L[j]
+      #print('move to cell',p,end='')
+      self.brd[p] = cell
+      h = hash(self.brd)
+      if h not in H:
+        H.append(h)
+        X.append(j)
+      #print(h, H, X)
+      self.brd[p] = Cell.e
+    L = np.array(L)
+    X = np.array(X)
+    return L[X]
+
   def num_empty(self):
     return (self.brd == Cell.e).sum()
   
@@ -134,24 +162,9 @@ class Position: # ttt board with x,o,e cells
   def putstone(self, row, col, color):
     self.brd[rc_to_psn(row,col)] = color
 
-  # usual hash function
-  # position 2 1 2 0 0 ... hashes to 2*3^0 + 1*3^1 + 2*3^2 ...
-  # return min hash in set of 8 symmetric positions
-  def hash(self):
-    best = ttt_states + 1 # equivalent to plus infinity
-    for j in range(len(Syms)):
-      ttl, multiplier = 0, 1
-      for t in Syms[j]:
-        ttl += multiplier * self.brd[t]
-        multiplier *=3
-      best = min(best,ttl)
-    return best
-
   def __init__(self, y):
     self.brd = base_3(y)
     self.static_win = None
-    #np.array( [0]*ttt_states, dtype = np.int8)
-    #print(self.brd)
 
   def genmove(self, request):
     if request[0]:
@@ -175,10 +188,10 @@ class Position: # ttt board with x,o,e cells
 
 def playgame():
   p = Position(0)
-  p.solve()
+#  p.solve()
   while True:
     showboard(p)
-    print('legal moves', p.legal_moves())
+    print('legal moves', p.legal_moves(), p.asym_moves(Cell.x))
     if p.game_over():
       pass
     cmd = input(' ')
@@ -195,11 +208,3 @@ def playgame():
       print('\n try again \n')
 
 playgame()
-#for j in range(20):
-  #p = Position(j)
-  #showboard(p)
-
-#for j in range(3**9):
-  #p = Position(j)
-
-#for j in reversed(range(10)): print(j)
