@@ -1,5 +1,14 @@
-# classic ttt: 3x3 board     RBH 2016
+# classic ttt: 3x3 board, solve with alphabetanega     RBH 2016
+# to make alphabeta faster:
+#  - instead of searching over all children of a node,
+#  - search over all non-isomorphic children,
+#  - since any two isomorphic children will have the same value
+#  - the symmetry group of the board has 8 elements,
+#  - if any two of those map to the same position, then
+#  - those two positions are isomorphic
+
 import numpy as np
+from time import sleep
 
 class Cell: # each cell is one of these: empty, x, o
   n,e,x,o,chars = 9,0,1,2,'.xo' 
@@ -51,7 +60,9 @@ def genmoverequest(cmd):
 def printmenu():
   print('  x b2         play X b 2')
   print('  o e3         play O e 3')
-  print('  . a2         erase a 2')
+  print('  . a2          erase a 2')
+  print('  u                  undo')
+  print('  ?           solve state')
   print('  g x/o           genmove')
   print('  [return]           quit')
 
@@ -76,7 +87,6 @@ def showboard(psn):
       pretty += ' ' + paint(Cell.chars[psn.brd[rc_to_psn(j,k)]])
     pretty += '\n'
   print(pretty)
-  print('hash ',hash(psn.brd),'  empty cells', psn.num_empty())
 
 ### position tuples of 8 symmetric ttt board permutations
 Syms = np.array(( (0,1,2,3,4,5,6,7,8),
@@ -122,8 +132,8 @@ class Position: # ttt board with x,o,e cells
         L.append(j)
     return L
 
-  def asym_moves(self,cell):
-    L = self.legal_moves()
+  def asym_moves(self, L, cell):
+    assert(len(L)>0)
     H, X = [], []
     for j in range(len(L)):
       p = L[j]
@@ -139,9 +149,6 @@ class Position: # ttt board with x,o,e cells
     X = np.array(X)
     return L[X]
 
-  def num_empty(self):
-    return (self.brd == Cell.e).sum()
-  
   def has_win(self, z):
     win_found = False
     for t in Win_lines:
@@ -168,11 +175,16 @@ class Position: # ttt board with x,o,e cells
 
   def genmove(self, request):
     if request[0]:
-      print(' genmove coming soon')
+      L = self.legal_moves()
+      if len(L)==0:
+        print('board full, no move possible')
+      else:
+        cell = request[1]
+        if self.haswin(cell) or self.haswin(3-cell):
     else:
       print(request[2])
 
-  def makemove(self, cmd):
+  def makemove(self, cmd, H):
     parseok, cmd = False, cmd.split()
     if len(cmd)==2:
       ch = cmd[0][0]
@@ -182,29 +194,67 @@ class Position: # ttt board with x,o,e cells
           x, y = int(n) - 1, ord(q)-ord('a')
           if x>=0 and x < 3 and y>=0 and y < 3:
             self.putstone(x, y, char_to_cell(ch))
+            H.append(3*x+y) # add position to history
             return
           else: print('\n  coordinate off board')
     print('  ... ? ... sorry ...\n')
 
-def playgame():
-  p = Position(0)
-#  p.solve()
-  while True:
-    showboard(p)
-    print('legal moves', p.legal_moves(), p.asym_moves(Cell.x))
+def undo(H, brd):
+  if len(H)==0:
+    print('\n    board empty, nothing to undo\n')
+  else:
+    psn = H.pop()
+    brd[psn] = Cell.e
+
+####################### search
+def alphabetanega(d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
+  #print(' '*d, Cell.chars[ptm], alpha, beta)
+  #showboard(psn)
+  if psn.has_win(ptm):     return 1  # previous move created win
+  L = psn.legal_moves()
+  if len(L) == 0:          return 0  # board full, no winner
+  A = psn.asym_moves(L,ptm)
+  so_far = -1  # best score so far
+  for cell in A:
+    psn.brd[cell] = ptm
+    so_far = max(so_far,-alphabetanega(d+1, psn, 3-ptm,-beta, -alpha))
+    psn.brd[cell] = Cell.e   # reset brd to original
+    alpha = max(alpha, so_far)
+    if alpha >= beta:
+      break
+  return so_far
+
+def info(p):
+    h, L = hash(p.brd), p.legal_moves()
+    print('  hash', h, '\n  legal moves', L)
+    print('  asym moves x o', p.asym_moves(L,Cell.x), p.asym_moves(L,Cell.o))
+    for cell in (Cell.x, Cell.o):
+      print('  ',Cell.chars[cell], 'alphabeta score:',end='')
+      print('  ',alphabetanega(0, p, cell, -1, 1))
     if p.game_over():
       pass
+
+def interact():
+  p = Position(0)
+  history = []  # used for erasing, so only need locations
+  while True:
+    showboard(p)
     cmd = input(' ')
     if len(cmd)==0:
       print('\n ... adios :)\n')
       return
     if cmd[0][0]=='h':
       printmenu()
+    elif cmd[0][0]=='?':
+      info(p)
+    elif cmd[0][0]=='u':
+      undo(history, p.brd)
     elif cmd[0][0]=='g':
       p.genmove(genmoverequest(cmd))
     elif (cmd[0][0] in Cell.chars):
-        p.makemove(cmd)
+      p.makemove(cmd, history)
     else:
-      print('\n try again \n')
+      print('\n ???????\n')
+      printmenu()
 
-playgame()
+interact()

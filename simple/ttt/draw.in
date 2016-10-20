@@ -1,0 +1,19 @@
+x a1 
+o b2 
+x a2 
+o a3 
+x c1 
+o b1 
+x b3 
+o c2 
+x c3 
+. a1 
+. b2 
+. a2 
+. a3 
+. c1 
+. b1 
+. b3 
+. c2
+. c3    
+
