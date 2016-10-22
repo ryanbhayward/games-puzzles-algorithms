@@ -179,8 +179,9 @@ class Position: # ttt board with x,o,e cells
           A = self.non_iso_moves(L,ptm)
           for cell in A:
             self.brd[cell] = ptm
-            print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell), 
-              'result:',-alphabetanega(0, self, opponent(ptm), -1, 1))
+            print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
+            ab, c = alphabetanega(0,0,self,opponent(ptm),-1,1)
+            print('  nodes',c, ' result',-ab)
             self.brd[cell] = Cell.e   
     else:
       print(request[2])
@@ -208,29 +209,35 @@ def undo(H, brd):  # pop last location, erase that cell
     brd[lcn] = Cell.e
 
 ####################### search
-def alphabetanega(d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
-  if psn.has_win(ptm):     return 1  # previous move created win
+def alphabetanega(calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
+  calls += 1
+  if psn.has_win(ptm):     
+    return 1, calls  # previous move created win
   L = psn.legal_moves()
-  if len(L) == 0:          return 0  # board full, no winner
+  if len(L) == 0:          
+    return 0, calls  # board full, no winner
   A = psn.non_iso_moves(L,ptm)
   so_far = -1  # best score so far
   for cell in A:
     psn.brd[cell] = ptm
-    so_far = max(so_far,-alphabetanega(d+1, psn, opponent(ptm),-beta, -alpha))
+    ab, c = alphabetanega(0, d+1, psn, opponent(ptm), -beta, -alpha)
+    so_far = max(so_far,-ab)
+    calls += c
     psn.brd[cell] = Cell.e   # reset brd to original
     alpha = max(alpha, so_far)
     if alpha >= beta:
       break
-  return so_far
+  return so_far, calls
 
 def info(p):
     h, L = hash(p.brd), p.legal_moves()
     print('  hash', h, '\n  legal moves', L)
     print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
-                              p.non_iso_moves(L,Cell.o))
+                                        p.non_iso_moves(L,Cell.o))
     for cell in (Cell.x, Cell.o):
-      print('  ',Cell.chars[cell], 'alphabeta score:',end='')
-      print('  ',alphabetanega(0, p, cell, -1, 1))
+      print('  ',Cell.chars[cell], 'alphabeta',end='')
+      ab, c = alphabetanega(0, 0, p, cell, -1, 1)
+      print(' nodes', c, 'result', ab)
     if p.game_over():
       pass
 
