@@ -10,10 +10,10 @@
 #  -   the two corresponding positions are isomorphic
 
 import numpy as np
-from time import sleep
 
 class Cell: # each cell is one of these: empty, x, o
   n,e,x,o,chars = 9,0,1,2,'.xo' 
+
 def opponent(c): return 3-c
 
 # each cell is 0,1,2
@@ -181,7 +181,7 @@ class Position: # ttt board with x,o,e cells
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
             ab, c = alphabetanega(0,0,self,opponent(ptm),-1,1)
-            print('  nodes',c, ' result',-ab)
+            print('  result','{:2d}'.format(-ab), '   nodes',c)
             self.brd[cell] = Cell.e   
     else:
       print(request[2])
