@@ -236,7 +236,7 @@ def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/
     AB[ptm-1][b_int] = so_far
   return so_far, calls
 
-def info(p, use_tt):
+def info(p, use_tt, AB):
     h, L = min_iso(p.brd), p.legal_moves()
     print('  min_iso', h, '\n  legal moves', L)
     print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
@@ -261,7 +261,7 @@ def interact(use_tt):
     if cmd[0][0]=='h':
       printmenu()
     elif cmd[0][0]=='?':
-      info(p, use_tt)
+      info(p, use_tt, AB)
     elif cmd[0][0]=='u':
       undo(history, p.brd)
     elif cmd[0][0]=='g':
