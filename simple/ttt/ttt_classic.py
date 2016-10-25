@@ -182,7 +182,7 @@ class Position: # ttt board with x,o,e cells
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
             ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
-            print('  result','{:2d}'.format(-ab), '   nodes',c)
+            print('  result','{:2d}'.format(-ab), '  nodes',c)
             self.brd[cell] = Cell.e   
     else:
       print(request[2])
@@ -244,7 +244,7 @@ def info(p, use_tt, AB):
     for cell in (Cell.x, Cell.o):
       print('  ',Cell.chars[cell], 'alphabeta',end='')
       ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
-      print(' nodes', c, 'result', ab)
+      print('  result','{:2d}'.format(ab), '  nodes',c)
     if p.game_over():
       pass
 
