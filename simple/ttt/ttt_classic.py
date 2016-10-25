@@ -27,8 +27,8 @@ powers_of_3 = np.array( # for converting position to base_3 int
 def board_to_int(B):
   return sum(B*powers_of_3) # numpy multiplies vectors componentwise
 
-# consider all possible symmetric positions, return min
-def hash(L): # using numpy array indexing here
+# consider all possible isomorphic positions, return min
+def min_iso(L): # using numpy array indexing here
   return min([board_to_int( L[Isos[j]] ) for j in range(8)])
 
 # convert from integer for board position
@@ -68,6 +68,7 @@ def printmenu():
   print('  u                  undo')
   print('  ?           solve state')
   print('  g x/o           genmove')
+  print('  t      use trans. table')
   print('  [return]           quit')
 
 def showboard(psn):
@@ -134,7 +135,7 @@ class Position: # ttt board with x,o,e cells
     for j in range(len(L)):
       p = L[j]
       self.brd[p] = cell
-      h = hash(self.brd)
+      h = min_iso(self.brd)
       if h not in H:
         H.append(h)
         X.append(j)
@@ -166,7 +167,7 @@ class Position: # ttt board with x,o,e cells
   def __init__(self, y):
     self.brd = base_3(y)
 
-  def genmove(self, request):
+  def genmove(self, request, use_tt, AB):
     if request[0]:
       L = self.legal_moves()
       if len(L)==0:
@@ -180,7 +181,7 @@ class Position: # ttt board with x,o,e cells
           for cell in A:
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
-            ab, c = alphabetanega(0,0,self,opponent(ptm),-1,1)
+            ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
             print('  result','{:2d}'.format(-ab), '   nodes',c)
             self.brd[cell] = Cell.e   
     else:
@@ -208,8 +209,12 @@ def undo(H, brd):  # pop last location, erase that cell
     lcn = H.pop()
     brd[lcn] = Cell.e
 
-####################### search
-def alphabetanega(calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
+####################### alpha-beta negamax search
+def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
+  if use_tt:
+    b_int = board_to_int(psn.brd) 
+    if b_int in AB[ptm-1]: 
+      return AB[ptm-1][b_int], 0
   calls += 1
   if psn.has_win(ptm):     
     return 1, calls  # previous move created win
@@ -220,28 +225,31 @@ def alphabetanega(calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
   so_far = -1  # best score so far
   for cell in A:
     psn.brd[cell] = ptm
-    ab, c = alphabetanega(0, d+1, psn, opponent(ptm), -beta, -alpha)
+    ab, c = ab_neg(use_tt, AB, 0, d+1, psn, opponent(ptm), -beta, -alpha)
     so_far = max(so_far,-ab)
     calls += c
     psn.brd[cell] = Cell.e   # reset brd to original
     alpha = max(alpha, so_far)
     if alpha >= beta:
       break
+  if use_tt:  
+    AB[ptm-1][b_int] = so_far
   return so_far, calls
 
-def info(p):
-    h, L = hash(p.brd), p.legal_moves()
-    print('  hash', h, '\n  legal moves', L)
+def info(p, use_tt):
+    h, L = min_iso(p.brd), p.legal_moves()
+    print('  min_iso', h, '\n  legal moves', L)
     print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
                                         p.non_iso_moves(L,Cell.o))
     for cell in (Cell.x, Cell.o):
       print('  ',Cell.chars[cell], 'alphabeta',end='')
-      ab, c = alphabetanega(0, 0, p, cell, -1, 1)
+      ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
       print(' nodes', c, 'result', ab)
     if p.game_over():
       pass
 
-def interact():
+def interact(use_tt):
+  AB = ({}, {})  # x- and o- dictionaries of alphabeta values
   p = Position(0)
   history = []  # used for erasing, so only need locations
   while True:
@@ -253,15 +261,17 @@ def interact():
     if cmd[0][0]=='h':
       printmenu()
     elif cmd[0][0]=='?':
-      info(p)
+      info(p, use_tt)
     elif cmd[0][0]=='u':
       undo(history, p.brd)
     elif cmd[0][0]=='g':
-      p.genmove(genmoverequest(cmd))
+      p.genmove(genmoverequest(cmd), use_tt, AB)
+    elif cmd[0][0]=='t':
+      use_tt = True
     elif (cmd[0][0] in Cell.chars):
       p.makemove(cmd, history)
     else:
       print('\n ???????\n')
       printmenu()
 
-interact()
+interact(False)
