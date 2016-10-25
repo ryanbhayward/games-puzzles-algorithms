@@ -1,21 +1,39 @@
 # hex player, based in part on Michi by Petr Baudis RBH 2016
 import numpy as np
 
+### cells ###############
+
 class Cell: # each cell: empty, b, w  (bw for off-board corners)
   e,b,w,bw, ch = 0,1,2,3, '.*@-' 
-def opponent(c): return 3-c
 
-R, C  = 4, 10  # rows, columns
-N     = R*C      # number board cells
+def opponent(c): 
+  return 3-c
+
+### board dimensions #####
+
+R, C  = 6, 6    # rows, columns
+N     = R*C      # number of cells
 W     = C + 2    # add 1 row/col per border, W is width of padded board
-empty = '\n'.join(['-' + C * '*' + '-'] +    # empty padded board
+
+#   -*******-
+#    o......o
+#     o......o
+#      o......o
+#       o......o
+#        o......o
+#         o......o
+#          -******-
+
+### empty padded board
+
+empty = '\n'.join(['-' + C * '*' + '-'] + 
               R * ['@' + C * '.' + '@'] +
                   ['-' + C * '*' + '-'])
+
 letters = 'abcdefghijklmnopqrstuvwxyz'
 
 
-############################
-# user i-o
+### user i-o
 
 # for colored output
 esc       = '\033['
@@ -35,20 +53,19 @@ def paint(s):  # s   a string
   return p
 
 def display_brd(brd):
-  x, d, row = ' '.join(brd), '   ', 0
-  for c in range(C):
-    d += ' ' + letters[c]
-  d += '\n'
-  for line in x.split('\n'):
-    row += 1
-    if row==1:
-      d += '   ' + line + '\n'
-    elif row <= R + 1:
-      d += (row-1)*' ' + '{:2}'.format(row-1) + line + '\n'
-    else:
-      d += (row-1)*' ' + '  ' + line + '\n'
-  return d
+#  -***-             a b c
+#  o...o            1 . . . o
+#  o...o    ==>      2 . . . o
+#  o...o              3 . . . o
+#  -***-               - * * * -
 
+  d = '   ' + ' '.join(letters[0:C]) + '\n'
+  X = ' '.join(brd).split('\n')
+  for j in range(1,R+1): 
+    d += ' '*j + '{:2d}'.format(j)+ X[j][2:] + '\n'
+  d += ' '*(R+1) + X[R+1] + '\n'
+  return d
+  
 print(empty, '\n')
 print(display_brd(empty))
 print(paint(display_brd(empty)))
