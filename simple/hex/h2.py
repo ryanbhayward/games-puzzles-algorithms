@@ -1,70 +1,102 @@
-# hex player, based in part on Michi by Petr Baudis RBH 2016
+# hex player              RBH 2016
+# style influenced by 
+#   * Michi (by Petr Baudis)
+#   * Morat (by Timo Ewalds)
+#   * Miaowy (by RBH)
+#   * Benzene (by 
+#       Broderick Arneson, Philip Henderson, Jakub Pawlewicz,
+#       Aja Huang, Yngvi Bjornsson, Michael Johanson, Morgan Kan,
+#       Kenny Young, Noah Weninger, RBH)
+
 import numpy as np
 
-### cells ###############
+class Cell: #############  cells #########################
+  e,b,w,ch = 0,1,2, '.*@-'       # empty, black, white
 
-class Cell: # each cell: empty, b, w  (bw for off-board corners)
-  e,b,w,bw, ch = 0,1,2,3, '.*@-' 
+  def opponent(c): 
+    return 3-c
 
-def opponent(c): 
-  return 3-c
+class B: ################ the board #######################
 
-### the board #####
+  ### i-o variables
+  letters = 'abcdefghijklmnopqrstuvwxyz'
+  esc       = '\033['            ###### these are for colors
+  endcolor  =  esc + '0m'
+  textcolor =  esc + '0;37m'
+  color_of  = (textcolor, esc + '0;35m', esc + '0;32m')
 
-# eg. 2x3 board     r,c                        positions
+  def __init__(self,rows,cols):
+    self.r  = rows  
+    self.c  = cols
+    self.n  = rows*cols   # number cells
+    self.g  = 1   # number guard layers that encircle true board
+    self.w  = self.c + self.g + self.g  # width of layered board
+    self.fat_n = self.w * (self.r + self.g + self.g) # fat-board cells
 
-#  -***-     -1-1  -1 0  -1 1  -1 2  -1 3      0  1  2  3  4
-#   o...o     0-1    0 0   0 1   0 2   0 3      5  6  7  8  9
-#    o...o     1-1    1 0   1 1   1 2   1 3     10 11 12 13 14
-#     -***-     2-1    2 0   2 1   2 2   2 3     15 16 17 18 19
+# 2x3 board  layers: g==1    g==2      
+#                           *******
+#            *****           *******
+#    ...      o...o           oo...oo
+#     ...      o...o           oo...oo
+#               *****           *******
+#                                *******
+    
+    self.empty_brd = np.array([0]*self.n, dtype=np.int8)
+    self.empty_fat_brd = np.array(
+      ([Cell.b]*self.w) * self.g +
+      ([Cell.w]*self.g + [0]*self.c + [Cell.w]*self.g) * self.r +
+      ([Cell.b]*self.w) * self.g, dtype=np.int8)
 
-class B:
-  def __init__(self,r,c):
-    self.r, self.c  = r, c  # rows, columns
-    self.n  = r*c           # number of cells
-    self.w  = self.c + 2    # add 1 row/col per border, W is width of padded board
+# 2x3 board      r,c          positions
 
-    powers_of_3 = [1]
-    for j in range(self.n-1): 
-      powers_of_3.append(powers_of_3[j])
-    self.powers_of_3 = np.array(powers_of_3)
+#    ...      0 0  0 1  0 2     0  1  2
+#     ...      1 0  1 1  1 2     3  4  5
 
-    ### empty padded board
-    self.empty = '\n'.join(['-' + self.c * '*' + '-'] + 
-      self.r * ['@' + self.c * '.' + '@'] +
-      ['-' + self.c * '*' + '-'])
+# 2x3 fat board     r,c                 positions
 
-    self.letters = 'abcdefghijklmnopqrstuvwxyz'
+#  -***-     -1-1 -1 0 -1 1 -1 2 -1 3    0  1  2  3  4
+#   o...o     0-1   0 0  0 1  0 2  0 3    5  6  7  8  9
+#    o...o     1-1   1 0  1 1  1 2  1 3   10 11 12 13 14
+#     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
 
-    # for colored output
-    B.esc       = '\033['
-    B.endcolor  =  B.esc + '0m'
-    B.textcolor =  B.esc + '0;37m'
-    B.color_of  = (B.textcolor, B.esc + '0;35m', B.esc + '0;32m', B.textcolor)
+### board i-o ##############
+  def disp(self, brd): # for true boards, add outer layers
+    assert(len(brd)==self.n)
+    s = 2*' ' + ' '.join(self.letters[0:self.c]) + '\n'
+    for j in range(self.r):
+      s += j*' ' + '{:2d}'.format(j) + ' ' + \
+        ' '.join([Cell.ch[brd[k + j*self.c]] for k in \
+        range(self.c)]) + ' ' + Cell.ch[Cell.w] + '\n'
+    return s + (3+self.r)*' ' + ' '.join(Cell.ch[Cell.b]*self.c) + '\n'
 
-  def board_to_int(self,brd):
-    return sum(brd*self.powers_of_3) # numpy multiplies vectors componentwise
+  def disp_fat(self, brd): # for fat boards, just print board
+    assert(len(brd)==self.fat_n)
+    s = ''
+    for j in range(self.r + self.g + self.g):
+      s += j*' ' + ' '.join([Cell.ch[brd[k + j*self.w]] \
+        for k in range(self.w)]) + '\n'
+    return s
+     
+#    powers_of_3 = [1]
+    #for j in range(self.n-1): 
+      #powers_of_3.append(powers_of_3[j])
+    #self.powers_of_3 = np.array(powers_of_3)
 
-  def rc_to_psn(self,r,c): 
-    return (r + 1) * self.w + c + 1
+#  def brd_to_int(self,brd):
+#    return sum(brd*self.powers_of_3) # numpy multiplies vectors componentwise
 
-  def psn_to_rc(self,psn):
-    r,c = divmod(psn, self.w)
-    return r-1, c-1
+  def psn_of(self,x,y):
+    return x*self.c + y
 
-  def display(self,brd):
-  #  -***-             a b c
-  #  o...o            1 . . . o
-  #  o...o    ==>      2 . . . o
-  #  o...o              3 . . . o
-  #  -***-               - * * * -
+  def fat_psn_of(self,x,y):
+    return (x+ self.g)*self.w + y + self.g
 
-    d = '   ' + ' '.join(self.letters[0:self.c]) + '\n'
-    X = ' '.join(brd).split('\n')
-    for j in range(1,self.r+1): 
-      d += ' '*j + '{:2d}'.format(j)+ X[j][2:] + '\n'
-    d += ' '*(self.r+1) + X[self.r+1] + '\n'
-    return d
+  def rc_of(self, p): # return usual row, col coordinates
+    return divmod(p, self.c)
+
+  def rc_of_fat(self, p):  # return usual row, col coordinates
+    x,y = divmod(p, self.w)
+    return x - self.g, y - self.g
 
   def paint(self,s):  # s   a string
     p = ''
@@ -81,49 +113,43 @@ class B:
 
 def tst(r,c):
   b = B(r,c)
-  print(b.empty, '\n')
-  print(b.paint(b.empty), '\n')
-  print(b.display(b.empty))
-  print(b.paint(b.display(b.empty)))
+  print(b.disp(b.empty_brd))
+  print(b.paint(b.disp(b.empty_brd)))
+  print(b.disp_fat(b.empty_fat_brd))
+  print(b.paint(b.disp_fat(b.empty_fat_brd)))
 
   for r in range(b.r):
     for c in range(b.c):
-      p = b.rc_to_psn(r,c)
-      print('{:2}'.format(p), end=' ')
-      #print(r,c,psn_to_rc(p))
-      assert (r,c) == (b.psn_to_rc(p))
-    print('\n')
-  print('\n')
+      p = b.psn_of(r,c)
+      print('{:3}'.format(p), end='')
+      assert (r,c) == (b.rc_of(p))
+    print('')
 
-  for p in range(b.w*(b.r+2)):
-    print('{:3}'.format(p), end='')
-    if b.psn_to_rc(p)[1]== b.c:
-      print('\n')
+  p = 0
+  for r in range(-b.g, b.r + b.g):
+    for c in range(-b.g, b.c + b.g):
+      p = b.fat_psn_of(r,c)
+      #print(r,c,p,b.rc_of_fat(p))
+      print('{:3}'.format(p), end='')
+      assert (r,c) == (b.rc_of_fat(p))
+    print('')
 
-# consider all possible isomorphic positions, return min
-def min_iso(L): # using numpy array indexing here
-  return min([board_to_int( L[Isos[j]] ) for j in range(8)])
+## consider all possible isomorphic positions, return min
+#def min_iso(L): # using numpy array indexing here
+  #return min([brd_to_int( L[Isos[j]] ) for j in range(8)])
 
 # convert from integer for board position
-def base_3( y ): 
-  assert(y <= ttt_states)
-  L = [0]*Cell.n
-  for j in range(Cell.n):
-    y, L[j] = divmod(y,3)
-    if y==0: break
-  return np.array( L, dtype = np.int16)
+#def base_3( y ): 
+#  assert(y <= ttt_states)
+#  L = [0]*Cell.n
+#  for j in range(Cell.n):
+#    y, L[j] = divmod(y,3)
+#    if y==0: break
+#  return np.array( L, dtype = np.int16)
 
 # input-output ################################################
 def char_to_cell(c): 
   return Cell.chars.index(c)
-
-escape_ch   = '\033['
-colorend    =  escape_ch + '0m'
-textcolor   =  escape_ch + '0;37m'
-stonecolors = (textcolor,\
-               escape_ch + '0;35m',\
-               escape_ch + '0;32m',\
-               textcolor)
 
 def genmoverequest(cmd):
   cmd = cmd.split()
@@ -144,136 +170,8 @@ def printmenu():
   print('  t      use trans. table')
   print('  [return]           quit')
 
-def showboard(psn):
-  def paint(s):  # s   a string
-    if len(s)>1 and s[0]==' ': 
-     return ' ' + paint(s[1:])
-    x = Cell.chars.find(s[0])
-    if x > 0:
-      return stonecolors[x] + s + colorend
-    elif s.isalnum():
-      return textcolor + s + colorend
-    return s
-
-  pretty = '\n   ' 
-  for c in range(3): # columns
-    pretty += ' ' + paint(chr(ord('a')+c))
-  pretty += '\n'
-  for j in range(3): # rows
-    pretty += ' ' + paint(str(1+j)) + ' '
-    for k in range(3): # columns
-      pretty += ' ' + paint(Cell.chars[psn.brd[rc_to_lcn(j,k)]])
-    pretty += '\n'
-  print(pretty)
-
-### permutations showing possible board isomorphisms
-Isos = np.array(( (0,1,2,3,4,5,6,7,8),
-         (0,3,6,1,4,7,2,5,8),
-         (2,1,0,5,4,3,8,7,6),
-         (2,5,8,1,4,7,0,3,6),
-         (8,7,6,5,4,3,2,1,0),
-         (8,5,2,7,4,1,6,3,0),
-         (6,7,8,3,4,5,0,1,2),
-         (6,3,0,7,4,1,8,5,2)
-         ), dtype = np.int8)
-
-Win_lines = np.array(( # 8 winning lines, as location triples
-  (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)
-  ), dtype=np.int8)
-
-##################### board state ########################
-# cell indices, or locations:
-#   0 1 2
-#   3 4 5
-#   6 7 8
-
-def rc_to_lcn(r,c): 
-  return r*3 + c
-
-def lcn_to_alphanum(p):
-  r, c = divmod(p,3)
-  return 'abc'[c] + '123'[r]
-
-class Position: # ttt board with x,o,e cells
-  def legal_moves(self):
-    L = []
-    for j in range(Cell.n):
-      if self.brd[j]==Cell.e: 
-        L.append(j)
-    return L
-
-  def non_iso_moves(self, L, cell): # number of non-isomorphic moves
-    assert(len(L)>0)
-    H, X = [], []
-    for j in range(len(L)):
-      p = L[j]
-      self.brd[p] = cell
-      h = min_iso(self.brd)
-      if h not in H:
-        H.append(h)
-        X.append(j)
-      self.brd[p] = Cell.e
-    L = np.array(L)
-    X = np.array(X)
-    return L[X]
-
-  def has_win(self, z):
-    win_found = False
-    for t in Win_lines:
-      if (self.brd[t[0]] == z and
-          self.brd[t[1]] == z and
-          self.brd[t[2]] == z):
-        return True
-    return False
-
-  def game_over(self):
-    win_found = False
-    for z in (Cell.x, Cell.o):
-      if (self.has_win(z)):
-        print('\n  game_over: ',Cell.chars[z],'wins\n')
-        return True
-    return False
-
-  def putstone(self, row, col, color):
-    self.brd[rc_to_lcn(row,col)] = color
-
-  def __init__(self, y):
-    self.brd = base_3(y)
-
-  def genmove(self, request, use_tt, AB):
-    if request[0]:
-      L = self.legal_moves()
-      if len(L)==0:
-        print('board full, no move possible')
-      else:
-        ptm = char_to_cell(request[1])
-        if self.has_win(ptm) or self.has_win(opponent(ptm)):
-          print('board already has winning line(s)')
-        else:
-          A = self.non_iso_moves(L,ptm)
-          for cell in A:
-            self.brd[cell] = ptm
-            print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
-            ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
-            print('  result','{:2d}'.format(-ab), '  nodes',c)
-            self.brd[cell] = Cell.e   
-    else:
-      print(request[2])
-
-  def makemove(self, cmd, H):
-    parseok, cmd = False, cmd.split()
-    if len(cmd)==2:
-      ch = cmd[0][0]
-      if ch in Cell.chars:
-        q, n = cmd[1][0], cmd[1][1:]
-        if q.isalpha() and n.isdigit():
-          x, y = int(n) - 1, ord(q)-ord('a')
-          if x>=0 and x < 3 and y>=0 and y < 3:
-            self.putstone(x, y, char_to_cell(ch))
-            H.append(rc_to_lcn(x,y)) # add location to history
-            return
-          else: print('\n  coordinate off board')
-    print('  ... ? ... sorry ...\n')
+  #def putstone(self, row, col, color):
+  #  self.brd[rc_to_lcn(row,col)] = color
 
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
@@ -282,43 +180,7 @@ def undo(H, brd):  # pop last location, erase that cell
     lcn = H.pop()
     brd[lcn] = Cell.e
 
-####################### alpha-beta negamax search
-def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
-  if use_tt:
-    b_int = board_to_int(psn.brd) 
-    if b_int in AB[ptm-1]: 
-      return AB[ptm-1][b_int], 0
-  calls += 1
-  if psn.has_win(ptm):     
-    return 1, calls  # previous move created win
-  L = psn.legal_moves()
-  if len(L) == 0:          
-    return 0, calls  # board full, no winner
-  A = psn.non_iso_moves(L,ptm)
-  so_far = -1  # best score so far
-  for cell in A:
-    psn.brd[cell] = ptm
-    ab, c = ab_neg(use_tt, AB, 0, d+1, psn, opponent(ptm), -beta, -alpha)
-    so_far = max(so_far,-ab)
-    calls += c
-    psn.brd[cell] = Cell.e   # reset brd to original
-    alpha = max(alpha, so_far)
-    if alpha >= beta:
-      break
-  if use_tt:  
-    AB[ptm-1][b_int] = so_far
-  return so_far, calls
-
-def info(p, use_tt, AB):
-    h, L = min_iso(p.brd), p.legal_moves()
-    print('  min_iso', h, '\n  legal moves', L)
-    print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
-                                        p.non_iso_moves(L,Cell.o))
-    for cell in (Cell.x, Cell.o):
-      print('  ',Cell.chars[cell], 'alphabeta',end='')
-      ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
-      print('  result','{:2d}'.format(ab), '  nodes',c)
-    if p.game_over():
-      pass
-
 tst(2,3)
+tst(3,2)
+tst(6,6)
+tst(11,11)
