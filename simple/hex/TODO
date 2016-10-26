@@ -1,7 +1,4 @@
 board      as array of 0 1 2
-fat_board  as array with borders
+fat_board  as array with guard layers, including borders
 reuse inside of fat_board as necessary,
   by copying board into middle of fat_board
-
-display(board)
-display(fatboard)

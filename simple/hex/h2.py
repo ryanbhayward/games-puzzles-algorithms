@@ -138,8 +138,8 @@ def tst(r,c):
     print('')
 
 def big_tst():
-  for j in range(1,3):
-    for k in range(1,3):
+  for j in range(1,12):
+    for k in range(1,12):
       tst(j,k)
 
 ## consider all possible isomorphic positions, return min
@@ -169,12 +169,11 @@ def genmoverequest(cmd):
   return invalid
 
 def printmenu():
-  print('  x b2         play x b 2')
-  print('  o e3         play o e 3')
-  print('  . a2          erase a 2')
+  print('  * b2         play * b 2')
+  print('  @ e3         play @ e 3')
   print('  u                  undo')
   print('  ?           solve state')
-  print('  g x/o           genmove')
+  print('  g */@           genmove')
   print('  t      use trans. table')
   print('  [return]           quit')
 
@@ -205,7 +204,7 @@ def printmenu():
   print('  t      use trans. table')
   print('  [return]           quit')
 
-def makemove(brd, cmd, H):
+def make_move(brd, cmd, H):
     parseok, cmd = False, cmd.split()
     if len(cmd)==2:
       ndx = Cell.ch.find(cmd[0][0])
@@ -215,11 +214,17 @@ def makemove(brd, cmd, H):
           x, y = int(n) - 1, ord(q)-ord('a')
           if x>=0 and x < B.r and y>=0 and y < B.c:
             p = psn_of(x,y)
-            putstone(brd, p, ndx)
-            H.append(p) # add location to history
+            if brd[p] != Cell.e:
+              print('\n cell already occupied\n')
+              return
+            else:   
+              putstone(brd, p, ndx)
+              H.append(p) # add location to history
+              return
+          else: 
+            print('\n  coordinate off board\n')
             return
-          else: print('\n  coordinate off board')
-    print('  makemove did not parse ... ')
+    print('\n  make_move did not parse \n')
 
 def interact(use_tt):
   #AB = ({}, {})  # x- and o- dictionaries of alphabeta values
@@ -245,10 +250,10 @@ def interact(use_tt):
     elif cmd[0][0]=='t':
       use_tt = True
     elif (cmd[0][0] in Cell.ch):
-      makemove(board, cmd, history)
+      make_move(board, cmd, history)
     else:
       print('\n ???????\n')
       printmenu()
 
-big_tst()
-#interact(False)
+#big_tst()
+interact(False)
