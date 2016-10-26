@@ -1,0 +1,112 @@
+# # # # dead
+
+x . x
+ x x
+
+ x
+x . o
+   o
+
+ x
+x . o
+ x
+
+# # # # dead-domination
+
++ . x
+ x x
+
+x . x
+ + x
+
+ +
+x . o
+   o
+
+ x
++ . o
+   o
+
+ +
+x . o
+ x
+
+ x
++ . o
+ x
+
+# # # # x-captured
+check for this before dead-dom,
+else the dead-dom pattern might hit first
+
+  x       
+ . .
+x x x
+
+x . . x
+ x x x
+
+x . x
+ x . x
+
+x x
+ . . o
+  x
+
+ x x x
+x . .
+     o
+
+# # # # x-capture-dominated
+  x-to-play captures, o-to-play lives
+
+  +
+ . .
+x x x
+
++ . . x
+ x x x
+
+x . . x
+ + x x
+
+x . . x
+ x + x
+
+x . +
+ x . x
+
+x . x
+ x . +
+
++ x
+ . . o
+  x
+
+x +
+ . . o
+  x
+
+x x
+ . . o
+  +
+
+ x x x
++ . .
+     o
+
+ + x x
+x . .
+     o
+
+ + x x
+x . .
+     o
+
+ x + x
+x . .
+     o
+
+ x x +
+x . .
+     o
