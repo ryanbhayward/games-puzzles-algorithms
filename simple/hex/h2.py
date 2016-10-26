@@ -9,9 +9,10 @@
 #       Kenny Young, Noah Weninger, RBH)
 
 import numpy as np
+from copy import deepcopy
 
 class Cell: #############  cells #########################
-  e,b,w,ch = 0,1,2, '.*@-'       # empty, black, white
+  e,b,w,ch = 0,1,2, '.*@'       # empty, black, white
 
   def opponent(c): 
     return 3-c
@@ -26,12 +27,12 @@ class B: ################ the board #######################
   color_of  = (textcolor, esc + '0;35m', esc + '0;32m')
 
   def __init__(self,rows,cols):
-    self.r  = rows  
-    self.c  = cols
-    self.n  = rows*cols   # number cells
-    self.g  = 1   # number guard layers that encircle true board
-    self.w  = self.c + self.g + self.g  # width of layered board
-    self.fat_n = self.w * (self.r + self.g + self.g) # fat-board cells
+    B.r  = rows  
+    B.c  = cols
+    B.n  = rows*cols   # number cells
+    B.g  = 1   # number guard layers that encircle true board
+    B.w  = self.c + self.g + self.g  # width of layered board
+    B.fat_n = self.w * (self.r + self.g + self.g) # fat-board cells
 
 # 2x3 board  layers: g==1    g==2      
 #                           *******
@@ -41,8 +42,8 @@ class B: ################ the board #######################
 #               *****           *******
 #                                *******
     
-    self.empty_brd = np.array([0]*self.n, dtype=np.int8)
-    self.empty_fat_brd = np.array(
+    B.empty_brd = np.array([0]*self.n, dtype=np.int8)
+    B.empty_fat_brd = np.array(
       ([Cell.b]*self.w) * self.g +
       ([Cell.w]*self.g + [0]*self.c + [Cell.w]*self.g) * self.r +
       ([Cell.b]*self.w) * self.g, dtype=np.int8)
@@ -60,22 +61,21 @@ class B: ################ the board #######################
 #     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
 
 ### board i-o ##############
-  def disp(self, brd): # for true boards, add outer layers
-    assert(len(brd)==self.n)
-    s = 2*' ' + ' '.join(self.letters[0:self.c]) + '\n'
-    for j in range(self.r):
-      s += j*' ' + '{:2d}'.format(j) + ' ' + \
-        ' '.join([Cell.ch[brd[k + j*self.c]] for k in \
-        range(self.c)]) + ' ' + Cell.ch[Cell.w] + '\n'
-    return s + (3+self.r)*' ' + ' '.join(Cell.ch[Cell.b]*self.c) + '\n'
-
-  def disp_fat(self, brd): # for fat boards, just print board
-    assert(len(brd)==self.fat_n)
+def disp(brd): 
+  if len(brd)==B.n:  # true board: add outer layers
+    s = 2*' ' + ' '.join(B.letters[0:B.c]) + '\n'
+    for j in range(B.r):
+      s += j*' ' + '{:2d}'.format(j+1) + ' ' + \
+        ' '.join([Cell.ch[brd[k + j*B.c]] for k in \
+        range(B.c)]) + ' ' + Cell.ch[Cell.w] + '\n'
+    return s + (3+B.r)*' ' + ' '.join(Cell.ch[Cell.b]*B.c) + '\n'
+  elif len(brd)==B.fat_n: # fat board: just return cells
     s = ''
-    for j in range(self.r + self.g + self.g):
-      s += j*' ' + ' '.join([Cell.ch[brd[k + j*self.w]] \
-        for k in range(self.w)]) + '\n'
+    for j in range(B.r + B.g + B.g):
+      s += (j+1)*' ' + ' '.join([Cell.ch[brd[k + j*B.w]] \
+        for k in range(B.w)]) + '\n'
     return s
+  else: assert(False)
      
 #    powers_of_3 = [1]
     #for j in range(self.n-1): 
@@ -85,54 +85,62 @@ class B: ################ the board #######################
 #  def brd_to_int(self,brd):
 #    return sum(brd*self.powers_of_3) # numpy multiplies vectors componentwise
 
-  def psn_of(self,x,y):
-    return x*self.c + y
+def psn_of(x,y):
+  return x*B.c + y
 
-  def fat_psn_of(self,x,y):
-    return (x+ self.g)*self.w + y + self.g
+def fat_psn_of(x,y):
+  return (x+ B.g)*B.w + y + B.g
 
-  def rc_of(self, p): # return usual row, col coordinates
-    return divmod(p, self.c)
+def rc_of(p): # return usual row, col coordinates
+  return divmod(p, B.c)
 
-  def rc_of_fat(self, p):  # return usual row, col coordinates
-    x,y = divmod(p, self.w)
-    return x - self.g, y - self.g
+def rc_of_fat(p):  # return usual row, col coordinates
+  x,y = divmod(p, B.w)
+  return x - B.g, y - B.g
 
-  def paint(self,s):  # s   a string
-    p = ''
-    for c in s:
-      x = Cell.ch.find(c)
-      if x >= 0:
-        p += self.color_of[x] + c + self.endcolor
-      elif c.isalnum():
-        p += self.textcolor + c + self.endcolor
-      else: p += c
-    return p
+def paint(s):  # replace with colored characters
+  p = ''
+  for c in s:
+    x = Cell.ch.find(c)
+    if x >= 0:
+      p += B.color_of[x] + c + B.endcolor
+    elif c.isalnum():
+      p += B.textcolor + c + B.endcolor
+    else: p += c
+  return p
+
+def show_board(brd):
+  print('\n', paint(disp(brd)))
 
 ### user i-o
 
 def tst(r,c):
-  b = B(r,c)
-  print(b.disp(b.empty_brd))
-  print(b.paint(b.disp(b.empty_brd)))
-  print(b.disp_fat(b.empty_fat_brd))
-  print(b.paint(b.disp_fat(b.empty_fat_brd)))
+  B(r,c)
+  print(disp(B.empty_brd))
+  print(paint(disp(B.empty_brd)))
+  print(disp(B.empty_fat_brd))
+  print(paint(disp(B.empty_fat_brd)))
 
-  for r in range(b.r):
-    for c in range(b.c):
-      p = b.psn_of(r,c)
+  for r in range(B.r):
+    for c in range(B.c):
+      p = psn_of(r,c)
       print('{:3}'.format(p), end='')
-      assert (r,c) == (b.rc_of(p))
+      assert (r,c) == rc_of(p)
     print('')
 
   p = 0
-  for r in range(-b.g, b.r + b.g):
-    for c in range(-b.g, b.c + b.g):
-      p = b.fat_psn_of(r,c)
-      #print(r,c,p,b.rc_of_fat(p))
+  for r in range(-B.g, B.r + B.g):
+    for c in range(-B.g, B.c + B.g):
+      p = fat_psn_of(r,c)
+      #print(r,c,p,B.rc_of_fat(p))
       print('{:3}'.format(p), end='')
-      assert (r,c) == (b.rc_of_fat(p))
+      assert (r,c) == (rc_of_fat(p))
     print('')
+
+def big_tst():
+  for j in range(1,3):
+    for k in range(1,3):
+      tst(j,k)
 
 ## consider all possible isomorphic positions, return min
 #def min_iso(L): # using numpy array indexing here
@@ -149,13 +157,13 @@ def tst(r,c):
 
 # input-output ################################################
 def char_to_cell(c): 
-  return Cell.chars.index(c)
+  return Cell.ch.index(c)
 
 def genmoverequest(cmd):
   cmd = cmd.split()
   invalid = (False, None, '\n invalid genmove request\n')
   if len(cmd)==2:
-    x = Cell.chars.find(cmd[1][0])
+    x = Cell.ch.find(cmd[1][0])
     if x == 1 or x == 2:
       return True, cmd[1][0], ''
   return invalid
@@ -170,8 +178,15 @@ def printmenu():
   print('  t      use trans. table')
   print('  [return]           quit')
 
-  #def putstone(self, row, col, color):
-  #  self.brd[rc_to_lcn(row,col)] = color
+def putstone(brd, p, cell):
+  brd[p] = cell
+
+def undo(H, brd):  # pop last location, erase that cell
+  if len(H)==0:
+    print('\n    board empty, nothing to undo\n')
+  else:
+    p = H.pop()
+    brd[p] = Cell.e
 
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
@@ -180,7 +195,60 @@ def undo(H, brd):  # pop last location, erase that cell
     lcn = H.pop()
     brd[lcn] = Cell.e
 
-tst(2,3)
-tst(3,2)
-tst(6,6)
-tst(11,11)
+def printmenu():
+  print('  b b2         play b b 2')
+  print('  w e3         play w e 3')
+  print('  . a2          erase a 2')
+  print('  u                  undo')
+  print('  ?           solve state')
+  print('  g b/w           genmove')
+  print('  t      use trans. table')
+  print('  [return]           quit')
+
+def makemove(brd, cmd, H):
+    parseok, cmd = False, cmd.split()
+    if len(cmd)==2:
+      ndx = Cell.ch.find(cmd[0][0])
+      if ndx >= 0:
+        q, n = cmd[1][0], cmd[1][1:]
+        if q.isalpha() and n.isdigit():
+          x, y = int(n) - 1, ord(q)-ord('a')
+          if x>=0 and x < B.r and y>=0 and y < B.c:
+            p = psn_of(x,y)
+            putstone(brd, p, ndx)
+            H.append(p) # add location to history
+            return
+          else: print('\n  coordinate off board')
+    print('  makemove did not parse ... ')
+
+def interact(use_tt):
+  #AB = ({}, {})  # x- and o- dictionaries of alphabeta values
+  B(3,3)
+  board = deepcopy(B.empty_brd)
+  history = []  # used for erasing, so only need locations
+  while True:
+    show_board(board)
+    cmd = input(' ')
+    if len(cmd)==0:
+      print('\n ... adios :)\n')
+      return
+    if cmd[0][0]=='h':
+      printmenu()
+    elif cmd[0][0]=='?':
+      print('  coming soon')
+      #info(p, use_tt, AB)
+    elif cmd[0][0]=='u':
+      undo(history, board)
+    elif cmd[0][0]=='g':
+      print('  coming soon')
+      #p.genmove(genmoverequest(cmd), use_tt, AB)
+    elif cmd[0][0]=='t':
+      use_tt = True
+    elif (cmd[0][0] in Cell.ch):
+      makemove(board, cmd, history)
+    else:
+      print('\n ???????\n')
+      printmenu()
+
+big_tst()
+#interact(False)
