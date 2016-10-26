@@ -9,6 +9,9 @@ stonecolors = (escape_ch + '0;35m',\
                textcolor,\
                textcolor)
 
+class Cell():  # black, white, blackwhite (dead), empty
+  b, w, bw, e  = 0, 1, 2, 3
+
 def cell_to_char(n):
   return Cell_chars[n]
 
@@ -38,6 +41,7 @@ def printmenu():
   print('  * b8       play * b 8')
   print('  o e11      play o e 11')
   print('  g b/w      genmove')
+  print('  w */o      check for win')
   print('  [return]          quit')
 
 def showboard(hexpsn):

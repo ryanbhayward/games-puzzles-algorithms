@@ -1,9 +1,8 @@
 # simple hex player RBH 2016
 import numpy as np
 import hexio
-
-class Cell():  # black, white, blackwhite (dead), empty
-  b, w, bw, e  = 0, 1, 2, 3
+from hexio import Cell
+from wincheck import BFSWinCheck
   
 class Hexposition:
 #  a hex board with 
@@ -93,6 +92,13 @@ def playgame():
     elif (cmd[0][0]== hexio.Cell_chars[Cell.b] or
       cmd[0][0]== hexio.Cell_chars[Cell.w]):
         h.makemove(cmd)
+    elif (cmd[0][0]=='w'):
+      win_validator = BFSWinCheck(h)
+      ch = cmd.split()[1]
+      try:
+          print(' '+str(win_validator.check(ch)))
+      except ValueError:
+        print(' not valid input')
     else:
       print('\n try again \n')
 

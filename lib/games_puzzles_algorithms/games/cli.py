@@ -75,11 +75,19 @@ class Cli(Cmd, object):
                                   + " "
                                   + result[1]
                                   + "\n\n")
+                terminal_game_state = self.game.state.is_terminal()
+                if (cmd in ['genmove','play']) & terminal_game_state:
+                   final_game_score = self.do_final_score(' ')
+                   self.stdout.write(self._SUCCESS_RESPONSE
+                                     + "game has ended\n"
+                                     + final_game_score[1]
+                                     + "\n\n")
+
             else:
                 self.stdout.write(self._FAILURE_RESPONSE
                                   + " "
                                   + result[1]
-                                  + "\n\n")
+                                  + "\n\n")		
             return False
         else:
             self.stdout.write(self._SUCCESS_RESPONSE + "\n\n")
@@ -127,6 +135,7 @@ class Cli(Cmd, object):
 
     def do_known_command(self, arg, opts=None):
         """Check whether the given argument is a recognized HTP command."""
+        cmd = arg
         known = cmd in self._GTP_COMMANDS
         if known:
             return (True, 'Yes')

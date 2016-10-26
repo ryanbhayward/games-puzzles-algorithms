@@ -135,4 +135,8 @@ class AlphaBetaAgent(MinimaxAgent):
                    'Value': self._tree['value'],
                    'Tree': self.to_dict(),
                    'Pruned nodes': self.pruned_nodes}, level=logging.INFO)
+        debug.log_t(lambda:{'Time remaining in seconds': log_time,
+                   'Best action so far:': best_action,
+                   'Value': self._tree['value'],
+                   'Pruned nodes': self.pruned_nodes}, level=logging.INFO)
         return best_action
