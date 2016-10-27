@@ -7,6 +7,9 @@
 #       Broderick Arneson, Philip Henderson, Jakub Pawlewicz,
 #       Aja Huang, Yngvi Bjornsson, Michael Johanson, Morgan Kan,
 #       Kenny Young, Noah Weninger, RBH)
+# boardsize constraint: 
+#    fat board should fit in dtype uint8
+#    for larger boards, increase parent dtype to uint16
 
 import numpy as np
 from copy import deepcopy
@@ -39,33 +42,34 @@ class B: ################ the board #######################
       fat_psn_of(B.r, 0),   # black btm 
       fat_psn_of(0, -1),    # white left
       fat_psn_of(0, B.c) )  # white right
+    B.parent = np.array([0]*B.fat_n, dtype=np.uint8)
 
-# 2x3 board  layers: g==1    g==2      
-#                           *******
-#            *****           *******
-#    ...      o...o           oo...oo
-#     ...      o...o           oo...oo
-#               *****           *******
-#                                *******
-    
-    B.empty_brd = np.array([0]*self.n, dtype=np.int8)
+  # 2x3 board  layers: g==1    g==2      
+  #                           *******
+  #            *****           *******
+  #    ...      o...o           oo...oo
+  #     ...      o...o           oo...oo
+  #               *****           *******
+  #                                *******
+      
+    B.empty_brd = np.array([0]*self.n, dtype=np.uint8)
     B.empty_fat_brd = np.array(
       ([Cell.b]*self.w) * self.g +
       ([Cell.w]*self.g + [0]*self.c + [Cell.w]*self.g) * self.r +
-      ([Cell.b]*self.w) * self.g, dtype=np.int8)
+      ([Cell.b]*self.w) * self.g, dtype=np.uint8)
 
-# 2x3 board      r,c          positions
-
-#    ...      0 0  0 1  0 2     0  1  2
-#     ...      1 0  1 1  1 2     3  4  5
-
-# 2x3 fat board     r,c                 positions
-
-#  -***-     -1-1 -1 0 -1 1 -1 2 -1 3    0  1  2  3  4
-#   o...o     0-1   0 0  0 1  0 2  0 3    5  6  7  8  9
-#    o...o     1-1   1 0  1 1  1 2  1 3   10 11 12 13 14
-#     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
-
+  # 2x3 board      r,c          positions
+  
+  #    ...      0 0  0 1  0 2     0  1  2
+  #     ...      1 0  1 1  1 2     3  4  5
+  
+  # 2x3 fat board     r,c                 positions
+  
+  #  -***-     -1-1 -1 0 -1 1 -1 2 -1 3    0  1  2  3  4
+  #   o...o     0-1   0 0  0 1  0 2  0 3    5  6  7  8  9
+  #    o...o     1-1   1 0  1 1  1 2  1 3   10 11 12 13 14
+  #     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
+  
 ### board i-o ##############
 def disp(brd): 
   if len(brd)==B.n:  # true board: add outer layers
@@ -124,13 +128,13 @@ def show_board(brd):
 class UF:        # union find
 
   def union(x,y,parent):  
-    parent[UF.find(x)] = UF.find(y)
+    parent[x] = y
 
   def find(x,P): # using grandparent compression
     px = parent[x]
-    if px == None: return x
+    if x == px: return x
     gx = parent[px]
-    while gx is not None:
+    while px != gx:
       parent[x] = gx
       x, px, gx = px, gx, parent[gx]
     return px
