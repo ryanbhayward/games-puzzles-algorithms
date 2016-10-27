@@ -34,6 +34,12 @@ class B: ################ the board #######################
     B.w  = self.c + self.g + self.g  # width of layered board
     B.fat_n = self.w * (self.r + self.g + self.g) # fat-board cells
 
+    B.border = (  # on fat board, location of cell on these borders:
+      fat_psn_of(-1,  0),   # black top 
+      fat_psn_of(B.r, 0),   # black btm 
+      fat_psn_of(0, -1),    # white left
+      fat_psn_of(0, B.c) )  # white right
+
 # 2x3 board  layers: g==1    g==2      
 #                           *******
 #            *****           *******
@@ -112,6 +118,23 @@ def paint(s):  # replace with colored characters
 def show_board(brd):
   print('\n', paint(disp(brd)))
 
+### connectivity ################################
+###   win_check after each move, so using union-find
+
+class UF:        # union find
+
+  def union(x,y,parent):  
+    parent[UF.find(x)] = UF.find(y)
+
+  def find(x,P): # using grandparent compression
+    px = parent[x]
+    if px == None: return x
+    gx = parent[px]
+    while gx is not None:
+      parent[x] = gx
+      x, px, gx = px, gx, parent[gx]
+    return px
+
 ### user i-o
 
 def tst(r,c):
@@ -128,7 +151,6 @@ def tst(r,c):
       assert (r,c) == rc_of(p)
     print('')
 
-  p = 0
   for r in range(-B.g, B.r + B.g):
     for c in range(-B.g, B.c + B.g):
       p = fat_psn_of(r,c)
@@ -136,6 +158,11 @@ def tst(r,c):
       print('{:3}'.format(p), end='')
       assert (r,c) == (rc_of_fat(p))
     print('')
+
+  f, (a,b,c,d) = B.empty_fat_brd, B.border
+  assert(f[a] == Cell.b and f[b] == Cell.b)
+  assert(f[c] == Cell.w and f[d] == Cell.w)
+  print(B.r, B.c, 'borders',a,b,c,d)
 
 def big_tst():
   for j in range(1,12):
@@ -255,5 +282,5 @@ def interact(use_tt):
       print('\n ???????\n')
       printmenu()
 
-#big_tst()
+big_tst()
 interact(False)
