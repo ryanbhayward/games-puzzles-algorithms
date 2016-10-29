@@ -71,7 +71,8 @@ class B: ################ the board #######################
   #     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
   
 ### board i-o ##############
-def disp(brd): 
+def disp(brd):   # return string picture of board
+
   if len(brd)==B.n:  # true board: add outer layers
     s = 2*' ' + ' '.join(B.letters[0:B.c]) + '\n'
     for j in range(B.r):
@@ -79,6 +80,7 @@ def disp(brd):
         ' '.join([Cell.ch[brd[k + j*B.c]] for k in \
         range(B.c)]) + ' ' + Cell.ch[Cell.w] + '\n'
     return s + (3+B.r)*' ' + ' '.join(Cell.ch[Cell.b]*B.c) + '\n'
+
   elif len(brd)==B.fat_n: # fat board: just return cells
     s = ''
     for j in range(B.r + B.g + B.g):
@@ -123,7 +125,7 @@ def show_board(brd):
   print('\n', paint(disp(brd)))
 
 ### connectivity ################################
-###   win_check after each move, so using union-find
+###   want win_check after each move, so union find
 
 class UF:        # union find
 
@@ -187,8 +189,8 @@ def big_tst():
 #  return np.array( L, dtype = np.int16)
 
 # input-output ################################################
-def char_to_cell(c): 
-  return Cell.ch.index(c)
+#def char_to_cell(c): 
+#  return Cell.ch.index(c)
 
 def genmoverequest(cmd):
   cmd = cmd.split()
@@ -199,41 +201,15 @@ def genmoverequest(cmd):
       return True, cmd[1][0], ''
   return invalid
 
-def printmenu():
-  print('  * b2         play * b 2')
-  print('  @ e3         play @ e 3')
-  print('  u                  undo')
-  print('  ?           solve state')
-  print('  g */@           genmove')
-  print('  t      use trans. table')
-  print('  [return]           quit')
-
 def putstone(brd, p, cell):
   brd[p] = cell
 
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
-    print('\n    board empty, nothing to undo\n')
-  else:
-    p = H.pop()
-    brd[p] = Cell.e
-
-def undo(H, brd):  # pop last location, erase that cell
-  if len(H)==0:
-    print('\n    board empty, nothing to undo\n')
+    print('\n    nothing to undo\n')
   else:
     lcn = H.pop()
     brd[lcn] = Cell.e
-
-def printmenu():
-  print('  b b2         play b b 2')
-  print('  w e3         play w e 3')
-  print('  . a2          erase a 2')
-  print('  u                  undo')
-  print('  ?           solve state')
-  print('  g b/w           genmove')
-  print('  t      use trans. table')
-  print('  [return]           quit')
 
 def make_move(brd, cmd, H):
     parseok, cmd = False, cmd.split()
@@ -257,34 +233,45 @@ def make_move(brd, cmd, H):
             return
     print('\n  make_move did not parse \n')
 
-def interact(use_tt):
-  #AB = ({}, {})  # x- and o- dictionaries of alphabeta values
-  B(3,3)
-  board = deepcopy(B.empty_brd)
-  history = []  # used for erasing, so only need locations
+def act_on_request(board, history):
+  cmd = input(' ')
+
+  if len(cmd) == 0:
+    return False, '\n ... adios :)\n'
+
+  elif cmd[0][0] =='h':
+    return True, '\n' +\
+      ' * b2       play b b 2\n' +\
+      ' @ e3       play w e 3\n' +\
+      ' g b/w         genmove\n' +\
+      ' u                undo\n' +\
+      ' [return]         quit\n'
+
+  elif cmd[0][0] =='?':
+    return True, '\n  coming soon\n'
+
+  elif cmd[0][0] =='u':
+    undo(history, board)
+    return True, '\n  undo\n'
+
+  elif cmd[0][0] =='g':
+    return True, '\n  coming soon\n'
+
+  elif (cmd[0][0] in Cell.ch):
+    make_move(board, cmd, history)
+    return True, '\n  make_move\n'
+
+  else:
+    return True, '\n  unable to parse request\n'
+
+def interact():
+  board, history = deepcopy(B(3,3).empty_brd), []
   while True:
     show_board(board)
-    cmd = input(' ')
-    if len(cmd)==0:
-      print('\n ... adios :)\n')
+    ok, msg = act_on_request(board, history)
+    print(msg)
+    if not ok:
       return
-    if cmd[0][0]=='h':
-      printmenu()
-    elif cmd[0][0]=='?':
-      print('  coming soon')
-      #info(p, use_tt, AB)
-    elif cmd[0][0]=='u':
-      undo(history, board)
-    elif cmd[0][0]=='g':
-      print('  coming soon')
-      #p.genmove(genmoverequest(cmd), use_tt, AB)
-    elif cmd[0][0]=='t':
-      use_tt = True
-    elif (cmd[0][0] in Cell.ch):
-      make_move(board, cmd, history)
-    else:
-      print('\n ???????\n')
-      printmenu()
 
 big_tst()
-interact(False)
+interact()

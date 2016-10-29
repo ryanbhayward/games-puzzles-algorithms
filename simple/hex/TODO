@@ -3,3 +3,5 @@ reuse inside of fat_board as necessary,
 
 add print_parent 
 add win_check
+
+organize code:
