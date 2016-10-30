@@ -13,6 +13,7 @@
 
 import numpy as np
 from copy import deepcopy
+from random import shuffle
 
 class Cell: #############  cells #########################
   e,b,w,ch = 0,1,2, '.*@'       # empty, black, white
@@ -52,6 +53,11 @@ class B: ################ the board #######################
     B.h  = B.r + B.g + B.g
     B.fat_n = B.h * B.w # fat-board cells
 
+    B.nbr_offset = (-B.w, -B.w+1, 1, B.w, B.w-1, -1)
+    #   0 1
+    #  5 . 2
+    #   4 3
+
     B.border = (  # on fat board, location of cell on these borders:
       0,                    # top 
       B.fat_n - 1,          # btm 
@@ -75,7 +81,7 @@ class B: ################ the board #######################
         elif fc >= B.g + B.c: B.parent[p] = B.border[3] # right
         else:                B.parent[p] = p
         p += 1
-      
+
 ##### board i-o
 
   letters = 'abcdefghijklmnopqrstuvwxyz'
@@ -110,11 +116,14 @@ def disp_parent(parent):  # convert parent to string picture
   for fr in range(B.h):
     s += fr*' ' + ' '.join([
     #      ('{:3d}'.format(parent[psn+k]))     \
-           (' * ' if parent[psn+k]==psn+k else \
+           ('  *' if parent[psn+k]==psn+k else \
             '{:3d}'.format(parent[psn+k]))     \
            for k in range(B.w)]) + '\n'
     psn += B.w
   return s
+
+def show_parent(P):
+  print(disp_parent(P))
 
 ############ colored output ######################
 
@@ -159,10 +168,11 @@ def rc_of_fat(p):  # return usual row, col coordinates
 
 class UF:        # union find
 
-  def union(x,y,parent):  
+  def union(parent,x,y):  
     parent[x] = y
+    return y
 
-  def find(x,P): # using grandparent compression
+  def find(parent,x): # using grandparent compression
     px = parent[x]
     if x == px: return x
     gx = parent[px]
@@ -171,6 +181,11 @@ class UF:        # union find
       x, px, gx = px, gx, parent[gx]
     return px
 
+def win_check(P, color):
+  if color == Cell.b:
+    return UF.find(P, B.border[0]) == UF.find(P, B.border[1])
+  return UF.find(P, B.border[2]) == UF.find(P, B.border[3])
+      
 ### user i-o
 
 def tst(r,c):
@@ -232,6 +247,29 @@ def genmoverequest(cmd):
       return True, cmd[1][0], ''
   return invalid
 
+def empty_cells(brd):
+  L = []
+  for j in range(B.fat_n):
+    if brd[j] == Cell.e: 
+      L.append(j)
+  return L
+
+def flat_mc_move(brd, P, color):
+# coming soon
+  pass
+  #for c in shuffle(empty_cells(brd)):
+  
+    
+
+def parent_update(brd, P, psn, color):
+# update parent-structure after move color --> psn
+  captain = UF.find(P, psn)
+  for j in range(6):  # 6 neighbours
+    nbr = psn + B.nbr_offset[j]
+    if color == brd[nbr]:
+      nbr_root = UF.find(P, nbr)
+      captain = UF.union(P, captain, nbr_root)
+
 def putstone(brd, p, cell):
   brd[p] = cell
 
@@ -242,29 +280,31 @@ def undo(H, brd):  # pop last location, erase that cell
     lcn = H.pop()
     brd[lcn] = Cell.e
 
-def make_move(brd, cmd, H):
+def make_move(brd, P, cmd, H):
     parseok, cmd = False, cmd.split()
     if len(cmd)==2:
-      ndx = Cell.ch.find(cmd[0][0])
-      if ndx >= 0:
+      color = Cell.ch.find(cmd[0][0])
+      if color >= 0:
         q, n = cmd[1][0], cmd[1][1:]
         if q.isalpha() and n.isdigit():
           x, y = int(n) - 1, ord(q)-ord('a')
           if x>=0 and x < B.r and y>=0 and y < B.c:
-            p = psn_of(x,y)
-            if brd[p] != Cell.e:
+            psn = fat_psn_of(x,y)
+            if brd[psn] != Cell.e:
               print('\n cell already occupied\n')
               return
             else:   
-              putstone(brd, p, ndx)
-              H.append(p) # add location to history
+              putstone(brd, psn, color)
+              parent_update(brd, P, psn, color)
+              H.append(psn) # add location to history
+              if win_check(P, color): print(' win: game over')
               return
           else: 
             print('\n  coordinate off board\n')
             return
     print('\n  make_move did not parse \n')
 
-def act_on_request(board, history):
+def act_on_request(board, P, history):
   cmd = input(' ')
 
   if len(cmd) == 0:
@@ -289,20 +329,23 @@ def act_on_request(board, history):
     return True, '\n  coming soon\n'
 
   elif (cmd[0][0] in Cell.ch):
-    make_move(board, cmd, history)
+    make_move(board, P, cmd, history)
     return True, '\n  make_move\n'
 
   else:
     return True, '\n  unable to parse request\n'
 
 def interact():
-  board, history = deepcopy(B(3,3).empty_brd), []
+  Board = B(4,4)
+  board, history = deepcopy(Board.empty_fat_brd), []
+  P = deepcopy(Board.parent)
   while True:
     show_board(board)
-    ok, msg = act_on_request(board, history)
+    show_parent(P)
+    ok, msg = act_on_request(board, P, history)
     print(msg)
     if not ok:
       return
 
-big_tst()
+#big_tst()
 interact()
