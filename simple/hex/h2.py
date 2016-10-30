@@ -110,7 +110,7 @@ def disp_parent(parent):  # convert parent to string picture
   for fr in range(B.h):
     s += fr*' ' + ' '.join([
     #      ('{:3d}'.format(parent[psn+k]))     \
-           ('   ' if parent[psn+k]==psn+k else \
+           (' * ' if parent[psn+k]==psn+k else \
             '{:3d}'.format(parent[psn+k]))     \
            for k in range(B.w)]) + '\n'
     psn += B.w
