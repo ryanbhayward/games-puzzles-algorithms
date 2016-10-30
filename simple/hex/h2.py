@@ -22,56 +22,69 @@ class Cell: #############  cells #########################
 
 class B: ################ the board #######################
 
-  ### i-o variables
-  letters = 'abcdefghijklmnopqrstuvwxyz'
-  esc       = '\033['            ###### these are for colors
-  endcolor  =  esc + '0m'
-  textcolor =  esc + '0;37m'
-  color_of  = (textcolor, esc + '0;35m', esc + '0;32m')
+  # 2x3 naked  1 guard layer   2 " "
 
-  def __init__(self,rows,cols):
-    B.r  = rows  
-    B.c  = cols
-    B.n  = rows*cols   # number cells
-    B.g  = 1   # number guard layers that encircle true board
-    B.w  = self.c + self.g + self.g  # width of layered board
-    B.fat_n = self.w * (self.r + self.g + self.g) # fat-board cells
-
-    B.border = (  # on fat board, location of cell on these borders:
-      fat_psn_of(-1,  0),   # black top 
-      fat_psn_of(B.r, 0),   # black btm 
-      fat_psn_of(0, -1),    # white left
-      fat_psn_of(0, B.c) )  # white right
-    B.parent = np.array([0]*B.fat_n, dtype=np.uint8)
-
-  # 2x3 board  layers: g==1    g==2      
   #                           *******
   #            *****           *******
   #    ...      o...o           oo...oo
   #     ...      o...o           oo...oo
   #               *****           *******
   #                                *******
-      
+
+  # naked        row col       positions
+  
+  #    ...      0 0  0 1  0 2     0  1  2
+  #     ...      1 0  1 1  1 2     3  4  5
+  
+  # fat           row col                 positions
+  
+  #  -***-     -1-1 -1 0 -1 1 -1 2 -1 3    0  1  2  3  4
+  #   o...o     0-1   0 0  0 1  0 2  0 3    5  6  7  8  9
+  #    o...o     1-1   1 0  1 1  1 2  1 3   10 11 12 13 14
+  #     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
+
+  def __init__(self,rows,cols):
+    B.r  = rows  
+    B.c  = cols
+    B.n  = rows*cols   # number cells
+    B.g  = 1   # number guard layers that encircle true board
+    B.w  = B.c + B.g + B.g  # width of layered board
+    B.h  = B.r + B.g + B.g
+    B.fat_n = B.h * B.w # fat-board cells
+
+    B.border = (  # on fat board, location of cell on these borders:
+      0,                    # top 
+      B.fat_n - 1,          # btm 
+      B.g*B.w,              # white left
+      (1+B.g)*B.w - 1)
+
     B.empty_brd = np.array([0]*self.n, dtype=np.uint8)
     B.empty_fat_brd = np.array(
       ([Cell.b]*self.w) * self.g +
       ([Cell.w]*self.g + [0]*self.c + [Cell.w]*self.g) * self.r +
       ([Cell.b]*self.w) * self.g, dtype=np.uint8)
 
-  # 2x3 board      r,c          positions
+    # parent: for union find   is_root(x): return parent[x] == x
+    B.parent = np.array([0]*B.fat_n, dtype=np.uint8)
+    p = 0
+    for fr in range(B.h):
+      for fc in range(B.w):
+        if fr < B.g:         B.parent[p] = B.border[0] # top
+        elif fr >= B.g + B.r: B.parent[p] = B.border[1] # btm
+        elif fc < B.g:       B.parent[p] = B.border[2] # left
+        elif fc >= B.g + B.c: B.parent[p] = B.border[3] # right
+        else:                B.parent[p] = p
+        p += 1
+      
+##### board i-o
+
+  letters = 'abcdefghijklmnopqrstuvwxyz'
+  esc       = '\033['            ###### these are for colors
+  endcolor  =  esc + '0m'
+  textcolor =  esc + '0;37m'
+  color_of  = (textcolor, esc + '0;35m', esc + '0;32m')
   
-  #    ...      0 0  0 1  0 2     0  1  2
-  #     ...      1 0  1 1  1 2     3  4  5
-  
-  # 2x3 fat board     r,c                 positions
-  
-  #  -***-     -1-1 -1 0 -1 1 -1 2 -1 3    0  1  2  3  4
-  #   o...o     0-1   0 0  0 1  0 2  0 3    5  6  7  8  9
-  #    o...o     1-1   1 0  1 1  1 2  1 3   10 11 12 13 14
-  #     -***-     2-1   2 0  2 1  2 2  2 3   15 16 17 18 19
-  
-### board i-o ##############
-def disp(brd):   # return string picture of board
+def disp(brd):   # convert board to string picture
 
   if len(brd)==B.n:  # true board: add outer layers
     s = 2*' ' + ' '.join(B.letters[0:B.c]) + '\n'
@@ -83,19 +96,40 @@ def disp(brd):   # return string picture of board
 
   elif len(brd)==B.fat_n: # fat board: just return cells
     s = ''
-    for j in range(B.r + B.g + B.g):
+    for j in range(B.h):
       s += (j+1)*' ' + ' '.join([Cell.ch[brd[k + j*B.w]] \
         for k in range(B.w)]) + '\n'
     return s
   else: assert(False)
      
-#    powers_of_3 = [1]
-    #for j in range(self.n-1): 
-      #powers_of_3.append(powers_of_3[j])
-    #self.powers_of_3 = np.array(powers_of_3)
+def show_board(brd):
+  print('\n', paint(disp(brd)))
 
-#  def brd_to_int(self,brd):
-#    return sum(brd*self.powers_of_3) # numpy multiplies vectors componentwise
+def disp_parent(parent):  # convert parent to string picture
+  psn, s = 0, ''
+  for fr in range(B.h):
+    s += fr*' ' + ' '.join([
+    #      ('{:3d}'.format(parent[psn+k]))     \
+           ('   ' if parent[psn+k]==psn+k else \
+            '{:3d}'.format(parent[psn+k]))     \
+           for k in range(B.w)]) + '\n'
+    psn += B.w
+  return s
+
+############ colored output ######################
+
+def paint(s):  # replace with colored characters
+  p = ''
+  for c in s:
+    x = Cell.ch.find(c)
+    if x >= 0:
+      p += B.color_of[x] + c + B.endcolor
+    elif c.isalnum():
+      p += B.textcolor + c + B.endcolor
+    else: p += c
+  return p
+
+######## positions <------>   row, column coordinates
 
 def psn_of(x,y):
   return x*B.c + y
@@ -110,19 +144,15 @@ def rc_of_fat(p):  # return usual row, col coordinates
   x,y = divmod(p, B.w)
   return x - B.g, y - B.g
 
-def paint(s):  # replace with colored characters
-  p = ''
-  for c in s:
-    x = Cell.ch.find(c)
-    if x >= 0:
-      p += B.color_of[x] + c + B.endcolor
-    elif c.isalnum():
-      p += B.textcolor + c + B.endcolor
-    else: p += c
-  return p
+############# cell vector to single integer ###########
 
-def show_board(brd):
-  print('\n', paint(disp(brd)))
+#    powers_of_3 = [1]
+    #for j in range(self.n-1): 
+      #powers_of_3.append(powers_of_3[j])
+    #self.powers_of_3 = np.array(powers_of_3)
+
+#  def brd_to_int(self,brd):
+#    return sum(brd*self.powers_of_3) # numpy multiplies vectors componentwise
 
 ### connectivity ################################
 ###   want win_check after each move, so union find
@@ -149,6 +179,7 @@ def tst(r,c):
   print(paint(disp(B.empty_brd)))
   print(disp(B.empty_fat_brd))
   print(paint(disp(B.empty_fat_brd)))
+  print(disp_parent(B.parent))
 
   for r in range(B.r):
     for c in range(B.c):
@@ -171,8 +202,8 @@ def tst(r,c):
   print(B.r, B.c, 'borders',a,b,c,d)
 
 def big_tst():
-  for j in range(1,12):
-    for k in range(1,12):
+  for j in range(1,6):
+    for k in range(1,10):
       tst(j,k)
 
 ## consider all possible isomorphic positions, return min
