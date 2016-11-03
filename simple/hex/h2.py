@@ -173,13 +173,12 @@ class UF:        # union find
     return y
 
   def find(parent,x): # using grandparent compression
-    px = parent[x]
-    if x == px: return x
-    gx = parent[px]
-    while px != gx:
-      parent[x] = gx
-      x, px, gx = px, gx, parent[gx]
-    return px
+    while True:
+      px = parent[x]
+      if x == px: return x
+      gx = parent[px]
+      if px == gx: return px
+      parent[x], x = gx, gx
 
 def win_check(P, color):
   if color == Cell.b:
