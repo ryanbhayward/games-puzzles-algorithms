@@ -91,7 +91,6 @@ class B: ################ the board #######################
   color_of  = (textcolor, esc + '0;35m', esc + '0;32m')
   
 def disp(brd):   # convert board to string picture
-
   if len(brd)==B.n:  # true board: add outer layers
     s = 2*' ' + ' '.join(B.letters[0:B.c]) + '\n'
     for j in range(B.r):
@@ -174,7 +173,7 @@ class Mcts_node:
   def tree_policy_child(node, parity):
     if parity == 0: # max node
       best = max([win_ratio(j.wins, j.visits) for j in node.children])
-    else
+    else:
       best = min([win_ratio(j.wins, j.visits) for j in node.children])
     return node.children[random.choice([j 
       for j,k in enumerate(node.children) if k == best])]
@@ -194,21 +193,42 @@ class Mcts_node:
     if winner == root_ptm:
       self.wins += 1
 
-def mcts(board, root_ptm, max_iterations, expand_threshold):
+def simulate(brd, uf_p, ptm):
+  b, P, L, m = deepcopy(brd), deepcopy(uf_p), legal_moves(brd), ptm
+  shuffle(L)
+  #print(L)
+  for psn in L:
+    putstone_and_update(b, P, psn, m)
+   # show_board(b)
+    if win_check(P, m):
+      return m
+    m = Cell.opponent(m)
+
+def sim_test(brd, uf_p, ptm, sims):
+  print('\nsim test\n')
+  iteration, wins = 0, 0
+  while iteration < sims:
+    iteration += 1
+    if ptm == simulate(brd, uf_p, ptm):
+      wins += 1
+  print(Cell.ch[ptm], ' to play', wins, '/', sims, 'wins')
+    
+def mcts(board, uf_parents, root_ptm, max_iterations, expand_threshold):
   def descend(node, board, ptm):
     node = tree_policy_child(node, root_ptm - ptm)
-    putstone(board, node.move, ptm)
-    return node, board, opponent(ptm)
+    putstone_and_update(board, uf_parents, node.move, ptm)
+    return node, board, Cell.opponent(ptm)
 
   root_node, iterations = Mcts_node(None, None), 0
   while iterations < max_iterations:
-    node, brd, ptm = root_node, deepcopy(board), root_ptm
+    node, ptm = root_node, root_ptm
+    brd, uf_par = deepcopy(board), deepcopy(uf_parents)
     while not node.is_leaf():      # select leaf
-      node, board, ptm = descend(node, board, ptm)
+      node, brd, ptm = descend(node, brd, P, ptm)
     if node.visits > expand_threshold:
-      expand_node(node, board)     # expand
-      node, board, ptm = descend(node, board, ptm)
-    result = simulate(board, ptm)  # simulate
+      expand_node(node, brd)     # expand
+      node, brd, ptm = descend(node, brd, P, ptm)
+    result = simulate(brd, P, ptm)  # simulate
     while node.has_parent():       # propagate
       update(node, root_ptm, result)
       node = node.parent
@@ -322,6 +342,10 @@ def parent_update(brd, P, psn, color):
 def putstone(brd, p, cell):
   brd[p] = cell
 
+def putstone_and_update(brd, P, psn, color):
+  putstone(brd, psn, color)
+  parent_update(brd, P, psn, color)
+
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
     print('\n    nothing to undo\n')
@@ -343,8 +367,9 @@ def make_move(brd, P, cmd, H):
               print('\n cell already occupied\n')
               return
             else:   
-              putstone(brd, psn, color)
-              parent_update(brd, P, psn, color)
+              #putstone(brd, psn, color)
+              #parent_update(brd, P, psn, color)
+              putstone_and_update(brd, P, psn, color)
               H.append(psn) # add location to history
               if win_check(P, color): print(' win: game over')
               return
@@ -385,13 +410,15 @@ def act_on_request(board, P, history):
     return True, '\n  unable to parse request\n'
 
 def interact():
-  Board = B(3,3)
+  Board = B(4,4)
   board, history = deepcopy(Board.empty_fat_brd), []
   P = deepcopy(Board.parent)
   while True:
     show_board(board)
-    print('legal ', legal_moves(board))
+    print('legal ', legal_moves(board),'\n')
     show_parent(P)
+    sim_test(board, P, Cell.b, 10000)
+    sim_test(board, P, Cell.w, 10000)
     ok, msg = act_on_request(board, P, history)
     print(msg)
     if not ok:
