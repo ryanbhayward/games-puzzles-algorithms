@@ -103,13 +103,14 @@ def disp(brd):   # convert board to string picture
   elif len(brd)==B.fat_n: # fat board: just return cells
     s = ''
     for j in range(B.h):
-      s += (j+1)*' ' + ' '.join([Cell.ch[brd[k + j*B.w]] \
+      s += j*' ' + ' '.join([Cell.ch[brd[k + j*B.w]] \
         for k in range(B.w)]) + '\n'
     return s
   else: assert(False)
      
 def show_board(brd):
-  print('\n', paint(disp(brd)))
+  print('')
+  print(paint(disp(brd)))
 
 def disp_parent(parent):  # convert parent to string picture
   psn, s = 0, ''
@@ -153,15 +154,64 @@ def rc_of_fat(p):  # return usual row, col coordinates
   x,y = divmod(p, B.w)
   return x - B.g, y - B.g
 
-############# cell vector to single integer ###########
+### mcts ########################################
 
-#    powers_of_3 = [1]
-    #for j in range(self.n-1): 
-      #powers_of_3.append(powers_of_3[j])
-    #self.powers_of_3 = np.array(powers_of_3)
+def legal_moves(board):
+  L = []
+  for psn in range(B.fat_n):
+    if board[psn] == Cell.e:
+      L.append(psn)
+  return L
 
-#  def brd_to_int(self,brd):
-#    return sum(brd*self.powers_of_3) # numpy multiplies vectors componentwise
+class Mcts_node:
+  def __init__(self, d, m, p): # move is from parent to node
+    self.depth, self.move, self.parent, self.children = d, m, p, []
+    self.wins, self.visits = 0, 0
+
+  def win_ratio(w,v):
+    return (w+5) / (v + 10)
+
+  def tree_policy_child(node, parity):
+    if parity == 0: # max node
+      best = max([win_ratio(j.wins, j.visits) for j in node.children])
+    else
+      best = min([win_ratio(j.wins, j.visits) for j in node.children])
+    return node.children[random.choice([j 
+      for j,k in enumerate(node.children) if k == best])]
+
+  def expand_node(self, board): 
+    for m in legal_moves(board):
+      self.children.append(Mcts_node(m, self))
+
+  def is_leaf(self):
+    return self.children == []
+
+  def has_parent(self):
+    return self.parent is not None
+
+  def update(self, root_ptm, winner):
+    self.visits += 1
+    if winner == root_ptm:
+      self.wins += 1
+
+def mcts(board, root_ptm, max_iterations, expand_threshold):
+  def descend(node, board, ptm):
+    node = tree_policy_child(node, root_ptm - ptm)
+    putstone(board, node.move, ptm)
+    return node, board, opponent(ptm)
+
+  root_node, iterations = Mcts_node(None, None), 0
+  while iterations < max_iterations:
+    node, brd, ptm = root_node, deepcopy(board), root_ptm
+    while not node.is_leaf():      # select leaf
+      node, board, ptm = descend(node, board, ptm)
+    if node.visits > expand_threshold:
+      expand_node(node, board)     # expand
+      node, board, ptm = descend(node, board, ptm)
+    result = simulate(board, ptm)  # simulate
+    while node.has_parent():       # propagate
+      update(node, root_ptm, result)
+      node = node.parent
 
 ### connectivity ################################
 ###   want win_check after each move, so union find
@@ -180,6 +230,8 @@ class UF:        # union find
       if px == gx: return px
       parent[x], x = gx, gx
 
+#class D2:  # 2-distance
+      
 def win_check(P, color):
   if color == Cell.b:
     return UF.find(P, B.border[0]) == UF.find(P, B.border[1])
@@ -257,8 +309,6 @@ def flat_mc_move(brd, P, color):
 # coming soon
   pass
   #for c in shuffle(empty_cells(brd)):
-  
-    
 
 def parent_update(brd, P, psn, color):
 # update parent-structure after move color --> psn
@@ -335,11 +385,12 @@ def act_on_request(board, P, history):
     return True, '\n  unable to parse request\n'
 
 def interact():
-  Board = B(4,4)
+  Board = B(3,3)
   board, history = deepcopy(Board.empty_fat_brd), []
   P = deepcopy(Board.parent)
   while True:
     show_board(board)
+    print('legal ', legal_moves(board))
     show_parent(P)
     ok, msg = act_on_request(board, P, history)
     print(msg)
