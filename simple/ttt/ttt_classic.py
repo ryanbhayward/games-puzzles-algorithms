@@ -11,6 +11,21 @@
 
 import numpy as np
 
+class TransposType:
+  LOWER = 0;
+  EXACT = 1;
+  UPPER = 2;
+
+class Transpos:
+  type = None
+  depth = None
+  value = None
+
+  def __init__(self, type, depth, value):
+    self.type = type
+    self.depth = depth
+    self.value = value
+
 class Cell: # each cell is one of these: empty, x, o
   n,e,x,o,chars = 9,0,1,2,'.xo' 
 
@@ -211,10 +226,19 @@ def undo(H, brd):  # pop last location, erase that cell
 
 ####################### alpha-beta negamax search
 def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
+  o_alpha = alpha
   if use_tt:
-    b_int = board_to_int(psn.brd) 
-    if b_int in AB[ptm-1]: 
-      return AB[ptm-1][b_int], 0
+    b_int = board_to_int(psn.brd)
+    if b_int in AB[ptm-1] and (AB[ptm-1][b_int].depth >= d):
+      t_pos = AB[ptm - 1][b_int]
+      if t_pos.type == TransposType.EXACT:
+        return t_pos.value, 0
+      elif t_pos.type == TransposType.UPPER:
+        beta = min(beta, t_pos.value)
+      elif t_pos.type == TransposType.LOWER:
+        alpha = max(alpha, t_pos.value)
+      if alpha >= beta:
+        return t_pos.value, 0
   calls += 1
   if psn.has_win(ptm):     
     return 1, calls  # previous move created win
@@ -232,8 +256,13 @@ def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/
     alpha = max(alpha, so_far)
     if alpha >= beta:
       break
-  if use_tt:  
-    AB[ptm-1][b_int] = so_far
+  if use_tt:
+    if so_far <= o_alpha:
+      AB[ptm - 1][b_int] = Transpos(type=TransposType.UPPER,depth=d,value=so_far)
+    elif so_far >= o_alpha:
+      AB[ptm - 1][b_int] = Transpos(type=TransposType.LOWER, depth=d, value=so_far)
+    else:
+      AB[ptm - 1][b_int] = Transpos(type=TransposType.EXACT, depth=d, value=so_far)
   return so_far, calls
 
 def info(p, use_tt, AB):
@@ -275,3 +304,4 @@ def interact(use_tt):
       printmenu()
 
 interact(False)
+
