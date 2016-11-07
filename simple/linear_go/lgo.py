@@ -1,5 +1,6 @@
 # linear go
 import sys
+from paint_chars import paint
 # add move history
 # add scoring
 
@@ -86,7 +87,7 @@ class LGoBoard:
     cellstr = ''    # then print cell contents
     for c in self.b:  
       cellstr += '  ' + c
-    print(indexstr + '\n' + cellstr + '\n' + sizestr)
+    print(paint(indexstr + '\n' + cellstr + '\n' + sizestr, self.stone))
 
     for ptm in range(2):
       print('\nlegal ' + self.stone[ptm] + ' ', end='')
