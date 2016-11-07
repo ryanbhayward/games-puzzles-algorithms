@@ -94,6 +94,26 @@ class LGoBoard:
       for j in range(2+self.n):
         if self.isLegalMove(j,ptm): print(j, end='')
     print('')
+    print('score [black white]: ', self.score())
+
+  def score(self): # black territory - white territory
+    territory = [0,0]
+    j, last_non_empty = 1, 0 # psn on board, psn of left edge
+    while j < 1 + self.n:
+      color = self.stone.index(self.b[j])
+      if color < 2:  # black or white
+        if last_non_empty < j-1 and (
+             last_non_empty == 0 or  # left edge
+             color == last_color):
+          territory[color] += j - last_non_empty
+        else:
+          territory[color] += 1
+        last_non_empty, last_color = j, color
+      j += 1
+    if last_non_empty > 0 and last_non_empty < j-1:
+      color = self.stone.index(self.b[last_non_empty])
+      territory[color] += (j-1) - last_non_empty
+    return territory
 
 #def showHistory(h):
   #for j in range(len(h)):
