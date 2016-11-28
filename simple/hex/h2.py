@@ -20,7 +20,7 @@ class Cell: #############  cells #########################
   e,b,w,ch = 0,1,2, '.*@'       # empty, black, white
 
   def get_ptm(ch):
-    return ord(ch) >> 5
+    return ord(ch) >> 5 # divide by the floor of 32 get player 1 or 2 based on char * or @
 
   def opponent(c):
     return 3-c
@@ -276,11 +276,12 @@ def mcts(board, uf_parents, root_ptm, max_iterations, expand_threshold):
       node, brd, ptm = descend(node, brd, ptm, uf_par, rave_table)
 
     result = simulate(brd, rave_table, uf_par, ptm)  # simulate
-    while node.has_parent():             # propagate
+    while True:             # propagate
       node.rave_update(root_ptm, result, rave_table)
       node = node.parent
       if not node.has_parent():
         node.rave_update(root_ptm, result, rave_table)
+        break
     iterations += 1
   return root_node.tree_policy_child(root_ptm-ptm).move
 
