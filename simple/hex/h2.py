@@ -171,30 +171,21 @@ class Mcts_node:
     self.depth, self.move, self.parent, self.children = depth, move, parent, []
     self.wins, self.visits, self.rave_wins, self.rave_visits = 0, 0, 0, 0
 
-  def win_ratio(self,w,v,rw,rv):
-    n = 5
-    wn = (w+5) / (v+10)
-    wnrave = (rw+5) / (rv+10)
-    #beta = (rv) / ( ( v + rv + 4*v*rv )+10 )
-    k = 500
-    beta = k/(k+v)
-    return (1-beta)*wn + (beta*wnrave) + 0.5 * math.sqrt(math.log(rv+20)/(v+10))
-
   def tree_policy_child(self, parity):
     if self.is_leaf():
       return self
     if parity == 0: # max node
-      best = max([self.win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
+      best = max([win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
     else:
-      best = min([self.win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
+      best = min([win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
     return self.children[choice([j
       for j,child_node in enumerate(self.children) \
-                                 if child_node.win_ratio(
-                                                         child_node.wins,
-                                                         child_node.visits,
-                                                         child_node.rave_wins,
-                                                         child_node.rave_visits
-                                                         ) == best])]
+                                 if win_ratio(
+                                              child_node.wins,
+                                              child_node.visits,
+                                              child_node.rave_wins,
+                                              child_node.rave_visits
+                                              ) == best])]
 
   def expand_node(self, board):
     if self.children != []: #can only expand node once
@@ -226,6 +217,13 @@ class Mcts_node:
         elif child.move in rave_moves[Cell.opponent(winner)]:
           child.rave_visits += 1
 
+def win_ratio(w,v,rw,rv):
+  wn = (w+5) / (v+10)
+  wnrave = (rw+5) / (rv+10)
+  #beta = (rv) / ( ( v + rv + 4*v*rv )+10 )
+  k = 500
+  beta = k/(k+v)
+  return (1-beta)*wn + (beta*wnrave) + 0.5 * math.sqrt(math.log(rv+20)/(v+10))
 
 def simulate(brd, rave_table, uf_p, ptm):
   b, P, L, m = deepcopy(brd), deepcopy(uf_p), legal_moves(brd), ptm
@@ -286,9 +284,6 @@ def mcts(board, uf_parents, root_ptm, max_iterations, expand_threshold):
         node.rave_update(root_ptm, result, rave_table)
         break
     iterations += 1
-  for i in root_node.children:
-    print ( "child:",i.move,"visits",i.visits,"wins",i.wins,"rave_visisits",i.rave_visits,"rave wins",i.rave_wins )
-    print ( "score:",root_node.win_ratio(i.wins,i.visits,i.rave_wins,i.rave_visits) )
   return root_node.tree_policy_child(root_ptm-ptm).move
 
 ### connectivity ################################
