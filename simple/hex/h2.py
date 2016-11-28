@@ -172,9 +172,12 @@ class Mcts_node:
     self.wins, self.visits, self.rave_wins, self.rave_visits = 0, 0, 0, 0
 
   def win_ratio(self,w,v,rw,rv):
-    wn = (w+5) / (v + 10)
-    wnrave = (w + 5) / (rv + 10)
-    beta = (rv) / ( ( v + rv + 4*v*rv )+10 )
+    n = 5
+    wn = (w+5) / (v+10)
+    wnrave = (rw+5) / (rv+10)
+    #beta = (rv) / ( ( v + rv + 4*v*rv )+10 )
+    k = 500
+    beta = k/(k+v)
     return (1-beta)*wn + (beta*wnrave) + 0.5 * math.sqrt(math.log(rv+20)/(v+10))
 
   def tree_policy_child(self, parity):
@@ -183,7 +186,7 @@ class Mcts_node:
     if parity == 0: # max node
       best = max([self.win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
     else:
-      best = min([self.win_ratio(j.wins, j.visits, j.rave_wins,j.rave_visits) for j in self.children])
+      best = min([self.win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
     return self.children[choice([j
       for j,child_node in enumerate(self.children) \
                                  if child_node.win_ratio(
@@ -197,7 +200,7 @@ class Mcts_node:
     if self.children != []: #can only expand node once
       return
     for m in legal_moves(board):
-      self.children.append(Mcts_node(m, self))
+      self.children.append(Mcts_node(m, self, self.depth+1))
 
   def is_leaf(self):
     return self.children == []
@@ -219,8 +222,9 @@ class Mcts_node:
         if child.move in rave_moves[winner]:
           child.rave_visits += 1
           if winner == root_ptm:
-              child.wins = self.wins
               child.rave_wins += 1
+        elif child.move in rave_moves[Cell.opponent(winner)]:
+          child.rave_visits += 1
 
 
 def simulate(brd, rave_table, uf_p, ptm):
@@ -259,19 +263,18 @@ def mcts(board, uf_parents, root_ptm, max_iterations, expand_threshold):
     rave_putstone_and_update(board, rave_table, uf_par, node.move, ptm)
     return node, board, Cell.opponent(ptm)
 
-  rave_table = {}
-
-  root_node, iterations = Mcts_node('root', None), 0
+  root_node, iterations = Mcts_node('root', None, 0), 0
   root_node.expand_node(board)
   ptm = root_ptm
   while iterations < max_iterations:
+    rave_table = {}
     node, ptm = root_node, root_ptm
     brd, uf_par = deepcopy(board), deepcopy(uf_parents)
 
     while not node.is_leaf():            # select leaf
       node, brd, ptm = descend(node, brd, ptm, uf_par, rave_table)
 
-    if node.visits > expand_threshold:
+    if node.visits > expand_threshold and (not win_check(uf_par, ptm)):
       node.expand_node(brd)              # expand
       node, brd, ptm = descend(node, brd, ptm, uf_par, rave_table)
 
@@ -283,6 +286,9 @@ def mcts(board, uf_parents, root_ptm, max_iterations, expand_threshold):
         node.rave_update(root_ptm, result, rave_table)
         break
     iterations += 1
+  for i in root_node.children:
+    print ( "child:",i.move,"visits",i.visits,"wins",i.wins,"rave_visisits",i.rave_visits,"rave wins",i.rave_wins )
+    print ( "score:",root_node.win_ratio(i.wins,i.visits,i.rave_wins,i.rave_visits) )
   return root_node.tree_policy_child(root_ptm-ptm).move
 
 ### connectivity ################################
@@ -400,11 +406,11 @@ def putstone_and_update(brd, P, psn, color):
 
 def rave_putstone_and_update(brd, rave_table, P, psn, color):
   def play_while_tracking_rave_moves(action):
-
     if color not in rave_table:
       rave_table[color] = {}
     if action not in rave_table[color]:
       rave_table[color][action] = True
+
   putstone_and_update(brd, P, psn, color)
   play_while_tracking_rave_moves(psn)
 
@@ -465,7 +471,6 @@ def act_on_request(board, P, history):
     cmd = cmd.split()
     if (len(cmd) == 2) and (cmd[1][0] in Cell.ch):
       ptm = Cell.get_ptm(cmd[1][0])
-      b_size = len(legal_moves(board))
       psn = mcts(board, P, ptm, 10000, 1)
       putstone_and_update(board, P, psn, ptm)
       history.append(psn)  # add location to history
