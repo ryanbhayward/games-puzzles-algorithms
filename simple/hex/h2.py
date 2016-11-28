@@ -14,6 +14,7 @@
 import numpy as np
 from copy import deepcopy
 from random import shuffle, choice
+import math
 
 class Cell: #############  cells #########################
   e,b,w,ch = 0,1,2, '.*@'       # empty, black, white
@@ -168,27 +169,29 @@ def legal_moves(board):
 class Mcts_node:
   def __init__(self, move, parent, depth=0): # move is from parent to node
     self.depth, self.move, self.parent, self.children = depth, move, parent, []
-    self.wins, self.visits = 0, 0
-
-  def win_ratio(self,w,v):
-    return (w+5) / (v + 10)
+    self.wins, self.visits, self.rave_wins, self.rave_visits = 0, 0, 0, 0
 
   def tree_policy_child(self, parity):
     if self.is_leaf():
       return self
     if parity == 0: # max node
-      best = max([self.win_ratio(j.wins, j.visits) for j in self.children])
+      best = max([win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
     else:
-      best = min([self.win_ratio(j.wins, j.visits) for j in self.children])
+      best = min([win_ratio(j.wins, j.visits, j.rave_wins, j.rave_visits) for j in self.children])
     return self.children[choice([j
       for j,child_node in enumerate(self.children) \
-                                 if child_node.win_ratio(child_node.wins,child_node.visits) == best])]
+                                 if win_ratio(
+                                              child_node.wins,
+                                              child_node.visits,
+                                              child_node.rave_wins,
+                                              child_node.rave_visits
+                                              ) == best])]
 
   def expand_node(self, board):
     if self.children != []: #can only expand node once
       return
     for m in legal_moves(board):
-      self.children.append(Mcts_node(m, self))
+      self.children.append(Mcts_node(m, self, self.depth+1))
 
   def is_leaf(self):
     return self.children == []
@@ -201,12 +204,33 @@ class Mcts_node:
     if winner == root_ptm:
       self.wins += 1
 
-def simulate(brd, uf_p, ptm):
+  def rave_update(self, root_ptm, winner,rave_moves):
+    self.visits += 1
+    if winner == root_ptm:
+      self.wins += 1
+    if winner in rave_moves:
+      for child in self.children:
+        if child.move in rave_moves[winner]:
+          child.rave_visits += 1
+          if winner == root_ptm:
+              child.rave_wins += 1
+        elif child.move in rave_moves[Cell.opponent(winner)]:
+          child.rave_visits += 1
+
+def win_ratio(w,v,rw,rv):
+  wn = (w+5) / (v+10)
+  wnrave = (rw+5) / (rv+10)
+  #beta = (rv) / ( ( v + rv + 4*v*rv )+10 )
+  k = 500
+  beta = k/(k+v)
+  return (1-beta)*wn + (beta*wnrave) + 0.5 * math.sqrt(math.log(rv+20)/(v+10))
+
+def simulate(brd, rave_table, uf_p, ptm):
   b, P, L, m = deepcopy(brd), deepcopy(uf_p), legal_moves(brd), ptm
   shuffle(L)
   #print(L)
   for psn in L:
-    putstone_and_update(b, P, psn, m)
+    rave_putstone_and_update(b, rave_table, P, psn, m)
    # show_board(b)
     if win_check(P, m):
       return m
@@ -214,39 +238,50 @@ def simulate(brd, uf_p, ptm):
 
 def sim_test(brd, uf_p, ptm, sims):
   print('\nsim test\n')
+  rave_table = {}
   iteration, wins = 0, 0
   while iteration < sims:
     iteration += 1
-    if ptm == simulate(brd, uf_p, ptm):
+    if ptm == simulate(brd, rave_table, uf_p, ptm):
+      wins += 1
+  print(Cell.ch[ptm], ' to play', wins, '/', sims, 'wins')
+
+def rave_sim_test(brd, rave_table, uf_p, ptm, sims):
+  print('\nsim test\n')
+  iteration, wins = 0, 0
+  while iteration < sims:
+    iteration += 1
+    if ptm == simulate(brd, rave_table, uf_p, ptm):
       wins += 1
   print(Cell.ch[ptm], ' to play', wins, '/', sims, 'wins')
 
 def mcts(board, uf_parents, root_ptm, max_iterations, expand_threshold):
-  def descend(node, board, ptm, uf_par):
+  def descend(node, board, ptm, uf_par, rave_table):
     node = node.tree_policy_child(root_ptm - ptm)
-    putstone_and_update(board, uf_par, node.move, ptm)
+    rave_putstone_and_update(board, rave_table, uf_par, node.move, ptm)
     return node, board, Cell.opponent(ptm)
 
-  root_node, iterations = Mcts_node('root', None), 0
+  root_node, iterations = Mcts_node('root', None, 0), 0
   root_node.expand_node(board)
   ptm = root_ptm
   while iterations < max_iterations:
+    rave_table = {}
     node, ptm = root_node, root_ptm
     brd, uf_par = deepcopy(board), deepcopy(uf_parents)
 
     while not node.is_leaf():            # select leaf
-      node, brd, ptm = descend(node, brd, ptm, uf_par)
+      node, brd, ptm = descend(node, brd, ptm, uf_par, rave_table)
 
-    if node.visits > expand_threshold:
+    if node.visits > expand_threshold and (not win_check(uf_par, ptm)):
       node.expand_node(brd)              # expand
-      node, brd, ptm = descend(node, brd, ptm, uf_par)
+      node, brd, ptm = descend(node, brd, ptm, uf_par, rave_table)
 
-    result = simulate(brd, uf_par, ptm)  # simulate
+    result = simulate(brd, rave_table, uf_par, ptm)  # simulate
     while True:             # propagate
-      node.update(root_ptm, result)
+      node.rave_update(root_ptm, result, rave_table)
       node = node.parent
       if not node.has_parent():
-        node.update(root_ptm, result)
+        node.rave_update(root_ptm, result, rave_table)
         break
     iterations += 1
   return root_node.tree_policy_child(root_ptm-ptm).move
@@ -364,6 +399,16 @@ def putstone_and_update(brd, P, psn, color):
   putstone(brd, psn, color)
   parent_update(brd, P, psn, color)
 
+def rave_putstone_and_update(brd, rave_table, P, psn, color):
+  def play_while_tracking_rave_moves(action):
+    if color not in rave_table:
+      rave_table[color] = {}
+    if action not in rave_table[color]:
+      rave_table[color][action] = True
+
+  putstone_and_update(brd, P, psn, color)
+  play_while_tracking_rave_moves(psn)
+
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
     print('\n    nothing to undo\n')
@@ -421,7 +466,6 @@ def act_on_request(board, P, history):
     cmd = cmd.split()
     if (len(cmd) == 2) and (cmd[1][0] in Cell.ch):
       ptm = Cell.get_ptm(cmd[1][0])
-      b_size = len(legal_moves(board))
       psn = mcts(board, P, ptm, 10000, 1)
       putstone_and_update(board, P, psn, ptm)
       history.append(psn)  # add location to history
@@ -445,8 +489,8 @@ def interact():
     show_board(board)
     print('legal ', legal_moves(board),'\n')
     show_parent(P)
-    sim_test(board, P, Cell.b, 10000)
-    sim_test(board, P, Cell.w, 10000)
+    #sim_test(board, P, Cell.b, 10000)
+    #sim_test(board, P, Cell.w, 10000)
     ok, msg = act_on_request(board, P, history)
     print(msg)
     if not ok:
