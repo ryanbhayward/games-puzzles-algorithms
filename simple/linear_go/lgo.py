@@ -1,104 +1,118 @@
-# linear go
+# simple program to play linear go
 import sys
 from paint_chars import paint
 # add move history
-# add scoring
 
-class LGoBoard:
+class Linear_go_state:
   def __init__(self,numcells):
     self.Black, self.White, self.Empty, self.Edge = range(4)
     self.stone = '*o-%'  # black white empty edge
     self.n = numcells
+
     # board as string
     self.b =  self.stone[self.Edge]\
-            + self.stone[self.Empty] * numcells + self.stone[self.Edge]
+            + self.stone[self.Empty] * numcells\
+            + self.stone[self.Edge]
+
     # for locations of cells that are left-end or right-end of a group,
     #   the number of cells in that group
     self.size = [1] * (numcells+2)
+    self.h = [ self.b ]  # history
 
-  def eraseStones(self,psn,k):
-    self.b = self.b[:psn]+self.stone[self.Empty]*k+ self.b[psn+k:]
+  def erase_stones(self,psn,k):
+    self.b = self.b[:psn] + self.stone[self.Empty]*k + self.b[psn+k:]
     for j in range(psn,psn+k): self.size[j] =1
 
-  def addCell(self,psn,color):
+  def add_cell(self,psn,color):
     self.b = self.b[:psn] + self.stone[color] + self.b[psn+1:]
-    if self.b[psn] == self.b[psn-1]: # matches stone to its left
-      if self.b[psn] == self.b[psn+1]: # matches stone to its right
+    # if new stone now in group of size > 1, update size of group
+    if self.b[psn] == self.b[psn-1]:  # matches stone to its left
+      if self.b[psn] == self.b[psn+1]:  # matches stone to its right
         newsize = 1 + self.size[psn-1] + self.size[psn+1]
-        self.size[psn-self.size[psn-1]] = newsize #update on left end
-        self.size[psn+self.size[psn+1]] = newsize #update on right end
-      else: # matches on left but not right
-        newsize = 1 + self.size[psn-1] 
-        self.size[psn-self.size[psn-1]] = newsize #update on left end
-        self.size[psn] = newsize                  #update on right end
-    elif self.b[psn] == self.b[psn+1]: # matches right but not left
-      newsize = 1 + self.size[psn+1] 
+        self.size[psn-self.size[psn-1]] = newsize  #update on left end
+        self.size[psn+self.size[psn+1]] = newsize  #update on right end
+      else:  # matches on left but not right
+        newsize = 1 + self.size[psn-1]
+        self.size[psn-self.size[psn-1]] = newsize  #update on left end
+        self.size[psn] = newsize                   #update on right end
+    elif self.b[psn] == self.b[psn+1]:  # matches right but not left
+      newsize = 1 + self.size[psn+1]
       self.size[psn] = newsize                    #update on left end
       self.size[psn+self.size[psn+1]] = newsize   #update on right end
 
-  def isEmpty(self,psn):
+  def is_empty(self,psn):
     return self.b[psn] == self.stone[self.Empty]
 
-  def leftGroupStrong(self,psn): # group to left has extra liberty ?
-    assert(self.isEmpty(psn) and not self.isEmpty(psn-1))
-    return self.isEmpty(psn-self.size[psn-1])
+  #def leftGroupStrong(self,psn): # group to left has 2nd liberty ?
+    #assert(self.is_empty(psn) and not self.is_empty(psn-1))
+    #return self.is_empty(psn-self.size[psn-1])
+#
+  #def rightGroupStrong(self,psn): # group to right has 2nd liberty ?
+    #assert(self.is_empty(psn) and not self.is_empty(psn+1))
+    #return self.is_empty(psn+self.size[psn+1])
 
-  def rightGroupStrong(self,psn): # group to right has extra liberty ?
-    assert(self.isEmpty(psn) and not self.isEmpty(psn+1))
-    return self.isEmpty(psn+self.size[psn+1])
-
-  def leftCapture(self, psn, color): # move will capture left group ?
+  def left_capture(self, psn, color):  # move will capture left group ?
     return (self.b[psn-1] == self.stone[1-color] and
-       not self.isEmpty(psn-(1+self.size[psn-1])))
+       not self.is_empty(psn-(1+self.size[psn-1])))
 
-  def rightCapture(self, psn, color): # move will capture right group ?
+  def right_capture(self, psn, color):  # move will capture right group ?
     return (self.b[psn+1] == self.stone[1-color] and
-       not self.isEmpty(psn+(1+self.size[psn+1])))
+       not self.is_empty(psn+(1+self.size[psn+1])))
   
-  def isLegalMove(self, psn, color):
-    return self.isEmpty(psn) and (
-      self.isEmpty(psn-1) or self.isEmpty(psn+1) or
+  def is_legal_move(self, psn, color):
+    return self.is_empty(psn) and (
+      self.is_empty(psn-1) or self.is_empty(psn+1) or
       (self.b[psn-1] == self.stone[color] and
-       self.isEmpty(psn-(1+self.size[psn-1]))) or
+       self.is_empty(psn-(1+self.size[psn-1]))) or
       (self.b[psn+1] == self.stone[color] and
-       self.isEmpty(psn+1+self.size[psn+1])) or
-       self.leftCapture(psn,color) or
-       self.rightCapture(psn,color) )
+       self.is_empty(psn+1+self.size[psn+1])) or
+       self.left_capture(psn,color) or
+       self.right_capture(psn,color) )
 
-  def makeLegalMove(self, psn, color):
-    assert self.isLegalMove(psn,color)
-    if self.leftCapture(psn,color): 
-      self.eraseStones(psn-self.size[psn-1],self.size[psn-1])
-    if self.rightCapture(psn,color): 
-      self.eraseStones(psn+1,self.size[psn+1])
-    self.addCell(psn,color)
+  def make_legal_move(self, psn, color):
+    assert self.is_legal_move(psn,color)
+    if self.left_capture(psn,color):
+      self.erase_stones(psn-self.size[psn-1],self.size[psn-1])
+    if self.right_capture(psn,color):
+      self.erase_stones(psn+1, self.size[psn+1])
+    self.add_cell(psn, color)
+    self.h.append(self.b)
 
-  def show(self):    
+  def show_history(self):
+    for j in range(len(self.h)):
+      print('  ', '{0:3d}'.format(j), self.h[j][1:-1])
+    print('')
+
+  def show(self):
+    self.show_history()
     sizestr = ''   # print group sizes
-    for j in range(2+self.n):
-      if self.size[j] < 10: sizestr += ' '
+    for j in range(2 + self.n):
+      if self.size[j] < 10:
+        sizestr += ' '
       sizestr += ' ' + str(self.size[j])
 
-    indexstr = '   '   # print cell indices 
+    indexstr = '   '  # print cell indices
     for j in range(self.n):
-      if j+1 < 10: indexstr += ' '
+      if j + 1 < 10:
+        indexstr += ' '
       indexstr += ' ' + str(j+1)
 
     cellstr = ''    # then print cell contents
-    for c in self.b:  
+    for c in self.b:
       cellstr += '  ' + c
     print(paint(indexstr + '\n' + cellstr + '\n' + sizestr, self.stone))
 
     for ptm in range(2):
-      print('\nlegal ' + self.stone[ptm] + ' ', end='')
+      print('\n  legal ' + self.stone[ptm] + ' ', end='')
       for j in range(2+self.n):
-        if self.isLegalMove(j,ptm): print(j, end='')
+        if self.is_legal_move(j, ptm):
+          print(j, end='')
     print('')
-    print('score [black white]: ', self.score())
+    print('  score [*, o]  ', self.score())
 
-  def score(self): # black territory - white territory
-    territory = [0,0]
-    j, last_non_empty = 1, 0 # psn on board, psn of left edge
+  def score(self):  # black territory - white territory
+    territory = [0, 0]
+    j, last_non_empty = 1, 0  # psn on board, psn of left edge
     while j < 1 + self.n:
       color = self.stone.index(self.b[j])
       if color < 2:  # black or white
@@ -115,39 +129,46 @@ class LGoBoard:
       territory[color] += (j-1) - last_non_empty
     return territory
 
-#def showHistory(h):
-  #for j in range(len(h)):
-    #print j, 
-    #showBoard(h[j])
 
-def getCommand(color):
+def get_command(color):
   print('\n ' + color + '  cell ', end='')
   line = sys.stdin.readline()
   print('')
-  if line[0] == '\n': 
-    return -2 # end game
-  elif not line.split()[0].isdigit(): 
-    return -1 # bad input, retry
-  else: 
+  if line[0] == '\n':
+    return -3  # end game
+  elif line.split()[0] == 'u':
+    return -2  # undo
+  elif not line.split()[0].isdigit():
+    return -1  # bad input, retry
+  else:
     return int(line.split()[0])
 
-def playGame(board):
-  ptm = board.Black # player to move: 1st player
+
+def playGame(state):
+  ptm = state.Black  # player to move: 1st player
   while True:
-    board.show()
-    m = getCommand(board.stone[ptm])
-    if   m == -2: break
-    elif m == -1: print('sorry ? ... ')
-    elif m ==  0: 
-      print('pass\n')
+    state.show()
+    m = get_command(state.stone[ptm])
+    if m == -3:
+      break
+    elif m == -2:
+      print('undo\n')
+      if len(state.h) > 1:
+        state.h.pop()
+    elif m == -1:
+      print('sorry ? ... ')
+    elif m == 0:
+      print('  pass\n')
+      state.h.append(' ')
       ptm = 1 - ptm
-    elif m > board.n: print('out of bounds')
-    elif not board.isLegalMove(m,ptm): 
+    elif m > state.n:
+      print('out of bounds')
+    elif not state.is_legal_move(m, ptm):
       print(' illegal ... try again\n')
-    else: 
-      board.makeLegalMove(m,ptm)
+    else:
+      state.make_legal_move(m, ptm)
       ptm = 1 - ptm
   print('  adios ... sayonara ... annyeong ... zaijian ...\n')
 
-brd = LGoBoard(8)
+brd = Linear_go_state(8)
 playGame(brd)
