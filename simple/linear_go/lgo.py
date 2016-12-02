@@ -108,7 +108,6 @@ class Linear_go_state:
     if self.right_capture(psn,color):
       self.erase_stones(psn+1, self.size[psn+1])
     new_board = self.b[:psn] + self.stone[color] + self.b[psn+1:]
-    print(new_board)
     if new_board in self.h:
       print(' illegal: positional superko\n')
       self.b = brd
@@ -208,7 +207,7 @@ def playGame(state):
       ok = state.try_legal_move(m, ptm)
       if ok:
         ptm = 1 - ptm
-  print('  adios ... sayonara ... annyeong ... zaijian ...\n')
+  print('  adios ...\n  zaijian ...\n  sayonara ...\n  annyeong ...\n')
 
-brd = Linear_go_state(5)
+brd = Linear_go_state(7)
 playGame(brd)
