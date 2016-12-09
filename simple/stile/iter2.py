@@ -2,6 +2,7 @@
 # under construction
 
 from random import shuffle
+from copy import deepcopy
 from time import sleep, time
 from sys import stdin
 
@@ -10,13 +11,14 @@ class Tile:
 
   def __init__(self):
     self.state = []
+    self.history = []
     for line in stdin:
       for elem in line.split():
         self.state.append(int(elem))
     # rows, cols are 1st 2 elements of list, so pop them
     self.r, self.c = self.state.pop(0), self.state.pop(0)
     # state now holds contents of tile in row-major order
-    
+
     assert(self.r>=2 and self.c>=2)
     for s in self.state: assert(s>=0 and s < self.r*self.c)
     ndx_min = self.state.index(min(self.state))
@@ -30,7 +32,11 @@ class Tile:
     # slide a tile   shift is from blank's perspective
     b_dx = self.state.index(0) # index of blank
     o_dx = b_dx + shift        # index of other tile
-    self.state[b_dx], self.state[o_dx] = self.state[o_dx], self.state[b_dx]
+    tmp = deepcopy(self.state)
+    tmp[b_dx], tmp[o_dx] = tmp[o_dx], tmp[b_dx]
+    if(tmp not in self.history):
+      self.state[b_dx], self.state[o_dx] = self.state[o_dx], self.state[b_dx]
+      self.history.append(tmp)
     self.showpretty()
 
   def coords(self,psn): return psn // self.c, psn % self.c
@@ -41,7 +47,7 @@ class Tile:
 
   def mv_blank(self,psn,direction): # blank to psn, try direction first
     #sleep(.5)
-    #print('  blank to', psn,'direction',direction,'\n')
+    print('  blank to', psn,'direction',direction,'\n')
     y_crds = self.coords(psn)
     while True:
       b_dx = self.state.index(0)
@@ -89,92 +95,94 @@ class Tile:
     #  shuffle(self.state)
     #  sleep(.5)
     #  self.itersolve()
+    self.r, self.c = 4, 4
     self.state = [11,10, 9, 2,1,13, 7, 5,15, 0, 8,14,3,12, 6, 4]
     self.itersolve()
 
-  def mv_tile(self,t,xlcn): # move tile t to destination xlcn
+  def mv_tile(self, t, dst_index): # move tile t to destination dst_index , destination is index in the array
     def delta_c(ac,bc): return (bc[0]-ac[0],bc[1]-ac[1])
 
     def init():
-      xc = self.coords(xlcn) # destination
-      tlcn = self.state.index(t)
-      tc = self.coords(tlcn)
-      print('xlcn', xlcn, ' tlcn', tlcn,'\n')
-      bc = self.coords(self.state.index(0))
-      delta = delta_c(tc,xc) # coord delta from tile to dest
-      #print('                  delta ',delta)
+      dst_coords = self.coords(dst_index) # destination
+      t_index = self.state.index(t)
+      t_coords = self.coords(t_index)
+      print('dst_index', dst_index, ' t_index', t_index, '\n')
+      blank_coords = self.coords(self.state.index(0))
+      delta = delta_c(t_coords,dst_coords) # coord delta from tile to dest
+      print('                  delta ',delta)
       #sleep(.5)
-      abv = self.psn_of((tc[0]-1,tc[1])) # above tile
-      lf  = self.psn_of((tc[0],tc[1]-1)) # left of tile
-      rt  = self.psn_of((tc[0],tc[1]+1)) # right of tile
-      return xc, tlcn, tc, bc, delta, abv, lf, rt
+      abv_t = self.psn_of((t_coords[0]-1,t_coords[1])) # above tile
+      left_t  = self.psn_of((t_coords[0],t_coords[1]-1)) # left of tile
+      right_t  = self.psn_of((t_coords[0],t_coords[1]+1)) # right of tile
+      return dst_coords, t_index, t_coords, blank_coords, delta, abv_t, left_t, right_t
 
     # assume tiles 1.. t-1 already in psn
-    #print('\nmv_tile',t,xlcn,'\n')
+    #print('\nmv_tile',t,dst_index,'\n')
     self.showpretty()
     sleep(1)
+    self.history = []
     while True:
-      xc, tlcn, tc, bc, delta, abv, lf, rt = init()
-      #print('bc',bc,' tc',tc,' xc',xc,' abv',abv,' lf',lf,' rt',rt)
-      if tlcn == xlcn: return
-      if tc[1] < xc[1]: # tile left of destination
+      dst_coords, t_index, t_coords, blank_coords, delta, abv_t, left_t, right_t = init()
+      #print('blank_coords',blank_coords,' t_coords',t_coords,' dst_coords',dst_coords,' abv_t',abv_t,' left_t',left_t,' right_t',right_t)
+      if t_index == dst_index: return
+      if t_coords[1] < dst_coords[1]: # tile left of destination
         print('tile left dest')
-        assert(tc[0] > xc[0]) # then tile must also be below
-        if tc[0]==xc[0]+1: # tile at topmost position
+        assert(t_coords[0] > dst_coords[0]) # then tile must also be below
+        if t_coords[0]==dst_coords[0]+1: # tile at topmost position
           print('case A')
-          if bc[0]<tc[0]:
+          if blank_coords[0]<t_coords[0]:
             self.slide(self.DN)
-          self.mv_blank(rt,self.RT)
+          self.mv_blank(right_t,self.RT)
           self.slide(self.LF)
-        elif (bc[1]<tc[1] or            # blank left of tile 
-          bc[1]==tc[1] and bc[0]<tc[0]): # blank above
-          print('case B  abv',abv)
-          self.mv_blank(abv,self.UP)
+        elif (blank_coords[1]<t_coords[1] or            # blank left of tile
+          blank_coords[1]==t_coords[1] and blank_coords[0]<t_coords[0]): # blank above
+          print('case B  abv_t',abv_t)
+          self.mv_blank(abv_t,self.UP)
           self.slide(self.DN)
         else: 
           print('case C')
-          self.mv_blank(rt,self.UP) 
+          self.mv_blank(right_t,self.UP)
           self.slide(self.LF)
       # tile not left of destination
-      elif tc[1]==xc[1]: # tile below dest
-        #print('tile below dest')
-        if tc[0]==xc[0]+1: 
-          #print('tile immediately below dest')
-          if bc[0]==tc[0] and bc[1]<tc[1]: 
+      elif t_coords[1]==dst_coords[1]: # tile below dest
+        print('tile below dest')
+        if t_coords[0]==dst_coords[0]+1:
+          print('tile immediately below dest')
+          if blank_coords[0]==t_coords[0] and blank_coords[1]<t_coords[1]:
             self.slide(self.DN)
-          if bc[0]>=tc[0] and bc[1]<=tc[1]: 
-            self.mv_blank(rt,self.RT)
-          self.mv_blank(abv,self.UP)
+          if blank_coords[0]>=t_coords[0] and blank_coords[1]<=t_coords[1]:
+            self.mv_blank(right_t,self.RT)
+          self.mv_blank(abv_t,self.UP)
           self.slide(self.DN)
           #print('why not stop here')
         else:
-          if bc[1]==tc[1] and bc[0]>tc[0]:
+          if blank_coords[1]==t_coords[1] and blank_coords[0]>t_coords[0]:
             self.slide(self.RT)
-          self.mv_blank(abv,self.UP)
+          self.mv_blank(abv_t,self.UP)
           self.slide(self.DN)
       # tile not left or below
-      elif bc[0]>tc[0] or bc[0]-bc[1] > tc[0]-tc[1]: 
+      elif blank_coords[0]>t_coords[0] or blank_coords[0]-blank_coords[1] > t_coords[0]-t_coords[1]:
         # blank below tile or below UL-to-BR diagonal thru tile
-        #print('tile other dest')
-        self.mv_blank(lf, self.LF)
+        print('tile other dest')
+        self.mv_blank(left_t, self.LF)
         self.slide(self.RT)
-      elif tc[0] == xc[0]: # tile same row as destination
-        #print('tile other dest')
-        if bc[0] == tc[0] and bc[1] > tc[1]: #blank same row and right
+      elif t_coords[0] == dst_coords[0]: # tile same row as destination
+        print('tile other dest')
+        if blank_coords[0] == t_coords[0] and blank_coords[1] > t_coords[1]: #blank same row and right
           self.slide(self.DN)
-        self.mv_blank(lf, self.LF)
+        self.mv_blank(left_t, self.LF)
         self.slide(self.RT)
       else:
-        #print('tile other dest')
-        self.mv_blank(abv, self.UP)
+        print('tile other dest')
+        self.mv_blank(abv_t, self.UP)
         self.slide(self.DN)
 
-      xc, tlcn, tc, bc, delta, abv, lf, rt = init()
-      if tlcn == xlcn: return
-      #assert(self.blank_ok(bc,tc)) # blank now left or above
-      if bc[1]>=xc[1]:
-        if bc[0]==tc[0] and bc[1]==tc[1]-1: self.slide(self.RT)
-        if bc[0]==tc[0]-1 and bc[1]==tc[1]: self.slide(self.DN)
+      dst_coords, t_index, t_coords, blank_coords, delta, abv_t, left_t, right_t = init()
+      if t_index == dst_index: return
+      #assert(self.blank_ok(blank_coords,t_coords)) # blank now left or above
+      if blank_coords[1]>=dst_coords[1]:
+        if blank_coords[0]==t_coords[0] and blank_coords[1]==t_coords[1]-1: self.slide(self.RT)
+        if blank_coords[0]==t_coords[0]-1 and blank_coords[1]==t_coords[1]: self.slide(self.DN)
  
   def itersolve(self): # solve iteratively
     def insubboard(xcrd, ulcrd):
