@@ -17,6 +17,8 @@ class Tile:
         self.state.append(int(elem))
     # rows, cols are 1st 2 elements of list, so pop them
     self.r, self.c = self.state.pop(0), self.state.pop(0)
+    self.size = self.r*self.c
+    self.move_made = 1;
     # state now holds contents of tile in row-major order
 
     assert(self.r>=2 and self.c>=2)
@@ -28,15 +30,39 @@ class Tile:
     self.LF, self.RT, self.UP, self.DN = -1, 1, -self.c, self.c
     self.shifts = [self.LF, self.RT, self.UP, self.DN] #left right up down
 
+  def bound_check(self,coords,move):
+    psn = self.psn_of(coords)
+    tmp_mv = psn+move
+    tmp_coords = self.coords(tmp_mv)
+    if (tmp_coords[0] >= self.r or tmp_coords[1] >= self.c):
+      print(">>>column or row move NOT valid<<<")
+      return 0
+    elif ( tmp_coords[0] == coords[0] and tmp_coords[1] != coords[1] ): #row move check
+      #print("VALID row move")
+      return 1
+    elif ( tmp_coords[0] != coords[0] and tmp_coords[1] == coords[1] ): #column move check
+      #print("VALID column move")
+      return 1
+    else:
+      return 0
+
+
   def slide(self,shift):
     # slide a tile   shift is from blank's perspective
     b_dx = self.state.index(0) # index of blank
     o_dx = b_dx + shift        # index of other tile
-    tmp = deepcopy(self.state)
-    tmp[b_dx], tmp[o_dx] = tmp[o_dx], tmp[b_dx]
-    if(tmp not in self.history):
-      self.state[b_dx], self.state[o_dx] = self.state[o_dx], self.state[b_dx]
-      self.history.append(tmp)
+    if ( self.bound_check(self.coords(b_dx),shift) ):#if move is inside of board
+      tmp = deepcopy(self.state)
+      tmp[b_dx], tmp[o_dx] = tmp[o_dx], tmp[b_dx]
+      if (tmp not in self.history):
+        self.state[b_dx], self.state[o_dx] = self.state[o_dx], self.state[b_dx]
+        self.history.append(tmp)
+        self.move_made = 1
+      else:
+        print("move has already been made")
+        self.move_made = 0;
+    else:
+      self.move_made = 0;
     self.showpretty()
 
   def coords(self,psn): return psn // self.c, psn % self.c
@@ -63,6 +89,8 @@ class Tile:
         elif b_crds[0] < y_crds[0]: self.slide(self.DN)
         elif b_crds[1] > y_crds[1]: self.slide(self.LF)
         else:                       self.slide(self.RT)
+      if self.move_made == 0:
+        return
 
   def blank_ok(self,bc,tc): # blank is left of or above t
     return bc[0]==tc[0] and bc[1]==tc[1]-1 \
@@ -95,8 +123,6 @@ class Tile:
     #  shuffle(self.state)
     #  sleep(.5)
     #  self.itersolve()
-    self.r, self.c = 4, 4
-    self.state = [11,10, 9, 2,1,13, 7, 5,15, 0, 8,14,3,12, 6, 4]
     self.itersolve()
 
   def mv_tile(self, t, dst_index): # move tile t to destination dst_index , destination is index in the array
@@ -121,7 +147,11 @@ class Tile:
     self.showpretty()
     sleep(1)
     self.history = []
+    self.move_made = 1
     while True:
+      if (self.move_made == 0):
+        print('\n\nno move made last round. ending mv_title call...\n')
+        return
       dst_coords, t_index, t_coords, blank_coords, delta, abv_t, left_t, right_t = init()
       #print('blank_coords',blank_coords,' t_coords',t_coords,' dst_coords',dst_coords,' abv_t',abv_t,' left_t',left_t,' right_t',right_t)
       if t_index == dst_index: return
@@ -148,7 +178,7 @@ class Tile:
         print('tile below dest')
         if t_coords[0]==dst_coords[0]+1:
           print('tile immediately below dest')
-          if blank_coords[0]==t_coords[0] and blank_coords[1]<t_coords[1]:
+          if blank_coords[0]==t_coords[0] and blank_coords[1]<t_coords[1]:#>>>>>
             self.slide(self.DN)
           if blank_coords[0]>=t_coords[0] and blank_coords[1]<=t_coords[1]:
             self.mv_blank(right_t,self.RT)
@@ -207,10 +237,12 @@ class Tile:
       L.append(0)
       return L
 
-    UP, DN, LF, RT = self.UP, self.DN, self.LF, self.RT
+    #UP, DN, LF, RT = self.UP, self.DN, self.LF, self.RT
     self.mv_tile(1,0)
     self.mv_tile(2,1)
     self.mv_tile(3,2)
+    for i in range(4,16):
+      self.mv_tile(i,i-1)
 
 st = Tile()
 #st.tst_mv()
