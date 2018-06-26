@@ -71,15 +71,26 @@ class Tile:
       if L[x] != 0 and L[x] != x+1: count += 1
     return count
 
+cmd_left = 'd'
+cmd_right = 'f'
+cmd_up = 'i'
+cmd_down = 'j'
+cmd_quit = '\n'
+cmd_chars = cmd_left + cmd_right + cmd_up + cmd_down + cmd_quit
+
 def get_dimensions():
   instr = input('rows columns, e.g. 5 3:  ')
   return int(instr.split()[0]), int(instr.split()[1])
 
 def get_command():
   while True:
-    sl = input('< > ^ v ?  ')
+    sl = input('?  slide   < > ^ v   ' 
+       + cmd_left + ' ' 
+       + cmd_right + ' ' 
+       + cmd_up + ' ' 
+       + cmd_down + '  ')
     if len(sl)==0: return '\n'
-    if sl[0] in '<>^v\n': break
+    if sl[0] in cmd_chars: break
     print('sorry, invalid character')
   return sl[0]
 
@@ -90,19 +101,19 @@ def play():
   while True:
     ndx0 = st.state.index(min(st.state)) # index of 0
     ch = get_command()
-    if ch == '\n': 
+    if ch == cmd_quit: 
       print('\nadios :) \n')
       return
-    if ch == '<': #tile goes left, blank goes right
+    if ch == cmd_left: #tile goes left, blank goes right
       if st.RT in st.legal_shifts(ndx0): st.slide(st.RT)
       else: print('illegal shift')
-    elif ch== '>':
+    elif ch== cmd_right:
       if st.LF in st.legal_shifts(ndx0): st.slide(st.LF)
       else: print('illegal shift')
-    elif ch== '^':
+    elif ch== cmd_up:
       if st.DN in st.legal_shifts(ndx0): st.slide(st.DN)
       else: print('illegal shift')
-    elif ch== 'v':
+    elif ch== cmd_down:
       if st.UP in st.legal_shifts(ndx0): st.slide(st.UP)
       else: print('illegal shift')
     st.showpretty()
