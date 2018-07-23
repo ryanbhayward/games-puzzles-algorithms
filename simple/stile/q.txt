@@ -1,0 +1,10 @@
+Prove: return to state with same empty cell location 
+requires an even number of moves.
+
+Prove: rows at least 2, cols at least 2, and move any tile
+to upper left (what if rows at least 1?).
+
+Prove: rows at least 2, cols at least 3 (or vice versa),
+can exchange x at (1,1) with  y at (2,1).
+
+Prove: previous example, rows=2, cols=3, how many moves?  min 20?
