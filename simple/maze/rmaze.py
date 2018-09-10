@@ -105,9 +105,9 @@ class Maze:
 
 maze = Maze() # Maze() calls __init__(maze) of class Maze
 startpsn = maze.find_start() # scan the maze to find the origin location
-psn = maze.rwander(startpsn) # return the value found by recursive wandering
-print('finish at location',psn) # print the destination location
-maze.clear() # erase any left-over curr_ch
-sleep(2)
+#psn = maze.rwander(startpsn) # return the value found by recursive wandering
+#print('finish at location',psn) # print the destination location
+#maze.clear() # erase any left-over curr_ch
+#sleep(2)
 psn = maze.wander2(startpsn) # return the value found by recursive wandering
 print('finish at location',psn) # print the destination location
