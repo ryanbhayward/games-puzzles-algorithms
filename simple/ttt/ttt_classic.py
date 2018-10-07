@@ -77,13 +77,14 @@ def genmoverequest(cmd):
   return invalid
 
 def printmenu():
+  print('  h             help menu')
   print('  x b2         play x b 2')
   print('  o e3         play o e 3')
   print('  . a2          erase a 2')
-  print('  u                  undo')
+  print('  t        toggle: use TT')
   print('  ?           solve state')
   print('  g x/o           genmove')
-  print('  t      use trans. table')
+  print('  u                  undo')
   print('  [return]           quit')
 
 def showboard(psn):
@@ -296,7 +297,9 @@ def interact(use_tt):
     elif cmd[0][0]=='g':
       p.genmove(genmoverequest(cmd), use_tt, AB)
     elif cmd[0][0]=='t':
-      use_tt = True
+      use_tt = not(use_tt)
+      if not (use_tt): print('\n not using TT\n')
+      else: print('\n using TT\n')
     elif (cmd[0][0] in Cell.chars):
       p.makemove(cmd, history)
     else:
