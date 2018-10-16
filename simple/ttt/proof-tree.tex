@@ -1,0 +1,51 @@
+%\documentclass[tikz]{standalone}
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usepackage{forest,calc}
+\forestset{
+  make tab/.style args={#1:#2:#3/#4:#5:#6/#7:#8:#9}{%
+    content={%
+      \tabcolsep=.6\tabcolsep
+      \begin{tabular}{p{\widthof{x}}|p{\widthof{x}}|p{\widthof{x}}}
+        #1 & #2 & #3\\\hline#4&#5&#6\\\hline#7&#8&#9
+      \end{tabular}}},
+  label position r/.initial=right,
+  label position b/.initial=below
+}
+\begin{document}
+\begin{forest}
+  TTT/.style args={#1:#2}{
+    make tab/.expanded=\forestove{content},
+    label={\pgfkeysvalueof{/forest/label position #1}:$#2$}
+  },
+  TTT*/.style={
+    make tab=::/::/::,
+    content/.expand once=%
+    \expandafter\vphantom\expandafter{\romannumeral-`0\forestov{content}},
+    draw=none,
+    append after command={(\tikzlastnode.north) edge (\tikzlastnode.south)},
+    for descendants={before computing xy={l*=1.2}},
+  },
+  th/.style=thick,
+  for tree={node options=draw, inner sep=+0pt, outer sep=+5pt,
+            l sep=20pt, s sep=50pt,
+              parent anchor=south, child anchor=north}
+%
+[x::o/::/::x, TTT=r:
+  [x::o/:o:/::x, TTT=r:
+    [x::o/:o:/x::x, TTT=r:
+      [x::o/o:o:/x::x, TTT=r:
+        [x::o/o:o:/x:x:x, TTT=r:]
+      ]
+      [x:?:o/:o:?/x:?:x, TTT=r:
+        [x:?:o/x:o:/x:?:x, TTT=r:]
+      ]
+    ]
+  ]
+  [x:?:o/?::?/x:?:x, TTT=r:
+    [x:?:o/?:x:?/x:?:x, TTT=r:
+    ]
+  ]
+]
+\end{forest}
+\end{document}
