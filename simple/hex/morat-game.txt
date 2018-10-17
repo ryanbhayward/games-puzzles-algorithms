@@ -1,0 +1,2 @@
+8x8 morat game, white (horizontal, morat) played first
+d5 e3 c4 c3 d3 e1 f2 e6 c7 e2 d2 d1 b2 c2 a4 b4 a5 b5 g3 f3 g2 f4 h4 g4 h3 g6 a6 b7 b6 c6 f5 e5 h7 f6 b8
