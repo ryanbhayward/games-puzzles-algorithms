@@ -78,6 +78,7 @@ class Nimgame:
               cjcopy[x] = t
               pjc = self.psn(cjcopy)
               self.wins[pjc], self.winmove[pjc] = True, j
+              #print(self.crd(pjc),'wins')
       print('')
 
     def getdim():
