@@ -15,19 +15,20 @@ def win_rate_test(n):
     print('')
 
 def ucb_demo(n):
-  c, v = .5, 1
-  print('UCB1 formula values')
+  c, j = .5, 1
+  print('  UCB1 formula values')
   print('win rate additive factor T', T)
   print('ucb multiplicative constant c', c)
-  print('w v V ratios  0 1 2  1 3 6  9 20 40  50 100 200') 
+  print('for some j, compute ucb(c, w*j, v*j, V*j)')
+  print('w v V  0 1 2  1 3 6  9 20 40  100 200 400') 
   for k in range(n):
-    print('v', '{:4d}'.format(v), ' ', end='')
-    print(' ', 
-      '{0:.3f}'.format(ucb(c,0,v,v+v)).lstrip('0'), 
-      '{:.3f}'.format(ucb(c,v,2*v,6*v)).lstrip('0'), 
-      '{:.3f}'.format(ucb(c,9*v, 20*v, 40*v)).lstrip('0'), 
-      '{:.3f}'.format(ucb(c,50*v, 100*v, 200*v)).lstrip('0'))
-    v *= 2
+    print('j', '{:4d}'.format(j), ' ', end='')
+    print( 
+      '{:.3f}  '.format(ucb(c,0,  j,  2*j)).lstrip('0'), 
+      '{:.3f}  '.format(ucb(c,  j,  2*j,  6*j)).lstrip('0'), 
+      '{:.3f}      '.format(ucb(c,9*j, 20*j, 40*j)).lstrip('0'), 
+      '{:.3f}'.format(ucb(c,100*j, 200*j, 400*j)).lstrip('0'))
+    j *= 2
 
 #win_rate_test(8)
 ucb_demo(12)
