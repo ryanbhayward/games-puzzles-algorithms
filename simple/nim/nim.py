@@ -66,11 +66,13 @@ class Nimgame:
 
   def __init__(self):
     def solveall():
+      loss_updates, win_updates = 0, 0
       print('\ngame initialization: find all position win/loss values')
       # for each losing state, find winning states that reach it
       for j in range(len(self.wins) - 1): # nothing reaches last state
         if not self.wins[j]: # loss, so find all psns that reach j
           cj = self.crd(j)
+          loss_updates += 1
           #print(cj,'loses, find all wins that reach this')
           for x in range(len(cj)):
             cjcopy = deepcopy(cj)
@@ -78,8 +80,9 @@ class Nimgame:
               cjcopy[x] = t
               pjc = self.psn(cjcopy)
               self.wins[pjc], self.winmove[pjc] = True, j
+              win_updates += 1
               #print(self.crd(pjc),'wins')
-      print('')
+      print(loss_updates,'loss updates,',win_updates,'win updates')
 
     def getdim():
       while True:
