@@ -26,6 +26,7 @@ def flip(L):
 
 # make a move at row r, col c, and return new psn
 def chomp(L,r,c):
+  #if r>len(L) or c>L[r-1]: print(L, r, c)
   assert(r <= (len(L)) and (c <= L[r-1]))
   M = copy.deepcopy(L)
   for j in range(r):
@@ -36,9 +37,10 @@ def chomp(L,r,c):
 
 def options(L): # return non-empty move options from psn L
   Z = []
-  for j in L:
-    for k in range(j):
-      Y = chomp(L,j,k+1)
+  rows = len(L)
+  for j in range(rows):
+    for k in range(L[j]):
+      Y = chomp(L,j+1,k+1)
       if len(Y)>0: Z.append(Y)
   return Z
 
@@ -105,10 +107,14 @@ def allpsns(rows,cols):
   L = [1]
   r,c = rows, cols
   while len(L) < rows+1:
+    print('psn')
     print(L)
+    print('options')
+    print(options(L))
+    print('')
     promote(L, cols)
 
-allpsns(3,3)
+allpsns(2,3)
 
 #L = [1,2,3]
 #for t in range(10):
