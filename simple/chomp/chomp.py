@@ -114,7 +114,9 @@ def tst():
   #else: print('no')
 
 def ppsns(rows,cols):
-  r, c, L, P = rows, cols, [1], [] 
+  print(rows, cols, 'chomp: all P-positions')
+  r, c, L = rows, cols, [1]
+  # P = []
   S = set([ ])
   while len(L) < rows+1:
     #print('psn')
@@ -131,9 +133,9 @@ def ppsns(rows,cols):
         break
     if not winmove:
       S.add(myhash(L, cols))
-      Q = copy.deepcopy(L)
-      P.append(Q)
-      print(L, 'is new ppsn')
+      #Q = copy.deepcopy(L)
+      #P.append(Q)
+      print(L)
     #print('')
     promote(L, cols)
   #print(P)
