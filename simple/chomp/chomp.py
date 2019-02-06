@@ -35,13 +35,23 @@ def chomp(L,r,c):
     M.pop(0)
   return M
 
-def options(L): # return non-empty move options from psn L
+def is_bigrect(L):
+  n = len(L)
+  if n == 1:
+    if L[0] == 1: return False
+    else:         return True
+  for j in range(1,n):
+    if L[j] != L[0]: 
+      return False
+  return True
+
+def options(L): # return non-empty non-rect move options from psn L
   Z = []
   rows = len(L)
   for j in range(rows):
     for k in range(L[j]):
       Y = chomp(L,j+1,k+1)
-      if len(Y)>0: Z.append(Y)
+      if len(Y)>0 and not is_bigrect(Y): Z.append(Y)
   return Z
 
 def promote(L,w):    # replace L with its successor
@@ -86,7 +96,7 @@ def tst():
     print(psn_to_str(F))
     print(myhash(F,5))
 
-tst()
+#tst()
 
 #L = [1,2,3]
 #print(chomp(L,1,1))
@@ -95,7 +105,7 @@ tst()
 #print(chomp(L,3,1))
 #print(chomp(L,3,2))
 #print(chomp(L,3,3))
-print(options([1,2,3]))
+#print(options([1,2,3]))
 
 #Ppsns = set([1])
 #print(Ppsns)
@@ -103,29 +113,32 @@ print(options([1,2,3]))
   #if j in Ppsns: print(j)
   #else: print('no')
 
-def is_rect(L):
-  n = len(L)
-  if n == 1: 
-    return True
-  for j in range(1,n):
-    if L[j] != L[0]: 
-      return False
-  return True
-
 def ppsns(rows,cols):
-  L = [1]
-  r,c = rows, cols
+  r, c, L, P = rows, cols, [1], [] 
+  S = set([ ])
   while len(L) < rows+1:
-    print('psn')
-    print(L)
-    if is_rect(L): print('      rect')
-    else:          print('       not')
-    #print('options')
-    #print(options(L))
+    #print('psn')
+    #print(L)
+    #if is_bigrect(L): print('      rect')
+    #else:             print('       not')
+    # if some option is P-psn then N-psn
+    # else              new P-psn
+    
+    winmove = False
+    for X in options(L):
+      if myhash(X, cols) in S: 
+        winmove = True
+        break
+    if not winmove:
+      S.add(myhash(L, cols))
+      Q = copy.deepcopy(L)
+      P.append(Q)
+      print(L, 'is new ppsn')
     #print('')
     promote(L, cols)
+  #print(P)
 
-ppsns(3,3)
+ppsns(6,6)
 
 #L = [1,2,3]
 #for t in range(10):
