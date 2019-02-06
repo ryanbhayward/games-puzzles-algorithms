@@ -103,18 +103,29 @@ print(options([1,2,3]))
   #if j in Ppsns: print(j)
   #else: print('no')
 
-def allpsns(rows,cols):
+def is_rect(L):
+  n = len(L)
+  if n == 1: 
+    return True
+  for j in range(1,n):
+    if L[j] != L[0]: 
+      return False
+  return True
+
+def ppsns(rows,cols):
   L = [1]
   r,c = rows, cols
   while len(L) < rows+1:
     print('psn')
     print(L)
-    print('options')
-    print(options(L))
-    print('')
+    if is_rect(L): print('      rect')
+    else:          print('       not')
+    #print('options')
+    #print(options(L))
+    #print('')
     promote(L, cols)
 
-allpsns(2,3)
+ppsns(3,3)
 
 #L = [1,2,3]
 #for t in range(10):
