@@ -8,6 +8,9 @@ def win_rate(w,v):
 def ucb(c,w,v,V):
   return win_rate(w,v) + c* math.sqrt(math.log(V)/v)
 
+def printucb(c,w,v,V):
+  print(c,w,v,V,'{:.3f}'.format(ucb(c,w,v,V)).lstrip('0'))
+
 def win_rate_test(n):
   for k in range(1,n):
     for j in range(k+1):
@@ -32,3 +35,11 @@ def ucb_demo(n):
 
 #win_rate_test(8)
 ucb_demo(12)
+
+printucb(0,50,100,1000)
+printucb(.2,200,400,1000)
+printucb(.2,100,200,1000)
+printucb(.2,50,100,1000)
+printucb(.2,25,50,1000)
+printucb(.2,1,3,1000)
+printucb(.2,0,3,1000)

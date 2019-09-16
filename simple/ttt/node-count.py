@@ -16,3 +16,6 @@ for j in range(9):
   print(j, fallfac(9,j+1))
 
 print(nodes())
+
+for j in range(10):
+  print(j,fallfac(50,j+1))

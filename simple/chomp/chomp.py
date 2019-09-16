@@ -135,12 +135,12 @@ def ppsns(rows,cols):
       S.add(myhash(L, cols))
       #Q = copy.deepcopy(L)
       #P.append(Q)
-      print(L)
+      print(psn_to_str(L))
     #print('')
     promote(L, cols)
   #print(P)
 
-ppsns(6,6)
+ppsns(3,4)
 
 #L = [1,2,3]
 #for t in range(10):
