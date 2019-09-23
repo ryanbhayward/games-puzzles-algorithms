@@ -34,7 +34,7 @@ def nextState(source: State, pos1: int, pos2: int) -> State:
     return tuple(L)
 
 
-def genNeignbors() -> List[List[int]]:
+def genNeighbors() -> List[List[int]]:
     "Neighbors of a particular position"
     neighbors: List[List[int]] = [[] for i in range(16)]
     for i in range(4):
@@ -46,7 +46,7 @@ def genNeignbors() -> List[List[int]]:
     return neighbors
 
 
-neighbors = genNeignbors()
+neighbors = genNeighbors()
 
 
 class Node:
