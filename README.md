@@ -1,6 +1,6 @@
 # CMPUT 355 -- Games, Puzzles, and Algorithms
 
-CMPUT 396 software to solve puzzles and play games.
+CMPUT 355 software to solve puzzles and play games.
 
 ### Quick Start (Puzzles)
 
