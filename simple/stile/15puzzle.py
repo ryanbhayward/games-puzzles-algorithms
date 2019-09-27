@@ -1,15 +1,14 @@
 # 15-Puzzle Solver
 # Yoni Elhanani 2019
+#    RBH: added node count printing
 
 from typing import List, Iterator, Tuple
 from argparse import ArgumentParser
 from collections import deque
 from random import randrange
 
-
 # A state is a configuration of stones on the board
 State = Tuple[int, ...]
-
 
 def showState(state: State) -> str:
     "Prints the state of the board"
@@ -26,13 +25,11 @@ def showState(state: State) -> str:
         output += divider
     return output
 
-
 def nextState(source: State, pos1: int, pos2: int) -> State:
     "Next state of the board, after switching 2 stones"
     L = list(source)
     L[pos1], L[pos2] = L[pos2], L[pos1]
     return tuple(L)
-
 
 def genNeighbors() -> List[List[int]]:
     "Neighbors of a particular position"
@@ -45,9 +42,7 @@ def genNeighbors() -> List[List[int]]:
             neighbors[i+4*j+4].append(i+4*j)
     return neighbors
 
-
 neighbors = genNeighbors()
-
 
 class Node:
     "Nodes record a state and the path to that state"
@@ -65,7 +60,6 @@ class Node:
                 next = nextState(self.value, location, self.zero)
                 yield Node(next, location, self.value, self.zero)
 
-
 def BFS(state: State, fixed: List[int], goal: List[int]) -> List[int]:
     "Performs BFS search without moving the fixed stones, until all goal stones are in place"
     # Negative values are fixed stones.
@@ -78,7 +72,10 @@ def BFS(state: State, fixed: List[int], goal: List[int]) -> List[int]:
     zero = source.index(0)
     DAG = {source: Node(source, zero, source, zero)}
     queue = deque(DAG[source].children())
+    iterations = 0
     while queue:
+        iterations += 1
+        #if 0 == iterations % 1000: print(iterations, "iterations")
         node = queue.pop()
         if node.value not in DAG:
             DAG[node.value] = node
@@ -88,9 +85,9 @@ def BFS(state: State, fixed: List[int], goal: List[int]) -> List[int]:
                 while node.value != source:
                     path.append(node.move)
                     node = DAG[node.parent]
+                print("nodes searched", iterations)
                 return path[-2::-1]
     raise Exception("Odd Permutation. Impossible to reach destination")
-
 
 def solve15(state: State, stages: List[List[int]]) -> None:
     "Solves the puzzle in stages"
@@ -109,8 +106,9 @@ def solve15(state: State, stages: List[List[int]]) -> None:
                 movecount += 1
                 state = nextState(state, zero, x)
                 zero = x
-                print(f"Moves: {movecount}")
-                print(showState(state))
+                #print(f"Moves: {movecount}")     # uncomment these lines to 
+                #print(showState(state))          # print solution sequence
+        print(f"Moves: {movecount}")
         fixed += goal
 
 
