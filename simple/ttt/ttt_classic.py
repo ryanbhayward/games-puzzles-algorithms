@@ -1,13 +1,20 @@
 # classic ttt: 3x3 board          RBH 2016
 # - genmove finds value of all moves, using alphabeta search
-
-# implemented this alphabeta improvement:
+# - implemented this alphabeta improvement:
 #  - instead of searching over all children of a node,
 #  - search only over non-isomorphic children
 #  - (any two isomorphic children will have the same value)
 #  - the symmetry group (rotate/flip) of the board has 8 elements:
 #  -   if any two symmetries operations yield the same position, then
 #  -   the two corresponding positions are isomorphic
+# 2019 
+#  - added negamax,  740170 nodes from root
+# TODO
+#  - switch to lines format?
+#  - lines format: record impossible-to-complete lines
+#  - check for winning move (any linesum 2) before search
+#  - check for no-win-possible (all lines impossible-to-complete)
+#  - check for forced moves (no win possible: block winning opponent moves)
 
 import numpy as np
 
@@ -266,6 +273,23 @@ def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/
       AB[ptm - 1][b_int] = Transpos(type=TransposType.EXACT, depth=d, value=so_far)
   return so_far, calls
 
+def negamax(calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
+  calls += 1
+  progress = calls
+  if psn.has_win(ptm):     
+    return 1, calls  # previous move created win
+  L = psn.legal_moves()
+  if len(L) == 0:          
+    return 0, calls  # board full, no winner
+  so_far = -1  # best score so far
+  for cell in L:
+    psn.brd[cell] = ptm
+    mm, c = negamax(0, d+1, psn, opponent(ptm))
+    so_far = max(so_far,-mm)
+    calls += c
+    psn.brd[cell] = Cell.e   # reset brd to original
+  return so_far, calls
+
 def info(p, use_tt, AB):
     h, L = min_iso(p.brd), p.legal_moves()
     print('  min_iso', h, '\n  legal moves', L)
@@ -275,6 +299,9 @@ def info(p, use_tt, AB):
       print('  ',Cell.chars[cell], 'alphabeta',end='')
       ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
       print('  result','{:2d}'.format(ab), '  nodes',c)
+      print('  ',Cell.chars[cell], 'negamax',end='')
+      s, c = negamax(0, 0, p, cell)
+      print('  result','{:2d}'.format(s), '  nodes',c)
     if p.game_over():
       pass
 
