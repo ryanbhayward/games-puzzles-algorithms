@@ -50,15 +50,16 @@ def genmoverequest(cmd):
   return invalid
 
 def printmenu():
-  print('  h             help menu')
-  print('  * b2         play black b 2')
-  print('  o e3         play white e 3')
-  print('  . a2          erase a 2')
-  print('  u                  undo')
-  print('  [return]           quit')
+  print(' h       help menu')
+  print(' * b2    play black b 2')
+  print(' o e3    play white e 3')
+  print(' . a2    erase      a 2')
+  print(' s       score')
+  print(' u       undo')
+  print('[return] quit')
 
 def printscore(p):
-  print('  Black score', p.score())
+  print(' current score (black - white) = ', p.score())
 
 def showboard(psn):
   def paint(s):  # s   a string
@@ -103,25 +104,6 @@ def lcn_to_alphanum(p):
   #if 0 == liberties(cell, position): return(ILLEGAL) # suicide 
   #if in_history(position, h):        return(ILLEGAL) # superko 
   #h.append(position) # add new position to move history
-
-#def score(self):  # FILL IN THE MISSING LINES OF THIS PYTHON FUNCTION
-  #b,w = 0,0 # points for black, white
-  #seen = [False]*Cell.n   # all cells start unseen
-  #for c in range(Cell.n): # for each cell on the board
-    #if   self.brd[c] == Cell.b: b += 1 # c is black
-    ##elif self.brd[c] == Cell.w: w += 1 # c is white
-    #elif not seen[c]:    # c is empty and not yet seen
-      #reach_b, reach_w, cells = False, False, 0
-      #seen[c] = True ; L = [c] 
-      #while len(L)>0: # traverse from c
-        #t = L.pop() ; cells += 1
-        #for u in Neighbours[t]: # for each cell u adjacent to cell t
-          #if   self.brd[u] == Cell.b: reach_b = True; b += 1
-          #elif self.brd[u] == Cell.w: reach_w = True; w += 1
-          #elif not seen[u]: seen[u] = True ; L.push(u)
-      #if   reach_b and not reach_w: b += cells
-      #elif reach_w and not reach_b: w += cells
-  #return b-w  # Tromp-Taylor score of input Go position
 
 class Position: # 3x3 go board with x,o,e cells
   def score(self): # return Tromp-Taylor position score
