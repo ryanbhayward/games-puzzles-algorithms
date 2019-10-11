@@ -1,7 +1,4 @@
-# simple alpha-beta-search demo  rbh 2016
-# ** this code emits comments to help user understand
-# **   the alphabeta algorithm ...
-# ** code could be simplified if comments not wanted
+# simple alpha-beta-search demo  rbh 2019
 from time import sleep
 from sys import stdin
 
@@ -42,55 +39,45 @@ def readtree():
 def showtree(L,T,V):
   for v in sorted(L):
     print(v, end=' ')
-    if (v in T and len(T[v])>0):
-      print(T[v], end=' ')
-    if v in V:
-      print(V[v], end=' ')
+    if (v in T and len(T[v])>0): print(T[v], end=' ')
+    if v in V:                   print(V[v], end=' ')
     print('')
   print('')
 
-def offset(d):
-  for j in range(d): print('  ',end='')
-
-def alphabetanega(d, T, V, v, alpha, beta):
-# assume leaf scores are input for root player
-  def showdata():
-    sleep(.5)
-    offset(d)
-    print(v, alpha, beta, so_far)
-
-  so_far = NEGINF  # best score so far
-  showdata()
+def alphabeta(d, T, V, v, alpha, beta): # leaf score are for root player: MAX
+  print(d*'  ', 'at ' ,v)
   if v in V: # V is set of leaves
-    # leaf scores are for first player,
-    # need to convert for player-to-move:
-    # *** val needed only if we want to print comment
-    if 0==d%2: val = V[v]  # even depth, no change
-    else:      val = -V[v]  # odd depth, negate score
-    offset(d)
-    print(v,'leaf value',val)
+    val = V[v]; print(d*'  ', 'leaf value',val)
     return val
-  for c in T[v]:
-    # if no comment needed, use following line instead
-    # so_far = max(so_far,-alphabetanega(d+1,T,V,c, -beta, -alpha))
-    cval = -alphabetanega(d+1,T,V,c, -beta, -alpha)
-    if cval > so_far:
-      offset(d+1)
-      print(c,'now best child of',v)
-      so_far = cval
-    # if no comment needed, use following line instead
-    # alpha = max(alpha, so_far)
-    if alpha < so_far:
-      alpha = so_far
-      offset(d+1)
-      print(c,'improved alpha(',v,') to',alpha)
-    if alpha >= beta:
-      offset(d+1)
-      print('alpha >= beta, prune remaining children of', v)
-      break
-  showdata()
-  return so_far
+  if 0 == d%2: # d is even, a MAX node
+    val = NEGINF
+    for c in T[v]:
+      ab = alphabeta(d+1, T, V, c, alpha, beta)
+      if ab > val:
+        print((d+1)*'  ',c,'new best child of',v)
+        alpha, val = ab, ab
+      else:
+        print((d+1)*'  ',c,'not best child of',v)
+      if alpha >= beta:
+        print((d+1)*'  ','alpha >= beta, prune rem. children of', v, end='')
+        break
+    print('\n', d*'  ', v, 'final value', val)
+    return val
+  else: # d is odd, a MIN node
+    val = INF
+    for c in T[v]:
+      ab = alphabeta(d+1, T, V, c, alpha, beta)
+      if ab < val:
+        print((d+1)*'  ', c,'new best child of',v)
+        beta, val = ab, ab
+      else:
+        print((d+1)*'  ', c,'not best child of',v)
+      if alpha >= beta:
+        print((d+1)*'  ', 'alpha >= beta, prune rest of children of', v)
+        break
+    print(d*'  ', v,'final value',val)
+    return val
 
 L,T,V,root = readtree()
 showtree(L,T,V)
-alphabetanega(0, T, V, root, NEGINF, INF)
+alphabeta(0, T, V, root, NEGINF, INF)
