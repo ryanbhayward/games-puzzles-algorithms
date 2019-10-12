@@ -60,6 +60,12 @@
 #     - Explanation for the solvers (algorithms)
 #     - Update the UI accordingly -new solver-
 #     - Add a terni-lapilli solver -more research on that-
+#
+# Issues:
+#     - TTT has no end state checker, if the game is in impossible
+#     state end the game
+#     - Terni-Lapilli make someone play and check for errors
+#
 
 def initBoard():
     # Creating the initial board position with 9 cells.
@@ -74,9 +80,14 @@ def printBoard(board):
     #
     # Printing the board in a 3x3 form
 
+    k = 0
     for i in range(len(board)):
         if i % 3 == 0:
             print("\n\t", end="")
+            for j in range(k, k+3):
+                print(j, end=" ")
+            k += 3
+            print("\t", end="")
         print(board[i] + " ", end="")
     print("\n")
 
@@ -170,22 +181,55 @@ def checkDiag(board, cell):
     return solved
 
 def moveStones(board, cells):
-    print("MOVING")
-    print(board[cells[0]], "to", board[cells[1]])
+    # Parameters:
+    #     board:  the current game board state
+    #     cell:   to which cell are we putting the stone to
+    # 
+    # If the stones are all placed, we need to move the stones
+    # to continue playing. We are moving from input 1 (cells[0])
+    # to input 2 (cells[1])
+
     board[cells[1]] = board[cells[0]]
     board[cells[0]] = '.'
 
 def addToHistory(board, theHistory):
+    # Parameters:
+    #     board:        the current game board state
+    #     theHistory:   set of the states we have seen so far
+    # 
+    # Adding the current board state to the history
+    
     theHistory.add(tuple(board))
 
 def checkHistory(board, cells, theHistory):
-    checkBoard = board.copy()
+    # Parameters:
+    #     board:        the current game board state
+    #     cell:         to which cell are we putting the stone to
+    #     theHistory:   set of the states we have seen so far
+    # 
+    # Checking if we already saw this board state, if not
+    # returning False, if we did, returning True
+    
+    # Copy the board since we don't want to change the original state
+    checkBoard = board.copy() 
+
+    # Moving the stone
     checkBoard[cells[1]] = checkBoard[cells[0]]
     checkBoard[cells[0]] = '.'
 
+    # if the board in history or not
     if tuple(checkBoard) in theHistory:
     	return True
     addToHistory(checkBoard, theHistory)
+    return False
+
+def gameOver(color):
+    # The game is over, asking user to continue or not
+
+    again = input("Congragulations, the game is over!\n" + color +
+        " is the winner. Do you want to play one more round ?(Y/N): ")
+    if again in ['Y', 'y']:
+        return True
     return False
 
 def playTTT():
@@ -208,8 +252,7 @@ def playTTT():
     #
     # Current board state
 
-    print("It's time to play Tic-Tac-Toe.\
-    \n\n\t0 1 2\
+    print("\n\n\t0 1 2\
     \n\t3 4 5\
     \n\t6 7 8\
     \n\nThese are the board cells, please just pick\
@@ -238,11 +281,7 @@ def playTTT():
 
         # checking if the game is over
         if done:
-            again = input("Congragulations, the game is over!\n" + color +
-                " is the winner. Do you want to play one more round ?(Y/N): ")
-            if again in ['Y', 'y']:
-                return True
-            return False
+            return gameOver(color)
 
         # alternating colors
         color = ('b' if color == 'w' else 'w')
@@ -270,6 +309,13 @@ def playTL():
     #
     # Current board state
 
+    print("\n\n\t0 1 2\
+    \n\t3 4 5\
+    \n\t6 7 8\
+    \n\nThese are the board cells, please pick the cell\
+    \nyou want to place your stone or move from-to according\
+    \nto this structure\n")
+
     color = 'w' # w for white and b for black
                 # we are going to alternate the color as
                 # a player makes a move
@@ -295,28 +341,25 @@ def playTL():
             continue
         # checking if the game is over
         if done:
-            again = input("Congragulations, the game is over!\n" + color +
-                " is the winner. Do you want to play one more round ?(Y/N): ")
-            if again in ['Y', 'y']:
-                return True
-            return False
+            return gameOver(color)
+
         # alternating colors
         color = ('b' if color == 'w' else 'w')
         count += 1
 
-    addToHistory(gameBoard, theHistory) #adding the current board state to history
+    addToHistory(gameBoard, theHistory) # adding the current board state to history
     while True:
         print("\tTurn for " + color)
         cells = list(map(int, input("\tNext move please (All stones are placed so you need to move them)\n\
         Please enter the cell of the stone you want to move, and the cell you \n\
         want to move it to with a space in between (i.e. 2 1): ").split(' ')))
 
-        # Checking if the stone player want to move is his/her own
-        # and if the cell we want to move is empty
+        # Checking if the stone player wants to move is his/her own
+        # and if the cell he/she wants to move is empty
         if gameBoard[cells[0]] == color and \
             gameBoard[cells[1]] == '.':
 
-            # calling check history
+            # checking if this state is repeating
             if checkHistory(gameBoard, cells, theHistory):
                 print("This state has already happened, please try another move.")
                 continue
@@ -329,20 +372,25 @@ def playTL():
             # we didn't alternate the color so the game goes on
             continue
 
+        # checking if the game is over
         if done:
-            again = input("Congragulations, the game is over!\n" + color +
-                " is the winner. Do you want to play one more round ?(Y/N): ")
-            if again in ['Y', 'y']:
-                return True
-            return False
+            return gameOver(color)
+
         # alternating colors
         color = ('b' if color == 'w' else 'w')
 
+if __name__ == '__main__':
 
+    game = input("Which game do you want to play? \nTic-Tac-Toe or Terni-Lapilli (TTT/TL): ")
 
-    # Playing infinetely till user says no
-while(playTL()):
-    pass
+    if game in ["TTT", "ttt"]:
+        while(playTTT()):
+            pass
+    elif game in ["TL", "tl"]:
+        while(playTL()):
+            pass
+    else:
+        print("Error: Invalid input...")
 
 
 
