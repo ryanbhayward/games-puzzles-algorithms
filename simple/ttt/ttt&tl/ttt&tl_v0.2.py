@@ -227,8 +227,8 @@ def gameOver(color=None):
     # The game is over, asking user to continue or not
 
     if color is None:
-        again = input("The game is over, there is no move to make!\n",
-        "Do you want to play one more round ?(Y/N): ")
+        again = input("The game is over, there is no move to make!\n\
+        Do you want to play one more round ?(Y/N): ")
     else:
         again = input("Congragulations, the game is over!\n" + color +
         " is the winner. Do you want to play one more round ?(Y/N): ")
@@ -237,7 +237,12 @@ def gameOver(color=None):
     return False
 
 def checkImpossible(board):
-    return False
+    # Placeholder
+    # Just checking if the board has empty cells for now
+
+    if '.' in board:
+        return False
+    return True
 
 def playTTT():
     # This is the runner function, we will call needed functions
@@ -286,14 +291,13 @@ def playTTT():
             # we didn't alternate the color so the game goes on
             continue
 
-        # checking if there are any other possible moves
-        # Need to implement solver to get this done
-        if checkImpossible():
-            return gameOver()
-
         # checking if the game is over
         if done:
             return gameOver(color)
+        # checking if there are any other possible moves
+        # Need to implement solver to get this done
+        if checkImpossible(gameBoard):
+            return gameOver()
 
         # alternating colors
         color = ('b' if color == 'w' else 'w')
@@ -352,14 +356,13 @@ def playTL():
             
             continue
         
-        # checking if there are any other possible moves
-        # Need to implement solver to get this done
-        if checkImpossible():
-            return gameOver()
-
         # checking if the game is over
         if done:
             return gameOver(color)
+        # checking if there are any other possible moves
+        # Need to implement solver to get this done
+        if checkImpossible(gameBoard):
+            return gameOver()
 
         # alternating colors
         color = ('b' if color == 'w' else 'w')
@@ -390,14 +393,13 @@ def playTL():
             # we didn't alternate the color so the game goes on
             continue
 
-        # checking if there are any other possible moves
-        # Need to implement solver to get this done
-        if checkImpossible():
-            return gameOver()
-
         # checking if the game is over
         if done:
             return gameOver(color)
+        # checking if there are any other possible moves
+        # Need to implement solver to get this done
+        if checkImpossible(gameBoard):
+            return gameOver()
 
         # alternating colors
         color = ('b' if color == 'w' else 'w')
