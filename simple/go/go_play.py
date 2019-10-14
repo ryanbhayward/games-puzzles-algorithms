@@ -6,11 +6,10 @@ simple Go program  RBH 2019
              1 <= R <= 9 rows 
              1 <= C <= 9 columns
 working features
-  * make moves
-TODO
   * make legal moves (Tromp-Taylor,    no suicide, positional superko)
-  * make legal moves (Tromp-Taylor, allow suicide, positional superko)
   * show Tromp-Taylor score
+TODO
+  * make legal moves (Tromp-Taylor, allow suicide, positional superko)
 """
 
 import numpy as np
@@ -132,6 +131,29 @@ class Position: # go board with x,o,e point values
     # group is captured
     return points
 
+  def tromp_taylor_score(self):
+    bs, ws, empty_seen = 0, 0, set()
+    for p in range(self.fat_n):
+      if   self.brd[p] == BLACK: bs += 1
+      elif self.brd[p] == WHITE: ws += 1
+      elif (self.brd[p] == EMPTY) and (p not in empty_seen):
+        b_nbr, w_nbr = False, False
+        empty_seen.add(p)
+        empty_points = [p]
+        territory = 1
+        while (len(empty_points) > 0):
+          q = empty_points.pop()
+          for x in self.nbrs[q]:
+            b_nbr |= (self.brd[x] == BLACK)
+            w_nbr |= (self.brd[x] == WHITE)
+            if self.brd[x] == EMPTY and x not in empty_seen:
+              empty_seen.add(x)
+              empty_points.append(x)
+              territory += 1
+        if   b_nbr and not w_nbr: bs += territory
+        elif w_nbr and not b_nbr: ws += territory
+    return bs, ws
+	        
 """
 input, output
 """
@@ -206,6 +228,7 @@ def interact(use_tt):
   history = []  # used for erasing, so only need locations
   while True:
     showboard(p)
+    print('tromp-taylor score (black, white)',p.tromp_taylor_score(),'\n')
     cmd = input(' ')
     if len(cmd)==0:
       print('\n ... adios :)\n')
