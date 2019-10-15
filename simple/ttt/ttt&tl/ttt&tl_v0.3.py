@@ -72,7 +72,12 @@ def initBoard():
     # Empty points are represented with a '.'
 
     board = ['.'] * 9
-    return board
+    boardStates = {
+        'r' : [True] * 3,
+        'd' : [True] * 2,
+        'c' : [True] * 3,
+    }
+    return board, boardStates
 
 def printBoard(board):
     # Parameters:
@@ -108,7 +113,28 @@ def addStone(board, cell, color):
         return False
     return True
 
-def checkGameState(board, cell):
+def alternateColor(color):
+    if color == 'w':
+        return 'b'
+    return 'w'
+
+def impossibleRow(boardStates, board, x, oppositeColor):
+    boardStates['r'][x] = oppositeColor not in \
+    [board[x*3], board[x*3+1], board[x*3+2]]
+
+def impossibleColumn(boardStates, board, x, oppositeColor):
+    boardStates['c'][x] = oppositeColor not in \
+    [board[x], board[x+3], board[x+6]]
+
+def impossibleDiag(boardStates, board, diag, oppositeColor):
+    if diag == 0:
+        boardStates['d'][0] = oppositeColor not in \
+        [board[0], board[4], board[8]]
+    if diag == 1:
+        boardStates['d'][1] = oppositeColor not in \
+        [board[2], board[4], board[6]]
+
+def checkGameState(board, cell, boardStates):
     # Parameters:
     #     board:  the current game board state
     #     cell:   to which cell are we putting the stone to
@@ -121,28 +147,24 @@ def checkGameState(board, cell):
     # That's the exact way we are going to follow
 
     # Checking the game state, returning true if the game is over
-    return checkRow(board,cell) or \
-        checkColumn(board,cell) or \
-        checkDiag(board,cell)
+    return checkRow(board,cell,boardStates) or \
+        checkColumn(board,cell,boardStates) or \
+        checkDiag(board,cell,boardStates)
 
-def checkRow(board, cell):
+def checkRow(board, cell, boardStates):
     # Parameters:
     #     board:  the current game board state
     #     cell:   to which cell are we putting the stone to
     #
     # ROW
-    #   - If we are on the left/right side we need to check two cells
-    #         ahead or back.
-    #   - If we are on the mid we need to check both sides
+    #
+    #
 
-    if cell % 3 == 0:        # Meaning we are on the left-most cell
-        return board[cell] == board[cell+1] == board[cell+2]
-    elif cell % 3 == 1:      # Meaning we are on the middle
-        return board[cell] == board[cell+1] == board[cell-1]
-    else:                    # We are on the right-most cell
-        return board[cell] == board[cell-1] == board[cell-2]
+    oppositeColor = alternateColor(board[cell])
+    impossibleRow(boardStates, board, cell//3, oppositeColor)
+    return board[cell//3] == board[cell//3+1] == board[cell//3+2]
 
-def checkColumn(board, cell):
+def checkColumn(board, cell, boardStates):
     # Parameters:
     #     board:  the current game board state
     #     cell:   to which cell are we putting the stone to
@@ -156,10 +178,12 @@ def checkColumn(board, cell):
     # have to create if-else for each condition, instead we can
     # (n + 3) % 9 and (n - 3) % 9 -n being the cell number-
 
+    oppositeColor = alternateColor(board[cell])
+    impossibleColumn(boardStates, board, cell%3, oppositeColor)
     return board[cell] == board[(cell + 3) % 9] == \
         board[(cell - 3) % 9]
 
-def checkDiag(board, cell):
+def checkDiag(board, cell, boardStates):
     # Parameters:
     #     board:  the current game board state
     #     cell:   to which cell are we putting the stone to
@@ -171,12 +195,15 @@ def checkDiag(board, cell):
     # before returning anything
     
     solved = False # If the board is solved given state
-    
+
+    oppositeColor = alternateColor(board[cell])
     if cell in [0, 4, 8]:
+        impossibleDiag(boardStates, board, 0, oppositeColor)
         solved = board[0] == board[4] == board[8]
     if cell in [2, 4, 6] and not solved: 
         # I only want to check this if I didn't 
         # already solved therefore added -not solved-
+        impossibleDiag(boardStates, board, 1, oppositeColor)
         return board[2] == board[4] == board[6]
     return solved
 
@@ -236,13 +263,15 @@ def gameOver(color=None):
         return True
     return False
 
-def checkImpossible(board):
+def checkImpossible(boardStates):
     # Placeholder
     # Just checking if the board has empty cells for now
-
-    if '.' in board:
-        return False
+    for i in boardStates.values():
+        for j in i:
+            if j:
+                return False
     return True
+    # --improve--
 
 def playTTT():
     # This is the runner function, we will call needed functions
@@ -256,7 +285,7 @@ def playTTT():
     #    - Let the same player play if the given input is invalid
     #    - Let players know the result of the game
 
-    gameBoard = initBoard() # initializing the board
+    gameBoard, boardStates = initBoard() # initializing the board
 
     # . . .
     # . . .
@@ -285,7 +314,7 @@ def playTTT():
         if cell in [i for i in range(9)] and \
             addStone(gameBoard, cell, color): 
             printBoard(gameBoard)
-            done = checkGameState(gameBoard, cell) # checking the game state
+            done = checkGameState(gameBoard, cell, boardStates) # checking the game state
         else:
             print("Invalid input, please make a valid move.")
             # we didn't alternate the color so the game goes on
@@ -296,11 +325,12 @@ def playTTT():
             return gameOver(color)
         # checking if there are any other possible moves
         # Need to implement solver to get this done
-        if checkImpossible(gameBoard):
+        if checkImpossible(boardStates):
             return gameOver()
 
+        print(boardStates)
         # alternating colors
-        color = ('b' if color == 'w' else 'w')
+        color = alternateColor(color)
 
 def playTL():
     # This is the runner function for Terni Lapilli
@@ -316,7 +346,7 @@ def playTL():
     #    - Let the same player play if the given input is invalid
     #    - Let players know the result of the game
 
-    gameBoard = initBoard() # initializing the board
+    gameBoard, boardStates = initBoard() # initializing the board
     theHistory = set() # creating an empty set to keep history of states
 
     # . . .
@@ -349,7 +379,7 @@ def playTL():
         if cell in [i for i in range(9)] and \
             addStone(gameBoard, cell, color): 
             printBoard(gameBoard)
-            done = checkGameState(gameBoard, cell) # checking the game state
+            done = checkGameState(gameBoard, cell, boardStates) # checking the game state
         else:
             print("Invalid input, please make a valid move.")
             # we didn't alternate the color so the game goes on
@@ -365,7 +395,7 @@ def playTL():
             return gameOver()
 
         # alternating colors
-        color = ('b' if color == 'w' else 'w')
+        color = alternateColor(color)
         count += 1
 
     addToHistory(gameBoard, theHistory) # adding the current board state to history
@@ -398,11 +428,11 @@ def playTL():
             return gameOver(color)
         # checking if there are any other possible moves
         # Need to implement solver to get this done
-        if checkImpossible(gameBoard):
+        if checkImpossible(boardStates):
             return gameOver()
 
         # alternating colors
-        color = ('b' if color == 'w' else 'w')
+        color = alternateColor(color)
 
 if __name__ == '__main__':
 
