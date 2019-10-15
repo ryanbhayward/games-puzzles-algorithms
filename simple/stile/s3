@@ -1,0 +1,45 @@
+
+|----+----+----+----|
+| 5  | 3  | 14 | 11 |
+|----+----+----+----|
+| 12 | 9  | 4  | 1  |
+|----+----+----+----|
+| 8  | 2  | 15 | 7  |
+|----+----+----+----|
+| 10 | 6  | 13 |    |
+|----+----+----+----|
+
+
+Stage 1:
+
+nodes searched 501
+Moves: 15
+
+Stage 2:
+
+nodes searched 168
+Moves: 22
+
+Stage 3:
+
+nodes searched 5871
+Moves: 41
+
+Stage 4:
+
+Moves: 41
+
+Stage 5:
+
+nodes searched 111
+Moves: 49
+
+Stage 6:
+
+nodes searched 1465
+Moves: 68
+
+Stage 7:
+
+nodes searched 18599
+Moves: 90
