@@ -6,9 +6,10 @@ simple Go program  RBH 2019
              1 <= R <= 9 rows 
              1 <= C <= 9 columns
 working features
-  * make legal moves (Tromp-Taylor,    no suicide, positional superko)
+  * make legal moves (Tromp-Taylor, no suicide, not yet checking superko)
   * show Tromp-Taylor score
 TODO
+  * add positional superko check
   * make legal moves (Tromp-Taylor, allow suicide, positional superko)
 """
 
