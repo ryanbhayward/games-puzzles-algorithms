@@ -191,7 +191,7 @@ def playTTT():
 
 def __main__():
 
-    # Playing infinetely till user says no
+    # Playing infinitely (that's a long time) until user says no
     while(playTTT()):
         pass
 
