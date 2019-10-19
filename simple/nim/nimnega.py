@@ -19,6 +19,7 @@ def winning(nim_psn, sd, depth):  # tuple, dictionary, recursion depth
   if nim_psn in sd:
     return sd[nim_psn]
   # nim_psn not in dictionary, so update before we return
+  print('  '*depth, nim_psn)
   if all(p == 0 for p in nim_psn): # we lose if every pile empty
     sd.update({ nim_psn: False })  # update before return
     return False
@@ -28,12 +29,12 @@ def winning(nim_psn, sd, depth):  # tuple, dictionary, recursion depth
       child = tuple(sorted(psn[:j] + (k,) + psn[j+1:]))
       if not winning(child, sd, depth+1):
         sd.update({ nim_psn: True })   # update before return
-        if depth == 0: print(child)    # show a winning move
+        if depth == 0: print('\nwinning: move to ',child)    # show a winning move
         return True
   sd.update({ nim_psn: False })  # update before return
+  if depth == 0: print('\nlosing')
   return False
 
 v = get_piles()
 S = dict()
 w = winning(v,S,0)
-print(('' if w else 'not ') + 'winning')
