@@ -10,6 +10,7 @@ from random import randrange
 # A state is a configuration of stones on the board
 State = Tuple[int, ...]
 
+
 def showState(state: State) -> str:
     "Prints the state of the board"
     divider = "\n|" + "----+" * 3 + "----|\n"
@@ -25,11 +26,13 @@ def showState(state: State) -> str:
         output += divider
     return output
 
+
 def nextState(source: State, pos1: int, pos2: int) -> State:
     "Next state of the board, after switching 2 stones"
     L = list(source)
     L[pos1], L[pos2] = L[pos2], L[pos1]
     return tuple(L)
+
 
 def genNeighbors() -> List[List[int]]:
     "Neighbors of a particular position"
@@ -42,7 +45,9 @@ def genNeighbors() -> List[List[int]]:
             neighbors[i+4*j+4].append(i+4*j)
     return neighbors
 
+
 neighbors = genNeighbors()
+
 
 class Node:
     "Nodes record a state and the path to that state"
@@ -60,7 +65,8 @@ class Node:
                 next = nextState(self.value, location, self.zero)
                 yield Node(next, location, self.value, self.zero)
 
-def BFS(state: State, fixed: List[int], goal: List[int]) -> List[int]:
+
+def BFS(state: State, fixed: List[int], goal: List[int], verbose: bool) -> Tuple[List[int], int]:
     "Performs BFS search without moving the fixed stones, until all goal stones are in place"
     # Negative values are fixed stones.
     # There are stones for which we are indifferent to their location at a particular stage.
@@ -68,14 +74,14 @@ def BFS(state: State, fixed: List[int], goal: List[int]) -> List[int]:
     # For convinience, they are all given the value 16.
     source = tuple(-1 if x in fixed else 16 if x not in [0] + goal else x for x in state)
     if all(source[(n-1) % 16] == n for n in goal):
-        return []
+        return ([], 0)
     zero = source.index(0)
     DAG = {source: Node(source, zero, source, zero)}
     queue = deque(DAG[source].children())
     iterations = 0
     while queue:
         iterations += 1
-        #if 0 == iterations % 1000: print(iterations, "iterations")
+        # if 0 == iterations % 1000: print(iterations, "iterations")
         node = queue.pop()
         if node.value not in DAG:
             DAG[node.value] = node
@@ -85,31 +91,42 @@ def BFS(state: State, fixed: List[int], goal: List[int]) -> List[int]:
                 while node.value != source:
                     path.append(node.move)
                     node = DAG[node.parent]
-                print("nodes searched", iterations)
-                return path[-2::-1]
+                if verbose:
+                    print("nodes searched", iterations)
+                return (path[-2::-1], iterations)
     raise Exception("Odd Permutation. Impossible to reach destination")
 
-def solve15(state: State, stages: List[List[int]]) -> None:
+
+def solve15(state: State, stages: List[List[int]], verbose: bool) -> Tuple[int, int]:
     "Solves the puzzle in stages"
     # At each stage we find the shortest path to reach the next stage.
     # Then we apply it to the current state and continue to the next stage from there.
-    print(showState(state))
+    if verbose:
+        print(showState(state))
     zero = state.index(0)
     fixed = []
     movecount = 0
     stagecount = 0
+    iterations = 0
     for goal in stages:
         stagecount += 1
-        print(f"\nStage {stagecount}:\n")
-        for x in BFS(state, fixed, goal):
+        if verbose:
+            print(f"\nStage {stagecount}:\n")
+        path, subiter = BFS(state, fixed, goal, verbose)
+        iterations += subiter
+        for x in path:
             if zero != x:
                 movecount += 1
                 state = nextState(state, zero, x)
                 zero = x
-                #print(f"Moves: {movecount}")     # uncomment these lines to 
-                #print(showState(state))          # print solution sequence
-        print(f"Moves: {movecount}")
+                if verbose:
+                    print(showState(state))
+                    print(f"Moves: {movecount}")
         fixed += goal
+    if verbose:
+        print()
+        print(f"Total nodes searched: {iterations}")
+    return (movecount, iterations)
 
 
 def even_random(n: int) -> List[int]:
@@ -131,14 +148,23 @@ if __name__ == "__main__":
                         help='A permutation of 1..15')
     parser.add_argument('--staging', '-s', metavar='n', action='store', type=int, default=1,
                         help='Staging schedule')
+    parser.add_argument('--batch', '-b', metavar='n', action='store', type=int, default=0,
+                        help='Batch statistics')
     args = parser.parse_args()
-    if not args.perm:
-        input = even_random(10000)
-    else:
-        input = args.perm
-        assert sorted(input) == list(range(1, 16)), "Invalid permutation"
     optlevels = [[[1, 2], [3, 4], [5, 6], [7, 8], [9, 13], [10, 14], [11, 12, 15]],
                  [[1, 2], [3, 4], [5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15]],
                  [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15]]]
     assert 0 < args.staging <= len(optlevels), "Staging schedule does not exist"
-    solve15(tuple(input) + (0, ), optlevels[args.staging-1])
+    if args.batch:
+        print("moves\tnodes")
+        for _ in range(args.batch):
+            input = even_random(10000)
+            moves, nodes = solve15(tuple(input) + (0, ), optlevels[args.staging-1], False)
+            print(f"{moves}\t{nodes}")
+    else:
+        if not args.perm:
+            input = even_random(10000)
+        else:
+            input = args.perm
+            assert sorted(input) == list(range(1, 16)), "Invalid permutation"
+        solve15(tuple(input) + (0, ), optlevels[args.staging-1], True)

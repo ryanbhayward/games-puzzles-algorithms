@@ -97,7 +97,7 @@ class Node:
         return self.dstdist + Node.opt*self.srcdist < other.dstdist + Node.opt*other.srcdist
 
 
-def AStar(state: State) -> List[State]:
+def AStar(state: State) -> Tuple[List[State], int]:
     "Performs A* search to find shortest path to terminal state"
     source = state
     zero = source.index(0)
@@ -113,22 +113,26 @@ def AStar(state: State) -> List[State]:
                 while node.value != node.parent:
                     path.append(node.value)
                     node = DAG[node.parent]
-                return path[::-1]
+                return (path[::-1], len(DAG))
             for child in node.children():
                 heappush(heap, child)
     raise Exception("Odd Permutation. Impossible to reach destination")
 
 
-def solve15(state: State, opt: float) -> None:
+def solve15(state: State, opt: float, verbose: bool) -> None:
     "Solves the puzzle"
     Node.opt = opt
     idx = 0
-    print(f"Move: {idx}, Distance: {state_distance(state)}")
-    print(showState(state))
-    for p in AStar(state):
+    if verbose:
+        print(f"Move: {idx}, Distance: {state_distance(state)}")
+        print(showState(state))
+    path, iterations = AStar(state)
+    for p in path:
         idx += 1
-        print(f"Move: {idx}, Distance: {state_distance(p)}")
-        print(showState(p))
+        if verbose:
+            print(f"Move: {idx}, Distance: {state_distance(p)}")
+            print(showState(p))
+    return (len(path), iterations)
 
 
 def even_random(n: int) -> List[int]:
@@ -150,10 +154,24 @@ if __name__ == "__main__":
                         help='A permutation of 1..15')
     parser.add_argument('--opt', '-o', metavar="n", action='store', type=float, default=50,
                         help='Optimization percent')
+    parser.add_argument('--batch', '-b', metavar='n', action='store', type=int, default=0,
+                        help='Batch statistics')
     args = parser.parse_args()
     if not args.perm:
         input = even_random(10000)
     else:
         input = args.perm
         assert sorted(input) == list(range(1, 16)), "Invalid permutation"
-    solve15(tuple(input) + (0, ), min(args.opt/100, 1))
+    if args.batch:
+        print("moves\tnodes")
+        for _ in range(args.batch):
+            input = even_random(10000)
+            moves, nodes = solve15(tuple(input) + (0, ), min(args.opt/100, 1), False)
+            print(f"{moves}\t{nodes}")
+    else:
+        if not args.perm:
+            input = even_random(10000)
+        else:
+            input = args.perm
+            assert sorted(input) == list(range(1, 16)), "Invalid permutation"
+        solve15(tuple(input) + (0, ), min(args.opt/100, 1), True)
