@@ -1,6 +1,5 @@
 """
-negamax hex program, no pruning, dumb move order,
-based on ttt and 3x3 go programs RBH 2019
+3-3 hex program, based on ttt and 3x3 go programs RBH 2019
 """
 
 import numpy as np
@@ -20,23 +19,37 @@ def oppCH(ch):
   elif ch== WCH: return BCH
   else: assert(False)
 
-def has_win(brd, who):
-  set1, set2 = (TOP_ROW, BTM_ROW) if who == BCH else (LEFT_COL, RIGHT_COL)
-  #print('has_win', brd, who, set1, set2)
-  Q, seen = deque([]), set()
-  for c in set1:
-    if brd[c] == who: 
-      Q.append(c)
-      seen.add(c)
-  while len(Q) > 0:
-    c = Q.popleft()
-    if c in set2: return True
-    for d in NBRS[c]:
-      if brd[d] == who and d not in seen:
-        Q.append(d)
-        seen.add(d)
-  return False
-        
+"""
+for 3x3 board, we can check each of the 11 possible minimal paths directly,
+instead of using a bfs, or using the union-find algorithm
+"""
+def has_win(s, p): # for 3x3 board only
+  if p == BCH:
+    return \
+    (s[0]==BCH) and (s[3]==BCH) and (s[6]==BCH) or \
+    (s[1]==BCH) and (s[4]==BCH) and (s[7]==BCH) or \
+    (s[2]==BCH) and (s[5]==BCH) and (s[8]==BCH) or \
+    (s[1]==BCH) and (s[3]==BCH) and (s[6]==BCH) or \
+    (s[2]==BCH) and (s[4]==BCH) and (s[7]==BCH) or \
+    (s[2]==BCH) and (s[4]==BCH) and (s[6]==BCH) or \
+    (s[1]==BCH) and (s[4]==BCH) and (s[6]==BCH) or \
+    (s[2]==BCH) and (s[5]==BCH) and (s[7]==BCH) or \
+    (s[0]==BCH) and (s[3]==BCH) and (s[4]==BCH) and (s[7]==BCH) or \
+    (s[1]==BCH) and (s[4]==BCH) and (s[5]==BCH) and (s[8]==BCH) or \
+    (s[0]==BCH) and (s[3]==BCH) and (s[4]==BCH) and (s[5]==BCH) and (s[8]==BCH)
+  return \
+    (s[0]==WCH) and (s[1]==WCH) and (s[2]==WCH) or \
+    (s[3]==WCH) and (s[4]==WCH) and (s[5]==WCH) or \
+    (s[6]==WCH) and (s[7]==WCH) and (s[8]==WCH) or \
+    (s[3]==WCH) and (s[1]==WCH) and (s[2]==WCH) or \
+    (s[6]==WCH) and (s[4]==WCH) and (s[5]==WCH) or \
+    (s[2]==WCH) and (s[4]==WCH) and (s[6]==WCH) or \
+    (s[3]==WCH) and (s[4]==WCH) and (s[2]==WCH) or \
+    (s[6]==WCH) and (s[7]==WCH) and (s[5]==WCH) or \
+    (s[0]==WCH) and (s[1]==WCH) and (s[4]==WCH) and (s[5]==WCH) or \
+    (s[3]==WCH) and (s[4]==WCH) and (s[7]==WCH) and (s[8]==WCH) or \
+    (s[0]==WCH) and (s[1]==WCH) and (s[4]==WCH) and (s[7]==WCH) and (s[8]==WCH)
+
 def can_win(s, ptm): # assume neither player has won yet
   blanks, calls = [], 1
   for j in range(N):
@@ -57,9 +70,11 @@ def can_win(s, ptm): # assume neither player has won yet
 """
 board: one-dimensional string
 
-index positions for     board:    0 1 2       <- row 2
-                                   3 4 5       <- row 1
-                                    0 1 2       <- row 0
+index positions for     board:    6 7 8       <- row 2
+                                  3 4 5       <- row 1
+                                  0 1 2       <- row 0
+                                  | | |
+                                  0 1 2       <- columns
 """
 
 def coord_to_point(r, c, C): 
@@ -75,7 +90,7 @@ def point_to_alphanum(p, C):
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
 
-class Position: # hex board 
+class Position: # 3x3 hex board 
   def __init__(self, rows, cols):
     self.R, self.C, self.n = rows, cols, rows*cols
     self.brd = PTS[EMPTY]*self.n
@@ -103,8 +118,9 @@ class Position: # hex board
       return ''
     return change_str(self.brd, where, ch)
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 3, 3
 N = ROWS * COLS
+assert(ROWS == 3 and COLS ==3)
 
 NBRS = []
 for r in range(ROWS):
@@ -172,7 +188,9 @@ def showboard(brd, R, C):
   for j in range(R): # rows
     pretty += ' ' + ' '*j + paint(str(1+j)) + ' '
     for k in range(C): # columns
+      #print(coord_to_point(j,k,psn.C), end='')
       pretty += ' ' + paint([brd[coord_to_point(j,k,C)]])
+    #print('')
     pretty += '\n'
   print(pretty)
 
@@ -181,6 +199,7 @@ def undo(H, brd):  # pop last meta-move
     print('\n    original position,  nothing to undo\n')
     return brd
   else:
+    #print('\n   removing position ', H.pop())
     H.pop()
     return copy.copy(H[len(H)-1])
 
