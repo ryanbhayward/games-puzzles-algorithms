@@ -33,7 +33,7 @@ def oppCH(ch):
 board
 """
 
-ROWS, COLS = 3, 4
+ROWS, COLS = 2, 2
 N = ROWS * COLS
 
 """
@@ -214,7 +214,7 @@ def undo(H, brd):  # pop last meta-move
     return copy.copy(H[len(H)-1])
 
 def interact():
-  p = Position(2,2)
+  p = Position(ROWS, COLS)
   #print(p.R, p.C, p.n, coord_to_point(0,0,p.C), coord_to_point(p.R-1,p.C-1,p.C))
   history = []  # board positions
   new = copy.copy(p.brd); history.append(new)
