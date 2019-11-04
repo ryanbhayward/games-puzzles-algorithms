@@ -1,9 +1,10 @@
 """
-3x3 hex program, based on ttt and 3x3 go programs RBH 2019
+simple hex program, based on ttt and 3x3 go programs RBH 2019
 """
 
 import numpy as np
 import copy
+from collections import deque
 
 """
 points on the board
@@ -18,7 +19,25 @@ def oppCH(ch):
   elif ch== WCH: return BCH
   else: assert(False)
 
-def has_win(s, p):
+def has_win(brd, who):
+  set1, set2 = (TOP_ROW, BTM_ROW) if who == BCH else (LEFT_COL, RIGHT_COL)
+  #print('has_win', brd, who, set1, set2)
+  Q, seen = deque([]), set()
+  for c in set1:
+    if brd[c] == who: 
+      Q.append(c)
+      seen.add(c)
+  #print(Q)
+  while len(Q) > 0:
+    c = Q.popleft()
+    if c in set2: return True
+    for d in NBRS[c]:
+      if brd[d] == who and d not in seen:
+        Q.append(d)
+        seen.add(d)
+  return False
+        
+def old_has_win(s, p): # for 3x3 board only
   if p == BCH:
     return \
     (s[0]==BCH) and (s[3]==BCH) and (s[6]==BCH) or \
@@ -48,7 +67,7 @@ def has_win(s, p):
 def can_win(s, ptm):
   # assume neither player has won yet
   blanks = []
-  for j in range(9):
+  for j in range(N):
     if s[j]==ECH: blanks.append(j)
   if len(blanks)==0: print('whoops',s)
   assert(len(blanks)>0) # since x has no draws
@@ -67,13 +86,6 @@ def solve(s, ptm):
   return optm
 
 """
-board
-"""
-
-ROWS, COLS = 3, 3
-N = ROWS * COLS
-
-"""
 board: one-dimensional string
 
 index positions for     board:    6 7 8       <- row 2
@@ -82,6 +94,8 @@ index positions for     board:    6 7 8       <- row 2
                                   | | |
                                   0 1 2       <- columns
 """
+
+
 def coord_to_point(r, c, C): 
   return c + r*C
 
@@ -122,6 +136,31 @@ class Position: # go board
       print('\n  sorry, position occupied')
       return ''
     return change_str(self.brd, where, ch)
+
+ROWS, COLS = 4, 4
+N = ROWS * COLS
+
+NBRS = []
+for r in range(ROWS):
+  for c in range(COLS):
+    nbs = []
+    if r > 0:                nbs.append(coord_to_point(r-1, c,   COLS))
+    if r > 0 and c < COLS-1: nbs.append(coord_to_point(r-1, c+1, COLS))
+    if c > 0:                nbs.append(coord_to_point(r,   c-1, COLS))
+    if c < COLS-1:           nbs.append(coord_to_point(r,   c+1, COLS))
+    if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
+    if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
+    NBRS.append(nbs)
+print('nbrs', NBRS)
+
+LEFT_COL, RIGHT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
+for r in range(ROWS):
+  LEFT_COL.add(coord_to_point(r, 0, COLS))
+  RIGHT_COL.add(coord_to_point(r, COLS-1, COLS))
+for c in range(COLS):
+  TOP_ROW.add(coord_to_point(0, c, COLS))
+  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
+print(LEFT_COL, RIGHT_COL, TOP_ROW, BTM_ROW)
 
 """
 input, output
@@ -182,24 +221,21 @@ def undo(H, brd):  # pop last meta-move
     H.pop()
     return copy.copy(H[len(H)-1])
 
-def msg(s):
+def msg(s, ch):
   if has_win(s, 'x'): return('x wins')
   elif has_win(s, 'o'): return('o wins')
   else: 
-    out = ''
-    for ch in ['x', 'o']:
-      out += ch + '-to-move ?  ' + \
-        (ch if (can_win(s,ch)) else oppCH(ch)) + ' can win\n'
+    out = ch + '-to-move ?  ' + \
+      (ch if (can_win(s,ch)) else oppCH(ch)) + ' can win\n'
     return out
 
 def interact():
-  p = Position(3,3)
+  p = Position(ROWS, COLS)
   #print(p.R, p.C, p.n, coord_to_point(0,0,p.C), coord_to_point(p.R-1,p.C-1,p.C))
   history = []  # board positions
   new = copy.copy(p.brd); history.append(new)
   while True:
     showboard(p.brd, p.R, p.C)
-    print(msg(p.brd))
     cmd = input(' ')
     if len(cmd)==0:
       print('\n ... adios :)\n')
@@ -208,6 +244,13 @@ def interact():
       printmenu()
     elif cmd[0][0]=='u':
       p.brd = undo(history, p.brd)
+    elif cmd[0][0]=='?':
+      cmd = cmd.split()
+      if len(cmd)>0:
+        if cmd[1][0]=='x': 
+          print(msg(p.brd, 'x'))
+        elif cmd[1][0]=='o': 
+          print(msg(p.brd, 'o'))
     elif (cmd[0][0] in PTS):
       new = p.requestmove(cmd)
       if new != '':
