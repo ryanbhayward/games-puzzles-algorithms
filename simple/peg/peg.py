@@ -6,50 +6,49 @@
 import numpy as np
 from copy import deepcopy
 from random import shuffle, choice
-import math
+#import math
 
 class Cell: #############  cells #########################
-  e,p,z,ch = 0,1,2, '.*@'       # empty, peg, offboard
+  h,p,g,ch = 0,1,2, '.*@'       # hole, peg, guard (offboard)
 
 class B: ################ the board #######################
 
-  # 2x3 naked  1 guard layer  
-
-  #             @@@@@        
-  #    ...      @...@       
-  #    ...      @...@      
-  #             @@@@@     
-  #                      
+  # 2x3 naked  2 guard layers
+  #            @@@@@@@
+  #            @@@@@@@
+  #    ...     @@...@@
+  #    ...     @@...@@
+  #            @@@@@@@
+  #            @@@@@@@
 
   # naked       naked positions    fat positions
-  
-                 
-  #                                 0  1  2  3  4
-  #    ...         0 1 2            5  6  7  8  9
-  #    ...         3 4 5           10 11 12 13 14
-  #                                15 16 17 18 19
+  #                                 0  1  2  3  4  5  6
+  #                                 7  8  9 10 11 12 13
+  #    ...         0 1 2           14 15 16 17 18 19 20
+  #    ...         3 4 5           21 22 23 24 25 26 27
+  #                                28 29 30 31 32 33 34
 
-  def __init__(self,rows,cols):
-    B.r  = rows  
-    B.c  = cols
-    B.n  = rows*cols   # number cells
-    B.w  = B.c + 2  # width of layered board
-    B.h  = B.r + 2
-    B.fat_n = B.h * B.w # fat-board cells
+  def __init__(self, rows, cols):
+    B.r, B.c  = rows, cols
+    B.n       = rows*cols        # number cells
+    B.w, B.h  = B.c + 4, B.r + 4 # width, height of padded board
+    B.fat_n   = B.h * B.w        # number fat-board cells
 
-    B.nbr_offset = (-B.w, -1, 1, B.w)
-    #    0
-    #  1 . 2
-    #    3
+    B.offsets = (-1, -B.w, B.w, 1)  #neighbour offsets
+    #    1
+    #  0 . 3
+    #    2
 
-    B.empty_brd = np.array([Cell.p]*self.n, dtype=np.uint8)
-    B.empty_fat_brd = np.array([Cell.p]*self.fat_n, dtype=np.uint8)
-    for j in range(B.w): 
-      B.empty_fat_brd[j] = Cell.z
-      B.empty_fat_brd[ j + (B.h-1)*B.w ] = Cell.z
-    for k in range(B.h): 
-      B.empty_fat_brd[k*B.w] = Cell.z
-      B.empty_fat_brd[(k+1)*B.w-1] = Cell.z
+    B.fat_brd = np.array([Cell.p]*self.fat_n, dtype=np.uint8)
+    
+    for j in range(B.w*2):        # guard top, bottom: 2 rows each
+      guardify(B.fat_brd,j)
+      guardify(B.fat_brd,B.fat_n-(j+1))
+    for k in range(B.r):          # guard left, right: 2 cols each
+      guardify(B.fat_brd, fat_psn_of(k,-2))
+      guardify(B.fat_brd, fat_psn_of(k,-1))
+      guardify(B.fat_brd, fat_psn_of(k,B.c))
+      guardify(B.fat_brd, fat_psn_of(k,B.c+1))
 
 ##### board i-o
 
@@ -66,11 +65,21 @@ def disp(brd):   # fat board: just return cells
     s += ' '.join([Cell.ch[brd[k + j*B.w]] \
       for k in range(B.w)]) + '\n'
   return s
-     
+
 def show_board(brd):
   print('')
   print(paint(disp(brd)))
 
+############ cell operations #######################
+
+def guardify(brd, p):   # mark cell as permanently off-board
+  brd[p] = Cell.g
+     
+def change_cell(brd, p): # change unguarded cell, hole <-> peg
+  bp = brd[p]
+  if bp != Cell.g:
+    brd[p] = opposite(brd[p])
+     
 ############ colored output ######################
 
 def paint(s):  # replace with colored characters
@@ -84,36 +93,46 @@ def paint(s):  # replace with colored characters
     else: p += c
   return p
 
-######## positions <------>   row, column coordinates
+######## positions <--> row, column coordinates
 
 def psn_of(x,y):
   return x*B.c + y
 
 def fat_psn_of(x,y):
-  return (x+ 1)*B.w + y + 1
+  return (x+2)*B.w + y + 2
+
+def fat_w(r,c):  # fat board width
+  return c+4
 
 def rc_of(p): # return usual row, col coordinates
   return divmod(p, B.c)
 
 def rc_of_fat(p):  # return usual row, col coordinates
   x,y = divmod(p, B.w)
-  return x - 1, y - 1
+  return x - 2, y - 2
 
-### mcts ########################################
+def can_jump(brd, psn, delta):
+  return ((brd[psn + delta] == Cell.p) and 
+          (brd[psn + delta + delta] == Cell.h))
 
-#def legal_moves(board):
-  #L = []
-  #for psn in range(B.fat_n):
-    #if board[psn] == Cell.e:
-      #L.append(psn)
-  #return L
+def legal_moves(brd, r, c):
+  L = []
+  for j in range(r):
+    for k in range(c):
+       psn = fat_psn_of(j, k)
+       if brd[psn] == Cell.p:  # peg
+         # try ....  left,       up,       down,      right
+         for delta in (-1,   -fat_w(r,c), fat_w(r,c),     1):  
+           if can_jump( brd, psn, delta ):
+             L.append( (psn, delta) )
+  return L
 
 ### user i-o
 
 def tst(r,c):
   B(r,c)
-  #print(disp(B.empty_fat_brd))
-  print(paint(disp(B.empty_fat_brd)))
+  #print(disp(B.fat_brd))
+  print(paint(disp(B.fat_brd)))
 
   for r in range(B.r):
     for c in range(B.c):
@@ -122,8 +141,8 @@ def tst(r,c):
       assert (r,c) == rc_of(p)
     print('')
 
-  for r in range(-1, B.r + 1):
-    for c in range(-1, B.c + 1):
+  for r in range(-2, B.r + 2):
+    for c in range(-2, B.c + 2):
       p = fat_psn_of(r,c)
       print('{:3}'.format(p), end='')
       assert (r,c) == (rc_of_fat(p))
@@ -135,8 +154,6 @@ def big_tst():
       tst(j,k)
 
 # input-output ################################################
-#def char_to_cell(c): 
-#  return Cell.ch.index(c)
 
 def genmoverequest(cmd):
   #cmd = cmd.split()
@@ -154,13 +171,6 @@ def empty_cells(brd):
     if brd[j] == Cell.e: 
       L.append(j)
   return L
-
-def putstone(brd, k, cell):
-  brd[k] = cell
-
-#def putstone_and_update(brd, P, psn, color):
-  #putstone(brd, psn, color)
-  #parent_update(brd, P, psn, color)
 
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
@@ -189,23 +199,25 @@ def act_on_request(board, history):
   elif cmd[0][0] =='u':
     undo(history, board)
     return True, '\n  undo\n'
-#
- # elif cmd[0][0] =='g':
- #   cmd = cmd.split()
- #   if (len(cmd) == 2) and (cmd[1][0] in Cell.ch):
- #     #putstone_and_update(board, P, psn, ptm)
- #     # history.append(psn)  # add location to history
- #     if win_check(P, ptm): print(' win: game over')
- #   else:
- #     return True, '\n did not give a valid player\n'
- #  return True, '\n  gen move with mcts\n'
 
   else:
     return True, '\n  unable to parse request\n'
 
+def opposite(c):  #  hole <--> peg
+  return 1-c
+
+def peg_move(b, p, d):  # board, position, delta
+  bp, p2, p3 = b[p], p + d, p + d + d
+  assert(  (bp != Cell.g) and
+           (bp == b[p2]) and
+           (b[p3] == opposite(bp)) )
+  for x in (p, p2, p3):
+    change_cell(b, x)
+  show_board(b)
+
 def interact():
   Board = B(4,4)
-  board, history = deepcopy(Board.empty_fat_brd), []
+  board, history = deepcopy(Board.fat_brd), []
   while True:
     show_board(board)
     #print('legal ', legal_moves(board),'\n')
@@ -214,6 +226,38 @@ def interact():
     if not ok:
       return
 
-big_tst()
+#big_tst()
 #tst(3,4)
-interact()
+#interact()
+#Board = B(4,4)
+#board = deepcopy(Board.fat_brd)
+
+# more tests
+#show_board(board)
+#change_cell(board,fat_psn_of(2,2))
+#show_board(board)
+#change_cell(board,fat_psn_of(2,2))
+#guardify(board,fat_psn_of(2,2))
+#show_board(board)
+
+Board = B(9,9)
+board = deepcopy(Board.fat_brd)
+change_cell(board,fat_psn_of(4,4))
+for j in range(3):
+  for k in range(3):
+    guardify(board, fat_psn_of(j,k))
+    guardify(board, fat_psn_of(j,k+6))
+    guardify(board, fat_psn_of(j+6,k))
+    guardify(board, fat_psn_of(j+6,k+6))
+show_board(board)
+
+# TODO fix this with proper python loop-break idiom
+legal = legal_moves(board, B.r, B.c)
+t = 0
+while len(legal)>0:
+  print(len(legal), ' legal moves here')
+  mv = choice(legal)
+  peg_move(board, mv[0], mv[1])
+  legal = legal_moves(board, B.r, B.c)
+  t += 1
+  print('         ', t, ' moves so far')
