@@ -137,7 +137,7 @@ class Position: # go board
       return ''
     return change_str(self.brd, where, ch)
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 3, 3
 N = ROWS * COLS
 
 NBRS = []
