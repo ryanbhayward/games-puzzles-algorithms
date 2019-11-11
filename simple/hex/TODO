@@ -1,7 +1,7 @@
-reuse inside of fat_board as necessary,
+* finish vc-negamax
+
+* reuse inside of fat_board as necessary,
   by copying board into middle of fat_board
 
-add print_parent 
-add win_check
-
-organize code:
+* ? add print_parent 
+* ? add win_check
