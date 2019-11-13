@@ -1,5 +1,5 @@
 """
-simple vc-search hex program RBH 2019
+simple hex solver based on virtual- and semi-connections RBH 2019
 """
 
 import numpy as np
@@ -35,11 +35,8 @@ def has_win(brd, who):
         Q.append(d)
         seen.add(d)
   return False
+
 # new canwin pseudo... also return the safe connection cell set...
-#   if ptm can win:
-#     carrier is winning move plus safe connection cellset
-#   else:
-#     carrier is winning opponent safe connection cellset
 #  - pick most promising move
 #  - make ptm-move 
 #  if ptm wins, return info
@@ -52,12 +49,27 @@ def has_win(brd, who):
 #  (once this works, use dictionary to avoid recomputation)
 
 def can_win(s, ptm): # assume neither player has won yet
-  blanks, calls, cset  = [], 1, set()
-  for j in range(N):
+"""
+s        board, as string
+ptm      player to move, as character
+return   boolean    True if ptm has winning move
+         count      total number of calls 
+         win_move   winning move (if ptm can win, otw nonsense)
+         win_set    virtual connection for winner
+                      if ptm: win_move U win_set is ptm winning s-c
+                      if op't:           win_set is opt winning v-c
+"""
+  blanks, calls, win_set  = [], 1, set()
+  #for j in range(N):
+  for j in CELLS:
     if s[j]==ECH: blanks.append(j)
-  #if len(blanks)==0: print('whoops',s)
-  #assert(len(blanks)>0) # since x has no draws
+  move0 = blanks[0]
+  t = change_str(s, move0, ptm)
   optm = oppCH(ptm)
+  (owin, ocls, omv, oset) = can_win(t, optm)
+  if not owin:
+    HERE I AM
+    return True, calls + ocls, -1, 
   for k in blanks:
     t = change_str(s, k, ptm)
     if has_win(t, ptm):
@@ -117,7 +129,8 @@ class Position: # hex board
       return ''
     return change_str(self.brd, where, ch)
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 3, 3
+CELLS = (4,2,6,3,5,1,7,0,8)  # reasonable move order, strong to weak
 N = ROWS * COLS
 
 NBRS = []
