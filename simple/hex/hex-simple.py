@@ -1,6 +1,10 @@
 """
-negamax hex program, no pruning, dumb move order,
-based on ttt and 3x3 go programs RBH 2019
+negamax hex program, no pruning, RBH 2019 
+
+based on ttt and 3x3 go programs
+good but fixed move order for 3x3, 3x4, 4x4
+
+4x4 empty board, x-to-move, x wins, 7034997 calls
 """
 
 import numpy as np
@@ -39,7 +43,7 @@ def has_win(brd, who):
         
 def can_win(s, ptm): # assume neither player has won yet
   blanks, calls = [], 1
-  for j in range(N):
+  for j in CELLS:
     if s[j]==ECH: blanks.append(j)
   #if len(blanks)==0: print('whoops',s)
   #assert(len(blanks)>0) # since x has no draws
@@ -105,6 +109,14 @@ class Position: # hex board
 
 ROWS, COLS = 4, 4
 N = ROWS * COLS
+if ROWS == 3 and COLS == 3:
+  CELLS = (4,2,6,3,5,1,7,0,8)
+elif ROWS == 3 and COLS == 4:
+  CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
+elif ROWS == 4 and COLS == 4:
+  CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+else:
+  CELLS = [j for j in range(N)]
 
 NBRS = []
 for r in range(ROWS):
