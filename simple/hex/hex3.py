@@ -20,9 +20,61 @@ def oppCH(ch):
   else: assert(False)
 
 """
+board: one-dimensional string
+
+index positions for     board:    0 1 2       <- row 2
+                                   3 4 5       <- row 1
+                                    0 1 2       <- row 0
+"""
+
+def coord_to_point(r, c, C): 
+  return c + r*C
+
+def point_to_coord(p, C): 
+  return divmod(p, C)
+
+def point_to_alphanum(p, C):
+  r, c = point_to_coord(p, C)
+  return 'abcdefghj'[c] + '1234566789'[r]
+
+def change_str(s, where, what):
+  return s[:where] + what + s[where+1:]
+
+ROWS = 3
+COLS = 3
+N = ROWS * COLS
+assert(ROWS == 3 and COLS ==3)
+
+NBRS = []
+for r in range(ROWS):
+  for c in range(COLS):
+    nbs = []
+    if r > 0:                nbs.append(coord_to_point(r-1, c,   COLS))
+    if r > 0 and c < COLS-1: nbs.append(coord_to_point(r-1, c+1, COLS))
+    if c > 0:                nbs.append(coord_to_point(r,   c-1, COLS))
+    if c < COLS-1:           nbs.append(coord_to_point(r,   c+1, COLS))
+    if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
+    if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
+    NBRS.append(nbs)
+#print('nbrs', NBRS)
+
+LFT_COL, RGT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
+
+for r in range(ROWS):
+  LFT_COL.add(coord_to_point(r, 0, COLS))
+  RGT_COL.add(coord_to_point(r, COLS-1, COLS))
+
+for c in range(COLS):
+  TOP_ROW.add(coord_to_point(0, c, COLS))
+  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
+
+#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
+
+"""
 for 3x3 board, we can check each of the 11 possible minimal paths directly,
 instead of using a bfs, or using the union-find algorithm
 """
+
 def has_win(s, p): # for 3x3 board only
   if p == BCH:
     return \
@@ -68,29 +120,6 @@ def can_win(s, ptm): # assume neither player has won yet
       return True, calls
   return False, calls
 
-"""
-board: one-dimensional string
-
-index positions for     board:    6 7 8       <- row 2
-                                  3 4 5       <- row 1
-                                  0 1 2       <- row 0
-                                  | | |
-                                  0 1 2       <- columns
-"""
-
-def coord_to_point(r, c, C): 
-  return c + r*C
-
-def point_to_coord(p, C): 
-  return divmod(p, C)
-
-def point_to_alphanum(p, C):
-  r, c = point_to_coord(p, C)
-  return 'abcdefghj'[c] + '1234566789'[r]
-
-def change_str(s, where, what):
-  return s[:where] + what + s[where+1:]
-
 class Position: # 3x3 hex board 
   def __init__(self, rows, cols):
     self.R, self.C, self.n = rows, cols, rows*cols
@@ -119,32 +148,6 @@ class Position: # 3x3 hex board
       return ''
     return change_str(self.brd, where, ch)
 
-ROWS, COLS = 3, 3
-N = ROWS * COLS
-assert(ROWS == 3 and COLS ==3)
-
-NBRS = []
-for r in range(ROWS):
-  for c in range(COLS):
-    nbs = []
-    if r > 0:                nbs.append(coord_to_point(r-1, c,   COLS))
-    if r > 0 and c < COLS-1: nbs.append(coord_to_point(r-1, c+1, COLS))
-    if c > 0:                nbs.append(coord_to_point(r,   c-1, COLS))
-    if c < COLS-1:           nbs.append(coord_to_point(r,   c+1, COLS))
-    if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
-    if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
-    NBRS.append(nbs)
-print('nbrs', NBRS)
-
-LEFT_COL, RIGHT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
-for r in range(ROWS):
-  LEFT_COL.add(coord_to_point(r, 0, COLS))
-  RIGHT_COL.add(coord_to_point(r, COLS-1, COLS))
-for c in range(COLS):
-  TOP_ROW.add(coord_to_point(0, c, COLS))
-  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-print(LEFT_COL, RIGHT_COL, TOP_ROW, BTM_ROW)
-
 """
 input, output
 """
@@ -152,9 +155,9 @@ input, output
 def char_to_color(c): 
   return PTS.index(c)
 
-escape_ch           = '\033['
+escape_ch = '\033['
 colorend, textcolor = escape_ch + '0m', escape_ch + '0;37m'
-stonecolors         = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
+stonecolors = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
 
 def genmoverequest(cmd):
   cmd = cmd.split()
