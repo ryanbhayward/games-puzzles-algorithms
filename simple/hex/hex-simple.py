@@ -1,8 +1,8 @@
 """
-negamax hex program, no pruning, RBH 2019 
+negamax hex program 
 
-based on ttt and 3x3 go programs
-good but fixed move order for 3x3, 3x4, 4x4
+based on ttt and 3x3 go programs,
+special move order for 3x3, 3x4, 4x4 only
 
 4x4 empty board, x-to-move, x wins, 7034997 calls
 """
@@ -23,40 +23,6 @@ def oppCH(ch):
   if ch== BCH: return WCH
   elif ch== WCH: return BCH
   else: assert(False)
-
-def has_win(brd, who):
-  set1, set2 = (TOP_ROW, BTM_ROW) if who == BCH else (LEFT_COL, RIGHT_COL)
-  #print('has_win', brd, who, set1, set2)
-  Q, seen = deque([]), set()
-  for c in set1:
-    if brd[c] == who: 
-      Q.append(c)
-      seen.add(c)
-  while len(Q) > 0:
-    c = Q.popleft()
-    if c in set2: return True
-    for d in NBRS[c]:
-      if brd[d] == who and d not in seen:
-        Q.append(d)
-        seen.add(d)
-  return False
-        
-def can_win(s, ptm): # assume neither player has won yet
-  blanks, calls = [], 1
-  for j in CELLS:
-    if s[j]==ECH: blanks.append(j)
-  #if len(blanks)==0: print('whoops',s)
-  #assert(len(blanks)>0) # since x has no draws
-  optm = oppCH(ptm)
-  for k in blanks:
-    t = change_str(s, k, ptm)
-    if has_win(t, ptm):
-      return True, calls
-    cw, prev_calls = can_win(t, optm)
-    calls += prev_calls
-    if not cw:
-      return True, calls
-  return False, calls
 
 """
 board: one-dimensional string
@@ -107,16 +73,13 @@ class Position: # hex board
       return ''
     return change_str(self.brd, where, ch)
 
-ROWS, COLS = 4, 4
+""" 
+set board size 
+"""
+
+ROWS = 3
+COLS = 3
 N = ROWS * COLS
-if ROWS == 3 and COLS == 3:
-  CELLS = (4,2,6,3,5,1,7,0,8)
-elif ROWS == 3 and COLS == 4:
-  CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
-elif ROWS == 4 and COLS == 4:
-  CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
-else:
-  CELLS = [j for j in range(N)]
 
 NBRS = []
 for r in range(ROWS):
@@ -129,16 +92,25 @@ for r in range(ROWS):
     if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
     if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
     NBRS.append(nbs)
-print('nbrs', NBRS)
+#print('nbrs', NBRS)
 
-LEFT_COL, RIGHT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
+LFT_COL, RGT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
 for r in range(ROWS):
-  LEFT_COL.add(coord_to_point(r, 0, COLS))
-  RIGHT_COL.add(coord_to_point(r, COLS-1, COLS))
+  LFT_COL.add(coord_to_point(r, 0, COLS))
+  RGT_COL.add(coord_to_point(r, COLS-1, COLS))
 for c in range(COLS):
   TOP_ROW.add(coord_to_point(0, c, COLS))
   BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-print(LEFT_COL, RIGHT_COL, TOP_ROW, BTM_ROW)
+#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
+
+"""
+cell order determines move order
+"""
+
+if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
+elif ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
+elif ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+else: CELLS = [j for j in range(N)]  # this order terrible for solving
 
 """
 input, output
@@ -197,13 +169,54 @@ def undo(H, brd):  # pop last meta-move
     return copy.copy(H[len(H)-1])
 
 def msg(s, ch):
-  if has_win(s, 'x'): return('x wins')
-  elif has_win(s, 'o'): return('o wins')
+  if has_win(s, 'x'): return('x has won')
+  elif has_win(s, 'o'): return('o has won')
   else: 
-    cw, calls = can_win(s, ch)
-    out = ch + '-to-move ?  ' + \
-      (ch if cw else oppCH(ch)) + ' can win, ' + str(calls) + ' calls\n'
+    wm, calls = win_move(s, ch)
+    out = '\n' + ch + '-to-move: '
+    out += (ch if wm else oppCH(ch)) + ' wins' 
+    out += (', ' if wm else ' ') + wm + '\n'
+    out += str(calls) + ' calls\n'
     return out
+
+"""
+solving
+"""
+
+def has_win(brd, who):
+  set1, set2 = (TOP_ROW, BTM_ROW) if who == BCH else (LFT_COL, RGT_COL)
+  #print('has_win', brd, who, set1, set2)
+  Q, seen = deque([]), set()
+  for c in set1:
+    if brd[c] == who: 
+      Q.append(c)
+      seen.add(c)
+  while len(Q) > 0:
+    c = Q.popleft()
+    if c in set2: 
+      return True
+    for d in NBRS[c]:
+      if brd[d] == who and d not in seen:
+        Q.append(d)
+        seen.add(d)
+  return False
+        
+def win_move(s, ptm): # assume neither player has won yet
+  blanks, calls = [], 1
+  for j in CELLS:
+    if s[j]==ECH: blanks.append(j)
+  #if len(blanks)==0: print('whoops',s)
+  #assert(len(blanks)>0) # since x has no draws
+  optm = oppCH(ptm)
+  for k in blanks:
+    t = change_str(s, k, ptm)
+    if has_win(t, ptm):
+      return point_to_alphanum(k, COLS), calls
+    cw, prev_calls = win_move(t, optm)
+    calls += prev_calls
+    if not cw:
+      return point_to_alphanum(k, COLS), calls
+  return '', calls
 
 def interact():
   p = Position(ROWS, COLS)
