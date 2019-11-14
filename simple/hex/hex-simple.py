@@ -1,8 +1,9 @@
 """
-negamax hex program 
+negamax small-board hex solver
 
 based on ttt and 3x3 go programs,
-special move order for 3x3, 3x4, 4x4 only
+special move order for 3x3, 3x4, 4x4 only,
+too slow for larger boards
 
 4x4 empty board, x-to-move, x wins, 7034997 calls
 """
@@ -77,8 +78,8 @@ class Position: # hex board
 set board size 
 """
 
-ROWS = 3
-COLS = 3
+ROWS = 4
+COLS = 4
 N = ROWS * COLS
 
 NBRS = []
