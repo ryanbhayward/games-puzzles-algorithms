@@ -1,11 +1,11 @@
 """
-negamax small-board hex solver
+vc-mustplay small-board hex solver
 
-based on ttt and 3x3 go programs,
-special move order for 3x3, 3x4, 4x4 only,
-too slow for larger boards
+ok up to 4x4 boards
+TODO: add captured cell reasoning
+TODO: use H-search to find vcs
 
-4x4 empty board, x-to-move, x wins, 7034997 calls
+based on hex-simple.py
 """
 
 import numpy as np
@@ -27,10 +27,13 @@ def oppCH(ch):
 
 """
 board: one-dimensional string
+                               TOP 9 
 
-index positions for     board:    0 1 2       <- row 2
-                                   3 4 5       <- row 1
-                                    0 1 2       <- row 0
+board index positions:            0 1 2           <- row 0
+                           RGT 11  3 4 5  LFT 12   <- row 1
+                                    6 7 8           <- row 2
+
+                                     BTM 10
 """
 
 def coord_to_point(r, c, C): 
@@ -42,6 +45,12 @@ def point_to_coord(p, C):
 def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
   return 'abcdefghj'[c] + '1234566789'[r]
+
+def pointset_to_str(S):
+  s = ''
+  for j in range(N):
+    s += BCH if j in S else ECH
+  return s
 
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
@@ -78,9 +87,11 @@ class Position: # hex board
 set board size 
 """
 
-ROWS = 3
-COLS = 3
+ROWS = 4
+COLS = 4
 N = ROWS * COLS
+INF = N+1  # upper-bound on side-to-side distance
+TOP, BTM, LFT, RGT = N, N+1, N+2, N+3
 
 NBRS = []
 for r in range(ROWS):
@@ -93,25 +104,16 @@ for r in range(ROWS):
     if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
     if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
     NBRS.append(nbs)
+top, btm, lft, rgt = [], [], [], []
+for c in range(COLS): 
+  top.append(coord_to_point(0, c, COLS))
+  btm.append(coord_to_point(ROWS-1, c, COLS))
+for r in range(ROWS): 
+  lft.append(coord_to_point(r, 0, COLS))
+  rgt.append(coord_to_point(r, COLS-1, COLS))
+for j in [top, btm, lft, rgt]:
+  NBRS.append(j)
 #print('nbrs', NBRS)
-
-LFT_COL, RGT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
-for r in range(ROWS):
-  LFT_COL.add(coord_to_point(r, 0, COLS))
-  RGT_COL.add(coord_to_point(r, COLS-1, COLS))
-for c in range(COLS):
-  TOP_ROW.add(coord_to_point(0, c, COLS))
-  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
-
-"""
-cell order determines move order
-"""
-
-if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
-elif ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
-elif ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
-else: CELLS = [j for j in range(N)]  # this order terrible for solving
 
 """
 input, output
@@ -170,54 +172,93 @@ def undo(H, brd):  # pop last meta-move
     return copy.copy(H[len(H)-1])
 
 def msg(s, ch):
-  if has_win(s, 'x'): return('x has won')
-  elif has_win(s, 'o'): return('o has won')
+  hwx = has_win(s, 'x')
+  if hwx[0]: 
+    return('x has won')
+  hw = has_win(s, 'o')
+  if hw[0]: 
+    return('o has won')
   else: 
-    wm, calls = win_move(s, ch)
+    h1 = hwx[1] if ch=='x' else hw[1]
+    wm, calls, vc = win_move(s, ch, h1)
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
-    out += (' ... ' if wm else ' ') + wm + '\n'
-    out += str(calls) + ' calls\n'
+    out += (', ' if wm else ' ') + wm + '\n'
+    out += str(calls) + ' calls   '
+    out += pointset_to_str(vc)
     return out
 
 """
 solving
 """
 
-def has_win(brd, who):
-  set1, set2 = (TOP_ROW, BTM_ROW) if who == BCH else (LFT_COL, RGT_COL)
-  #print('has_win', brd, who, set1, set2)
-  Q, seen = deque([]), set()
-  for c in set1:
-    if brd[c] == who: 
-      Q.append(c)
-      seen.add(c)
-  while len(Q) > 0:
-    c = Q.popleft()
-    if c in set2: 
-      return True
-    for d in NBRS[c]:
-      if brd[d] == who and d not in seen:
-        Q.append(d)
-        seen.add(d)
-  return False
-        
-def win_move(s, ptm): # assume neither player has won yet
-  blanks, calls = [], 1
-  for j in CELLS:
-    if s[j]==ECH: blanks.append(j)
-  #if len(blanks)==0: print('whoops',s)
-  #assert(len(blanks)>0) # since x has no draws
+def has_win(brd, who): # use double distance to check for win
+  start = (TOP, BTM) if who == BCH else (LFT, RGT)
+  D = (np.full((2,N+4), INF, dtype = np.int8))
+  for j in range(2):
+    for k in range(4): 
+      D[j][N+k] = 0
+    Q = deque([start[j]])
+    while len(Q) > 0:
+      c = Q.popleft()
+      for z in NBRS[c]:
+        if brd[z] == who and D[j][z] == INF:
+          Q.appendleft(z)
+          D[j][z] = D[j][c]
+        if brd[z] == ECH and D[j][z] == INF:
+          Q.append(z)
+          D[j][z] = D[j][c] + 1
+  #  print(D[j])
+  dist = [sum(x) for x in zip(D[0],D[1])][0:N]
+  #print(who, ' hw ', brd,'\n')
+  #for j in dist: print(j, end=' ')
+  #print()
+  ordered = np.argsort(dist)
+  #for j in ordered: print(j, end=' ')
+  #print()
+  return dist[ordered[0]] == 0, ordered
+
+def win_move(s, ptm, ordered): # assume neither player has won yet
+  """
+  s        board, as string
+  ptm      player to move, as character
+  ordered  cells by double_distance_order
+  return   winning move if ptm has winning move, else ''
+           count   total number of calls 
+           win_set virtual connection for winner
+             if ptm:  win_move U win_set is ptm winning s-c
+             if op't:            win_set is opt winning v-c
+  """
+  #print('win_move', s, ' ', ptm)
   optm = oppCH(ptm)
-  for k in blanks:
-    t = change_str(s, k, ptm)
-    if has_win(t, ptm):
-      return point_to_alphanum(k, COLS), calls
-    cw, prev_calls = win_move(t, optm)
-    calls += prev_calls
-    if not cw:
-      return point_to_alphanum(k, COLS), calls
-  return '', calls
+
+  calls, win_set = 1, set()
+  mustplay, opt_win_threats = set(), []
+  for j in range(N):
+    if s[j]==ECH: 
+      mustplay.add(j)
+  if len(mustplay)==0:
+    print(s)
+    print(ptm)
+    print(ordered)
+    assert(False)
+  while len(mustplay) > 0:
+    for move in ordered:
+      if move in mustplay: break
+    t = change_str(s, move, ptm) # resulting board
+    hw = has_win(t, ptm)
+  #  print(t, ' ', hw[0], ' ', hw[1])
+    if hw[0]:
+      return point_to_alphanum(move, COLS), calls, {move}
+    omv, ocalls, oset = win_move(t, optm, hw[1])
+    calls += ocalls
+    if not omv: # opponent has no winning response to ptm move
+      oset.add(move)
+      return point_to_alphanum(move, COLS), calls, oset
+    mustplay = mustplay.intersection(oset)
+    opt_win_threats.append(oset)
+  ovc = set.union(*opt_win_threats)
+  return '', calls, ovc
 
 def interact():
   p = Position(ROWS, COLS)

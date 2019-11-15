@@ -1,4 +1,7 @@
-* finish vc-negamax
+
+old TODO stuff
+
+* is hexio somewhere else?
 
 * reuse inside of fat_board as necessary,
   by copying board into middle of fat_board

@@ -1,5 +1,11 @@
 """
-3-3 hex program, based on ttt and 3x3 go programs RBH 2019
+vc-mustplay small-board hex solver
+
+ok up to 4x4 boards
+TODO: add captured cell reasoning
+TODO: use H-search to find vcs
+
+based on hex-simple.py
 """
 
 import numpy as np
@@ -22,9 +28,9 @@ def oppCH(ch):
 """
 board: one-dimensional string
 
-index positions for     board:    0 1 2       <- row 2
+index positions for     board:    0 1 2       <- row 0
                                    3 4 5       <- row 1
-                                    0 1 2       <- row 0
+                                    6 7 8       <- row 2
 """
 
 def coord_to_point(r, c, C): 
@@ -37,90 +43,16 @@ def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
   return 'abcdefghj'[c] + '1234566789'[r]
 
+def pointset_to_str(S):
+  s = ''
+  for j in range(N):
+    s += BCH if j in S else ECH
+  return s
+
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
 
-ROWS = 3
-COLS = 3
-N = ROWS * COLS
-assert(ROWS == 3 and COLS ==3)
-
-NBRS = []
-for r in range(ROWS):
-  for c in range(COLS):
-    nbs = []
-    if r > 0:                nbs.append(coord_to_point(r-1, c,   COLS))
-    if r > 0 and c < COLS-1: nbs.append(coord_to_point(r-1, c+1, COLS))
-    if c > 0:                nbs.append(coord_to_point(r,   c-1, COLS))
-    if c < COLS-1:           nbs.append(coord_to_point(r,   c+1, COLS))
-    if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
-    if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
-    NBRS.append(nbs)
-#print('nbrs', NBRS)
-
-LFT_COL, RGT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
-
-for r in range(ROWS):
-  LFT_COL.add(coord_to_point(r, 0, COLS))
-  RGT_COL.add(coord_to_point(r, COLS-1, COLS))
-
-for c in range(COLS):
-  TOP_ROW.add(coord_to_point(0, c, COLS))
-  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-
-#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
-
-"""
-for 3x3 board, we can check each of the 11 possible minimal paths directly,
-instead of using a bfs, or using the union-find algorithm
-"""
-
-def has_win(s, p): # for 3x3 board only
-  if p == BCH:
-    return \
-    (s[0]==BCH) and (s[3]==BCH) and (s[6]==BCH) or \
-    (s[1]==BCH) and (s[4]==BCH) and (s[7]==BCH) or \
-    (s[2]==BCH) and (s[5]==BCH) and (s[8]==BCH) or \
-    (s[1]==BCH) and (s[3]==BCH) and (s[6]==BCH) or \
-    (s[2]==BCH) and (s[4]==BCH) and (s[7]==BCH) or \
-    (s[2]==BCH) and (s[4]==BCH) and (s[6]==BCH) or \
-    (s[1]==BCH) and (s[4]==BCH) and (s[6]==BCH) or \
-    (s[2]==BCH) and (s[5]==BCH) and (s[7]==BCH) or \
-    (s[0]==BCH) and (s[3]==BCH) and (s[4]==BCH) and (s[7]==BCH) or \
-    (s[1]==BCH) and (s[4]==BCH) and (s[5]==BCH) and (s[8]==BCH) or \
-    (s[0]==BCH) and (s[3]==BCH) and (s[4]==BCH) and (s[5]==BCH) and (s[8]==BCH)
-  return \
-    (s[0]==WCH) and (s[1]==WCH) and (s[2]==WCH) or \
-    (s[3]==WCH) and (s[4]==WCH) and (s[5]==WCH) or \
-    (s[6]==WCH) and (s[7]==WCH) and (s[8]==WCH) or \
-    (s[3]==WCH) and (s[1]==WCH) and (s[2]==WCH) or \
-    (s[6]==WCH) and (s[4]==WCH) and (s[5]==WCH) or \
-    (s[2]==WCH) and (s[4]==WCH) and (s[6]==WCH) or \
-    (s[3]==WCH) and (s[4]==WCH) and (s[2]==WCH) or \
-    (s[6]==WCH) and (s[7]==WCH) and (s[5]==WCH) or \
-    (s[0]==WCH) and (s[1]==WCH) and (s[4]==WCH) and (s[5]==WCH) or \
-    (s[3]==WCH) and (s[4]==WCH) and (s[7]==WCH) and (s[8]==WCH) or \
-    (s[0]==WCH) and (s[1]==WCH) and (s[4]==WCH) and (s[7]==WCH) and (s[8]==WCH)
-
-def can_win(s, ptm): # assume neither player has won yet
-  blanks, calls = [], 1
-  #for j in range(N):
-  for j in (4,2,6,3,5,2,7,0,8): # better 3x3 move order
-    if s[j]==ECH: blanks.append(j)
-  #if len(blanks)==0: print('whoops',s)
-  #assert(len(blanks)>0) # since x has no draws
-  optm = oppCH(ptm)
-  for k in blanks:
-    t = change_str(s, k, ptm)
-    if has_win(t, ptm):
-      return True, calls
-    cw, prev_calls = can_win(t, optm)
-    calls += prev_calls
-    if not cw:
-      return True, calls
-  return False, calls
-
-class Position: # 3x3 hex board 
+class Position: # hex board 
   def __init__(self, rows, cols):
     self.R, self.C, self.n = rows, cols, rows*cols
     self.brd = PTS[EMPTY]*self.n
@@ -148,6 +80,46 @@ class Position: # 3x3 hex board
       return ''
     return change_str(self.brd, where, ch)
 
+""" 
+set board size 
+"""
+
+ROWS = 4
+COLS = 4
+N = ROWS * COLS
+
+NBRS = []
+for r in range(ROWS):
+  for c in range(COLS):
+    nbs = []
+    if r > 0:                nbs.append(coord_to_point(r-1, c,   COLS))
+    if r > 0 and c < COLS-1: nbs.append(coord_to_point(r-1, c+1, COLS))
+    if c > 0:                nbs.append(coord_to_point(r,   c-1, COLS))
+    if c < COLS-1:           nbs.append(coord_to_point(r,   c+1, COLS))
+    if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
+    if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
+    NBRS.append(nbs)
+#print('nbrs', NBRS)
+
+LFT_COL, RGT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
+for r in range(ROWS):
+  LFT_COL.add(coord_to_point(r, 0, COLS))
+  RGT_COL.add(coord_to_point(r, COLS-1, COLS))
+for c in range(COLS):
+  TOP_ROW.add(coord_to_point(0, c, COLS))
+  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
+#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
+
+"""
+cell order determines move order
+"""
+
+if ROWS == 2 and COLS == 2: CELLS = (1,2,0,3)
+elif ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
+elif ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
+elif ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+else: CELLS = [j for j in range(N)]  # this order terrible for solving
+
 """
 input, output
 """
@@ -155,9 +127,9 @@ input, output
 def char_to_color(c): 
   return PTS.index(c)
 
-escape_ch = '\033['
+escape_ch           = '\033['
 colorend, textcolor = escape_ch + '0m', escape_ch + '0;37m'
-stonecolors = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
+stonecolors         = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
 
 def genmoverequest(cmd):
   cmd = cmd.split()
@@ -192,9 +164,7 @@ def showboard(brd, R, C):
   for j in range(R): # rows
     pretty += ' ' + ' '*j + paint(str(1+j)) + ' '
     for k in range(C): # columns
-      #print(coord_to_point(j,k,psn.C), end='')
       pretty += ' ' + paint([brd[coord_to_point(j,k,C)]])
-    #print('')
     pretty += '\n'
   print(pretty)
 
@@ -203,18 +173,77 @@ def undo(H, brd):  # pop last meta-move
     print('\n    original position,  nothing to undo\n')
     return brd
   else:
-    #print('\n   removing position ', H.pop())
     H.pop()
     return copy.copy(H[len(H)-1])
 
 def msg(s, ch):
-  if has_win(s, 'x'): return('x wins')
-  elif has_win(s, 'o'): return('o wins')
+  if has_win(s, 'x'): return('x has won')
+  elif has_win(s, 'o'): return('o has won')
   else: 
-    cw, calls = can_win(s, ch)
-    out = ch + '-to-move ?  ' + \
-      (ch if cw else oppCH(ch)) + ' can win, ' + str(calls) + ' calls\n'
+    wm, calls, vc = win_move(s, ch)
+    out = '\n' + ch + '-to-move: '
+    out += (ch if wm else oppCH(ch)) + ' wins' 
+    out += (' ... ' if wm else ' ') + wm + '\n'
+    out += str(calls) + ' calls   '
+    out += pointset_to_str(vc)
     return out
+
+"""
+solving
+"""
+
+def has_win(brd, who):
+  set1, set2 = (TOP_ROW, BTM_ROW) if who == BCH else (LFT_COL, RGT_COL)
+  #print('has_win', brd, who, set1, set2)
+  Q, seen = deque([]), set()
+  for c in set1:
+    if brd[c] == who: 
+      Q.append(c)
+      seen.add(c)
+  while len(Q) > 0:
+    c = Q.popleft()
+    if c in set2: 
+      return True
+    for d in NBRS[c]:
+      if brd[d] == who and d not in seen:
+        Q.append(d)
+        seen.add(d)
+  return False
+
+def win_move(s, ptm): # assume neither player has won yet
+  """
+  s        board, as string
+  ptm      player to move, as character
+  return   winning move if ptm has winning move, else ''
+           count   total number of calls 
+           win_set virtual connection for winner
+             if ptm:  win_move U win_set is ptm winning s-c
+             if op't:            win_set is opt winning v-c
+  """
+  #print('win_move', s, ' ', ptm)
+  optm = oppCH(ptm)
+
+  calls, win_set = 1, set()
+  mustplay, opt_win_threats = set(), []
+  for j in CELLS:
+    if s[j]==ECH: mustplay.add(j)
+  #print('mustplay ', mustplay)
+
+  while len(mustplay) > 0:
+    for move in CELLS:
+      if move in mustplay: break
+    t = change_str(s, move, ptm) # resulting board
+    if has_win(t, ptm):
+      return point_to_alphanum(move, COLS), calls, {move}
+    omv, ocalls, oset = win_move(t, optm)
+    calls += ocalls
+    if not omv: # opponent has no winning response to ptm move
+      oset.add(move)
+      return point_to_alphanum(move, COLS), calls, oset
+    mustplay = mustplay.intersection(oset)
+    opt_win_threats.append(oset)
+  ovc = set.union(*opt_win_threats)
+  return '', calls, ovc
 
 def interact():
   p = Position(ROWS, COLS)
