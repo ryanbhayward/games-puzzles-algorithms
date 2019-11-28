@@ -159,15 +159,6 @@ escape_ch = '\033['
 colorend, textcolor = escape_ch + '0m', escape_ch + '0;37m'
 stonecolors = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
 
-def genmoverequest(cmd):
-  cmd = cmd.split()
-  invalid = (False, None, '\n invalid genmove request\n')
-  if len(cmd)==2:
-    x = PTS.find(cmd[1][0])
-    if x == 1 or x == 2:
-      return True, cmd[1][0], ''
-  return invalid
-
 def printmenu():
   print('  h             help menu')
   print('  x b2         play x b 2')

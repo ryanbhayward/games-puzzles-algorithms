@@ -108,7 +108,7 @@ for r in range(ROWS):
 for c in range(COLS):
   TOP_ROW.add(coord_to_point(0, c, COLS))
   BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
+print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
 
 """
 cell order determines move order
@@ -118,6 +118,8 @@ if ROWS == 2 and COLS == 2: CELLS = (1,2,0,3)
 elif ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
 elif ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 elif ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+elif ROWS == 5 and COLS == 5: 
+    CELLS = (12,8,16,7,17,6,18,11,13,4,20,3,21,2,22,15,9,10,14,5,19,1,23,0,24)
 else: CELLS = [j for j in range(N)]  # this order terrible for solving
 
 """
@@ -130,15 +132,6 @@ def char_to_color(c):
 escape_ch           = '\033['
 colorend, textcolor = escape_ch + '0m', escape_ch + '0;37m'
 stonecolors         = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
-
-def genmoverequest(cmd):
-  cmd = cmd.split()
-  invalid = (False, None, '\n invalid genmove request\n')
-  if len(cmd)==2:
-    x = PTS.find(cmd[1][0])
-    if x == 1 or x == 2:
-      return True, cmd[1][0], ''
-  return invalid
 
 def printmenu():
   print('  h             help menu')
