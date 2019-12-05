@@ -1,15 +1,17 @@
 """
 simple Go program  RBH 2019    
   * generate legal moves and game score
-  * based on M Mueller's go code and P Norvig's sudoku representation
+  * based on a subset of M Mueller's Go0 Go1 programs
   * also allow rectangular boards, so with columns != rows
              1 <= R <= 9 rows 
              1 <= C <= 9 columns
-TODO
-  * make legal moves (Tromp-Taylor, no suicide, not yet checking superko)
+working features
+  * make legal moves (Tromp-Taylor, no suicide, positional superko)
   * show Tromp-Taylor score
-  * add positional superko check
-  * make legal moves (Tromp-Taylor, allow suicide, positional superko)
+TODO
+  * code reorg: clean up the parsing (eg do all legal move
+    checks without touching history?)
+  * also allow suicide? (Tromp-Taylor, allow suicide, positional superko)
 """
 
 import numpy as np
@@ -19,65 +21,45 @@ import copy
 points on the board
 """
 
-EMPTY, BLACK, WHITE, BORDER, POINT_CHARS = 0, 1, 2, 3, '.xo'
+EMPTY, BLACK, WHITE, BORDER, PTS = 0, 1, 2, 3, '.xo#'
 
 def opponent(color): return BLACK + WHITE - color
 
 """
-the board: a one-dimensional vector of points
+the board: a one-dimensional string
 
-to simplify loop computation, add borders (also called guards):
-  * a border row at top
-  * a border row at bottom
-  * a border column at left 
-so R x C board requires total (R+2) * (C+1) points:
-
-     3x4 board       points
-
- g  g  g  g  g   20 21 22 23 24
- g  .  .  .  .   15 16 17 18 19
- g  .  .  .  .   10 11 12 13 14
- g  .  .  .  .    5  6  7  8  9     <= in Go, rows are labelled
- g  g  g  g  g    0  1  2  3  4        from the bottom
+index psns for a 2x3 board 3 4 5       <- row 1
+                           0 1 2       <- row 0
+                          
+                           0 1 2       <- columns
 """
 
-def coord_to_point(r, c, C): 
-  return (C+1) * (r+1) + c + 1
+def coord_to_point(r, c, C): return c + r*C
+def point_to_coord(p, C): return divmod(p, C)
 
 def point_to_alphanum(p,C):
   r, c = divmod(p, C+1)
-  return 'abcdefghi'[c-1] + '1234566789'[r-1]
+  return 'abcdefghj'[c-1] + '1234566789'[r-1]
+
 
 class Position: # go board with x,o,e point values
-  def legal_moves(self):
-    L = []
-    for j in range(self.n):
-      if self.brd[j] == EMPTY: 
-        L.append(j)
-    return L
-
-  def __init__(self, r, c):
-    self.R, self.C = r, c
-    self.n, self.fat_n = r * c,  (r+2) * (c+1)
-    self.brd = np.full(self.fat_n, BORDER, dtype = np.int8)
-    for j in range(self.R):
-      for k in range(self.C):
-        self.brd[coord_to_point(j,k,self.C)] = EMPTY
-    # init nbrs
+  def __init__(self, row, col):
+    self.R, self.C, self.n = row, col, row*col
+    self.brd = PTS[EMPTY]*self.n
     self.nbrs = []
-    for point in range(self.fat_n):
-        if self.brd[point] == BORDER: 
-            self.nbrs.append([])
-        else:
-            nbs = []
-            for where in [point-1, point+1, point+self.C+1, point-(self.C+1)]:
-              if self.brd[where] != BORDER: 
-                  nbs.append(where)
-            self.nbrs.append(nbs)
+    for r in range(row):
+      for c in range(col):
+        nbs = []
+        if r>0:     nbs.append(coord_to_point(r-1,c,C))
+        if r<row-1: nbs.append(coord_to_point(r+1,c,C))
+        if c>0:     nbs.append(coord_to_point(r,c-1,C))
+        if c<col-1: nbs.append(coord_to_point(r,c+1,C))
+        self.nbrs.append(nbs)
+    for j in range(self.nbrs):
+      print(j, self.nbrs[j])
 
   def makemove(self, where, color):
-    self.brd[where] = color
-    cap = []
+    self.brd[where], cap = color, []
     for p in self.nbrs[where]:
       if self.brd[p] == opponent(color):
         cap += self.captured(p, opponent(color))
@@ -85,34 +67,42 @@ class Position: # go board with x,o,e point values
       print('removing captured group at', point_to_alphanum(where, self.C))
       for j in cap:
         self.brd[j] = EMPTY
-      return cap
+      return cap, True
     if self.captured(where, color):
       print('whoops, no liberty there: not allowed')
       self.brd[where] = EMPTY
-    return cap 
+      return [], False # no move made
+    return cap, True
 
   def requestmove(self, cmd, H):
     parseok, cmd = False, cmd.split()
-    if len(cmd)==2:
-      ch = cmd[0][0]
-      if ch in POINT_CHARS:
-        q, n = cmd[1][0], cmd[1][1:]
-        if q.isalpha() and n.isdigit():
-          x, y = int(n) - 1, ord(q)-ord('a')
-          if x<0 or x >= self.R or y<0 or y >= self.C:
-            print('\n  sorry, coordinate off board')
-          else:
-            where = coord_to_point(x,y,self.C)
-            if self.brd[where] != EMPTY:
-              print('\n  sorry, position occupied')
-            else:
-              color = char_to_color(ch)
-              move_record = (color, where)
-              H.append(move_record) # record move for undo
-              captured = self.makemove(where, color)
-              for x in captured: # record captured stones for undo
-                cap_record = (-opponent(color), x)
-                H.append(cap_record)
+    if len(cmd) != 2:
+      print('invalid command')
+      return False
+    ch = cmd[0][0]
+    if ch not in POINT_CHARS:
+      print('bad character')
+      return False
+    q, n = cmd[1][0], cmd[1][1:]
+    if (not q.isalpha()) or (not n.isdigit()):
+      print('not alphanumeric')
+      return False
+    x, y = int(n) - 1, ord(q)-ord('a')
+    if x<0 or x >= self.R or y<0 or y >= self.C:
+      print('coordinate off board')
+      return False
+    where = coord_to_point(x,y,self.C)
+    if self.brd[where] != EMPTY:
+      print('\n  sorry, position occupied')
+      return False
+    color = char_to_color(ch)
+    move_record = (color, where)
+    H.append(move_record) # record move for undo
+    captured, ok_so_far = self.makemove(where, color)
+    for x in captured: # record captured stones for undo
+      cap_record = (-opponent(color), x)
+      H.append(cap_record)
+    return ok_so_far
 
   def captured(self, where, color):
   # return points in captured group containing where
@@ -211,23 +201,38 @@ def showboard(psn):
     pretty += '\n'
   print(pretty)
 
-def undo(H, brd):  # pop last meta-move
+def undo(H, S, p, also_set):  # pop last meta-move
   if len(H)==0:
     print('\n    board empty, nothing to undo\n')
   else:
+    st = p.psn_to_str()
+    if also_set:
+      S.remove(st)
     while True:
       color, where = H.pop()
+      print(color, where)
       if color > 0: # normal move, erase it
-        brd[where] = EMPTY
+        print(H,'remove')
+        print(p.brd)
+        p.brd[where] = EMPTY
+        print(p.brd)
         return
       else: # capture move, restore it
-        brd[where] = -color
+        print(H,'restore')
+        p.brd[where] = -color
 
 def interact(use_tt):
-  p = Position(3,4)
+  p = Position(1,4)
+  print(p.R, p.C, p.n, p.fat_n, coord_to_point(0,0,p.C), coord_to_point(p.R-1,p.C-1,p.C))
+  p_str = p.psn_to_str()
+  print(p_str)
+  all_psns = set()
+  all_psns.add(p_str)
   history = []  # used for erasing, so only need locations
   while True:
     showboard(p)
+    for x in all_psns: 
+      print(x)
     print('tromp-taylor score (black, white)',p.tromp_taylor_score(),'\n')
     cmd = input(' ')
     if len(cmd)==0:
@@ -236,11 +241,14 @@ def interact(use_tt):
     if cmd[0][0]=='h':
       printmenu()
     elif cmd[0][0]=='u':
-      undo(history, p.brd)
+      undo(history, all_psns, p, True)
     elif (cmd[0][0] in POINT_CHARS):
-      p.requestmove(cmd, history)
-    else:
-      print('\n ???????\n')
-      printmenu()
+      if p.requestmove(cmd, history):
+        p_str = p.psn_to_str()
+        if p_str in all_psns:
+          print('superko violation: undoing move')
+          undo(history, all_psns, p, True)
+        else:
+          all_psns.add(p_str)
 
 interact(False)
