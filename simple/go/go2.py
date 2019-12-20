@@ -14,7 +14,9 @@ TODO
 """
 
 import numpy as np
+import itertools
 import copy
+from collections import deque
 
 """
 points on the board
@@ -33,7 +35,7 @@ def oppCH(ch):
 board
 """
 
-ROWS, COLS = 2, 2
+ROWS, COLS = 2,2
 N = ROWS * COLS
 
 """
@@ -62,6 +64,7 @@ def change_str(s, where, what):
 class Position: # go board 
   def __init__(self, rows, cols):
     self.R, self.C, self.n = rows, cols, rows*cols
+    self.cells = np.array([j for j in range(self.n)], np.dtype(np.int8))
     self.brd = PTS[EMPTY]*self.n
     self.nbrs = []
     for r in range(rows):
@@ -72,6 +75,24 @@ class Position: # go board
         if c > 0:        nbs.append(coord_to_point(r,  c-1, cols))
         if c < cols - 1: nbs.append(coord_to_point(r,  c+1, cols))
         self.nbrs.append(nbs)
+
+  def legal_psn(self):
+    seen = set()
+    for c in range(self.n):
+      if c not in seen and self.brd[c] != ECH:
+        seen.add(c)
+        has_liberty = False
+        q = deque([c])
+        while len(q)>0:
+          v = q.pop()
+          for w in self.nbrs[v]:
+             if self.brd[w]==ECH:
+               has_liberty = True
+             elif self.brd[w]==self.brd[v] and w not in seen:
+               seen.add(w)
+               q.appendleft(w)
+        if not has_liberty: return False
+    return True
 
   def tromp_taylor_score(self):
     bs, ws, empty_seen = 0, 0, set()
@@ -219,6 +240,7 @@ def interact():
   history = []  # board positions
   new = copy.copy(p.brd); history.append(new)
   while True:
+    #print(p.brd)
     showboard(p.brd, p.R, p.C)
     for h in history: print(h)
     print('\n')
@@ -240,4 +262,24 @@ def interact():
           p.brd = new
           history.append(new)
 
-interact()
+def cartesian(n, st):
+  if n == 1:
+    return [x for x in st]
+  return [a + b for a in st for b in cartesian(n-1, st)]
+
+#for j in [a+b+c+d for a in PTS for b in PTS for c in PTS for d in PTS]:
+#  print(j)
+def count_legal_positions(r,c):
+  p = Position(r, c)
+  legal = 0
+  for p.brd in cartesian(r*c, PTS):
+    if p.legal_psn():
+      legal += 1
+  print(r, 'rows', c, 'cols ', legal, 'legal positions out of ', 3**(r*c))
+
+count_legal_positions(2,2)
+count_legal_positions(2,3)
+count_legal_positions(3,3)
+count_legal_positions(3,4)
+
+#interact()
