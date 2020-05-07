@@ -1,0 +1,37 @@
+RBH Mar 4 2014
+* modified to work for r*t cylindrical hex board *
+* e.g. 3*4 board, 3 rows, 4 columns
+  usual adjacencies, except:
+    * only sides are top and bottom
+    * first cell in row j also adjacent to 
+        - last cell in row j
+        - last cell in row j+1
+      so below: cell 00 touches cells 03 13
+                cell 10 touches cells 13 23
+                cell 20 touches cell 23
+       00 01 02 03
+        10 11 12 13
+          20 21 22 23
+
+BLACK owns top and bottom.
+count BLACK wins as usual.
+-------------------------------------------------------------
+
+programs related to computing the nxn (n odd) prob that
+1st player wins at Hex, assuming uni-random play
+
+exact
+  compute probs exactly by enumerating all possible k-subs,
+  comp. feasible only if n = 3 or 5
+
+approximate
+  based on pseudo-random uni sampling
+
+estwin.c 
+  revised 
+  * use guarded board
+  * use recursion
+oddprob.d 
+  not yet revised
+-------------
+on 32 bit machine, max signed int is 2^31-1

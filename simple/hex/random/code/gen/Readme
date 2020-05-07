@@ -1,0 +1,2 @@
+generate a pseudorandom vector with a fixed number of 1s;
+ program based on estwin.c

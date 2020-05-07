@@ -1,0 +1,18 @@
+programs related to computing the nxn (n odd) prob that
+1st player wins at Hex, assuming uni-random play
+
+exact
+  compute probs exactly by enumerating all possible k-subs,
+  comp. feasible only if n = 3 or 5
+
+approximate
+  based on pseudo-random uni sampling
+
+estwin.c 
+  revised 
+  * use guarded board
+  * use recursion
+oddprob.d 
+  not yet revised
+-------------
+on 32 bit machine, max signed int is 2^31-1

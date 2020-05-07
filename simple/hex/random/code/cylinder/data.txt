@@ -1,0 +1,30 @@
+0.666302 top-bottom cylhex win rate, 2x2 board  1000000 samples
+0.400359 top-bottom cylhex win rate, 3x2 board  1000000 samples
+0.228579 top-bottom cylhex win rate, 4x2 board  1000000 samples
+0.126587 top-bottom cylhex win rate, 5x2 board  1000000 samples
+0.069255 top-bottom cylhex win rate, 6x2 board  1000000 samples
+
+0.900238 top-bottom cylhex win rate, 2x3 board  1000000 samples
+0.500250 top-bottom cylhex win rate, 3x3 board  1000000 samples
+0.502398 top-bottom cylhex win rate, 4x3 board  1000000 samples
+0.262950 top-bottom cylhex win rate, 5x3 board  1000000 samples
+0.275385 top-bottom cylhex win rate, 6x3 board  1000000 samples
+0.140862 top-bottom cylhex win rate, 7x3 board  1000000 samples
+0.150350 top-bottom cylhex win rate, 8x3 board  1000000 samples
+
+0.971342 top-bottom cylhex win rate, 2x4 board  1000000 samples
+0.818120 top-bottom cylhex win rate, 3x4 board  1000000 samples
+0.678474 top-bottom cylhex win rate, 4x4 board  1000000 samples
+0.557785 top-bottom cylhex win rate, 5x4 board  1000000 samples
+0.456308 top-bottom cylhex win rate, 6x4 board  1000000 samples
+0.372325 top-bottom cylhex win rate, 7x4 board  1000000 samples
+0.302525 top-bottom cylhex win rate, 8x4 board  1000000 samples
+
+0.992055 top-bottom cylhex win rate, 2x5 board  1000000 samples
+0.829483 top-bottom cylhex win rate, 3x5 board  1000000 samples
+0.788126 top-bottom cylhex win rate, 4x5 board  1000000 samples
+0.589512 top-bottom cylhex win rate, 6x5 board  1000000 samples
+0.446162 top-bottom cylhex win rate, 7x5 board  1000000 samples
+0.436520 top-bottom cylhex win rate, 8x5 board  1000000 samples
+0.325988 top-bottom cylhex win rate, 9x5 board  1000000 samples
+0.321441 top-bottom cylhex win rate, 10x5 board  1000000 samples

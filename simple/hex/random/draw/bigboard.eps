@@ -1,0 +1,121 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: RBH
+%%Title: 3 hexes meet at a point
+%%CreationDate:  2011
+%%DocumentData: Clean7Bit
+%%Origin: [eg: 0 0]
+%%BoundingBox: -10 -120 225 270
+%%LanguageLevel: 2 [could be 1 2 or 3]
+%%Pages: 1
+%%Page: 1 1
+%%EOF
+1 setlinejoin
+1 setlinecap
+1 setlinewidth
+/X 35 def
+/Y 35 def
+/HShift 5 def
+/VShift -8.66 def
+/CircleRadius 4.8 def 
+/DotRadius 1 def 
+/Boardshade 0.8 def
+/Epsshade 0 def
+/Reshade % 1 -> 1-eps   0 -> 0+eps
+  { %.5 mul Epsshade add 
+} def
+/FillAndStroke { 1 dict begin /sh exch def
+    %gsave sh Reshade setgray fill
+    %draw black only
+    sh 1 eq 
+      { gsave 1 sh sub Reshade setgray fill grestore }
+    if
+    %grestore 0 setgray stroke
+end } def
+/HexPiece { 1 dict begin /shade exch def 
+    %0 for white, 1 for black
+    shade 1 eq
+    { newpath 0 0 0 CircleRadius 0 360 arc shade FillAndStroke}
+    { newpath 0 0 0 DotRadius 0 360 arc 1 shade sub FillAndStroke}
+    ifelse
+end } def
+
+/Map {
+  VShift mul exch HShift mul exch
+} def
+
+/PrintPosition{ 
+  gsave
+    -1 0 Map moveto
+    gsave %perimeter
+      Y     Y neg Map rlineto
+      X     X     Map rlineto
+      Y neg Y     Map rlineto
+      closepath gsave Boardshade setgray fill grestore stroke 
+    grestore gsave %top left black border
+     -1     0     Map rlineto
+      Y 1 add Y 1 add neg Map rlineto
+      0     1     Map rlineto
+      closepath gsave 0 fill grestore stroke 
+    grestore gsave %bottom right black border
+      X 1 sub X           Map moveto %bottom left
+      0           1       Map rlineto
+      Y 1 add Y 1 add neg Map rlineto
+     -1           0       Map rlineto
+      closepath gsave 0 fill grestore stroke
+    grestore gsave %% bottom left line
+    -2 0 Map moveto X 1 add X 1 add Map rlineto stroke
+    grestore gsave %% bottom left line
+    Y 1 sub Y 1 add neg Map moveto X 1 add X 1 add Map rlineto stroke
+  grestore
+  /j 1 def 
+  Stones { 
+    HexPiece
+    HShift VShift neg translate
+    j Y lt 
+      {/j j 1 add def } 
+      {/j 1 def HShift Y 1 sub mul neg 
+                VShift Y 1 add mul translate } ifelse
+  } forall
+} def
+
+/Stones 
+%0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
+[
+ 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 0 0 1 1 1 1 1 1 0 1
+  0 1 0 0 1 1 1 0 1 0 0 1 0 0 0 0 1 1 1 0 1 0 1 0 0 1 0 1 0 0 0 0 1 0 1
+   0 1 0 1 1 1 1 0 1 1 0 1 1 0 1 0 0 1 1 1 0 0 0 1 0 0 1 0 0 1 0 0 0 0 1
+    1 1 0 1 0 1 0 1 0 0 0 1 0 0 1 0 0 1 0 1 1 1 1 0 1 0 1 1 0 1 0 0 0 1 0
+     0 1 0 0 1 0 0 0 0 1 0 1 1 1 0 1 0 0 0 0 1 0 0 0 0 0 1 1 0 1 0 0 1 1 1
+      1 1 0 0 0 0 0 0 1 0 0 1 1 0 1 0 0 1 0 1 0 0 1 1 0 0 1 0 1 0 1 1 0 1 0
+       1 0 1 0 1 0 0 1 1 1 1 0 1 1 0 1 0 0 0 0 1 0 1 1 1 1 0 0 1 0 1 0 1 1 0
+        1 0 0 0 1 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 1 1 1 0 1 1 1 1 1 1 0 0 0 0 0
+         0 1 0 1 0 0 0 1 1 0 0 0 1 0 0 1 0 0 0 0 1 1 1 0 0 1 0 1 0 0 1 1 1 0 0
+          0 0 1 1 0 1 0 0 1 0 0 1 0 1 1 1 0 1 1 1 0 0 0 0 1 1 0 1 0 1 1 1 1 0 0
+           1 0 1 0 0 1 1 1 1 0 1 0 1 1 1 0 0 0 0 0 1 0 1 1 0 1 1 0 1 1 0 0 1 1 0
+            1 1 1 1 0 1 0 0 1 0 0 1 0 0 0 1 1 0 1 0 0 0 0 1 1 1 0 1 0 1 1 0 1 0 0
+             1 0 1 1 1 0 0 0 1 1 1 1 0 1 1 1 0 1 1 1 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1
+              1 1 1 0 0 0 1 0 0 0 1 1 1 0 1 1 1 1 0 0 1 0 0 0 1 1 1 1 1 1 1 0 0 0 1
+               1 1 1 0 1 0 1 0 0 0 0 1 1 0 1 0 0 1 0 1 1 0 0 0 0 0 0 0 0 1 0 0 0 1 1
+                1 1 0 0 1 1 1 1 1 0 1 0 0 0 0 0 1 1 0 0 0 1 1 1 1 1 1 0 1 1 0 0 1 1 1
+                 0 1 1 0 1 0 0 1 1 0 0 1 1 0 1 0 1 1 1 1 1 1 0 0 1 0 1 1 0 0 0 0 0 1 0
+                  0 0 0 1 1 0 0 1 1 0 1 1 1 1 0 1 1 1 1 0 0 1 1 1 0 1 0 1 1 0 1 0 0 1 1
+                   1 1 1 0 0 0 0 1 0 1 0 0 0 0 0 0 1 0 1 1 0 1 1 0 0 0 0 0 0 0 1 1 0 1 0
+                    0 1 0 1 0 1 0 0 1 0 1 0 1 1 1 0 0 0 0 1 1 1 1 1 1 1 0 0 0 0 0 0 1 0 0
+                     0 0 0 0 1 1 1 1 1 0 0 1 1 1 1 0 0 1 1 1 0 0 1 1 0 0 0 1 1 0 0 1 0 1 0
+                      1 1 0 1 1 1 1 1 0 0 0 0 1 1 0 1 1 0 1 0 1 1 1 1 1 0 0 1 1 1 0 0 1 0 0
+                       0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 1 0 0 0 1 1 1 0 0 1 1 0 0 0 0 1 0 1 1 0
+                        0 1 1 0 0 1 0 0 0 0 0 1 0 0 1 0 1 0 0 1 0 0 0 1 1 1 1 1 0 1 0 0 0 1 0
+                         1 1 0 1 1 0 1 1 1 1 1 0 1 0 0 1 1 1 1 1 0 0 1 0 1 1 1 0 1 0 0 1 0 0 0
+                          0 0 1 0 0 0 1 1 0 0 1 1 0 0 1 0 0 1 1 0 1 1 1 0 0 1 0 0 1 1 0 0 0 0 0
+                           0 1 0 1 1 0 1 1 1 1 1 0 1 0 0 0 0 1 0 1 0 0 0 1 1 1 1 0 0 0 0 1 1 0 0
+                            0 0 0 0 1 0 0 1 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 1 0 0 1 0 0 1 1 0 0 0
+                             1 1 1 0 1 1 1 1 0 0 0 1 1 1 1 1 1 1 0 0 1 1 0 0 1 1 1 1 0 0 1 1 1 0 0
+                              1 0 0 1 1 0 1 1 1 1 1 1 1 0 1 1 1 1 1 0 0 0 0 0 1 0 1 0 0 1 0 0 1 1 0
+                               1 0 1 1 1 1 0 0 1 1 1 1 1 0 0 0 0 1 0 1 1 0 0 0 1 1 1 0 1 1 0 1 1 1 1
+                                0 0 0 1 0 0 0 0 1 1 1 1 1 0 1 0 0 1 1 0 0 0 0 1 0 0 1 1 1 0 0 1 0 1 1
+                                 0 1 1 0 1 0 0 0 0 1 0 0 1 0 1 1 0 1 0 0 0 0 0 0 1 1 0 0 0 1 1 0 1 1 0
+                                  1 0 0 0 1 0 1 0 0 1 1 1 0 0 1 1 1 0 0 1 1 1 0 0 0 0 1 0 1 0 0 1 1 1 1
+                                   0 1 0 0 1 0 0 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 0 1 1 1 1 0 1 1 0 0 0 0 0
+] def
+300 rotate
+PrintPosition
