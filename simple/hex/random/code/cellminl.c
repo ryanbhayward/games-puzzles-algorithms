@@ -10,7 +10,7 @@
 #include <math.h>
 #include <assert.h>
 #include "board.hex.h"
-#define Samples 100000
+#define Samples 10000000
 
 void cellWinnerProbs(void) { int j,k,t,v,lcn;
   srand(9913987);
@@ -67,16 +67,16 @@ void cellWinnerProbs(void) { int j,k,t,v,lcn;
   //showUnguarded(gameLength);
   showForGnuplot(gameLength,Samples);
 
-  printf("\nprob. cell in minimal winning black path\n");
+  printf("\nuni-random game, percent prob. cell is black-win last-move\n");
   double s = 0.0; double p;
   for (j = 0; j < N; j++) {
     for (k = 0; k<j; k++)
       printf("  ");
     for (k = 0; k < N; k++) {
-      p = 1.0*cellWins[j+N*k]/(1.0*Samples);
+      p = (1.0*cellWins[j+N*k])/(1.0*Samples);
       s+=p;
       //printf("%2d   ",(int) (N*N*10*p+0.5));
-      printf("%2.2f  ", (N*N*10*p+0.5));
+      printf("%2.4f  ", (100.0*p));
     }
     printf("\n");
   }
