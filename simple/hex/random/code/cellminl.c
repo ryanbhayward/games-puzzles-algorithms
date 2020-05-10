@@ -10,7 +10,7 @@
 #include <math.h>
 #include <assert.h>
 #include "board.hex.h"
-#define Samples 10000000
+#define Samples 50000000
 
 void cellWinnerProbs(void) { int j,k,t,v,lcn;
   srand(9913987);
@@ -75,8 +75,8 @@ void cellWinnerProbs(void) { int j,k,t,v,lcn;
     for (k = 0; k < N; k++) {
       p = (1.0*cellWins[j+N*k])/(1.0*Samples);
       s+=p;
-      //printf("%2d   ",(int) (N*N*10*p+0.5));
-      printf("%2.4f  ", (100.0*p));
+      printf("%3d   ",(int) (10000*p+0.5));
+      //printf("%0.5f  ", (p));
     }
     printf("\n");
   }
