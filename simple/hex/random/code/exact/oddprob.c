@@ -2,7 +2,7 @@
 // largest value of n is 5 :(
 #include <stdio.h>
 #include <assert.h>
-#define N 3
+#define N 5
 #define Nsq 9
 #define Nsqp1 10
 #define K 5

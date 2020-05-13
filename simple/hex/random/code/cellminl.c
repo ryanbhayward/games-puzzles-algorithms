@@ -67,7 +67,7 @@ void cellWinnerProbs(void) { int j,k,t,v,lcn;
   //showUnguarded(gameLength);
   showForGnuplot(gameLength,Samples);
 
-  printf("\nuni-random game, percent prob. cell is black-win last-move\n");
+  printf("\nuni-random game, percentx100 prob. cell is black-win last-move\n");
   double s = 0.0; double p;
   for (j = 0; j < N; j++) {
     for (k = 0; k<j; k++)
