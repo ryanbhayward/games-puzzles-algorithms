@@ -10,7 +10,7 @@
 #include <math.h>
 #include <assert.h>
 #include "board.hex.h"
-#define Samples 50000000
+#define Samples 10000000
 
 void cellWinnerProbs(void) { int j,k,t,v,lcn;
   srand(9913987);

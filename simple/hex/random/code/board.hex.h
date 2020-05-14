@@ -1,5 +1,5 @@
 // NxN board
-#define N 7
+#define N 21
 #define Np1 (N+1)
 #define Np2 (N+2)
 #define Np3 (N+3)

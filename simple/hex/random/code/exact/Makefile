@@ -1,5 +1,5 @@
 CC  = gcc -Wall -O3
-PROG = oddprob
+PROG = display3
 OBJ = $(PROG).o
 
 $(PROG): $(OBJ)
