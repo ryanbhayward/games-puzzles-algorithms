@@ -1,1 +1,17 @@
 gnuplot stuff
+
+WARNING: I think these values are all garbage...
+well, not quite... see below
+I think they should be paired...
+
+
+is there something wrong here?
+e.g. for 3x3, win prob on move k should be
+
+0 0 0 0 2/21  2/21  5/21  5/21  7/21=1/3
+
+what are these other values?
+
+HEY: I think I figured out what's wrong:
+
+values should be paired....
