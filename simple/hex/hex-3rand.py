@@ -1,11 +1,24 @@
 """
-3-3 hex program, based on ttt and 3x3 go programs RBH 2019
+for 3x3 uniform-random hex, over all permutations,
+  compute probability that game ends after k moves
+
+answer:
+ move 1: 0
+ move 2: 0
+ move 3: 0
+ move 4: 0
+ move 5: 2/21
+ move 6: 2/21
+ move 7: 5/21
+ move 8: 5/21
+ move 9: 7/21 = 1/3
 """
 
 import numpy as np
 import copy
 from collections import deque
 from itertools import permutations as perms
+from math import factorial as fact
 
 """
 points on the board
@@ -141,23 +154,27 @@ def showboard(brd, R, C):
     pretty += '\n'
   print(pretty)
 
-
 def play_perms():
   p = Position(ROWS,COLS)
   L = perms(['0','1','2','3','4','5','6','7','8'])
-  wins = [0]*ROWS*COLS
+  dim = ROWS*COLS
+  fact9 = fact(9)
+  wins = [0]*dim
   print(wins)
   for prm in L:
     #print(prm)
     #showboard(p.brd, p.R, p.C)
     stone = BCH
-    for j in range(ROWS*COLS):
+    p.brd = '.'*dim
+    for j in range(dim):
       p.brd = change_str(p.brd, int(prm[j]), stone)
       #showboard(p.brd, p.R, p.C)
       if has_win(p.brd, stone):
         wins[j] += 1
-        print(j)
+        break
       stone = oppCH(stone)
   print(wins)
+  for j in range(dim):
+    print(j, wins[j], wins[j] / fact9)
 
 play_perms()
