@@ -59,8 +59,8 @@ void showUnguarded(int X[]) { int j,k;
 }
 
 void showForGnuplot(int X[], int s) { int j;
-  for (j = N; j < Nsq-N+2; j++) 
-    printf("%d %2.4f \n", j, X[j]*1.0/(s*1.0));
+  for (j = N; j <= K; j++) 
+    printf("%d %2.5f \n", 2*j-1, X[j]*1.0/(s*1.0));
 }
 
 void dfs(int M[], int fatV[], int v){ int t;

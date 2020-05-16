@@ -6,8 +6,7 @@
 #define Np2sq (Np2*Np2)
 #define Np2sqm2 (Np2sq-2)
 #define Nsq (N*N)
-#define K ((Nsq+1)/2) //  number black (2nd player) stones
-//#define K ((Nsq-1)/2)  // number white (1st player) stones
+#define K ((Nsq+1)/2) //  number 1st-player stones
 #define EMPTY 0
 #define BLACK 1
 #define WHITE 2

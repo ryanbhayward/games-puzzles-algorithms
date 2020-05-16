@@ -6,6 +6,7 @@ n  n^2 k (n^2 choose k) wins ratio     cutnodes ratio
 5  25  12 5200300 2219059  0.426717497
 5  25  13 5200300 2981241  0.573282503
 
+
 n  cutnodes totalnodes   ratio
 3  210      420          0.5
 5  9908366  38756133     0.255659305

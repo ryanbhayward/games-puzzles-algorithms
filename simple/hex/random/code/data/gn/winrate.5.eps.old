@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0 EPSF-2.0
-%%Title: winrate.11.eps
+%%Title: winrate.5.eps
 %%Creator: gnuplot 4.4 patchlevel 2
-%%CreationDate: Wed Apr  3 17:33:19 2013
+%%CreationDate: Wed Apr  3 17:27:52 2013
 %%DocumentFonts: (atend)
 %%BoundingBox: 50 50 410 302
 %%EndComments
@@ -44,13 +44,13 @@ systemdict /pdfmark known not {
   userdict /pdfmark systemdict /cleartomark get put
 } if
 SDict begin [
-  /Title (winrate.11.eps)
+  /Title (winrate.5.eps)
   /Subject (gnuplot plot)
   /Creator (gnuplot 4.4 patchlevel 2)
   /Author (hayward)
 %  /Producer (gnuplot)
 %  /Keywords ()
-  /CreationDate (Wed Apr  3 17:33:19 2013)
+  /CreationDate (Wed Apr  3 17:27:52 2013)
   /DOCINFO pdfmark
 end
 } ifelse
@@ -453,15 +453,7 @@ LTb
 ( 0) Rshow
 1.000 UL
 LTb
-770 1185 M
-63 0 V
-6114 0 R
--63 0 V
--6198 0 R
-( 0.01) Rshow
-1.000 UL
-LTb
-770 1922 M
+770 1001 M
 63 0 V
 6114 0 R
 -63 0 V
@@ -469,15 +461,7 @@ LTb
 ( 0.02) Rshow
 1.000 UL
 LTb
-770 2660 M
-63 0 V
-6114 0 R
--63 0 V
--6198 0 R
-( 0.03) Rshow
-1.000 UL
-LTb
-770 3397 M
+770 1554 M
 63 0 V
 6114 0 R
 -63 0 V
@@ -485,15 +469,7 @@ LTb
 ( 0.04) Rshow
 1.000 UL
 LTb
-770 4134 M
-63 0 V
-6114 0 R
--63 0 V
--6198 0 R
-( 0.05) Rshow
-1.000 UL
-LTb
-770 4871 M
+770 2107 M
 63 0 V
 6114 0 R
 -63 0 V
@@ -501,76 +477,108 @@ LTb
 ( 0.06) Rshow
 1.000 UL
 LTb
-770 448 M
+770 2660 M
+63 0 V
+6114 0 R
+-63 0 V
+-6198 0 R
+( 0.08) Rshow
+1.000 UL
+LTb
+770 3212 M
+63 0 V
+6114 0 R
+-63 0 V
+-6198 0 R
+( 0.1) Rshow
+1.000 UL
+LTb
+770 3765 M
+63 0 V
+6114 0 R
+-63 0 V
+-6198 0 R
+( 0.12) Rshow
+1.000 UL
+LTb
+770 4318 M
+63 0 V
+6114 0 R
+-63 0 V
+-6198 0 R
+( 0.14) Rshow
+1.000 UL
+LTb
+770 4871 M
+63 0 V
+6114 0 R
+-63 0 V
+-6198 0 R
+( 0.16) Rshow
+1.000 UL
+LTb
+1156 448 M
 0 63 V
 0 4360 R
 0 -63 V
-770 308 M
+0 -4500 R
+( 6) Cshow
+1.000 UL
+LTb
+1928 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 8) Cshow
+1.000 UL
+LTb
+2700 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 10) Cshow
+1.000 UL
+LTb
+3472 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 12) Cshow
+1.000 UL
+LTb
+4245 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 14) Cshow
+1.000 UL
+LTb
+5017 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 16) Cshow
+1.000 UL
+LTb
+5789 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 18) Cshow
+1.000 UL
+LTb
+6561 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
 ( 20) Cshow
-1.000 UL
-LTb
-1542 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 30) Cshow
-1.000 UL
-LTb
-2314 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 40) Cshow
-1.000 UL
-LTb
-3086 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 50) Cshow
-1.000 UL
-LTb
-3859 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 60) Cshow
-1.000 UL
-LTb
-4631 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 70) Cshow
-1.000 UL
-LTb
-5403 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 80) Cshow
-1.000 UL
-LTb
-6175 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 90) Cshow
-1.000 UL
-LTb
-6947 448 M
-0 63 V
-0 4360 R
-0 -63 V
-0 -4500 R
-( 100) Cshow
 1.000 UL
 LTb
 1.000 UL
@@ -592,176 +600,63 @@ LCb setrgbcolor
 (move number) Cshow
 LTb
 1.000 UP
-3936 4134 M
-(\(61, 0.0460\)) Cshow
+3859 4595 M
+(\(13, 0.146\)) Cshow
 1.000 UL
 LTb
 1.000 UL
 LTb
 854 4668 N
 0 140 V
-2835 0 V
+2667 0 V
 0 -140 V
--2835 0 V
+-2667 0 V
 Z stroke
 854 4808 M
-2835 0 V
+2667 0 V
 % Begin plot #1
 stroke
 LT0
 LCb setrgbcolor
-3122 4738 M
-(Hex 11x11 win rates by move) Rshow
+2954 4738 M
+(Hex 5x5 win rates by move) Rshow
 LT0
-3206 4738 M
+3038 4738 M
 399 0 V
 770 448 M
-77 0 R
-77 0 R
-78 0 R
-77 0 R
-77 0 R
-77 0 R
-77 0 R
-78 0 R
-77 0 R
-0 7 V
-77 -7 R
-0 7 V
-77 -7 R
-0 15 V
-78 -15 R
-0 15 V
-77 -15 R
-0 22 V
-77 -22 R
-0 37 V
-77 -37 R
-0 44 V
-77 -44 R
-0 66 V
-78 -66 R
-0 88 V
-77 -88 R
-0 118 V
-77 -118 R
-0 155 V
-77 -155 R
-0 199 V
-77 -199 R
-0 258 V
-78 -258 R
-0 324 V
-77 -324 R
-0 413 V
-77 -413 R
-0 509 V
-77 -509 R
-0 627 V
-78 -627 R
-0 767 V
-77 -767 R
-0 921 V
-77 -921 R
-0 1098 V
-3009 448 M
-0 1290 V
+0 25 V
+386 -25 R
+0 122 V
+1542 448 M
+0 351 V
+1928 448 M
+0 768 V
+2314 448 M
+0 1413 V
+2700 448 M
+0 2228 V
 3086 448 M
-0 1504 V
-3164 448 M
-0 1725 V
-3241 448 M
-0 1946 V
-3318 448 M
-0 2197 V
-3395 448 M
-0 2418 V
+0 3102 V
 3472 448 M
-0 2646 V
-3550 448 M
-0 2860 V
-3627 448 M
-0 3037 V
-3704 448 M
-0 3192 V
-3781 448 M
-0 3303 V
+0 3787 V
 3859 448 M
-0 3369 V
-3936 448 M
-0 3391 V
-4013 448 M
-0 3384 V
-4090 448 M
-0 3295 V
-4167 448 M
-0 3185 V
+0 4047 V
 4245 448 M
-0 3037 V
-4322 448 M
-0 2853 V
-4399 448 M
-0 2639 V
-4476 448 M
-0 2418 V
-4553 448 M
-0 2189 V
+0 3782 V
 4631 448 M
-0 1953 V
-4708 448 M
-0 1725 V
-4785 448 M
-0 1504 V
-4862 448 M
-0 1290 V
-4939 448 M
-0 1098 V
+0 3096 V
 5017 448 M
-0 921 V
-stroke 5017 1369 M
-77 -921 R
-0 767 V
-77 -767 R
-0 627 V
-77 -627 R
-0 509 V
-78 -509 R
-0 413 V
-77 -413 R
-0 324 V
-77 -324 R
-0 258 V
-77 -258 R
-0 199 V
-77 -199 R
-0 155 V
-78 -155 R
-0 118 V
-77 -118 R
-0 88 V
-77 -88 R
-0 66 V
-77 -66 R
-0 44 V
-77 -44 R
-0 29 V
-78 -29 R
-0 22 V
-77 -22 R
-0 15 V
-77 -15 R
-0 7 V
-77 -7 R
-0 7 V
-78 -7 R
-0 7 V
-77 -7 R
-77 0 R
-77 0 R
-77 0 R
-78 0 R
-77 0 R
-77 0 R
+0 2239 V
+5403 448 M
+0 1410 V
+5789 448 M
+0 771 V
+6175 448 M
+0 351 V
+6561 448 M
+0 122 V
+6947 448 M
+0 25 V
 % End plot #1
 stroke
 LTb
