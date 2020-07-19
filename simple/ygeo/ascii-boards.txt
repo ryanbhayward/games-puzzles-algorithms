@@ -1,0 +1,45 @@
+base 3 board, drawn in ascii
+
+             3     
+          /  |  \
+         8   0   4
+        7  2   1  5
+         \__ 6 __/                     
+
+
+***************************
+base 3 board on hexagonal grid, allowing 
+some cells to have more than 1 grid location:
+
+         3 3                      3 3
+        8 0 4                    8 0 4
+       8 2 1 4      or this     7 2 1 5
+        7 6 5                    7 6 5
+
+base 2 board: cells 0-2
+
+                  0
+                2   1
+
+base 3: cells 0-8
+
+         3 3
+        8 0 4
+       7 2 1 5
+        7 6 5
+
+base 4: cells 0-17
+
+     9   9   9   9
+  17   0   0   0  10
+17   8   2   1   4  10
+  16   7   6   5  11
+    15  14  13  12
+
+or this
+         9   9   9
+      17   3   3  10
+    16   8   0   4  11
+  15   7   2   1   5  12
+    15   7   6   5  12
+      15  14  13  12
