@@ -13,9 +13,9 @@ from collections import deque
 points on the board
 """
 
-PTS = '.*'
-DEAD, ALIVE = 0, 1
-DCH, ACH = PTS[DEAD], PTS[ALIVE]
+PTS = '.*#'
+DEAD, ALIVE, GUARD = 0, 1, 2
+DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
 """
 board: a one-dimensional string
@@ -25,8 +25,6 @@ board: a one-dimensional string
                   8  9 10 11        <- row 2
    
       columns     0  1  2  3
-        
-                         
 """
 
 def coord_to_point(r, c, C):
@@ -42,7 +40,7 @@ def point_to_alphanum(p, C):
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
 
-ROWS, COLS  =  2, 3
+ROWS, COLS  =  12, 16
 N = ROWS * COLS
 
 NBRS = []
@@ -70,6 +68,12 @@ for c in range(COLS):
 #print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
 
 BOARD = PTS[DEAD]*ROWS*COLS
+for j in range(COLS):
+  BOARD = change_str(BOARD, coord_to_point(0,   j,COLS), GCH)
+  BOARD = change_str(BOARD, coord_to_point(ROWS-1,j,COLS), GCH)
+for j in range(ROWS):
+  BOARD = change_str(BOARD, coord_to_point(j, 0,   COLS), GCH)
+  BOARD = change_str(BOARD, coord_to_point(j, COLS-1,COLS), GCH)
 
 """
 input, output
@@ -91,12 +95,13 @@ def showboard(brd, R, C):
       else:             pt += j
     return pt
 
-  pretty = '\n   ' 
+  pretty = '\n    ' 
   for c in range(C): # columns
     pretty += ' ' + paint(chr(ord('a')+c))
   pretty += '\n'
   for j in range(R): # rows
-    pretty += ' ' + paint(str(1+j)) + ' '
+    if j < 10: pretty += ' '
+    pretty += ' ' + paint(str(j)) + ' '
     for k in range(C): # columns
       #print(coord_to_point(j,k,psn.C), end='')
       pretty += ' ' + paint([brd[coord_to_point(j,k,C)]])
