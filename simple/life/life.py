@@ -13,7 +13,7 @@ from collections import deque
 points on the board
 """
 
-PTS = '.*#'
+PTS = '.@#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
@@ -40,7 +40,19 @@ def point_to_alphanum(p, C):
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
 
-ROWS, COLS  =  12, 16
+def num_nbrs(s, j, C, ch):
+  num = 0
+  if s[j-(C+1)] == ch: num += 1
+  if s[j- C   ] == ch: num += 1
+  if s[j-(C-1)] == ch: num += 1
+  if s[j-1    ] == ch: num += 1
+  if s[j+1    ] == ch: num += 1
+  if s[j+(C-1)] == ch: num += 1
+  if s[j+ C   ] == ch: num += 1
+  if s[j+ C+1 ] == ch: num += 1
+  return num
+
+ROWS, COLS  =  6, 5
 N = ROWS * COLS
 
 NBRS = []
@@ -74,6 +86,13 @@ for j in range(COLS):
 for j in range(ROWS):
   BOARD = change_str(BOARD, coord_to_point(j, 0,   COLS), GCH)
   BOARD = change_str(BOARD, coord_to_point(j, COLS-1,COLS), GCH)
+
+BOARD = '#####' +\
+        '#.@.#' +\
+        '#..@#' +\
+        '#@@@#' +\
+        '#...#' +\
+        '#####' 
 
 """
 input, output
