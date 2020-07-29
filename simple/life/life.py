@@ -49,6 +49,10 @@ def showboard(brd, R, C):  # with row and column labels
     pretty += '\n'
   print(pretty)
 
+""" 
+Conway's next-state formula
+"""
+
 def num_nbrs(s, j, cols, ch): # state, cell, columns, nbr-type
   num = 0
   if s[j-(cols+1)] == ch: num += 1
@@ -71,10 +75,6 @@ def next_state(s, cols):
       if ch == ACH: new += ACH if m > 1 and m < 4 else DCH
       else:         new += ACH if m ==3           else DCH
   return new
-
-"""
-state of life
-"""
 
 class Livestate: 
 
@@ -106,7 +106,7 @@ input, output
 """
 
 def interact():
-  r, c = 15, 15
+  r, c = 15, 20
   itn, psn = 0, Livestate(r,c)
   while True:
     print('iteration', itn)
@@ -117,7 +117,7 @@ def interact():
     #  print('')
     new = next_state(psn.gb, psn.cols)
     if new == psn.gb: break
-    sleep(1.0)
+    sleep(.5)
     itn += 1
     psn.gb = new
 
