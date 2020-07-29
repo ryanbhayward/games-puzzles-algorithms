@@ -8,133 +8,111 @@ TODO  init board, set rules
 import numpy as np
 import copy
 from collections import deque
-
-"""
-points on the board
-"""
+from paint import paint
 
 PTS = '.@#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
 """
-board: a one-dimensional string
+replace character in string
+"""
+def change_str(s, where, what):
+  return s[:where] + what + s[where+1:]
 
-3x4 board indices 0  1  2  3        <- row 0
-                  4  5  6  7        <- row 1
-                  8  9 10 11        <- row 2
-   
-      columns     0  1  2  3
+"""
+row-major order for converting 2-d array to 1-d
 """
 
-def coord_to_point(r, c, C):
-  return c + r*C
+def coord_to_point(r, c, C): return c + r*C
 
-def point_to_coord(p, C):
-  return divmod(p, C)
+def point_to_coord(p, C): return divmod(p, C)
+
+"""
+alpha-numeric system for labelling coordinate points
+"""
 
 def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
   return 'abcdefghj'[c] + '1234566789'[r]
 
-def change_str(s, where, what):
-  return s[:where] + what + s[where+1:]
+def showboard(brd, R, C):  # with row and column labels
+  pretty = '\n    ' 
+  for c in range(C): # columns
+    pretty += ' ' + paint(chr(ord('a')+c), PTS)
+  pretty += '\n'
+  for j in range(R): # rows
+    if j < 10: pretty += ' '
+    pretty += ' ' + paint(str(j), PTS) + ' '
+    for k in range(C): # columns
+      pretty += ' ' + paint([brd[coord_to_point(j,k,C)]], PTS)
+    pretty += '\n'
+  print(pretty)
 
-def num_nbrs(s, j, C, ch):
+def num_nbrs(s, j, cols, ch): # state, cell, columns, nbr-type
   num = 0
-  if s[j-(C+1)] == ch: num += 1
-  if s[j- C   ] == ch: num += 1
-  if s[j-(C-1)] == ch: num += 1
-  if s[j-1    ] == ch: num += 1
-  if s[j+1    ] == ch: num += 1
-  if s[j+(C-1)] == ch: num += 1
-  if s[j+ C   ] == ch: num += 1
-  if s[j+ C+1 ] == ch: num += 1
+  if s[j-(cols+1)] == ch: num += 1
+  if s[j- cols   ] == ch: num += 1
+  if s[j-(cols-1)] == ch: num += 1
+  if s[j-1       ] == ch: num += 1
+  if s[j+1       ] == ch: num += 1
+  if s[j+(cols-1)] == ch: num += 1
+  if s[j+ cols   ] == ch: num += 1
+  if s[j+ cols+1 ] == ch: num += 1
   return num
 
-ROWS, COLS  =  6, 5
-N = ROWS * COLS
+"""
+state of life
+"""
 
-NBRS = []
-for r in range(ROWS):
-  for c in range(COLS):
-    nbs = []
-    if r > 0:                nbs.append(coord_to_point(r-1, c,   COLS))
-    if r > 0 and c < COLS-1: nbs.append(coord_to_point(r-1, c+1, COLS))
-    if c > 0:                nbs.append(coord_to_point(r,   c-1, COLS))
-    if c < COLS-1:           nbs.append(coord_to_point(r,   c+1, COLS))
-    if r < ROWS-1 and c > 0: nbs.append(coord_to_point(r+1, c-1, COLS))
-    if r < ROWS-1:           nbs.append(coord_to_point(r+1, c, COLS))
-    NBRS.append(nbs)
-print('nbrs', NBRS)
+class Livestate: 
 
-LFT_COL, RGT_COL, TOP_ROW, BTM_ROW = set(), set(), set(), set()
+# guard the board above, below, and at left 
+# e.g. guarded 4x3 board   GGGG
+#                          G.@.
+#                          G..@
+#                          G@@@
+#                          G...
+#                          GGGGG  <- don't forget last guard
 
-for r in range(ROWS):
-  LFT_COL.add(coord_to_point(r, 0, COLS))
-  RGT_COL.add(coord_to_point(r, COLS-1, COLS))
+  def __init__(self, rows, cols):
+    newr, newc = rows+2, cols +1
+    n = 1 + newr * newc       # cells + guards
+    gb = PTS[DEAD]* n         # guarded board
+    for j in range(newc):
+      gb = change_str(gb, coord_to_point(0,      j, newc), GCH)
+      gb = change_str(gb, coord_to_point(newr-1, j, newc), GCH)
+    for j in range(1, newr):
+      gb = change_str(gb, coord_to_point(j,      0, newc), GCH)
+    gb = change_str(gb, n-1, GCH)  # last guard
+    pairs = ((1,2), (2,3), (3,1), (3,2), (3,3)) # make these live
+    for p in pairs:
+      gb = change_str(gb, coord_to_point(p[0], p[1], newc), ACH)
+    self.rows, self.cols, self.gb, self.n = newr, newc, gb, n
 
-for c in range(COLS):
-  TOP_ROW.add(coord_to_point(0, c, COLS))
-  BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-#print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
-
-BOARD = PTS[DEAD]*ROWS*COLS
-for j in range(COLS):
-  BOARD = change_str(BOARD, coord_to_point(0,   j,COLS), GCH)
-  BOARD = change_str(BOARD, coord_to_point(ROWS-1,j,COLS), GCH)
-for j in range(ROWS):
-  BOARD = change_str(BOARD, coord_to_point(j, 0,   COLS), GCH)
-  BOARD = change_str(BOARD, coord_to_point(j, COLS-1,COLS), GCH)
-
-BOARD = '#####' +\
-        '#.@.#' +\
-        '#..@#' +\
-        '#@@@#' +\
-        '#...#' +\
+BOARD = '####' +\
+        '#.@.' +\
+        '#..@' +\
+        '#@@@' +\
+        '#...' +\
         '#####' 
 
 """
 input, output
 """
 
-def char_to_color(c): 
-  return PTS.index(c)
-
-escape_ch = '\033['
-colorend, textcolor = escape_ch + '0m', escape_ch + '0;37m'
-stonecolors = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
-
-def showboard(brd, R, C):
-  def paint(s):  # s   a string
-    pt = ''
-    for j in s:
-      if j in PTS:      pt += stonecolors[PTS.find(j)] + j + colorend
-      elif j.isalnum(): pt += textcolor + j + colorend
-      else:             pt += j
-    return pt
-
-  pretty = '\n    ' 
-  for c in range(C): # columns
-    pretty += ' ' + paint(chr(ord('a')+c))
-  pretty += '\n'
-  for j in range(R): # rows
-    if j < 10: pretty += ' '
-    pretty += ' ' + paint(str(j)) + ' '
-    for k in range(C): # columns
-      #print(coord_to_point(j,k,psn.C), end='')
-      pretty += ' ' + paint([brd[coord_to_point(j,k,C)]])
-    #print('')
-    pretty += '\n'
-  print(pretty)
-
 def interact():
-  itn, psn = 0, BOARD
+  r, c = 5,4
+  itn, psn = 0, Livestate(r,c)
   while True:
     print('iteration', itn)
-    showboard(psn, ROWS, COLS)
-    new = copy.copy(psn)
-    if new == psn: break
-    psn = new
+    showboard(psn.gb, psn.rows, psn.cols)
+    for j in range(1,r+1):
+      for k in range(1,c+1):
+        print(num_nbrs(psn.gb, coord_to_point(j,k,psn.cols), psn.cols, ACH), end=' ')
+      print('')
+    new = copy.copy(psn.gb)
+    if new == psn.gb: break
+    psn.gb = new
 
 interact()
