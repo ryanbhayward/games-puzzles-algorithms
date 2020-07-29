@@ -1,35 +1,35 @@
 #!/usr/bin/env python3
 
 """
-Conway's game of life RBH 2020
-TODO  init board, set rules
+Conway's game of life    RBH 2020
 """
 
 import numpy as np
 import copy
 from collections import deque
 from paint import paint
+from time import sleep
 
 PTS = '.@#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
 """
-replace character in string
+string
 """
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
 
 """
-row-major order for converting 2-d array to 1-d
+row-major order ... coord is 2-d, point is 1-d
 """
 
-def coord_to_point(r, c, C): return c + r*C
+def coord_to_point(r, c, cols): return c + r*cols
 
-def point_to_coord(p, C): return divmod(p, C)
+def point_to_coord(p, cols): return divmod(p, cols)
 
 """
-alpha-numeric system for labelling coordinate points
+alpha-numeric labelling of coordinate points
 """
 
 def point_to_alphanum(p, C):
@@ -61,6 +61,17 @@ def num_nbrs(s, j, cols, ch): # state, cell, columns, nbr-type
   if s[j+ cols+1 ] == ch: num += 1
   return num
 
+def next_state(s, cols):
+  new = ''
+  for j in range(len(s)):
+    ch = s[j]
+    if   ch == GCH: new += GCH
+    else:
+      m = num_nbrs(s, j, cols, ACH)
+      if ch == ACH: new += ACH if m > 1 and m < 4 else DCH
+      else:         new += ACH if m ==3           else DCH
+  return new
+
 """
 state of life
 """
@@ -90,29 +101,24 @@ class Livestate:
       gb = change_str(gb, coord_to_point(p[0], p[1], newc), ACH)
     self.rows, self.cols, self.gb, self.n = newr, newc, gb, n
 
-BOARD = '####' +\
-        '#.@.' +\
-        '#..@' +\
-        '#@@@' +\
-        '#...' +\
-        '#####' 
-
 """
 input, output
 """
 
 def interact():
-  r, c = 5,4
+  r, c = 15, 15
   itn, psn = 0, Livestate(r,c)
   while True:
     print('iteration', itn)
     showboard(psn.gb, psn.rows, psn.cols)
-    for j in range(1,r+1):
-      for k in range(1,c+1):
-        print(num_nbrs(psn.gb, coord_to_point(j,k,psn.cols), psn.cols, ACH), end=' ')
-      print('')
-    new = copy.copy(psn.gb)
+    #for j in range(1,r+1):
+    #  for k in range(1,c+1):
+    #    print(num_nbrs(psn.gb, coord_to_point(j,k,psn.cols), psn.cols, ACH), end=' ')
+    #  print('')
+    new = next_state(psn.gb, psn.cols)
     if new == psn.gb: break
+    sleep(1.0)
+    itn += 1
     psn.gb = new
 
 interact()
