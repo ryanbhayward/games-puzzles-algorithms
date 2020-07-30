@@ -11,24 +11,42 @@ from paint import paint
 from time import sleep
 from sys import stdin
 
-PTS = '.@#'
+PTS = '.*#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
-def read_board():
+def get_board(rows, cols): # if needed, add extra rows/cols
   B = []
   for line in stdin:
     B.append(line.rstrip().replace(' ',''))
-  brows = len(B)
-  bcols = len(B[0])
-  for j in range(1, brows):
-    assert(len(B[j]) == bcols)
-  B[brows-1] += GCH
-  return(''.join(B), brows, bcols)
+  brows, bcols = len(B), len(B[0])
+  for j in range(1, brows): assert(len(B[j]) == bcols)
+  if bcols < cols: # append extra columns
+    for j in range(brows): B[j] += DCH * (cols - bcols)
+    bcols = cols
+  if brows < rows: # append extra rows
+    for j in range(rows-brows): B.append(DCH * bcols)
+    brows = rows
+  return B, brows, bcols
+
+# add guards: top row, left column, bottom row (with one extra)
+# original board        guarded board
+#                          GGGG
+#   .x.                    G.x.
+#   ..x                    G..x
+#   xxx                    Gxxx
+#   ...                    G...
+#                          GGGGG  <- don't forget last guard
+def add_guards(B, r, c):
+  B.insert(0, GCH * (1 + c))
+  for j in range(r): B[j+1] = GCH + B[j+1]
+  B.append(GCH * (2 + c))
+  return(''.join(B), len(B), len(B[0]))
 
 """
-string
+replace char-in-string
 """
+
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
 
@@ -40,15 +58,13 @@ def coord_to_point(r, c, cols): return c + r*cols
 
 def point_to_coord(p, cols): return divmod(p, cols)
 
-"""
-alpha-numeric labelling of coordinate points
-"""
-
+#alpha-numeric labelling of coordinate points
 def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
   return 'abcdefghj'[c] + '1234566789'[r]
 
-def showboard(brd, R, C):  # with row and column labels
+# add numeric row indices, alphabetic column indices
+def showboard(brd, R, C): 
   pretty = '\n    ' 
   for c in range(C): # columns
     pretty += ' ' + paint(chr(ord('a')+c), PTS)
@@ -58,6 +74,8 @@ def showboard(brd, R, C):  # with row and column labels
     pretty += ' ' + paint(str(j), PTS) + ' '
     for k in range(C): # columns
       pretty += ' ' + paint([brd[coord_to_point(j,k,C)]], PTS)
+    if j == R-1: # in last row, put last guard
+      pretty += ' ' + paint(brd[R*C], PTS)
     pretty += '\n'
   print(pretty)
 
@@ -90,47 +108,23 @@ def next_state(s, cols):
 
 class Livestate: 
 
-# guard the board above, below, and at left 
-# e.g. guarded 4x3 board   GGGG
-#                          G.@.
-#                          G..@
-#                          G@@@
-#                          G...
-#                          GGGGG  <- don't forget last guard
-
   def __init__(self, rows, cols):
-    newr, newc = rows+2, cols +1
-    n = 1 + newr * newc       # cells + guards
-    gb = PTS[DEAD]* n         # guarded board
-    for j in range(newc):
-      gb = change_str(gb, coord_to_point(0,      j, newc), GCH)
-      gb = change_str(gb, coord_to_point(newr-1, j, newc), GCH)
-    for j in range(1, newr):
-      gb = change_str(gb, coord_to_point(j,      0, newc), GCH)
-    gb = change_str(gb, n-1, GCH)  # last guard
-    pairs = ((1,2), (2,3), (3,1), (3,2), (3,3)) # make these live
-    for p in pairs:
-      gb = change_str(gb, coord_to_point(p[0], p[1], newc), ACH)
-    self.rows, self.cols, self.gb, self.n = newr, newc, gb, n
+    b, r, c = get_board(rows, cols)
+    self.gb, self.rows, self.cols = add_guards(b, r, c)
+    self.n = self.rows*self.cols + 1
+    print(len(self.gb), self.n)
+    assert(len(self.gb) == self.n)
 
 """
 input, output
 """
 
 def interact():
-  r, c = 15, 20
+  r, c = 7, 7
   itn, psn = 0, Livestate(r,c)
-  bb, br, bc = read_board()
-  print(br, bc)
-  assert(br == r+2) and (bc == c+1)
-  psn.gb = bb
   while True:
     print('iteration', itn)
     showboard(psn.gb, psn.rows, psn.cols)
-    #for j in range(1,r+1):
-    #  for k in range(1,c+1):
-    #    print(num_nbrs(psn.gb, coord_to_point(j,k,psn.cols), psn.cols, ACH), end=' ')
-    #  print('')
     new = next_state(psn.gb, psn.cols)
     if new == psn.gb: break
     sleep(.5)
