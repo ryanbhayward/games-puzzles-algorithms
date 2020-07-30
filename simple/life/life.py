@@ -9,10 +9,22 @@ import copy
 from collections import deque
 from paint import paint
 from time import sleep
+from sys import stdin
 
 PTS = '.@#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
+
+def read_board():
+  B = []
+  for line in stdin:
+    B.append(line.rstrip().replace(' ',''))
+  brows = len(B)
+  bcols = len(B[0])
+  for j in range(1, brows):
+    assert(len(B[j]) == bcols)
+  B[brows-1] += GCH
+  return(''.join(B), brows, bcols)
 
 """
 string
@@ -108,6 +120,10 @@ input, output
 def interact():
   r, c = 15, 20
   itn, psn = 0, Livestate(r,c)
+  bb, br, bc = read_board()
+  print(br, bc)
+  assert(br == r+2) and (bc == c+1)
+  psn.gb = bb
   while True:
     print('iteration', itn)
     showboard(psn.gb, psn.rows, psn.cols)
