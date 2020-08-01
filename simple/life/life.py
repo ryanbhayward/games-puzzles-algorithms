@@ -120,14 +120,14 @@ input, output
 """
 
 def interact():
-  r, c = 7, 7
+  r, c = 20, 25
   itn, psn = 0, Livestate(r,c)
   while True:
     print('iteration', itn)
     showboard(psn.gb, psn.rows, psn.cols)
     new = next_state(psn.gb, psn.cols)
     if new == psn.gb: break
-    sleep(.5)
+    sleep(.1)
     itn += 1
     psn.gb = new
 
