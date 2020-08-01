@@ -120,7 +120,7 @@ input, output
 """
 
 def interact():
-  r, c = 20, 25
+  r, c = 40, 60
   itn, psn = 0, Livestate(r,c)
   while True:
     print('iteration', itn)
