@@ -7,27 +7,74 @@ Conway's game of life    RBH 2020
 import numpy as np
 import copy
 from collections import deque
-from paint import paint
 from time import sleep
 from sys import stdin
+from paint import paint
 
 PTS = '.*#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
-def get_board(rows, cols): # if needed, add extra rows/cols
+"""
+replace char-in-string
+"""
+
+def change_str(s, where, what): return s[:where] + what + s[where+1:]
+
+"""
+board functions
+  * represent board as string in row-major order 
+  * cell's point is 1-d string index
+  * cell's coordinate is 2-d row/column indices
+"""
+
+def point(r, c, cols): return c + r*cols
+
+def coord(p, cols): return divmod(p, cols)
+
+def live_row(r, B, cols): return ACH in B[point(r, 1, cols) : point(r, cols, cols)]
+
+def live_col(c, B, cols):
+  n, pt = len(B), point(1, c, cols)
+  while pt < n:
+    if B[pt] == ACH: return True
+    pt += cols
+  return False
+
+def alphanum(p, C): #for showing coordinates
+  r, c = coord(p, C)
+  return 'abcdefghj'[c] + '1234566789'[r]
+
+def get_board(): 
   B = []
   for line in stdin:
     B.append(line.rstrip().replace(' ',''))
-  brows, bcols = len(B), len(B[0])
-  for j in range(1, brows): assert(len(B[j]) == bcols)
-  if bcols < cols: # append extra columns
-    for j in range(brows): B[j] += DCH * (cols - bcols)
-    bcols = cols
-  if brows < rows: # append extra rows
-    for j in range(rows-brows): B.append(DCH * bcols)
-    brows = rows
-  return B, brows, bcols
+  rows, cols = len(B), len(B[0])
+  for j in range(1, rows): assert(len(B[j]) == cols)
+  return B, rows, cols
+
+# to avoid boundary collisions,
+#   ensure B has empty first/last row/column 
+#   by if necessary adding empty first/last row/column
+def pad(B, r, c): 
+  assert(len(B) == r*c+1) # this board is already padded
+  if live_row(r-2, B, c): # last non-guard row
+    B = B[0 : point(r-1, 1, c)] + DCH*(c-1) + GCH*(c+1)
+    r += 1
+  if live_row(1, B, c): # first non-guard row
+    B = GCH*c + GCH + DCH*(c-1) + B[point(1, 0, c) : 1+r*c]
+    r += 1
+  if live_col(c-1, B, c): # last column
+    new = GCH*(c+1)
+    for j in range(1, r-1): new += B[point(j, 0, c) : point(j, c, c)] + DCH
+    B = new + GCH*(c+2)
+    c += 1
+  if live_col(1, B, c): # first non-guard column
+    new = GCH*(c+1)
+    for j in range(1, r-1): new += GCH + DCH + B[point(j, 1, c) : point(j, c, c)]
+    B = new + GCH*(c+2)
+    c += 1
+  return B, r, c
 
 # add guards: top row, left column, bottom row (with one extra)
 # original board        guarded board
@@ -43,41 +90,26 @@ def add_guards(B, r, c):
   B.append(GCH * (2 + c))
   return(''.join(B), len(B), len(B[0]))
 
-"""
-replace char-in-string
-"""
-
-def change_str(s, where, what):
-  return s[:where] + what + s[where+1:]
-
-"""
-row-major order ... coord is 2-d, point is 1-d
-"""
-
-def coord_to_point(r, c, cols): return c + r*cols
-
-def point_to_coord(p, cols): return divmod(p, cols)
-
-#alpha-numeric labelling of coordinate points
-def point_to_alphanum(p, C):
-  r, c = point_to_coord(p, C)
-  return 'abcdefghj'[c] + '1234566789'[r]
-
 # add numeric row indices, alphabetic column indices
-def showboard(brd, R, C): 
+def showboard(brd, R, C, gap, pause): 
   pretty = '\n    ' 
-  for c in range(C): # columns
-    pretty += ' ' + paint(chr(ord('a')+c), PTS)
+  if C <= 26:
+    for c in range(C): # columns
+      pretty += gap + paint(chr(ord('a')+c), PTS)
+  else:
+    gap = ''
+    
   pretty += '\n'
   for j in range(R): # rows
     if j < 10: pretty += ' '
-    pretty += ' ' + paint(str(j), PTS) + ' '
+    pretty += gap + paint(str(j), PTS) + ' '
     for k in range(C): # columns
-      pretty += ' ' + paint([brd[coord_to_point(j,k,C)]], PTS)
+      pretty += gap + paint([brd[point(j, k, C)]], PTS)
     if j == R-1: # in last row, put last guard
-      pretty += ' ' + paint(brd[R*C], PTS)
+      pretty += gap + paint(brd[R*C], PTS)
     pretty += '\n'
   print(pretty)
+  sleep(pause)
 
 """ 
 Conway's next-state formula
@@ -106,29 +138,32 @@ def next_state(s, cols):
       else:         new += ACH if m ==3           else DCH
   return new
 
-class Livestate: 
-
-  def __init__(self, rows, cols):
-    b, r, c = get_board(rows, cols)
-    self.gb, self.rows, self.cols = add_guards(b, r, c)
-    self.n = self.rows*self.cols + 1
-    print(len(self.gb), self.n)
-    assert(len(self.gb) == self.n)
-
 """
 input, output
 """
 
-def interact():
-  r, c = 40, 60
-  itn, psn = 0, Livestate(r,c)
-  while True:
-    print('iteration', itn)
-    showboard(psn.gb, psn.rows, psn.cols)
-    new = next_state(psn.gb, psn.cols)
-    if new == psn.gb: break
-    sleep(.1)
-    itn += 1
-    psn.gb = new
+pause = 0.2
 
-interact()
+def interact(max_itn):
+  itn = 0
+  B, r, c = get_board()
+  B, r, c = add_guards(B, r, c)
+  showboard(B, r, c, ' ', pause)
+  while itn <= max_itn:
+    #if 1 == (itn % 40): print('iteration', itn)
+    print('iteration', itn)
+    #if r <= 10: 
+    showboard(B, r, c, ' ', pause)
+    #newB, r, c = pad(B, r, c)
+    B, r, c = pad(B, r, c)
+    #if newB != B: B = newB
+      #if r <= 10: 
+      #showboard(newB, r, c, ' ', pause)
+    newB = next_state(B, c)
+    if newB == B: break
+    itn += 1
+    B = newB
+  #print('iteration', itn)
+  #showboard(B, r, c, ' ', pause)
+
+interact(30)
