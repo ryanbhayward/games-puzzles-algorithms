@@ -4,13 +4,14 @@
 Conway's game of life    RBH 2020
 """
 
+import numpy as np
 from time import sleep
 from sys import stdin
 from paint import paint
 
 PTS = '.*#'
-DEAD, ALIVE, GUARD = 0, 1, 2
-DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
+DEAD, ALIVE, WALL = 0, 1, 2
+DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[WALL]
 
 """
 replace char-in-string
@@ -139,7 +140,7 @@ def next_state(s, cols):
 input, output
 """
 
-pause = 0.0
+pause = 0.2
 
 def interact(max_itn):
   itn = 0
@@ -150,7 +151,7 @@ def interact(max_itn):
     #if 1 == (itn % 40): print('iteration', itn)
     print('iteration', itn)
     #if r <= 10: 
-    #showboard(B, r, c, ' ', pause)
+    showboard(B, r, c, ' ', pause)
     #newB, r, c = pad(B, r, c)
     B, r, c = pad(B, r, c)
     #if newB != B: B = newB
@@ -160,7 +161,7 @@ def interact(max_itn):
     if newB == B: break
     itn += 1
     B = newB
-  print('iteration', itn)
-  showboard(B, r, c, ' ', pause)
+  #print('iteration', itn)
+  #showboard(B, r, c, ' ', pause)
 
-interact(1200)
+interact(30)
