@@ -183,10 +183,10 @@ def printmenu():
   print('  h             help menu')
   print('  x b2         play x b 2')
   print('  o e3         play o e 3')
-  print('  . a2          erase a 2')
-  print('  t        toggle: use TT')
-  print('  ?           solve state')
-  print('  g x/o           genmove')
+  #print('  . a2          erase a 2')      no longer an option
+  #print('  t        toggle: use TT')      not relevant
+  #print('  ?           solve state')      not yet
+  #print('  g x/o           genmove')      not yet
   print('  u                  undo')
   print('  [return]           quit')
 

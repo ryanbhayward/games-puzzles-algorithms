@@ -1,0 +1,4 @@
+go_play       missing superko check
+go_inter_old  missing superko check, capture
+count_legal   counts legal positions, among all possible positions (slow!)
+norvig_go     barely started

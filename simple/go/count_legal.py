@@ -1,16 +1,6 @@
 """
-simple Go environment: legal moves, game score            RBH 2019    
-  * based on a subset of M Mueller's Go0 Go1 programs
-  * allow rectangular boards, so with columns != rows
-             1 <= R <= 9 rows 
-             1 <= C <= 9 columns
-working 
-  * legal moves (Tromp-Taylor, no suicide, positional superko)
-  * Tromp-Taylor score
-
-TODO
-  * also allow suicide? (Tromp-Taylor, allow suicide, positional superko)
-  * rewrite paint using python string functions (replace?)
+looks like I used this to count legal go positions on small boards RBH 2019
+looks similar to go_play.py
 """
 
 import numpy as np
