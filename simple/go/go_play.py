@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 simple Go program  RBH 2019    
   * generate legal moves and game score
@@ -108,10 +109,12 @@ class Position: # go board with x,o,e point values
             else:
               color = char_to_color(ch)
               move_record = (color, where)
+              print('move record', move_record)
               H.append(move_record) # record move for undo
               captured = self.makemove(where, color)
               for x in captured: # record captured stones for undo
                 cap_record = (-opponent(color), x)
+                print('capture record', cap_record)
                 H.append(cap_record)
 
   def captured(self, where, color):
@@ -228,6 +231,7 @@ def interact(use_tt):
   history = []  # used for erasing, so only need locations
   while True:
     showboard(p)
+    print('history', history)
     print('tromp-taylor score (black, white)',p.tromp_taylor_score(),'\n')
     cmd = input(' ')
     if len(cmd)==0:
