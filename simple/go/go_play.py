@@ -8,9 +8,7 @@ simple Go program  RBH 2019
              1 <= C <= 9 columns
 TODO
   * make legal moves (Tromp-Taylor, no suicide, not yet checking superko)
-  * show Tromp-Taylor score
   * add positional superko check
-  * make legal moves (Tromp-Taylor, allow suicide, positional superko)
 """
 
 import numpy as np
