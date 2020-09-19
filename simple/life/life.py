@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Conway's game of life    RBH 2020
+Conway's game of life, infinite grid    RBH 2020
 """
 
 from time import sleep
@@ -139,28 +139,23 @@ def next_state(s, cols):
 input, output
 """
 
-pause = 0.0
+pause = .2
 
 def interact(max_itn):
   itn = 0
   B, r, c = get_board()
   B, r, c = add_guards(B, r, c)
-  showboard(B, r, c, ' ', pause)
+  #showboard(B, r, c, ' ', pause)
   while itn <= max_itn:
-    #if 1 == (itn % 40): print('iteration', itn)
-    print('iteration', itn)
-    #if r <= 10: 
-    #showboard(B, r, c, ' ', pause)
-    #newB, r, c = pad(B, r, c)
+    #print('iteration', itn)
     B, r, c = pad(B, r, c)
-    #if newB != B: B = newB
-      #if r <= 10: 
-      #showboard(newB, r, c, ' ', pause)
     newB = next_state(B, c)
     if newB == B: break
+    if r <= 10000: 
+      showboard(B, r, c, ' ', pause)
     itn += 1
     B = newB
-  print('iteration', itn)
   showboard(B, r, c, ' ', pause)
+  print('iterations', itn)
 
 interact(1200)
