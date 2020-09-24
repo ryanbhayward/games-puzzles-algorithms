@@ -1,0 +1,20 @@
+    
+      a b c  
+    X X X X X
+  1 X   + ! X
+    X X X X X
+
+current:  b1
+mark:     b1
+not done
+
+mark:   a1
+
+all neighbors marked, solution not found
+
+so
+
+this maze, with this execution,
+is a correctness counterexample
+for algorithm 1
+

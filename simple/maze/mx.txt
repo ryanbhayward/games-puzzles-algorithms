@@ -1,4 +1,18 @@
-    a b c  
-  X X X X X
-1 X +   ! X
-  X X X X X
+    
+      a b c  
+    X X X X X
+  1 X +   ! X
+    X X X X X
+
+current:  a1
+mark:     a1
+not done
+current:  b1
+mark: b1
+current:  c1
+
+done !
+
+so this is not a counterexample
+
+

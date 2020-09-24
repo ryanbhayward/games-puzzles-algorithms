@@ -1,0 +1,65 @@
+
+ *--*--*--*--*
+ |  |  |  |  |
+ *--*--*--*--*
+ |  |  |  |  |
+ *--*--*--*--*
+ |  |  |  |  |
+ *--*--*--*--*
+ |  |  |  |  |
+ *--*--*--*--*
+
+ a--b--c--d--e
+ |  |  |  |  |
+ f--g--h--i--j
+ |  |  |  |  |
+ k--l--m--n--o
+ |  |  |  |  |
+ p--q--r--s--t
+ |  |  |  |  |
+ u--v--w--x--y
+
+       +  <- start    dfs(+) 
+       |               + now seen
+ a--b--c--d--e         dfs(c)
+    |        |          c now seen
+ f--g  h--i  j          dfs(b) WAIT FOR THIS 
+ |     |  |  |            TO FINISH BEFORE
+ k  l  m  n--o            WE TRY TO CALL
+ |  |  |  |  |            
+ p  q  r  s  t            b now seen
+ |  |  |  |  |            dfs(a)
+ u--v  w  x--y              a now seen
+       |                    dfs(a) finished
+       !  <- end          dfs(g) ....
+
+finish trace on your own
+in what order do you discover the nodes
+of this graph?
+ASSUME THAT NBR LISTS STORED IN ALPHABETICAL 
+ORDER
+
+
++
+  c
+    b
+      a
+      g
+        f
+          k
+            p
+              u
+                v
+                  q
+                    l
+    d
+      e
+        j
+          o
+            n
+              ...
+
+
+
+
+
