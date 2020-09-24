@@ -121,7 +121,7 @@ def next_state(A, r, c):
                 num += 1
             if k > 0 and A[j, k-1] == ALIVE:
                 num += 1
-            if j > 0 and k < c-1 and A[j, k+1] == ALIVE:
+            if k < c-1 and A[j, k+1] == ALIVE:
                 num += 1
             if j < r-1 and k > 0 and A[j+1, k-1] == ALIVE:
                 num += 1
