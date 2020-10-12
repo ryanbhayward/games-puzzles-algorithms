@@ -1,0 +1,186 @@
+867254031
+123456780
+  1 iterations, level 2 has 2 nodes
+  3 iterations, level 3 has 4 nodes
+  7 iterations, level 4 has 8 nodes
+  15 iterations, level 5 has 16 nodes
+  31 iterations, level 6 has 20 nodes
+  51 iterations, level 7 has 39 nodes
+  90 iterations, level 8 has 62 nodes
+  152 iterations, level 9 has 116 nodes
+  268 iterations, level 10 has 152 nodes
+  420 iterations, level 11 has 286 nodes
+  706 iterations, level 12 has 396 nodes
+  1102 iterations, level 13 has 748 nodes
+  1850 iterations, level 14 has 1024 nodes
+  2874 iterations, level 15 has 1893 nodes
+  4767 iterations, level 16 has 2512 nodes
+  7279 iterations, level 17 has 4485 nodes
+  11764 iterations, level 18 has 5638 nodes
+  17402 iterations, level 19 has 9529 nodes
+  26931 iterations, level 20 has 10878 nodes
+  37809 iterations, level 21 has 16993 nodes
+  54802 iterations, level 22 has 17110 nodes
+  71912 iterations, level 23 has 23952 nodes
+  95864 iterations, level 24 has 20224 nodes
+  116088 iterations, level 25 has 24047 nodes
+  140135 iterations, level 26 has 15578 nodes
+  155713 iterations, level 27 has 14560 nodes
+  170273 iterations, level 28 has 6274 nodes
+  176547 iterations, level 29 has 3910 nodes
+  180457 iterations, level 30 has 760 nodes
+found target
+ 1 2 3
+ 4 5  
+ 7 8 6
+
+ 1 2 3
+ 4   5
+ 7 8 6
+
+ 1   3
+ 4 2 5
+ 7 8 6
+
+   1 3
+ 4 2 5
+ 7 8 6
+
+ 4 1 3
+   2 5
+ 7 8 6
+
+ 4 1 3
+ 7 2 5
+   8 6
+
+ 4 1 3
+ 7 2 5
+ 8   6
+
+ 4 1 3
+ 7   5
+ 8 2 6
+
+ 4   3
+ 7 1 5
+ 8 2 6
+
+   4 3
+ 7 1 5
+ 8 2 6
+
+ 7 4 3
+   1 5
+ 8 2 6
+
+ 7 4 3
+ 8 1 5
+   2 6
+
+ 7 4 3
+ 8 1 5
+ 2   6
+
+ 7 4 3
+ 8   5
+ 2 1 6
+
+ 7 4 3
+ 8 5  
+ 2 1 6
+
+ 7 4  
+ 8 5 3
+ 2 1 6
+
+ 7   4
+ 8 5 3
+ 2 1 6
+
+   7 4
+ 8 5 3
+ 2 1 6
+
+ 8 7 4
+   5 3
+ 2 1 6
+
+ 8 7 4
+ 5   3
+ 2 1 6
+
+ 8 7 4
+ 5 3  
+ 2 1 6
+
+ 8 7 4
+ 5 3 6
+ 2 1  
+
+ 8 7 4
+ 5 3 6
+ 2   1
+
+ 8 7 4
+ 5   6
+ 2 3 1
+
+ 8 7 4
+ 5 6  
+ 2 3 1
+
+ 8 7  
+ 5 6 4
+ 2 3 1
+
+ 8   7
+ 5 6 4
+ 2 3 1
+
+ 8 6 7
+ 5   4
+ 2 3 1
+
+ 8 6 7
+   5 4
+ 2 3 1
+
+ 8 6 7
+ 2 5 4
+   3 1
+
+181191 iterations 1.3057689666748047 seconds 138761.91319005724 itn/s
+181437 states
+nodes by level
+0 1
+1 2
+2 4
+3 8
+4 16
+5 20
+6 39
+7 62
+8 116
+9 152
+10 286
+11 396
+12 748
+13 1024
+14 1893
+15 2512
+16 4485
+17 5638
+18 9529
+19 10878
+20 16993
+21 17110
+22 23952
+23 20224
+24 24047
+25 15578
+26 14560
+27 6274
+28 3910
+29 760
+
