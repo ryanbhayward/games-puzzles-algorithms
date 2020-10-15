@@ -1,0 +1,17 @@
+for both 15 puzzle and 15star:
+
+--perm = Permutation to solve. If none then chosen at random.
+
+--batch = Batch size. If n>0 then it solves n random puzzles, outputting the number of moves in the solution and the number of nodes visited during the run.
+
+for 15puzzle:
+
+--staging = What are the intermediate stages that the path passes through.
+There are 3 hardcoded options (line #154). Each option is an ordered partition, where each subset is to be solved before moving on, while keeping previous ones fixed.
+
+
+
+for 15star:
+
+--opt = Optimization percent, which is a discount ratio for the distance from source.
+A* is when opt=1. There are descriptions in the comment for the Node class (line #71) for the meaning of other values as well.

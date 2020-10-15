@@ -1,4 +1,5 @@
-# allows human to play sliding tile  RBH 2016
+#!/usr/bin/env python3
+# sliding tile environment   RBH 2016
 from random import shuffle
 
 class Tile:
@@ -96,7 +97,9 @@ def get_command():
 
 def play():
   r,c = get_dimensions()
+  #r,c = 3,3
   st = Tile(r,c)
+  #st.state = [0,1,2,3,4,5,6,7,8]
   st.showpretty()
   while True:
     ndx0 = st.state.index(min(st.state)) # index of 0
