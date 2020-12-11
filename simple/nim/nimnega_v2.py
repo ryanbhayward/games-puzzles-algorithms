@@ -21,7 +21,7 @@ def win_loss(b): return 'win' if b else 'loss'
 sd         dictionary(state: boolean), true if player-to-move wins
 """
 def winning(nim_psn, sd, depth, verbose):  
-# tuple, dictionary, recursion depth
+# tuple, dictionary, recursion depth, verbose mode (True/False)
   pad = '  '
   if nim_psn in sd:
     if depth==0: print('solved before search')
@@ -36,15 +36,15 @@ def winning(nim_psn, sd, depth, verbose):
       if not winning(child, sd, depth+1, verbose):
         if verbose: print(pad*depth, nim_psn, win_loss(True), 'losing child')
         sd.update({ nim_psn: True })   # update before return
-        if depth == 0: print('\nwinning: move to ',child, len(sd))    # show a winning move
+        if depth == 0: print('\nwin: move to ',child, len(sd), 'states') # show a winning move
         return True
   if verbose: print(pad*depth, nim_psn, win_loss(False), 'no win')
   sd.update({ nim_psn: False })  # update before return
-  if depth == 0: print('\nlosing', len(sd))
+  if depth == 0: print('\nloss,', len(sd), 'states')
   return False
 
 v = get_piles()
 S = dict()
 empty = tuple([0]*len(v))# position (0 0 ... )
 S.update({empty: False}) # position (0 0 ... ) loses
-w = winning(v, S, 0, True)
+w = winning(v, S, 0, True) 
