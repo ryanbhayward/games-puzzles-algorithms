@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-simple Go program  RBH 2019    
+simple Go program  RBH 2019-2021    
   * generate legal moves and game score
-  * based on M Mueller's go code and P Norvig's sudoku representation
+  * some ideas from M Mueller's go code
   * also allow rectangular boards, so with columns != rows
              1 <= R <= 9 rows 
              1 <= C <= 9 columns
 TODO
-  * make legal moves (Tromp-Taylor, no suicide, not yet checking superko)
-  * add positional superko check
+  * ugly, uses both a micro-move history and position history
+  * ... simplify ?
 """
 
 import numpy as np
@@ -18,7 +18,7 @@ import copy
 points on the board
 """
 
-EMPTY, BLACK, WHITE, BORDER, POINT_CHARS = 0, 1, 2, 3, '.xo'
+EMPTY, BLACK, WHITE, BORDER, POINT_CHARS = 0, 1, 2, 3, '.*o'
 
 def opponent(color): return BLACK + WHITE - color
 
@@ -74,6 +74,12 @@ class Position: # go board with x,o,e point values
                   nbs.append(where)
             self.nbrs.append(nbs)
 
+  def brdstring(self):
+    b = ''
+    for j in self.brd:
+      if j != BORDER: b += POINT_CHARS[j]
+    return b
+
   def makemove(self, where, color):
     self.brd[where] = color
     cap = []
@@ -84,11 +90,12 @@ class Position: # go board with x,o,e point values
       print('removing captured group at', point_to_alphanum(where, self.C))
       for j in cap:
         self.brd[j] = EMPTY
-      return cap
+      return cap, True
     if self.captured(where, color):
       print('whoops, no liberty there: not allowed')
       self.brd[where] = EMPTY
-    return cap 
+      return cap, False
+    return cap, True
 
   def requestmove(self, cmd, H):
     parseok, cmd = False, cmd.split()
@@ -100,20 +107,24 @@ class Position: # go board with x,o,e point values
           x, y = int(n) - 1, ord(q)-ord('a')
           if x<0 or x >= self.R or y<0 or y >= self.C:
             print('\n  sorry, coordinate off board')
+            return parseok
           else:
             where = coord_to_point(x,y,self.C)
             if self.brd[where] != EMPTY:
               print('\n  sorry, position occupied')
+              return parseok
             else:
               color = char_to_color(ch)
               move_record = (color, where)
               print('move record', move_record)
-              H.append(move_record) # record move for undo
-              captured = self.makemove(where, color)
-              for x in captured: # record captured stones for undo
-                cap_record = (-opponent(color), x)
-                print('capture record', cap_record)
-                H.append(cap_record)
+              captured, parseok = self.makemove(where, color)
+              if parseok:
+                H.append(move_record) # record move for undo
+                for x in captured: # record captured stones for undo
+                  cap_record = (-opponent(color), x)
+                  #print('capture record', cap_record)
+                  H.append(cap_record)
+              return parseok
 
   def captured(self, where, color):
   # return points in captured group containing where
@@ -181,12 +192,8 @@ def genmoverequest(cmd):
 
 def printmenu():
   print('  h             help menu')
-  print('  x b2         play x b 2')
-  print('  o e3         play o e 3')
-  #print('  . a2          erase a 2')      no longer an option
-  #print('  t        toggle: use TT')      not relevant
-  #print('  ?           solve state')      not yet
-  #print('  g x/o           genmove')      not yet
+  print('  '+ POINT_CHARS[BLACK] +  ' b2         play BLACK b 2')
+  print('  '+ POINT_CHARS[WHITE] +  ' e3         play WHITE e 2')
   print('  u                  undo')
   print('  [return]           quit')
 
@@ -212,7 +219,7 @@ def showboard(psn):
     pretty += '\n'
   print(pretty)
 
-def undo(H, brd):  # pop last meta-move
+def undo(H, brd):  # pop last move
   if len(H)==0:
     print('\n    board empty, nothing to undo\n')
   else:
@@ -225,11 +232,14 @@ def undo(H, brd):  # pop last meta-move
         brd[where] = -color
 
 def interact(use_tt):
-  p = Position(3,4)
-  history = []  # used for erasing, so only need locations
+  p = Position(2,2)
+  move_record = []  # used for undo, only need locations
+  positions = [p.brdstring()] # used for positional superko
+  move_made = False
   while True:
     showboard(p)
-    print('history', history)
+    for x in positions: print(x)
+    print('move_record', move_record)
     print('tromp-taylor score (black, white)',p.tromp_taylor_score(),'\n')
     cmd = input(' ')
     if len(cmd)==0:
@@ -238,9 +248,17 @@ def interact(use_tt):
     if cmd[0][0]=='h':
       printmenu()
     elif cmd[0][0]=='u':
-      undo(history, p.brd)
+      undo(move_record, p.brd)
+      if len(positions)>1: positions.pop()
     elif (cmd[0][0] in POINT_CHARS):
-      p.requestmove(cmd, history)
+      sofar = p.requestmove(cmd, move_record)
+      if sofar: # no liberty violation, check superko
+        pstring = p.brdstring()
+        if pstring in positions:
+          print('superko violation, move not allowed')
+          undo(move_record, p.brd)
+        else:
+          positions.append(pstring)
     else:
       print('\n ???????\n')
       printmenu()
