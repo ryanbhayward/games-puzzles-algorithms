@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-simple Go program  RBH 2019-2021    
+simple Go program  RBH 2019-2022
   * generate legal moves and game score
   * some ideas from M Mueller's go code
   * also allow rectangular boards, so with columns != rows
@@ -232,7 +232,7 @@ def undo(H, brd):  # pop last move
         brd[where] = -color
 
 def interact(use_tt):
-  p = Position(2,2)
+  p = Position(2,3)
   move_record = []  # used for undo, only need locations
   positions = [p.brdstring()] # used for positional superko
   move_made = False
