@@ -45,7 +45,8 @@ def showtree(L,T,V):
   print('')
 
 def alphabeta(d, T, V, v, alpha, beta): # leaf score are for root player: MAX
-  print(d*'  ', 'at ' ,v)
+  print(d*'  ', v, 'max' if 0==d%2 else 'min')
+  print(d*'  ', '?', alpha, beta)
   if v in V: # V is set of leaves
     val = V[v]; print(d*'  ', 'leaf value',val)
     return val
@@ -54,28 +55,32 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf score are for root player: MAX
     for c in T[v]:
       ab = alphabeta(d+1, T, V, c, alpha, beta)
       if ab > val:
-        print((d+1)*'  ',c,'new best child of',v)
         alpha, val = ab, ab
+        print((d+1)*'  ',c,'new best child of',v)
       else:
         print((d+1)*'  ',c,'not best child of',v)
+      print((d+1)*'  ', val, alpha, beta)
       if alpha >= beta:
-        print((d+1)*'  ','alpha >= beta, prune rem. children of', v, end='')
+        print((d+1)*'  ','alpha >= beta, prune remaining children of', v)
         break
-    print('\n', d*'  ', v, 'final value', val)
+    print(d*'  ', v, 'done')
+    print(d*'  ', val, alpha, beta)
     return val
   else: # d is odd, a MIN node
     val = INF
     for c in T[v]:
       ab = alphabeta(d+1, T, V, c, alpha, beta)
       if ab < val:
-        print((d+1)*'  ', c,'new best child of',v)
         beta, val = ab, ab
+        print((d+1)*'  ', c,'new best child of',v)
       else:
-        print((d+1)*'  ', c,'not best child of',v)
+        print((d+1)*'  ', c,'not best child of',v) 
+      print((d+1)*'  ', val, alpha, beta)
       if alpha >= beta:
-        print((d+1)*'  ', 'alpha >= beta, prune rest of children of', v)
+        print((d+1)*'  ','alpha >= beta, prune remaining children of', v)
         break
-    print(d*'  ', v,'final value',val)
+    print(d*'  ', v, 'done')
+    print(d*'  ', val, alpha, beta)
     return val
 
 L,T,V,root = readtree()
