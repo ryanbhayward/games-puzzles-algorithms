@@ -22,7 +22,7 @@ def oppCH(ch):
 """
 board: one-dimensional string
 
-index positions for     board:    0 1 2       <- row 2
+index positions for     board:    6 7 8       <- row 2
                                    3 4 5       <- row 1
                                     0 1 2       <- row 0
 """
@@ -35,7 +35,7 @@ def point_to_coord(p, C):
 
 def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
-  return 'abcdefghj'[c] + '1234566789'[r]
+  return 'abcdefghj'[c] + '123456789'[r]
 
 def change_str(s, where, what):
   return s[:where] + what + s[where+1:]
@@ -45,7 +45,7 @@ COLS = 3
 N = ROWS * COLS
 assert(ROWS == 3 and COLS ==3)
 
-NBRS = []
+NBRS = []  # neighbours
 for r in range(ROWS):
   for c in range(COLS):
     nbs = []
@@ -105,7 +105,8 @@ def has_win(s, p): # for 3x3 board only
 def can_win(s, ptm): # assume neither player has won yet
   blanks, calls = [], 1
   #for j in range(N):
-  for j in (4,2,6,3,5,1,7,0,8): # better 3x3 move order
+  #for j in (0, 1, 2, 3, 4, 5, 6, 7, 8): # natural order
+  for j in (4, 2, 6, 3, 5, 1, 7, 0, 8): # better 3x3 move order
     if s[j]==ECH: blanks.append(j)
   #if len(blanks)==0: print('whoops',s)
   #assert(len(blanks)>0) # since x has no draws
