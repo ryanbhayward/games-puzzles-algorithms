@@ -1,0 +1,7 @@
+code for extracting 5-letter words
+
+to merge two dictionaries:
+  sort -u d1 d1 > d3
+
+curl -o miel_dict.txt http://www.mieliestronk.com/corncob_lowercase.txt
+

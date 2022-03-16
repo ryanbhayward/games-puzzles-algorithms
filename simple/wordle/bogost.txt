@@ -1,0 +1,86 @@
+I Figured Out Wordle’s Secret
+It took me four guesses.
+
+By Ian Bogost
+
+Jan 29, 2022, 7:00 ET
+oWordle! It’s a word game people are playing online. Each day, the game offers one new puzzle: Guess a five-letter English word correctly in six or fewer tries. After each guess, the game tells you which letters are correct, which are wrong, and which are the right letters in the wrong place. It’s fun! But why?
+
+Games seem like trifles, and many are, which can make them difficult to take seriously as art or culture. Perhaps that’s why accounts of their success tend to focus on their peripheries. Wordle is easy to access, just a website you can visit from any browser or device without a download. It has what game designers sometimes call “juiciness,” a delightfulness of audiovisual response—in Wordle’s case, the way the game reveals the results of a guess letter by letter offers both drama and satisfaction. A charming backstory also underlies the game: A programmer made it for his partner, for love rather than money.
+
+But none of these explanations captures the essence of Wordle’s seductive delight. In the game, you get six guesses to solve a puzzle. When it comes to the puzzle of Wordle, I’m going to solve it for you in four: its unoriginal design, its ritual comfort, its interpretive sharing mechanism, and—one that may disappoint you, but that you need to accept—the fact that it’s just a game, and games are fun.
+
+   N O R M Y
+
+Many game designers will tell you that games need to be easy to learn but hard to master. The fallacy comes from the history of Pong, one of the first popular coin-operated electronic games. Before he came up with the idea for Pong, Nolan Bushnell, who co-founded Atari, first tried to re-create a cosmic-dogfight game popular in university labs for the everyperson. The result, a coin-operated game with a plethora of indistinguishable buttons called Computer Space, was a commercial failure. But Pong was simple. It had just one knob for each player, along with an engraved instruction: insert coin. avoid missing ball for high score.
+
+The thing is, Pong didn’t succeed because it was simple. After all, chess and Go, two games with the greatest longevity and the highest status in history, are not easy to learn. Neither is Fortnite or League of Legends. No, Pong worked because it was unoriginal: Ping-Pong, but on a weird, new computer at the bar—which wasn’t that weird and new in a context where pinball and mechanical games were commonplace.
+
+Wordle is likewise unoriginal. It owes most of its design to its forebears: a long line of trial-and-error code-breaking games. A similar paper-and-pencil game called Bulls and Cows, in which players try to guess a four-digit number, is at least as old as table tennis. That style of design was commercialized—with great success—as the board game Mastermind around the time Pong appeared. A version with words instead of numbers or colors, called Jotto, appeared as early as the 1950s. Among its many lives, the Jotto design eventually inspired a television game show called Lingo, which aired in the late 1980s. Lingo’s puzzle design is essentially identical to Wordle’s.
+
+Even if a particular Wordle player has never encountered Bulls and Cows or Lingo, these precedents pervade global experience. They offer multiple ways for players to have become familiar with Wordle’s design. And even in their absence, everyone has some experience with the basic idea of filling in empty boxes with letters to make words, thanks to crossword puzzles.
+
+Read: Tips from our crossword pro
+
+None of this is to say that Wordle is any less worthy for being derivative. We live in an era that values innovation, or at least one that claims it does, and our contemporary zeitgeist privileges originality over mimicry. But true novelty is actually quite rare, largely because it is uncomfortable. Most innovation ends up being incremental. Mail-order catalog shopping, but online. A car, but with an electric motor; a computer, but in your pocket. The delight of an unoriginal design is far greater than a novel one, because it binds you to history and community.
+
+C O M F Y
+
+When the crossword puzzle first grew popular, in the 1920s, it became the latest member of a millennia-old lineage of similar riddles, including word squares and biblical acrostics. What was new was the context in which those word puzzles appeared and spread: newspapers, which included them along with sports and weather and comics in an effort to counterbalance the tragedy, death, and uncertainty that filled their pages.
+
+In that context, the crossword puzzle offered a unique benefit: It put readers in control. Crosswords gave people a feeling of accomplishment and comfort. No matter how bad the news might get, at least newspaper readers could solve something and feel gratification in it. And they could do so every day.
+
+Crosswords became ritualized. Pick up the paper from the stoop, glance at the front page and sigh, then fold back the third section and ease into the day with a puzzle and a cup of coffee. Regularity bred comfort, whether you ever solved a whole puzzle or not. A space for just a little agency, on the regular, is an even more useful on-ramp for daily life than catching up with the headlines.
+
+Read: The uncertain future of the crossword puzzle
+
+Wordle adopts and extends this principle of ritual comfort. It isn’t published by news organizations, but it did arrive at a moment when the news feels particularly dire and command over daily life proves difficult. People are grasping for comfort, and particularly enduring comfort.
+
+Almost any abstract puzzle could have offered similar succor, had it become popular. But Wordle’s design in particular amplifies comfort and excises unease almost entirely.
+
+It does this first by softening the demands of language. Many word games—including crosswords, Scrabble, Boggle, and beyond—seem to test a player’s mastery of language and general knowledge. That feels great for word people, especially those who have spent time learning the conventions of games. Performing well in these games doesn’t make you smart in general, but only in the context of the game, for example by knowing all the legal two-tile Scrabble plays. A native English speaker might know 20,000 words, and every one of those will help her win Scrabble, as will knowing all the prefixes and suffixes and alternative spellings that the language allows. Word games like Scrabble are about language, demanding semantic adeptness for performance. Not Wordle. It’s just made of language, and a small, populist corner of it at that.
+
+Read: The hidden bigotry of crosswords
+
+Wordle asks only that you know one five-letter word to start. It can be the same word every day, if that makes you feel better. The game’s solution list is finite, constituting a couple thousand terms curated from common five-letter terms such as wheat or snail. Everyone knows a word like snail.
+
+Wordle even offers an invisible scaffolding to make you feel a more powerful mastery of language than you might possess. When you do make traction, the solution space narrows quickly, even though it still feels large enough to afford pleasure upon success. Imagine a daily puzzle with the correct result of TORCH. Guessing SOLAR on your first play would yield one correct letter in the right place (O) and one in the wrong spot (R). That set of clues alone reduces the possible matches in Wordle’s 12,972-word dictionary by 96 percent, down to 542 possibilities. Ordinary players have no idea that the field has been so far narrowed, of course—and 542 words is still a lot of options to sift through. But it’s far fewer than a player might guess. Wordle feels harder than it is. That gap between real and perceived difficulty makes Wordle players feel smart, but more important, it imbues them with a sense of power—a great feeling, and a rare one these days.
+
+   G A B B Y
+
+Around 2010, social games such as Farmville and Words With Friends erupted in popularity. These games baked social sharing into their design, first on Facebook and then via direct connection on mobile apps. Their spreadability also doomed these games to backlash: Some of their social elements were predatory, pressuring players to invite others to play or issuing penalties for failing to do so. But almost all of them were irritating. Posts and invitations to dip into yet another time sink piled up like litter, and eventually Facebook suppressed them on its Newsfeed. The trend mostly vanished into private spaces.
+
+By comparison, Wordle’s sharing feature is humble and unassuming. The enigmatic series of emoji blocks that represent a player’s performance in that day’s puzzle have become popular on Twitter, where my colleague Charlie Warzel has observed a backlash that echoes the old Farmville days. But the irony is, Wordle does a fairly poor job of encouraging players to use social sharing. The share button is obscured amid a noisy end screen, and the resulting posts don’t link back to the game, making those not in the know less likely to become vectors of viral spread.
+
+Read: The internet is eating Wordle alive
+
+The dense symbology of a shared Wordle result is more than a top-line score or an invitation to play. It summarizes the player’s whole session, sometimes as a score, but more significantly as a feeling. One row of all blanks followed by an all-green success—wow, that’s an impressive one. A first guess that yields the first two letters, decays into fiasco, and turns around to succeed in the sixth move represents a from-behind victory. That same start without a win feels tragic, a warning against hubris.
+
+In my experience, Wordle spreads less effectively in public and more in private. Colleagues share their daily plays in corporate Slack channels. My wife and son and I have a group text where we share our scores. In these contexts, the game spreads slowly and more methodically. In some cases, players seem to have identified the feeling of ritual comfort the game provides and even use it to recruit others. “It’s an easy way to check in with people without starting with ‘How are you holding up?’” Claire Einstein, one of my Atlantic colleagues, said in our #Wordle Slack channel.
+
+The emoji-block sharing feature wasn’t even originally part of the game, but an invention of its playership. The notation was devised by Wordle players in New Zealand; later the game’s creator, Josh Wardle, incorporated it into the design. This accidental process of co-design validates the sharing feature as a more player-centric and less artificially viral one. Today’s internet users are more experienced than their equivalent or former selves from a decade ago. People are more likely to share things when they have the ability to do so in a way that they find appealing.
+
+H A P P Y
+
+When a song or a movie or a TikTok or a meme becomes popular, even massively so, people tend not to seek a fundamental explanation as to why. It’s expected that such things can and do happen, even regularly. Phenomena become so because they are phenomenal.
+
+But games still demand explanation, and justification, when they become successful. Why do business-class travelers play Solitaire? Why are your kids playing Fortnite? Why is everyone on the train playing Candy Crush?
+
+Wordle is no exception. News outlets have mustered psychologists to explain the public’s “sudden obsession” with the diversion. Some observers, unable to allow a game to be an end unto itself, like television or fashion or tacos, have searched for lessons in its design that might be applied to education, or marketing, or artificial intelligence. Imagine if we held every other form of human culture to this bar, where appeal and success are deemed a priori farcical—but could always be recuperated via application to business or life lessons. What a boring world that would be.
+
+Read: Video games are better without stories
+
+Here’s the thing about Wordle: It’s just a word game. It doesn’t have to be more than that. It’s fun because fun amounts to the discovery of familiarity in novelty. People love discovery, or the idea of it, but they live lives of oppressive repetition. We oscillate between those two drives constantly, hoping to feel comfort on the one hand and to strike out into the unknown on the other. Games, and the fun we find in them, offer a diversion that engages with that structure of modern life directly. What if everything was the same, and familiar, and comfortable, but also different, and surprising, and new?
+
+Some games persist over time, such as chess and Scrabble and Starcraft, but others engage with a moment and then evaporate again, like Farmville and Animal Crossing. I promise you that Wordle is of the latter kind. Like the spike proteins that allow viruses to attach to cells, Wordle has found a match with a moment in time. Its success is delicately wrapped in the same dumb luck that might help a player guess a word on the first or second go, the perfect alignment of stars that make it glow bright before it vanishes again.
+
+Consider The New York Times’ Spelling Bee, which got a big popularity bump early in the pandemic. It seemed invincible, but now it’s mired in backlash over its frequent naysaying: Your word isn’t a word. Your word doesn’t contain the center tile. Your word is too short. Your long and totally valid word isn’t recognized. No, no, no. When everyone needed rules and things to do, that felt comforting. Now that we’re all sick of rules and just want to do something, anything else, it feels punitive and smarmy.
+
+Read: 100 years of the crossword puzzle
+
+Even if it does persist beyond a momentary trend, Wordle’s days are numbered by design. Its curated 2,315-word solution list is good for about six and a third years, enough for daily puzzles through early 2028. Any longer would require repeating words, including more challenging solutions, or changing the game, and in so doing giving up some of the magic that made it work so well. But by then, the conditions that gave it lift will have changed too. Wordle is also a diversion born of the desperate stagnancy of real, rather than symbolic, viral spread, so perhaps we shouldn’t wish for it to last.
+
+Maybe you should just enjoy Wordle while it’s here offering joy. Like the realization of the sea’s vastness or a well-rolled burrito, sometimes lightning just strikes. Worldly delights arise, well crafted but also well timed, and we manipulate them in our heads or hands for a while—until we consume them, or put them down, or forget them entirely.
+
+Ian Bogost is a contributing writer at The Atlantic and the Director of the Program in Film & Media Studies at Washington University in St. Louis. His latest book is Play Anything.
+
