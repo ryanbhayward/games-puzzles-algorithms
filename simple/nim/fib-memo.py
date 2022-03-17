@@ -7,7 +7,7 @@ def fib(n, D):
   if n in D:
     return D[n]
   else:
-    f = fib(n-1, D) + fib(n-1, D)
+    f = fib(n-1, D) + fib(n-2, D)
     # what happens if you remove the next line ?
     D[n] = f  
     return f
