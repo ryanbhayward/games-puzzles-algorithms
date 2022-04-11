@@ -20,7 +20,8 @@ points on the board
 
 EMPTY, BLACK, WHITE, BORDER, POINT_CHARS = 0, 1, 2, 3, '.*o'
 
-def opponent(color): return BLACK + WHITE - color
+def opponent(color): 
+  return BLACK + WHITE - color
 
 """
 the board: a one-dimensional vector of points
@@ -43,7 +44,7 @@ so R x C board requires total (R+2) * (C+1) points:
 def coord_to_point(r, c, C): 
   return (C+1) * (r+1) + c + 1
 
-def point_to_alphanum(p,C):
+def point_to_alphanum(p, C):
   r, c = divmod(p, C+1)
   return 'abcdefghi'[c-1] + '1234566789'[r-1]
 
@@ -181,15 +182,6 @@ stonecolors = (textcolor,\
                escape_ch + '0;32m',\
                textcolor)
 
-def genmoverequest(cmd):
-  cmd = cmd.split()
-  invalid = (False, None, '\n invalid genmove request\n')
-  if len(cmd)==2:
-    x = POINT_CHARS.find(cmd[1][0])
-    if x == 1 or x == 2:
-      return True, cmd[1][0], ''
-  return invalid
-
 def printmenu():
   print('  h             help menu')
   print('  '+ POINT_CHARS[BLACK] +  ' b2         play BLACK b 2')
@@ -232,7 +224,7 @@ def undo(H, brd):  # pop last move
         brd[where] = -color
 
 def interact(use_tt):
-  p = Position(2,3)
+  p = Position(2,2)
   move_record = []  # used for undo, only need locations
   positions = [p.brdstring()] # used for positional superko
   move_made = False
