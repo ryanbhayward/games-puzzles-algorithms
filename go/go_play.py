@@ -7,8 +7,11 @@ simple Go program  RBH 2019-2022
              1 <= R <= 9 rows 
              1 <= C <= 9 columns
 TODO
-  * ugly, uses both a micro-move history and position history
-  * ... simplify ?
+  * simplify
+    - represent board only as string (so numpy not needed)
+    - allow board sizes up to 19x19
+    - add feature that takes sgf input
+    - add feature that reports whether position is legal
 """
 
 import numpy as np
