@@ -1,4 +1,5 @@
-d5 dictionary of 5-letter words, extracted from various wordlists
+wordlistn:
+   dictionary of n-letter words, extracted from various wordlists
 
 * https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt
 * http://www.mieliestronk.com/corncob_lowercase.txt
