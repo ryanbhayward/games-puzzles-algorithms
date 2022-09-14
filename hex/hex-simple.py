@@ -28,9 +28,9 @@ def oppCH(ch):
 """
 board: one-dimensional string
 
-index positions for     board:    0 1 2       <- row 2
+index positions for     board:    0 1 2       <- row 0
                                    3 4 5       <- row 1
-                                    0 1 2       <- row 0
+                                    6 7 8       <- row 2
 """
 
 def coord_to_point(r, c, C): 
