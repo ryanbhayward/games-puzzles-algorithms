@@ -67,7 +67,7 @@ class Position: # go board, each point in {B, W, E, G}
 
   def __init__(self, r, c):
     self.R, self.C = r, c
-    self.offsets = (-(c+1), -1, 1, c+1) # distance to each neighbor
+    self.nbr_offsets = (-(c+1), -1, 1, c+1) # distance to each neighbor
     self.brd = empty_board(r, c)
     self.guarded_n = len(self.brd)      # number of points in guarded board
     
@@ -76,7 +76,7 @@ class Position: # go board, each point in {B, W, E, G}
     self.brd = change_string(self.brd, where, color) 
 
     cap = []
-    for j in self.offsets:
+    for j in self.nbr_offsets:
       x = where + j
       if self.brd[x] == opponent(color):
         cap += self.captured(x, opponent(color))
@@ -128,7 +128,7 @@ class Position: # go board, each point in {B, W, E, G}
     j, points, seen = 0, [where], {where}
     while (j < len(points)):
       p = points[j]
-      for q in self.offsets:
+      for q in self.nbr_offsets:
         nbr = p+q
         if self.brd[nbr] == EMPTY: # group has liberty, not captured
           return []
@@ -151,7 +151,7 @@ class Position: # go board, each point in {B, W, E, G}
         territory = 1
         while (len(empty_points) > 0):
           q = empty_points.pop()
-          for j in self.offsets:
+          for j in self.nbr_offsets:
             x = j+q
             b_nbr |= (self.brd[x] == BLACK)
             w_nbr |= (self.brd[x] == WHITE)
