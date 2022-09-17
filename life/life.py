@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
-
 """
 Conway's game of life, infinite grid    RBH 2020
+
+execution: python3 life.py filename pause ticks
+  e.g. python3 life.py t/glider .1 30
 """
 
 from time import sleep
@@ -12,12 +13,9 @@ PTS = '.*#'
 DEAD, ALIVE, GUARD = 0, 1, 2
 DCH, ACH, GCH = PTS[DEAD], PTS[ALIVE], PTS[GUARD]
 
-pause = .2
-
 """
 replace char-in-string
 """
-
 
 def change_str(s, where, what):
     return s[:where] + what + s[where+1:]
@@ -30,18 +28,14 @@ board functions
   * cell's coordinate is 2-d row/column indices
 """
 
-
 def point(r, c, cols):
     return c + r*cols
-
 
 def coord(p, cols):
     return divmod(p, cols)
 
-
 def live_row(r, B, cols):
     return ACH in B[point(r, 1, cols): point(r, cols, cols)]
-
 
 def live_col(c, B, cols):
     n, pt = len(B), point(1, c, cols)
@@ -51,13 +45,11 @@ def live_col(c, B, cols):
         pt += cols
     return False
 
-
 def alphanum(p, C):  # for showing coordinates
     r, c = coord(p, C)
     return 'abcdefghj'[c] + '1234566789'[r]
 
-
-def get_board():
+def get_params():
     B = []
     print(sys.argv[1])
     with open(sys.argv[1]) as f:
@@ -66,12 +58,12 @@ def get_board():
         rows, cols = len(B), len(B[0])
         for j in range(1, rows):
             assert(len(B[j]) == cols)
-        return B, rows, cols
 
+    pause, ticks = float(sys.argv[2]), int(sys.argv[3]) - 1
+    return B, rows, cols, pause, ticks
 
 def pad(B, r, c):
     '''
-
     to avoid boundary collisions,
     ensure B has empty first/last row/column
     by if necessary adding empty first/last row/column
@@ -105,7 +97,6 @@ def pad(B, r, c):
         c += 1
     return B, r, c
 
-
 def add_guards(B, r, c):
     '''
     add guards: top row, left column, bottom row (with one extra)
@@ -130,7 +121,6 @@ def add_guards(B, r, c):
     B.append(GCH * (2 + c))
     return(''.join(B), len(B), len(B[0]))
 
-
 def showboard(board, row, C, gap, pause):
     # add numeric row indices, alphabetic column indices
     pretty = '\n    '
@@ -153,11 +143,9 @@ def showboard(board, row, C, gap, pause):
     print(pretty)
     sleep(pause)
 
-
 """ 
 Conway's next-state formula
 """
-
 
 def num_nbrs(s, j, cols, ch):
     # state, cell, columns, nbr-type
@@ -180,7 +168,6 @@ def num_nbrs(s, j, cols, ch):
         num += 1
     return num
 
-
 def next_state(s, cols):
     new = ''
     for j in range(len(s)):
@@ -195,13 +182,12 @@ def next_state(s, cols):
                 new += ACH if m == 3 else DCH
     return new
 
-
-def interact(max_itn):
+def interact():
     """
     input, output
     """
     itn = 0
-    B, r, c = get_board()
+    B, r, c, pause, max_itn = get_params()
     B, r, c = add_guards(B, r, c)
     while itn <= max_itn:
         B, r, c = pad(B, r, c)
@@ -215,10 +201,8 @@ def interact(max_itn):
     showboard(B, r, c, ' ', pause)
     print('iterations', itn)
 
-
 def main():
-    interact(1200)
-
+    interact()
 
 if __name__ == '__main__':
     main()
