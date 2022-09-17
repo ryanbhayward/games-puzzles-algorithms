@@ -67,7 +67,7 @@ class Maze:
         self.mark_location(psn,curr_ch)
       self.showpretty() # print, so we can watch the traversal
       print(num_iterations,'looks')
-      shuffle(nbr_offsets)  # consider neighbours in random order
+      #shuffle(nbr_offsets)  # consider neighbours in random order
       for shift in nbr_offsets:
         new_psn = psn[0]+shift[0], psn[1]+shift[1]
         new_ch = self.char_at(new_psn) # look at the char at new_psn
