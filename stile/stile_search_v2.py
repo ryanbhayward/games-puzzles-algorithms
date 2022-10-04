@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # simple bfs program to solve sliding tile   rbh 2020
+#   - oct 2022: if no solution, print last position seen
 # version 2.0 new features
 #   - if solution found, give number of moves
 #   - unrestricted target (previously target always (1 2 ... n 0) 
@@ -149,6 +150,8 @@ class Tile:
           for x in Fringe:
             print(pretty(x, self.cols, True))
     print('\nno solution found')
+    print('here is the last position encountered:')
+    print(pretty(stst, self.cols, True))
     end_time = time()
 
 st = Tile()
