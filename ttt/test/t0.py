@@ -75,9 +75,14 @@ def lcn_to_alphanum(p):
   r, c = divmod(p,3)
   return 'abc'[c] + '123'[r]
 
-class Position: # ttt board with x,o,e cells
-  Win_lines = ( # 8 winning lines, as location triples
+def change_string(p, where, ch):
+  return p[:where] + ch + p[where+1:]
+
+Win_lines = ( # 8 winning lines, as location triples
     (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6))
+
+class Position: # ttt board with x,o,e cells
+
   def has_win(self, z):
     win_found = False
     for t in Win_lines:
@@ -91,12 +96,16 @@ class Position: # ttt board with x,o,e cells
     win_found = False
     for z in (Cell.x, Cell.o):
       if (self.has_win(z)):
-        print('\n  game_over: ',Cell.chars[z],'wins\n')
+        print('\n  game over: ',Cell.chars[z],'wins\n')
         return True
+    if Cell.e not in self.brd:
+      print('\n  game over: draw\n')
+      return True
+    print('\n  game not yet over\n')
     return False
 
   def putstone(self, row, col, color):
-    self.brd[rc_to_lcn(row,col)] = color
+    self.brd = change_string(self.brd, rc_to_lcn(row,col), color)
 
   def __init__(self, y):
     self.brd = Cell.e * Cell.n
@@ -137,9 +146,11 @@ class Position: # ttt board with x,o,e cells
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
     print('\n    board empty, nothing to undo\n')
+    return brd
   else:
     lcn = H.pop()
-    brd[lcn] = Cell.e
+    brd = change_string(brd, lcn, Cell.e)
+    return brd
 
 ####################### alpha-beta negamax search
 def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
@@ -182,17 +193,8 @@ def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/
       AB[ptm - 1][b_int] = Transpos(type=TransposType.EXACT, depth=d, value=so_far)
   return so_far, calls
 
-def info(p, use_tt, AB):
-    h, L = min_iso(p.brd), p.legal_moves()
-    print('  min_iso', h, '\n  legal moves', L)
-    #print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
-                                        #p.non_iso_moves(L,Cell.o))
-    for cell in (Cell.x, Cell.o):
-      print('  ',Cell.chars[cell], 'alphabeta',end='')
-      ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
-      print('  result','{:2d}'.format(ab), '  nodes',c)
-    if p.game_over():
-      pass
+def info(p):
+  result = p.game_over()
 
 def interact(use_tt):
   AB = ({}, {})  # x- and o- dictionaries of alphabeta values
@@ -207,9 +209,9 @@ def interact(use_tt):
     if cmd[0][0]=='h':
       printmenu()
     elif cmd[0][0]=='?':
-      info(p, use_tt, AB)
+      info(p)
     elif cmd[0][0]=='u':
-      undo(history, p.brd)
+      p.brd = undo(history, p.brd)
     elif cmd[0][0]=='g':
       p.genmove(genmoverequest(cmd), use_tt, AB)
     elif cmd[0][0]=='t':
