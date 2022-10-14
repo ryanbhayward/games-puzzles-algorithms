@@ -20,25 +20,22 @@ stonecolors = (textcolor,\
                escape_ch + '0;32m',\
                textcolor)
 
-def genmoverequest(cmd):
+def solverequest(cmd):
   cmd = cmd.split()
-  invalid = (False, None, '\n invalid genmove request\n')
+  invalid = (False, None, '\n invalid solve request\n')
   if len(cmd)==2:
-    x = Cell.chars.find(cmd[1][0])
-    if x == 1 or x == 2:
+    if cmd[1][0] == Cell.x or cmd[1][0] == Cell.o:
       return True, cmd[1][0], ''
   return invalid
 
 def printmenu():
-  print('  h             help menu')
-  print('  x b2         play x b 2')
-  print('  o e3         play o e 3')
-  print('  . a2          erase a 2')
-  print('  t        toggle: use TT')
-  print('  ?           solve state')
-  print('  g x/o           genmove')
-  print('  u                  undo')
-  print('  [return]           quit')
+  print('  h                help menu')
+  print('  x b2            play x b 2')
+  print('  o e3            play o e 3')
+  print('  . a2             erase a 2')
+  print('  ? x    solve for x-to-play')
+  print('  u                     undo')
+  print('  [return]              quit')
 
 def showboard(psn):
   def paint(s):  # s   a string
@@ -107,26 +104,8 @@ class Position: # ttt board with x,o,e cells
   def putstone(self, row, col, color):
     self.brd = change_string(self.brd, rc_to_lcn(row,col), color)
 
-  def __init__(self, y):
+  def __init__(self):
     self.brd = Cell.e * Cell.n
-
-  def genmove(self, request, use_tt, AB):
-    if request[0]:
-      if Cell.e not in self.brd:
-        print('board full, no move possible')
-      else:
-        ptm = request[1]
-        if self.has_win(ptm) or self.has_win(opponent(ptm)):
-          print('board already has winning line(s)')
-        else:
-          for cell in L:
-            self.brd[cell] = ptm
-            print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
-            ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
-            print('  result','{:2d}'.format(-ab), '  nodes',c)
-            self.brd[cell] = Cell.e   
-    else:
-      print(request[2])
 
   def makemove(self, cmd, H):
     parseok, cmd = False, cmd.split()
@@ -152,53 +131,32 @@ def undo(H, brd):  # pop last location, erase that cell
     brd = change_string(brd, lcn, Cell.e)
     return brd
 
-####################### alpha-beta negamax search
-def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
-  o_alpha = alpha
-  if use_tt:
-    b_int = board_to_int(psn.brd)
-    if b_int in AB[ptm-1] and (AB[ptm-1][b_int].depth >= d):
-      t_pos = AB[ptm - 1][b_int]
-      if t_pos.type == TransposType.EXACT:
-        return t_pos.value, 0
-      elif t_pos.type == TransposType.UPPER:
-        beta = min(beta, t_pos.value)
-      elif t_pos.type == TransposType.LOWER:
-        alpha = max(alpha, t_pos.value)
-      if alpha >= beta:
-        return t_pos.value, 0
+####################### negamax search
+def negamax(calls, psn, ptm): # ptm: 1/0/-1 win/draw/loss
   calls += 1
-  if psn.has_win(ptm):     
-    return 1, calls  # previous move created win
-  L = psn.legal_moves()
-  if len(L) == 0:          
+  if Cell.e not in psn.brd:
     return 0, calls  # board full, no winner
-  #A = psn.non_iso_moves(L,ptm)
   so_far = -1  # best score so far
-  for cell in L:
-    psn.brd[cell] = ptm
-    ab, c = ab_neg(use_tt, AB, 0, d+1, psn, opponent(ptm), -beta, -alpha)
-    so_far = max(so_far,-ab)
-    calls += c
-    psn.brd[cell] = Cell.e   # reset brd to original
-    alpha = max(alpha, so_far)
-    if alpha >= beta:
-      break
-  if use_tt:
-    if so_far <= o_alpha:
-      AB[ptm - 1][b_int] = Transpos(type=TransposType.UPPER,depth=d,value=so_far)
-    elif so_far >= o_alpha:
-      AB[ptm - 1][b_int] = Transpos(type=TransposType.LOWER, depth=d, value=so_far)
-    else:
-      AB[ptm - 1][b_int] = Transpos(type=TransposType.EXACT, depth=d, value=so_far)
+  for j in range(9):
+    if psn.brd[j] == Cell.e:
+      psn.brd = change_string(psn.brd, j, ptm)
+      showboard(psn)
+      if psn.has_win(ptm):
+        result, c = 1, 0
+      else:
+        result, c = negamax(0, psn, opponent(ptm))
+      calls += c
+      so_far = max(so_far, -result)
+      psn.brd = change_string(psn.brd, j, Cell.e)   # reset brd to original
+      if so_far == 1:
+        return 1, calls
   return so_far, calls
 
 def info(p):
   result = p.game_over()
 
-def interact(use_tt):
-  AB = ({}, {})  # x- and o- dictionaries of alphabeta values
-  p = Position(0)
+def interact():
+  p = Position()
   history = []  # used for erasing, so only need locations
   while True:
     showboard(p)
@@ -208,21 +166,19 @@ def interact(use_tt):
       return
     if cmd[0][0]=='h':
       printmenu()
-    elif cmd[0][0]=='?':
-      info(p)
     elif cmd[0][0]=='u':
       p.brd = undo(history, p.brd)
-    elif cmd[0][0]=='g':
-      p.genmove(genmoverequest(cmd), use_tt, AB)
-    elif cmd[0][0]=='t':
-      use_tt = not(use_tt)
-      if not (use_tt): print('\n not using TT\n')
-      else: print('\n using TT\n')
+    elif cmd[0][0]=='?':
+      ok, ptm, msg = solverequest(cmd)
+      if ok:
+        result, calls = negamax(0, p, ptm)
+        print(result, calls)
+      else:
+        print(msg)
     elif (cmd[0][0] in Cell.chars):
       p.makemove(cmd, history)
     else:
       print('\n ???????\n')
       printmenu()
 
-interact(False)
-
+interact()
