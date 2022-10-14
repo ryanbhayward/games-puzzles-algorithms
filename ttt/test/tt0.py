@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 # simple ttt solver  RBH 2022
-# board is length-9 string
+#   - based on ttt2, but now only board representation is
+#     as length-9 string
 
 class Cell: # each cell is one of these: empty, x, o
-  n,e,x,o,chars = 9,0,1,2,'.xo' 
+  n, e, x, o = 9, '.', 'x', 'o'
+  chars = e + x + o
 
-def opponent(c): return 3-c
+def opponent(c):
+  return Cell.x if c == Cell.o else Cell.x
 
 # input-output ################################################
-def char_to_cell(c): 
-  return Cell.chars.index(c)
-
 escape_ch   = '\033['
 colorend    =  escape_ch + '0m'
 textcolor   =  escape_ch + '0;37m'
@@ -56,9 +56,9 @@ def showboard(psn):
     pretty += ' ' + paint(chr(ord('a')+c))
   pretty += '\n'
   for j in range(3): # rows
-    pretty += ' ' + paint(str(1+j)) + ' '
-    for k in range(3): # columns
-      pretty += ' ' + paint(Cell.chars[psn.brd[rc_to_lcn(j,k)]])
+    pretty += ' ' + paint(str(1+j)) + '  ' 
+    for k in range(3): 
+      pretty += paint(psn.brd[j*3+k]) + ' '
     pretty += '\n'
   print(pretty)
 
@@ -76,26 +76,8 @@ def lcn_to_alphanum(p):
   return 'abc'[c] + '123'[r]
 
 class Position: # ttt board with x,o,e cells
-  def legal_moves(self):
-    L = []
-    for j in range(Cell.n):
-      if self.brd[j]==Cell.e: 
-        L.append(j)
-    return L
-
-  def non_iso_moves(self, L, cell): # number of moves
-    assert(len(L)>0)
-    H, X = [], []
-    for j in range(len(L)):
-      p = L[j]
-      self.brd[p] = cell
-      H.append(h)
-      X.append(j)
-      self.brd[p] = Cell.e
-    L = np.array(L)
-    X = np.array(X)
-    return L[X]
-
+  Win_lines = ( # 8 winning lines, as location triples
+    (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6))
   def has_win(self, z):
     win_found = False
     for t in Win_lines:
@@ -117,19 +99,17 @@ class Position: # ttt board with x,o,e cells
     self.brd[rc_to_lcn(row,col)] = color
 
   def __init__(self, y):
-    self.brd = base_3(y)
+    self.brd = Cell.e * Cell.n
 
   def genmove(self, request, use_tt, AB):
     if request[0]:
-      L = self.legal_moves()
-      if len(L)==0:
+      if Cell.e not in self.brd:
         print('board full, no move possible')
       else:
-        ptm = char_to_cell(request[1])
+        ptm = request[1]
         if self.has_win(ptm) or self.has_win(opponent(ptm)):
           print('board already has winning line(s)')
         else:
-          #A = self.non_iso_moves(L,ptm)
           for cell in L:
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
@@ -148,7 +128,7 @@ class Position: # ttt board with x,o,e cells
         if q.isalpha() and n.isdigit():
           x, y = int(n) - 1, ord(q)-ord('a')
           if x>=0 and x < 3 and y>=0 and y < 3:
-            self.putstone(x, y, char_to_cell(ch))
+            self.putstone(x, y, ch)
             H.append(rc_to_lcn(x,y)) # add location to history
             return
           else: print('\n  coordinate off board')
