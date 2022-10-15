@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
 # simple ttt solver  RBH 2022
-#   - based on ttt2, but now only board representation is
-#     as length-9 string
+#   - simplified version of ttt2
+#       - only board rep'n is string (9 chars)
+#       - no alpha-beta-negamax, only negamax
+#       - easily modified to allow the first step towards alpha-beta:
+#           return after win detection
+
+from time import sleep
 
 class Cell: # each cell is one of these: empty, x, o
   n, e, x, o = 9, '.', 'x', 'o'
   chars = e + x + o
 
 def opponent(c):
-  return Cell.x if c == Cell.o else Cell.x
+  return Cell.x if c == Cell.o else Cell.o
 
 # input-output ################################################
 escape_ch   = '\033['
@@ -19,14 +24,6 @@ stonecolors = (textcolor,\
                escape_ch + '0;35m',\
                escape_ch + '0;32m',\
                textcolor)
-
-def solverequest(cmd):
-  cmd = cmd.split()
-  invalid = (False, None, '\n invalid solve request\n')
-  if len(cmd)==2:
-    if cmd[1][0] == Cell.x or cmd[1][0] == Cell.o:
-      return True, cmd[1][0], ''
-  return invalid
 
 def printmenu():
   print('  h                help menu')
@@ -140,20 +137,27 @@ def negamax(calls, psn, ptm): # ptm: 1/0/-1 win/draw/loss
   for j in range(9):
     if psn.brd[j] == Cell.e:
       psn.brd = change_string(psn.brd, j, ptm)
-      showboard(psn)
+      #showboard(psn)
+      #sleep(1)
       if psn.has_win(ptm):
-        result, c = 1, 0
+        result, c = -1, 0 # this will be negated below
       else:
         result, c = negamax(0, psn, opponent(ptm))
       calls += c
       so_far = max(so_far, -result)
       psn.brd = change_string(psn.brd, j, Cell.e)   # reset brd to original
-      if so_far == 1:
-        return 1, calls
+      # is the code still correct if you uncomment the next two lines?
+      #if so_far == 1:
+      #  return 1, calls
   return so_far, calls
 
-def info(p):
-  result = p.game_over()
+def solverequest(cmd):
+  cmd = cmd.split()
+  invalid = (False, None, '\n invalid solve request\n')
+  if len(cmd)==2:
+    if cmd[1][0] == Cell.x or cmd[1][0] == Cell.o:
+      return True, cmd[1][0], ''
+  return invalid
 
 def interact():
   p = Position()
