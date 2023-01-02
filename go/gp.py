@@ -2,9 +2,9 @@
 modified go_play.py: this uses only one board rep'n RBH 2022
   * generate legal moves and game score
   * some ideas from M Mueller's go code
-  * also allow rectangular boards, so with columns != rows
-             1 <= R <= 9 rows 
-             1 <= C <= 9 columns
+  * allow rectangular boards, so with columns != rows
+             1 <= R <= 19 rows 
+             1 <= C <= 19 columns
 TODO
     - add feature that takes sgf input
     - add feature that reports whether position is legal
@@ -34,11 +34,15 @@ points on the board
 
 POINT_CHARS = '.*og'
 EMPTY, BLACK, WHITE, GUARD = POINT_CHARS[0], POINT_CHARS[1], POINT_CHARS[2], POINT_CHARS[3]
+COLUMNS = 'ABCDEFGHJKLMNOPQRST'
 
 def opponent(color): 
-  if color == BLACK: return WHITE
-  elif color == WHITE: return BLACK
-  else: assert False, 'defined only for Black, White'
+  if color == BLACK: 
+    return WHITE
+  elif color == WHITE: 
+    return BLACK
+  else: 
+    assert False, 'defined only for Black, White'
 
 def empty_board(r, c):
   board = GUARD*(c+1)         # bottom row
@@ -52,7 +56,7 @@ def coord_to_point(r, c, C):
 
 def point_to_alphanum(p, C):
   r, c = divmod(p, C+1)
-  return 'abcdefghi'[c-1] + '1234566789'[r-1]
+  return COLUMNS[c-1] + str(r+1)
 
 def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
@@ -187,7 +191,7 @@ def printmenu():
 
 def showboard(psn):
   def paint(s):  # s   a string
-    if len(s)>1 and s[0]==' ': 
+    if len(s) > 1 and s[0] == ' ': 
      return ' ' + paint(s[1:])
     x = POINT_CHARS.find(s[0])
     if x > 0:
@@ -196,12 +200,12 @@ def showboard(psn):
       return textcolor + s + colorend
     return s
 
-  pretty = '\n   ' 
+  pretty = '\n    ' 
   for c in range(psn.C): # columns
-    pretty += ' ' + paint(chr(ord('a')+c))
+    pretty += ' ' + paint(COLUMNS[c])
   pretty += '\n'
   for j in range(psn.R-1, -1, -1): # rows
-    pretty += ' ' + paint(str(1+j)) + ' '
+    pretty += ' ' + paint('{:2d}'.format(1+j)) + ' '
     for k in range(psn.C): # columns
       pretty += ' ' + paint(psn.brd[coord_to_point(j,k,psn.C)])
     pretty += '\n'
@@ -223,7 +227,7 @@ def undo(H, p):  # undo last move
         return
 
 def interact(use_tt):
-  p = Position(1,3)
+  p = Position(19,19)
   move_record = []    # used for undo, only need locations
   positions = [p.brd] # used for positional superko
   move_made = False
