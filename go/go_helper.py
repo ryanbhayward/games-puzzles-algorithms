@@ -144,10 +144,12 @@ class Position: # go board, each point in {B, W, E, G}
     return points
 
   def tromp_taylor_score(self):
-    bs, ws, empty_seen = 0, 0, set()
+    bs, bt, ws, wt, empty_seen = 0, 0, 0, 0, set()
     for p in range(self.guarded_n):
-      if   self.brd[p] == BLACK: bs += 1
-      elif self.brd[p] == WHITE: ws += 1
+      if   self.brd[p] == BLACK: 
+        bs += 1
+      elif self.brd[p] == WHITE: 
+        ws += 1
       elif (self.brd[p] == EMPTY) and (p not in empty_seen):
         b_nbr, w_nbr = False, False
         empty_seen.add(p)
@@ -156,16 +158,18 @@ class Position: # go board, each point in {B, W, E, G}
         while (len(empty_points) > 0):
           q = empty_points.pop()
           for j in self.nbr_offsets:
-            x = j+q
+            x = j + q
             b_nbr |= (self.brd[x] == BLACK)
             w_nbr |= (self.brd[x] == WHITE)
             if self.brd[x] == EMPTY and x not in empty_seen:
               empty_seen.add(x)
               empty_points.append(x)
               territory += 1
-        if   b_nbr and not w_nbr: bs += territory
-        elif w_nbr and not b_nbr: ws += territory
-    return bs, ws
+        if   b_nbr and not w_nbr: 
+          bt += territory
+        elif w_nbr and not b_nbr: 
+          wt += territory
+    return bs, bt, ws, wt
 	        
 """
 input, output
@@ -226,13 +230,29 @@ def undo(H, p):  # undo last move
         # normal move, so only one stone to erase, we are done
         return
 
+def score_difference(score):
+  return score[0] + score[1] - (score[2] + score[3])
+
+def report(p):
+  with open('out.gdg', 'w', encoding="utf-8") as f:
+    tts = p.tromp_taylor_score()
+    sd = score_difference(tts)
+    f.write('score ' + str(tts))
+    if sd == 0:
+      f.write(': black and white draw\n')
+    elif sd > 0:
+      f.write(': black wins by ' + str(sd) + ' \n')
+    else:
+      f.write(': white wins by ' + str(-sd) + ' \n')
+
 def interact(use_tt):
-  p = Position(19,19)
+  p = Position(2, 3)
   move_record = []    # used for undo, only need locations
   positions = [p.brd] # used for positional superko
   move_made = False
   while True:
     showboard(p)
+    report(p)
     for x in positions: print(x)
     print('move_record', move_record)
     print('tromp-taylor score (black, white)',p.tromp_taylor_score(),'\n')
