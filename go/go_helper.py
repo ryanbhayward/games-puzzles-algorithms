@@ -131,11 +131,11 @@ class Position: # go board, each point in {B, W, E, G}
               print('\n  sorry, position occupied')
               return move_is_ok
             else:
-              moves_made = (color, where, False)
-              #print('move record', moves_made)
+              move_record = (color, where, False)
+              #print('move record', move_record)
               captured, move_is_ok = self.makemove(where, color)
               if move_is_ok:
-                H.append(moves_made) # record move for undo
+                H.append(move_record) # record move for undo
                 for x in captured: # record captured stones for undo
                   cap_record = (opponent(color), x, True)
                   #print('capture record', cap_record)
@@ -272,15 +272,15 @@ def report(p):
 def status_report(p, m):
   showboard(p)
   report(p)
-  print('moves_made', m)
+  print('move_record', m)
   print(score_msg(p))
 
 def interact(use_tt):
   p = Position(2, 3)
-  moves_made = []       # used for undo, only need locations
+  moves_list = []        # each entry is move or removal of captured stone
   game_history = [p.brd] # used for positional superko
   while True:
-    status_report(p, moves_made)
+    status_report(p, moves_list)
     cmd = input(' ')
     if len(cmd) == 0:
       print('\n ... adios :)\n')
@@ -288,16 +288,16 @@ def interact(use_tt):
     if cmd[0][0] == 'h':
       printmenu()
     elif cmd[0][0] == 'u':
-      undo(moves_made, p)
+      undo(moves_list, p)
       if len(game_history) > 1: 
         game_history.pop()
     elif (cmd[0][0] in POINT_CHARS):
-      sofar = p.requestmove(cmd, moves_made)
+      sofar = p.requestmove(cmd, moves_list)
       if sofar: # no liberty violation, check superko
         pstring = p.brd
         if pstring in game_history:
           print('superko violation, move not allowed')
-          undo(moves_made, p)
+          undo(moves_list, p)
         else:
           game_history.append(pstring)
     else:
