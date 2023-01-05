@@ -1,38 +1,35 @@
 """
-modified go_play.py: this uses only one board rep'n RBH 2022
+modified go_play.py: only 1 board rep'n (last update rbh 2023)
   * generate legal moves and game score
-  * some ideas from M Mueller's go code
-  * allow rectangular boards, so with columns != rows
+  * allow rectangular boards
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
-  * read game from sgf, in this case also create a moves board
-      so that the final game position can be output as gdg file
-      plan:
+in progress
+
+  * allow read game from sgf (use python argparser)
+      - in this case also create a moves_board
+        that for each point shows last move there
+  * export final game in .gdg format
        - use -f feature to read sgf
-       - read moves from sgf
        - make moves as usual and also on moves_board
-       - export gdg file
 
 TODO
-    - add feature that reports whether position is legal
+  * allow input illegal position, report whether position is legal
 """
 
 """
-the board: a one-dimensional vector of points
-
-to simplify loop computation, add three row of guard stones:
-  * one row at top 
-  * one row at bottom
-  * one row at left 
-so R x C board requires total (R+2) * (C+1) points:
-
-  3x4 board      positions in string representing the board
+board: a string, a 1-dimensional vector of points, e.g. empty 3x4 board:
 
  g  g  g  g  g   20 21 22 23 24
- g  .  .  .  .   15 16 17 18 19
+ g  .  .  .  .   15 16 17 18 19    <-- indices of points in board string
  g  .  .  .  .   10 11 12 13 14
  g  .  .  .  .    5  6  7  8  9  
  g  g  g  g  g    0  1  2  3  4     <= in go, label rows from the bottom      
+
+notice: to simplify loop computation, add non-board borders (a.k.a. guards)
+  * one row at top     * one row at bottom    * one column at left 
+
+board (R rows, C columns) represented by string ( (R+2) * (C+1) points)
 """
 
 """
