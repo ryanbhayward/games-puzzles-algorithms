@@ -7,6 +7,11 @@ modified go_play.py: this uses only one board rep'n RBH 2022
              1 <= C <= 19 columns
   * read game from sgf, in this case also create a moves board
       so that the final game position can be output as gdg file
+      plan:
+       - use -f feature to read sgf
+       - read moves from sgf
+       - make moves as usual and also on moves_board
+       - export gdg file
 
 TODO
     - add feature that reports whether position is legal
