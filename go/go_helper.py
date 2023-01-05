@@ -1,9 +1,13 @@
 """
-modified go_play.py: only 1 board rep'n (last update rbh 2023)
-  * generate legal moves and game score
+  * go helper
+      - legal moves
+      - tromp taylor score
+      - user IO combined with reading from .sgf
   * allow rectangular boards
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
+  * previously go_play.py           rbh 2016 - 2023
+
 in progress
 
   * allow read game from sgf (use python argparser)
@@ -13,21 +17,22 @@ in progress
        - use -f feature to read sgf
        - make moves as usual and also on moves_board
 
-TODO
+todo
   * allow input illegal position, report whether position is legal
 """
 
 """
 board: a string, a 1-dimensional vector of points, e.g. empty 3x4 board:
 
- g  g  g  g  g   20 21 22 23 24
- g  .  .  .  .   15 16 17 18 19    <-- indices of points in board string
- g  .  .  .  .   10 11 12 13 14
- g  .  .  .  .    5  6  7  8  9  
- g  g  g  g  g    0  1  2  3  4     <= in go, label rows from the bottom      
+ g  g  g  g  g   20 21 22 23 24    <-- this is called a guarded board rep'n
+ g  .  .  .  .   15 16 17 18 19    
+ g  .  .  .  .   10 11 12 13 14    <-- these are indices of the board points
+ g  .  .  .  .    5  6  7  8  9          in the guarded board string
+ g  g  g  g  g    0  1  2  3  4    <-- in go, label rows from bottom      
 
-notice: to simplify loop computation, add non-board borders (a.k.a. guards)
-  * one row at top     * one row at bottom    * one column at left 
+guards (borders) ensure each left/right/up/down point-neighbour exists,
+  which simplifies loop computation
+  * guard row at top     * guard row at bottom    * guard column at left 
 
 board (R rows, C columns) represented by string ((R+2) * (C+1) points)
 """
@@ -56,10 +61,10 @@ def empty_board(r, c):
   board += GUARD*(c+1)        # top row
   return board
 
-def coord_to_point(r, c, C): 
+def points_board_index(r, c, C): # index in points board of point (r, c)
   return (C+1) * (r+1) + c + 1
 
-def moves_board_index(r, c, C):
+def moves_board_index(r, c, C):  # index in moves_board of point (r, c)
   return C*r + c
 
 def point_to_alphanum(p, C):
@@ -70,20 +75,13 @@ def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
 
 class Position: # go board, each point in {B, W, E, G}
-  def legal_moves(self):
-    L = []
-    for j in range(self.guarded_n):
-      if self.brd[j] == EMPTY: 
-        L.append(j)
-    return L
-
   def __init__(self, r, c):
     self.R, self.C = r, c
     self.nbr_offsets = (-(c+1), -1, 1, c+1) # distance to each neighbor
     self.brd = empty_board(r, c)
-    self.moves_brd = [EMPTY_MOVE]*r*c         # each occupied point has its move number
+    self.moves_brd = [EMPTY_MOVE]*r*c # each stone-point will have its move number
     print(self.moves_brd)
-    self.guarded_n = len(self.brd)      # number of points in guarded board
+    self.guarded_n = len(self.brd)    # number of points in guarded board
 
   def moves_board_msg(self):
     r, c = self.R, self.C
@@ -112,12 +110,12 @@ class Position: # go board, each point in {B, W, E, G}
 
     if self.captured(where, color):
       print('whoops, no liberty there: not allowed')
-      self.brd = change_string(self.brd, where, EMPTY)
+      self.brd = change_string(self.brd, where, EMPTY) # erase the attempted move
       return cap, False  # move not possible, point occupied
     return cap, True
 
   def requestmove(self, cmd, H):
-    parseok, cmd = False, cmd.split()
+    move_is_ok, cmd = False, cmd.split()
     if len(cmd)==2:
       color = cmd[0][0]
       if color in {BLACK, WHITE, EMPTY}:
@@ -126,23 +124,23 @@ class Position: # go board, each point in {B, W, E, G}
           x, y = int(n) - 1, ord(q)-ord('a')
           if x<0 or x >= self.R or y<0 or y >= self.C:
             print('\n  sorry, coordinate off board')
-            return parseok
+            return move_is_ok
           else:
-            where = coord_to_point(x, y, self.C)
+            where = points_board_index(x, y, self.C)
             if self.brd[where] != EMPTY:
               print('\n  sorry, position occupied')
-              return parseok
+              return move_is_ok
             else:
-              move_record = (color, where, False)
-              #print('move record', move_record)
-              captured, parseok = self.makemove(where, color)
-              if parseok:
-                H.append(move_record) # record move for undo
+              moves_made = (color, where, False)
+              #print('move record', moves_made)
+              captured, move_is_ok = self.makemove(where, color)
+              if move_is_ok:
+                H.append(moves_made) # record move for undo
                 for x in captured: # record captured stones for undo
                   cap_record = (opponent(color), x, True)
                   #print('capture record', cap_record)
                   H.append(cap_record)
-              return parseok
+              return move_is_ok
 
   def captured(self, where, color):
   # return points in captured group containing where
@@ -230,7 +228,7 @@ def showboard(psn):
   for j in range(psn.R-1, -1, -1): # rows
     pretty += ' ' + paint('{:2d}'.format(1+j)) + ' '
     for k in range(psn.C): # columns
-      pretty += ' ' + paint(psn.brd[coord_to_point(j,k,psn.C)])
+      pretty += ' ' + paint(psn.brd[points_board_index(j,k,psn.C)])
     pretty += '\n'
   print(pretty)
 
@@ -265,40 +263,43 @@ def score_msg(p): # score
   return msg
 
 def report(p):
-  msg = p.moves_board_msg()
+  msg = 'moves board\n'
+  msg += p.moves_board_msg()
   msg += '\n' + score_msg(p)
   with open('out.gdg', 'w', encoding="utf-8") as f:
     f.write(msg)
 
+def status_report(p, m):
+  showboard(p)
+  report(p)
+  print('moves_made', m)
+  print(score_msg(p))
+
 def interact(use_tt):
   p = Position(2, 3)
-  move_record = []    # used for undo, only need locations
-  positions = [p.brd] # used for positional superko
-  move_made = False
+  moves_made = []       # used for undo, only need locations
+  game_history = [p.brd] # used for positional superko
   while True:
-    showboard(p)
-    report(p)
-    #for x in positions: print(x)
-    print('move_record', move_record)
-    print(score_msg(p))
+    status_report(p, moves_made)
     cmd = input(' ')
-    if len(cmd)==0:
+    if len(cmd) == 0:
       print('\n ... adios :)\n')
       return
-    if cmd[0][0]=='h':
+    if cmd[0][0] == 'h':
       printmenu()
-    elif cmd[0][0]=='u':
-      undo(move_record, p)
-      if len(positions)>1: positions.pop()
+    elif cmd[0][0] == 'u':
+      undo(moves_made, p)
+      if len(game_history) > 1: 
+        game_history.pop()
     elif (cmd[0][0] in POINT_CHARS):
-      sofar = p.requestmove(cmd, move_record)
+      sofar = p.requestmove(cmd, moves_made)
       if sofar: # no liberty violation, check superko
         pstring = p.brd
-        if pstring in positions:
+        if pstring in game_history:
           print('superko violation, move not allowed')
-          undo(move_record, p)
+          undo(moves_made, p)
         else:
-          positions.append(pstring)
+          game_history.append(pstring)
     else:
       print('\n ???????\n')
       printmenu()
