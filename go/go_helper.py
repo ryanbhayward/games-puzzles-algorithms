@@ -1,15 +1,13 @@
 """
-  * go helper
+  * go helper   (previously go_play.py)  rbh 2016-2023
       - legal moves
       - tromp taylor score
       - user IO combined with reading from .sgf
   * allow rectangular boards
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
-  * previously go_play.py           rbh 2016 - 2023
 
-in progress
-
+=in progress
   * allow read game from sgf (use python argparser)
       - in this case also create a moves_board
         that for each point shows last move there
@@ -22,19 +20,17 @@ todo
 """
 
 """
-board: a string, a 1-dimensional vector of points, e.g. empty 3x4 board:
+board: - R rows, C columns plus guard rows/column 
+       - 1-dimensional vector, row major order, bottom row first
+       - string, total (R+2) * (C+1) points     
+       - guards (borders) ensure each left/right/up/down point-neighbour exists,
+         simplifying loop computation       e.g. empty 3x4 board:
 
- g  g  g  g  g   20 21 22 23 24    <-- this is called a guarded board rep'n
- g  .  .  .  .   15 16 17 18 19    
- g  .  .  .  .   10 11 12 13 14    <-- these are indices of the board points
- g  .  .  .  .    5  6  7  8  9          in the guarded board string
- g  g  g  g  g    0  1  2  3  4    <-- in go, label rows from bottom      
-
-guards (borders) ensure each left/right/up/down point-neighbour exists,
-  which simplifies loop computation
-  * guard row at top     * guard row at bottom    * guard column at left 
-
-board (R rows, C columns) represented by string ((R+2) * (C+1) points)
+guarded board --> g  g  g  g  g   20 21 22 23 24  <-- indices of board points
+                  g  .  .  .  .   15 16 17 18 19    
+                  g  .  .  .  .   10 11 12 13 14    
+                  g  .  .  .  .    5  6  7  8  9          
+                  g  g  g  g  g    0  1  2  3  4  <--  row-major bottom-up order     
 """
 
 """
@@ -77,14 +73,23 @@ class Position: # go board, each point in {B, W, E, G}
     self.nbr_offsets = (-(c+1), -1, 1, c+1) # distance to each neighbor
     self.brd = empty_board(r, c)        # empty guarded board
     self.guarded_n = len(self.brd)      # number of points in guarded board
-    self.moves_brd = [0]*self.guarded_n # each point: number of last move made there
+    self.labels_brd = [0]*self.guarded_n # label each point with number of last move there
 
-  def moves_brd_msg(self, M):
-    print(M)
+  def generate_labels_brd(self, H):
+    move_number = 0
+    for j in range(len(H)):
+      if H[j][2]: # capture_move
+        self.labels_brd[j] = 0
+      else:
+        move_number += 1
+        if self.brd[H[j][1]] != EMPTY:
+          self.labels_brd[H[j][1]] = move_number
+
+  def labels_brd_msg(self):
     msg = ''
     for r in reversed(range(self.R)):
       for c in range(self.C):
-        msg += '{:3d}'.format(M[brd_index(r, c, self.C)]) + ' '
+        msg += '{:3d}'.format(self.labels_brd[brd_index(r, c, self.C)]) + ' '
       msg += '\n'
     return msg
 
@@ -260,7 +265,7 @@ def score_msg(p): # score
 
 def report(p, M):
   msg = 'moves board\n'
-  msg += p.moves_brd_msg(M)
+  msg += p.labels_brd_msg()
   msg += '\n' + score_msg(p)
   with open('out.gdg', 'w', encoding="utf-8") as f:
     f.write(msg)
@@ -271,18 +276,6 @@ def status_report(p, m):
   print('move_record', m)
   print(score_msg(p))
 
-def generate_moves_board(p, H):
-  moves_brd = [0]*p.guarded_n  # each point: number of last move made there
-  move_number = 0
-  for j in range(len(H)):
-    if H[j][2]: # capture_move
-      moves_brd[j] = 0
-    else:
-      move_number += 1
-      if p.brd[H[j][1]] != EMPTY:
-        moves_brd[H[j][1]] = move_number
-  return moves_brd
-
 def interact(use_tt):
   p = Position(2, 3)
   moves_list = []        # each entry is move or removal of captured stone
@@ -291,8 +284,8 @@ def interact(use_tt):
     status_report(p, moves_list)
     cmd = input(' ')
     if len(cmd) == 0:
-      mb = generate_moves_board(p, moves_list)
-      print(moves_brd_msg(p, mb))
+      p.generate_labels_brd(moves_list)
+      print('\n labels\n' + p.labels_brd_msg())
       print('\n ... adios :)\n')
       return
     if cmd[0][0] == 'h':
