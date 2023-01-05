@@ -78,17 +78,16 @@ class Position: # go board, each point in {B, W, E, G}
   def __init__(self, r, c):
     self.R, self.C = r, c
     self.nbr_offsets = (-(c+1), -1, 1, c+1) # distance to each neighbor
-    self.brd = empty_board(r, c)
-    self.moves_brd = [EMPTY_MOVE]*r*c # each stone-point will have its move number
-    print(self.moves_brd)
-    self.guarded_n = len(self.brd)    # number of points in guarded board
+    self.brd = empty_board(r, c)        # empty guarded board
+    self.guarded_n = len(self.brd)      # number of points in guarded board
+    self.moves_brd = [0]*self.guarded_n # each point: number of last move made there
 
   def moves_board_msg(self):
     r, c = self.R, self.C
     msg = ''
     for j in reversed(range(r)):  # show moves from bottom up in go
       for k in range(c):
-        msg += '{:3d}'.format(self.moves_brd[moves_board_index(j,k,c)]) + ' '
+        msg += '{:3d}'.format(self.moves_brd[moves_board_index(j, k, c)]) + ' '
       msg += '\n'
     return msg
     
@@ -275,6 +274,27 @@ def status_report(p, m):
   print('move_record', m)
   print(score_msg(p))
 
+def generate_moves_board(p, H):
+  moves_brd = [0]*p.guarded_n  # each point: number of last move made there
+  move_number = 0
+  for j in range(len(H)):
+    if H[j][2]: # capture_move
+      moves_brd[j] = 0
+    else:
+      move_number += 1
+      if p.brd[H[j][1]] != EMPTY:
+        moves_brd[H[j][1]] = move_number
+  return moves_brd
+
+def moves_board_msg(p, M):
+  print(M)
+  msg = ''
+  for r in reversed(range(p.R)):
+    for c in range(p.C):
+      msg += '{:3d}'.format(M[points_board_index(r, c, p.C)]) + ' '
+    msg += '\n'
+  return msg
+
 def interact(use_tt):
   p = Position(2, 3)
   moves_list = []        # each entry is move or removal of captured stone
@@ -283,6 +303,8 @@ def interact(use_tt):
     status_report(p, moves_list)
     cmd = input(' ')
     if len(cmd) == 0:
+      mb = generate_moves_board(p, moves_list)
+      print(moves_board_msg(p, mb))
       print('\n ... adios :)\n')
       return
     if cmd[0][0] == 'h':
