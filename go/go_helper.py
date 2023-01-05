@@ -5,8 +5,10 @@ modified go_play.py: this uses only one board rep'n RBH 2022
   * allow rectangular boards, so with columns != rows
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
+  * read game from sgf, in this case also create a moves board
+      so that the final game position can be output as gdg file
+
 TODO
-    - add feature that takes sgf input
     - add feature that reports whether position is legal
 """
 
@@ -35,6 +37,7 @@ points on the board
 POINT_CHARS = '.*og'
 EMPTY, BLACK, WHITE, GUARD = POINT_CHARS[0], POINT_CHARS[1], POINT_CHARS[2], POINT_CHARS[3]
 COLUMNS = 'ABCDEFGHJKLMNOPQRST'
+EMPTY_MOVE = 0
 
 def opponent(color): 
   if color == BLACK: 
@@ -53,6 +56,9 @@ def empty_board(r, c):
 
 def coord_to_point(r, c, C): 
   return (C+1) * (r+1) + c + 1
+
+def moves_board_index(r, c, C):
+  return C*r + c
 
 def point_to_alphanum(p, C):
   r, c = divmod(p, C+1)
@@ -73,7 +79,16 @@ class Position: # go board, each point in {B, W, E, G}
     self.R, self.C = r, c
     self.nbr_offsets = (-(c+1), -1, 1, c+1) # distance to each neighbor
     self.brd = empty_board(r, c)
+    self.moves_brd = [EMPTY_MOVE]*r*c         # each occupied point has its move number
+    print(self.moves_brd)
     self.guarded_n = len(self.brd)      # number of points in guarded board
+
+  def show_moves_board(self):
+    r, c = self.R, self.C
+    for j in reversed(range(r)):  # show moves from bottom up in go
+      for k in range(c):
+        print('{:3d}'.format(self.moves_brd[moves_board_index(j,k,c)]), end = ' ')
+      print('')
     
   def makemove(self, where, color):
     assert (self.brd[where] == EMPTY), 'that point is not empty'
@@ -234,12 +249,13 @@ def score_difference(score):
   return score[0] + score[1] - (score[2] + score[3])
 
 def report(p):
+  p.show_moves_board()
   with open('out.gdg', 'w', encoding="utf-8") as f:
     tts = p.tromp_taylor_score()
     sd = score_difference(tts)
     f.write('score ' + str(tts))
     if sd == 0:
-      f.write(': black and white draw\n')
+      f.write(': draw\n')
     elif sd > 0:
       f.write(': black wins by ' + str(sd) + ' \n')
     else:
