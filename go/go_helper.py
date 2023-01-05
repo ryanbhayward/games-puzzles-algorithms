@@ -61,11 +61,8 @@ def empty_board(r, c):
   board += GUARD*(c+1)        # top row
   return board
 
-def points_board_index(r, c, C): # index in points board of point (r, c)
+def brd_index(r, c, C): # index in points board of point (r, c)
   return (C+1) * (r+1) + c + 1
-
-def moves_board_index(r, c, C):  # index in moves_board of point (r, c)
-  return C*r + c
 
 def point_to_alphanum(p, C):
   r, c = divmod(p, C+1)
@@ -82,15 +79,15 @@ class Position: # go board, each point in {B, W, E, G}
     self.guarded_n = len(self.brd)      # number of points in guarded board
     self.moves_brd = [0]*self.guarded_n # each point: number of last move made there
 
-  def moves_board_msg(self):
-    r, c = self.R, self.C
+  def moves_brd_msg(self, M):
+    print(M)
     msg = ''
-    for j in reversed(range(r)):  # show moves from bottom up in go
-      for k in range(c):
-        msg += '{:3d}'.format(self.moves_brd[moves_board_index(j, k, c)]) + ' '
+    for r in reversed(range(self.R)):
+      for c in range(self.C):
+        msg += '{:3d}'.format(M[brd_index(r, c, self.C)]) + ' '
       msg += '\n'
     return msg
-    
+
   def makemove(self, where, color):
     assert (self.brd[where] == EMPTY), 'that point is not empty'
     self.brd = change_string(self.brd, where, color) 
@@ -125,7 +122,7 @@ class Position: # go board, each point in {B, W, E, G}
             print('\n  sorry, coordinate off board')
             return move_is_ok
           else:
-            where = points_board_index(x, y, self.C)
+            where = brd_index(x, y, self.C)
             if self.brd[where] != EMPTY:
               print('\n  sorry, position occupied')
               return move_is_ok
@@ -227,7 +224,7 @@ def showboard(psn):
   for j in range(psn.R-1, -1, -1): # rows
     pretty += ' ' + paint('{:2d}'.format(1+j)) + ' '
     for k in range(psn.C): # columns
-      pretty += ' ' + paint(psn.brd[points_board_index(j,k,psn.C)])
+      pretty += ' ' + paint(psn.brd[brd_index(j,k,psn.C)])
     pretty += '\n'
   print(pretty)
 
@@ -261,16 +258,16 @@ def score_msg(p): # score
     msg += ': white winning by ' + str(-sd) + ' \n'
   return msg
 
-def report(p):
+def report(p, M):
   msg = 'moves board\n'
-  msg += p.moves_board_msg()
+  msg += p.moves_brd_msg(M)
   msg += '\n' + score_msg(p)
   with open('out.gdg', 'w', encoding="utf-8") as f:
     f.write(msg)
 
 def status_report(p, m):
   showboard(p)
-  report(p)
+  report(p, m)
   print('move_record', m)
   print(score_msg(p))
 
@@ -286,15 +283,6 @@ def generate_moves_board(p, H):
         moves_brd[H[j][1]] = move_number
   return moves_brd
 
-def moves_board_msg(p, M):
-  print(M)
-  msg = ''
-  for r in reversed(range(p.R)):
-    for c in range(p.C):
-      msg += '{:3d}'.format(M[points_board_index(r, c, p.C)]) + ' '
-    msg += '\n'
-  return msg
-
 def interact(use_tt):
   p = Position(2, 3)
   moves_list = []        # each entry is move or removal of captured stone
@@ -304,7 +292,7 @@ def interact(use_tt):
     cmd = input(' ')
     if len(cmd) == 0:
       mb = generate_moves_board(p, moves_list)
-      print(moves_board_msg(p, mb))
+      print(moves_brd_msg(p, mb))
       print('\n ... adios :)\n')
       return
     if cmd[0][0] == 'h':
