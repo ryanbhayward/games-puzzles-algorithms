@@ -29,7 +29,7 @@ board: a string, a 1-dimensional vector of points, e.g. empty 3x4 board:
 notice: to simplify loop computation, add non-board borders (a.k.a. guards)
   * one row at top     * one row at bottom    * one column at left 
 
-board (R rows, C columns) represented by string ( (R+2) * (C+1) points)
+board (R rows, C columns) represented by string ((R+2) * (C+1) points)
 """
 
 """
@@ -85,12 +85,14 @@ class Position: # go board, each point in {B, W, E, G}
     print(self.moves_brd)
     self.guarded_n = len(self.brd)      # number of points in guarded board
 
-  def show_moves_board(self):
+  def moves_board_msg(self):
     r, c = self.R, self.C
+    msg = ''
     for j in reversed(range(r)):  # show moves from bottom up in go
       for k in range(c):
-        print('{:3d}'.format(self.moves_brd[moves_board_index(j,k,c)]), end = ' ')
-      print('')
+        msg += '{:3d}'.format(self.moves_brd[moves_board_index(j,k,c)]) + ' '
+      msg += '\n'
+    return msg
     
   def makemove(self, where, color):
     assert (self.brd[where] == EMPTY), 'that point is not empty'
@@ -132,7 +134,7 @@ class Position: # go board, each point in {B, W, E, G}
               return parseok
             else:
               move_record = (color, where, False)
-              print('move record', move_record)
+              #print('move record', move_record)
               captured, parseok = self.makemove(where, color)
               if parseok:
                 H.append(move_record) # record move for undo
@@ -250,18 +252,23 @@ def undo(H, p):  # undo last move
 def score_difference(score):
   return score[0] + score[1] - (score[2] + score[3])
 
+def score_msg(p): # score
+  tts = p.tromp_taylor_score()
+  sd = score_difference(tts)
+  msg = 'score ' + str(tts) 
+  if sd == 0:
+    msg += ': tied\n'
+  elif sd > 0:
+    msg += ': black winning by ' + str( sd) + ' \n'
+  else:
+    msg += ': white winning by ' + str(-sd) + ' \n'
+  return msg
+
 def report(p):
-  p.show_moves_board()
+  msg = p.moves_board_msg()
+  msg += '\n' + score_msg(p)
   with open('out.gdg', 'w', encoding="utf-8") as f:
-    tts = p.tromp_taylor_score()
-    sd = score_difference(tts)
-    f.write('score ' + str(tts))
-    if sd == 0:
-      f.write(': draw\n')
-    elif sd > 0:
-      f.write(': black wins by ' + str(sd) + ' \n')
-    else:
-      f.write(': white wins by ' + str(-sd) + ' \n')
+    f.write(msg)
 
 def interact(use_tt):
   p = Position(2, 3)
@@ -271,9 +278,9 @@ def interact(use_tt):
   while True:
     showboard(p)
     report(p)
-    for x in positions: print(x)
+    #for x in positions: print(x)
     print('move_record', move_record)
-    print('tromp-taylor score (black, white)',p.tromp_taylor_score(),'\n')
+    print(score_msg(p))
     cmd = input(' ')
     if len(cmd)==0:
       print('\n ... adios :)\n')
