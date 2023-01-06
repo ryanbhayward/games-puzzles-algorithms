@@ -6,14 +6,14 @@
   * allow rectangular boards
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
+  * label_brd stuff looks ok, ready for sgf_read
+  * export gdg close to done
 
 =in progress
   * allow read game from sgf (use python argparser)
+      - use -f feature to read sgf
       - in this case also create a moves_board
         that for each point shows last move there
-  * export final game in .gdg format
-       - use -f feature to read sgf
-       - make moves as usual and also on moves_board
 
 todo
   * allow input illegal position, report whether position is legal
@@ -67,6 +67,9 @@ def point_to_alphanum(p, C):
 def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
 
+def mylabel(j):
+  return '  .' if j == 0 else '{:3d}'.format(j)
+
 class Position: # go board, each point in {B, W, E, G}
   def __init__(self, r, c):
     self.R, self.C = r, c
@@ -79,17 +82,16 @@ class Position: # go board, each point in {B, W, E, G}
     move_number = 0
     for j in range(len(H)):
       if H[j][2]: # capture_move
-        self.labels_brd[j] = 0
-      else:
+        self.labels_brd[H[j][1]] = 0
+      else:       # normal move
         move_number += 1
-        if self.brd[H[j][1]] != EMPTY:
-          self.labels_brd[H[j][1]] = move_number
+        self.labels_brd[H[j][1]] = move_number
 
   def labels_brd_msg(self):
     msg = ''
     for r in reversed(range(self.R)):
       for c in range(self.C):
-        msg += '{:3d}'.format(self.labels_brd[brd_index(r, c, self.C)]) + ' '
+        msg += mylabel(self.labels_brd[brd_index(r, c, self.C)]) + ' '
       msg += '\n'
     return msg
 
@@ -133,19 +135,17 @@ class Position: # go board, each point in {B, W, E, G}
               return move_is_ok
             else:
               move_record = (color, where, False)
-              #print('move record', move_record)
               captured, move_is_ok = self.makemove(where, color)
               if move_is_ok:
                 H.append(move_record) # record move for undo
                 for x in captured: # record captured stones for undo
                   cap_record = (opponent(color), x, True)
-                  #print('capture record', cap_record)
                   H.append(cap_record)
               return move_is_ok
 
   def captured(self, where, color):
-  # return points in captured group containing where
-  #   empty if group is not captured
+  # return points in captured group containing where,
+  #        empty if group is not captured
     assert (self.brd[where] == color)
     j, points, seen = 0, [where], {where}
     while (j < len(points)):
@@ -226,7 +226,7 @@ def showboard(psn):
   for c in range(psn.C): # columns
     pretty += ' ' + paint(COLUMNS[c])
   pretty += '\n'
-  for j in range(psn.R-1, -1, -1): # rows
+  for j in reversed(range(psn.R)): # rows
     pretty += ' ' + paint('{:2d}'.format(1+j)) + ' '
     for k in range(psn.C): # columns
       pretty += ' ' + paint(psn.brd[brd_index(j,k,psn.C)])
@@ -264,7 +264,7 @@ def score_msg(p): # score
   return msg
 
 def report(p, M):
-  msg = 'moves board\n'
+  msg = 'move labels board\n'
   msg += p.labels_brd_msg()
   msg += '\n' + score_msg(p)
   with open('out.gdg', 'w', encoding="utf-8") as f:
@@ -273,7 +273,7 @@ def report(p, M):
 def status_report(p, m):
   showboard(p)
   report(p, m)
-  print('move_record', m)
+  #print('move_record', m)
   print(score_msg(p))
 
 def interact(use_tt):
