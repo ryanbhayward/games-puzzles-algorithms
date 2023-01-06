@@ -7,7 +7,6 @@
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
   * label_brd stuff looks ok, ready for sgf_read
-  * export gdg close to done
 
 =in progress
   * allow read game from sgf (use python argparser)
