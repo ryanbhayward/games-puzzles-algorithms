@@ -105,7 +105,7 @@ class Position: # go board, each point in {B, W, E, G}
         cap += self.captured(x, opponent(color))
 
     if (len(cap)>0):
-      print('removing captured group at', point_to_alphanum(where, self.C))
+      #print('removing captured group at', point_to_alphanum(where, self.C))
       for j in cap:
         self.brd = change_string(self.brd, j, EMPTY)
       return cap, True  # move ok sofar 
@@ -232,12 +232,21 @@ def showboard(psn):
     pretty += '\n'
   print(pretty)
 
+def history_msg(H):
+  msg = ''
+  for h in H:
+    if h[2]:
+      msg += 'C'
+    msg += h[0] + str(h[1]) + ' '
+  return msg
+
 def undo(H, p):  # undo last move
+  print('executing undo')
   if len(H) == 0:
     print('\n    board empty, nothing to undo\n')
   else:
+    print(history_msg(H))
     while True:
-      print(H)
       color, where, is_capture = H.pop()
       if is_capture: # capture move, restore it
         p.brd = change_string(p.brd, where, color)
@@ -245,6 +254,7 @@ def undo(H, p):  # undo last move
       else: # normal move, erase it
         p.brd = change_string(p.brd, where, EMPTY)
         # normal move, so only one stone to erase, we are done
+        print(history_msg(H))
         return
 
 def score_difference(score):
@@ -255,11 +265,11 @@ def score_msg(p): # score
   sd = score_difference(tts)
   msg = 'score ' + str(tts) 
   if sd == 0:
-    msg += ': tied\n'
+    msg += ': tied'
   elif sd > 0:
-    msg += ': black winning by ' + str( sd) + ' \n'
+    msg += ': black winning by ' + str( sd) 
   else:
-    msg += ': white winning by ' + str(-sd) + ' \n'
+    msg += ': white winning by ' + str(-sd)
   return msg
 
 def report(p, M):
@@ -284,8 +294,8 @@ def interact(use_tt):
     cmd = input(' ')
     if len(cmd) == 0:
       p.generate_labels_brd(moves_list)
-      print('\n labels\n' + p.labels_brd_msg())
-      print('\n ... adios :)\n')
+      print('\nlabels\n' + p.labels_brd_msg())
+      print('    ... adios ...   :)\n')
       return
     if cmd[0][0] == 'h':
       printmenu()
@@ -298,7 +308,7 @@ def interact(use_tt):
       if sofar: # no liberty violation, check superko
         pstring = p.brd
         if pstring in game_history:
-          print('superko violation, move not allowed')
+          print('\nsuperko violation, move not allowed')
           undo(moves_list, p)
         else:
           game_history.append(pstring)
