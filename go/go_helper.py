@@ -32,14 +32,15 @@ guarded board --> g  g  g  g  g   20 21 22 23 24  <-- indices of board points
                   g  g  g  g  g    0  1  2  3  4  <--  row-major bottom-up order     
 """
 
+from argparse import ArgumentParser
+
 """
 points on the board
 """
 
-POINT_CHARS = '.*og'
-EMPTY, BLACK, WHITE, GUARD = POINT_CHARS[0], POINT_CHARS[1], POINT_CHARS[2], POINT_CHARS[3]
+PT_CHARS = '.*og'  # point characters: empty, black, white, guard
+EMPTY, BLACK, WHITE, GUARD = PT_CHARS[0], PT_CHARS[1], PT_CHARS[2], PT_CHARS[3]
 COLUMNS = 'ABCDEFGHJKLMNOPQRST'
-EMPTY_MOVE = 0
 
 def opponent(color): 
   if color == BLACK: 
@@ -82,6 +83,8 @@ class Position: # go board, each point in {B, W, E, G}
     for j in range(len(H)):
       if H[j][2]: # capture_move
         self.labels_brd[H[j][1]] = 0
+      elif H[j][0] == EMPTY: # pass move
+        move_number += 1
       else:       # normal move
         move_number += 1
         self.labels_brd[H[j][1]] = move_number
@@ -193,7 +196,7 @@ input, output
 """
 
 def char_to_color(c): 
-  return POINT_CHARS.index(c)
+  return PT_CHARS.index(c)
 
 escape_ch   = '\033['
 colorend    =  escape_ch + '0m'
@@ -213,7 +216,7 @@ def showboard(psn):
   def paint(s):  # s   a string
     if len(s) > 1 and s[0] == ' ': 
      return ' ' + paint(s[1:])
-    x = POINT_CHARS.find(s[0])
+    x = PT_CHARS.find(s[0])
     if x > 0:
       return stonecolors[x] + s + colorend
     elif s.isalnum():
@@ -283,7 +286,12 @@ def status_report(p, m):
   #print('move_record', m)
   print(score_msg(p))
 
-def interact(use_tt):
+def play_from_sgf():
+  p = Position(19, 19)
+  moves_list = []        # each entry is move or removal of captured stone
+  game_history = [p.brd] # used for positional superko
+
+def interact():
   p = Position(2, 3)
   moves_list = []        # each entry is move or removal of captured stone
   game_history = [p.brd] # used for positional superko
@@ -301,7 +309,7 @@ def interact(use_tt):
       undo(moves_list, p)
       if len(game_history) > 1: 
         game_history.pop()
-    elif (cmd[0][0] in POINT_CHARS):
+    elif (cmd[0][0] in PT_CHARS):
       sofar = p.requestmove(cmd, moves_list)
       if sofar: # no liberty violation, check superko
         pstring = p.brd
@@ -314,5 +322,70 @@ def interact(use_tt):
       print('\n ???????\n')
       print(menu())
 
+def sgf_index(xy, C): # sgf index xy is row y (from bottom, alpha) column x
+  return brd_index(ord(xy[1]) - ord('a'), ord(xy[0]) - ord('a'), C)
+
+def BW_to_PT(c):
+  return PT_CHARS[' BW'.index(c)]
+
+def color_where(x, C):
+  if x[2] == ']':
+    return (EMPTY, 0) # pass move
+  else:
+    return (BW_to_PT(x[0]), sgf_index(x[2:4], C))
+
+def parse_token(t): # return whether-move-is-valid and move
+  if len(t) < 2:
+    return False, ''
+  if (t[0] == 'B' or t[0] == 'W') and t[1] == '[':
+    if t[2] == ']': # B[] or W[] is pass move
+      return True, t[0] + '[]  '
+    else:
+      assert(t[4] == ']')
+      return True, t[0:5]
+  return False, ''
+
+def parse_sgf(infile, C):
+  L, M, movenum = infile.readlines(), [], 1
+  for k in L:
+    x = k.strip().split(';')
+    for y in x:
+      x = parse_token(y)
+      if x[0]:
+        (col, whr) = color_where(x[1], C)
+        M.append([movenum, col, whr])
+        #print('{:3d}'.format(movenum), x[1], col, whr)
+        movenum += 1
+  #print('')
+  return M
+
 if __name__ == "__main__":
-  interact(False)
+  parser = ArgumentParser(description='go game: user interact and/or read sgf')
+  parser.add_argument('-f', '--myfile', type=open, help='name of input sgf file')
+  args = parser.parse_args()
+  if args.myfile:
+    M = parse_sgf(args.myfile, 19)
+    for mv in M:
+      for j in mv:
+        print(j, end=' ')
+      print('')
+    p = Position(19,19)
+    moves_list = []        # each entry is move or removal of captured stone
+    game_history = [p.brd] # used for positional superko
+    for mv in M:
+      print(mv)
+      status_report(p, moves_list)
+      color, where = mv[1], mv[2]
+      move_record = (color, where, False)
+      if color != EMPTY:  # ignore pass moves
+        captured, move_is_ok = p.makemove(where, color)
+        assert move_is_ok, 'invalid move from sgf game'
+        for x in captured: # record captured stones for undo
+          cap_record = (opponent(color), x, True)
+          game_history.append(cap_record)
+        pstring = p.brd
+        assert pstring not in game_history, 'superko violation from sgf game'
+      game_history.append(move_record) # record move for undo
+    showboard(p)
+  else:
+    interact()
