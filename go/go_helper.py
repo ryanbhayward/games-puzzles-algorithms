@@ -289,7 +289,7 @@ def interact(use_tt):
   game_history = [p.brd] # used for positional superko
   while True:
     status_report(p, moves_list)
-    cmd = input(' ')
+    cmd = input('')
     if len(cmd) == 0:
       p.generate_labels_brd(moves_list)
       print('\n ... adios :)\n')
