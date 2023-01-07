@@ -203,12 +203,11 @@ stonecolors = (textcolor,\
                escape_ch + '0;32m',\
                textcolor)
 
-def printmenu():
-  print('  h             help menu')
-  print('  '+ BLACK +  ' b2         play BLACK b 2')
-  print('  '+ WHITE +  ' e3         play WHITE e 2')
-  print('  u                  undo')
-  print('  [return]           quit')
+def menu():
+  m =  '\n  ' + BLACK + ' b2         play BLACK b 2'
+  m += '\n  ' + WHITE + ' e3         play WHITE e 2'
+  m += '\n   u                undo'
+  return m + '\n[return]            quit\n'
 
 def showboard(psn):
   def paint(s):  # s   a string
@@ -241,7 +240,6 @@ def history_msg(H):
   return msg
 
 def undo(H, p):  # undo last move
-  print('executing undo')
   if len(H) == 0:
     print('\n    board empty, nothing to undo\n')
   else:
@@ -267,7 +265,7 @@ def score_msg(p): # score
   if sd == 0:
     msg += ': tied'
   elif sd > 0:
-    msg += ': black winning by ' + str( sd) 
+    msg += ': black winning by ' + str( sd)
   else:
     msg += ': white winning by ' + str(-sd)
   return msg
@@ -294,11 +292,11 @@ def interact(use_tt):
     cmd = input(' ')
     if len(cmd) == 0:
       p.generate_labels_brd(moves_list)
-      print('\nlabels\n' + p.labels_brd_msg())
-      print('    ... adios ...   :)\n')
+      print('\n ... adios :)\n')
+      print('\n labels\n' + p.labels_brd_msg())
       return
     if cmd[0][0] == 'h':
-      printmenu()
+      print(menu())
     elif cmd[0][0] == 'u':
       undo(moves_list, p)
       if len(game_history) > 1: 
@@ -308,12 +306,13 @@ def interact(use_tt):
       if sofar: # no liberty violation, check superko
         pstring = p.brd
         if pstring in game_history:
-          print('\nsuperko violation, move not allowed')
+          print('superko violation, move not allowed')
           undo(moves_list, p)
         else:
           game_history.append(pstring)
     else:
       print('\n ???????\n')
-      printmenu()
+      print(menu())
 
-interact(False)
+if __name__ == "__main__":
+  interact(False)
