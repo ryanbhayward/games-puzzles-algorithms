@@ -93,6 +93,14 @@ def mylabel(j):
 class Action: # 
   def __init__(self, k, col, whr):
     self.kind, self.color, self.where = k, col, whr
+  
+  def show(self):
+    if self.kind == Game_state.StoneCapture: msg = 'capture'
+    elif self.kind == Game_state.StonePut: msg = 'put'
+    elif self.kind == Game_state.Erase: msg = 'erase'
+    elif self.kind == Game_state.Pass: msg = 'pass'
+    msg += ' ' + self.color + str(self.where)
+    return msg
 
 class Game_state: # go board, each point in {B, W, E, G}
   StonePut, StoneCapture, Erase, Pass = 0, 1, 2, 3  #atomic helper actions
@@ -271,9 +279,11 @@ class Game_state: # go board, each point in {B, W, E, G}
   def generate_labels(self):
     move_number, H = 0, self.actions
     for j in range(len(H)):
-      if H[j].kind == self.StoneCapture:
+      act = H[j]
+      #print('j', j, H[j].show())
+      if act.kind == self.StoneCapture:
         self.labels_brd[H[j].where] = 0
-      elif H[j].kind == self.Pass:
+      elif act.kind == self.Pass:
         move_number += 1
         ptm = self.player_to_move
         self.player_to_move = opponent(ptm)
@@ -372,14 +382,13 @@ if __name__ == "__main__":
   args = parser.parse_args()
   if args.myfile:
     M = parse_sgf(args.myfile, 19)
-    for mv in M:
-      for j in mv:
-        print(j, end=' ')
-      print('')
+    #for mv in M:
+    #  for j in mv:
+    #    print(j, end=' ')
+    #  print('')
     p = Game_state(19,19)
     for mv in M:
-      print(mv)
-      p.status_report()
+      #p.status_report()
       color, where = mv[1], mv[2]
       move_record = Action(p.StonePut, color, where)
       if color != EMPTY:  # ignore pass moves
@@ -387,7 +396,8 @@ if __name__ == "__main__":
         assert move_is_ok, 'invalid move from sgf game'
         for x in captured: # record captured stones for undo
           cap_action = Action(p.StoneCapture, opponent(color), x)
-          p.history.append(cap_action)
+          #print('reached sgf capture', cap_action.show())
+          p.actions.append(cap_action)
         new_position = p.brd
         assert new_position not in p.history, 'sgf input: superko violation'
       p.actions.append(move_record) # record move for undo
