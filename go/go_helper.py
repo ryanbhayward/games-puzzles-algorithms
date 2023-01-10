@@ -193,7 +193,7 @@ class Game_state: # go board, each point in {B, W, E, G}
       if color in {BLACK, WHITE, EMPTY}:
         q, n = cmd[1][0], cmd[1][1:]
         if q.isalpha() and n.isdigit():
-          x, y = int(n) - 1, ord(q)-ord('a')
+          x, y = int(n) - 1, COLUMNS.index(q.upper())
           if x<0 or x >= self.R or y<0 or y >= self.C:
             print('\n  sorry, coordinate off board')
             return move_is_ok
