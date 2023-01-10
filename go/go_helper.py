@@ -3,6 +3,7 @@
       - legal moves
       - tromp taylor score
       - user IO combined with reading from .sgf
+      - export final game position as rbh .gdg format (for .eps file)
   * allow rectangular boards
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
@@ -125,16 +126,13 @@ class Game_state: # go board, each point in {B, W, E, G}
       msg += ': white winning by ' + str(-sd)
     return msg + '\n'
 
-  def report(self):
-    msg = 'move labels board\n'
-    msg += self.labels_msg()
-    msg += '\n' + self.score_msg()
+  def export_gdg(self):
+    msg = self.labels_msg()
     with open('out.gdg', 'w', encoding="utf-8") as f:
       f.write(msg)
 
   def status_report(self):
     self.showboard()
-    self.report()
     print(self.score_msg())
 
   def actions_msg(self):
@@ -311,8 +309,8 @@ class Game_state: # go board, each point in {B, W, E, G}
       cmd = input('')
       if len(cmd) == 0:
         p.generate_labels()
+        p.export_gdg()
         print('\n ... adios :)\n')
-        print('\n labels\n' + p.labels_msg())
         return
       if cmd[0][0] == 'h':
         print(menu())
@@ -381,7 +379,6 @@ if __name__ == "__main__":
     p = Game_state(19,19)
     for mv in M:
       print(mv)
-      p.generate_labels()
       p.status_report()
       color, where = mv[1], mv[2]
       move_record = Action(p.StonePut, color, where)
