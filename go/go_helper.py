@@ -2,7 +2,7 @@
   * go helper   (previously go_play.py)  rbh 2016-2023
       - legal moves
       - tromp taylor score
-      - user IO combined with reading from .sgf
+      - can take user IO, can also read from .sgf
       - export final game position as rbh .gdg format (for .eps file)
   * allow rectangular boards
              1 <= R <= 19 rows 
