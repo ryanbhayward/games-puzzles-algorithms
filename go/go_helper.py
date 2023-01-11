@@ -31,11 +31,11 @@ from argparse import ArgumentParser
 input, output
 """
 
-IO_CHARS = '.*oge'  # point characters: empty, black, white, guard
-EMPTY, BLACK, WHITE, GUARD, ERASE = IO_CHARS[0], IO_CHARS[1], IO_CHARS[2], IO_CHARS[3], IO_CHARS[4]
+IO_CHR = '.*oge'  # point characters: empty, black, white, guard
+EMPTY, BLACK, WHITE, GUARD, ERASE = IO_CHR[0], IO_CHR[1], IO_CHR[2], IO_CHR[3], IO_CHR[4]
 COLUMNS = 'ABCDEFGHJKLMNOPQRST'
 def char_to_color(c): 
-  return IO_CHARS.index(c)
+  return IO_CHR.index(c)
 
 escape_ch   = '\033['
 colorend    =  escape_ch + '0m'
@@ -48,7 +48,7 @@ stonecolors = (textcolor,\
 def paint(s):  # s   a string
   if len(s) > 1 and s[0] == ' ': 
    return ' ' + paint(s[1:])
-  x = IO_CHARS.find(s[0])
+  x = IO_CHR.find(s[0])
   if x > 0:
     return stonecolors[x] + s + colorend
   elif s.isalnum():
@@ -125,7 +125,9 @@ class Game_state: # go board, each point in {B, W, E, G}
   def score_msg(self): # score
     tts = self.tromp_taylor_score()
     sd = self.score_difference(tts)
-    msg = 'score ' + str(tts) 
+    blocks = self.count_blocks()
+    msg  = 'blocks (b,w) ' + str(blocks[0]) + ', ' + str(blocks[1])
+    msg += '\nscore ' + str(tts) 
     if sd == 0:
       msg += ': tied'
     elif sd > 0:
@@ -248,7 +250,24 @@ class Game_state: # go board, each point in {B, W, E, G}
     # group is captured
     return points
 
-  def tromp_taylor_score(self):
+  def count_blocks(self): 
+    blocks, seen = [0, 0], set()
+    for p in range(self.guarded_n):
+      p_val = self.brd[p]
+      if (p not in seen) and ((p_val == BLACK) or (p_val == WHITE)):
+        block_points = [p]
+        seen.add(p)
+        blocks[IO_CHR.find(p_val)-1] += 1
+        while (len(block_points) > 0):
+          q = block_points.pop()
+          for j in self.nbr_offsets:
+            x = j + q
+            if (self.brd[x] == p_val) and (x not in seen):
+              block_points.append(x)
+              seen.add(x)
+    return blocks
+
+  def tromp_taylor_score(self): # each player: stones, territory
     bs, bt, ws, wt, empty_seen = 0, 0, 0, 0, set()
     for p in range(self.guarded_n):
       if   self.brd[p] == BLACK: 
@@ -328,7 +347,7 @@ class Game_state: # go board, each point in {B, W, E, G}
         p.undo_last_action()
         if len(p.history) > 1: 
           p.history.pop()
-      elif (cmd[0][0] in IO_CHARS):
+      elif (cmd[0][0] in IO_CHR):
         sofar = p.requestmove(cmd)
         if sofar: # no liberty violation, check superko
           new_position = p.brd
@@ -345,7 +364,7 @@ def sgf_index(xy, C): # sgf index xy is row y (from bottom, alpha) column x
   return brd_index(ord(xy[1]) - ord('a'), ord(xy[0]) - ord('a'), C)
 
 def BW_to_PT(c):
-  return IO_CHARS[' BW'.index(c)]
+  return IO_CHR[' BW'.index(c)]
 
 def color_where(x, C):
   if x[2] == ']':
@@ -403,5 +422,5 @@ if __name__ == "__main__":
       p.actions.append(move_record) # record move for undo
     p.showboard()
   else:
-    p = Game_state(2, 3)
+    p = Game_state(4, 4)
   p.interact()
