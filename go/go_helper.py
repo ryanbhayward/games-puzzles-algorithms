@@ -300,7 +300,7 @@ class Game_state: # go board, each point in {B, W, E, G}
     for j in range(len(H)):
       act = H[j]
       #print('j', j, H[j].show())
-      if act.kind == self.StoneCapture:
+      if (act.kind == self.StoneCapture) or (act.kind == self.Erase):
         self.labels_brd[H[j].where] = 0
       elif act.kind == self.Pass:
         move_number += 1
