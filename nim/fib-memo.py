@@ -20,6 +20,7 @@ fib_values = {0:0, 1:1}
 '''
 compute 
 '''
-n = 100
-for j in range(n):
-  print(j, fib(j, fib_values))
+n = 500
+#for j in range(n):
+#  print(j, fib(j, fib_values))
+print(n, fib(n, fib_values))

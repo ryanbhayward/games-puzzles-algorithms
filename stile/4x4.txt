@@ -1,0 +1,27 @@
+3x3 takes 2 seconds, component has 9!/2 nodes
+
+4x4 say unsolvable, component has 16!/2 nodes
+
+bfs is a linear-time algorithm: time it takes is proportional
+to the number of loop iterations
+
+number of loop iterations (worst case) equals number of nodes in our component
+
+
+so what can we conclude about the expected runtime for bfs 4x4 stile, wc?
+
+answer:  expect it will take around 2sec *  (16! / 9!)
+
+16*15*14*13*12*11*10*2 seconds in days
+
+
+
+what works/ what doesn't work for subproblems for sliding tile?
+
+answer:  your subproblem has to always leave at least 2 rows and 2 columns
+         for it to be *guaranteed* to work
+
+5 1 2
+3 4 *
+
+
