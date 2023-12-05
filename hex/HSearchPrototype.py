@@ -3,14 +3,23 @@ import time
 #H-search proof of concept prototype
 #Not optimized or thoroughly tested
 
+#RBH 2023
+# - renamed or_rule, and_rule (originally something else)
+
 # rbh: bug?
-# The or_rule function doesn't check that the intersection of the carriers for a and b are empty, and that the non-shared end points aren't in the other VCs carrier
+# - The and_rule function doesn't check that the intersection of the carriers for a and b are empty, and that the non-shared end points aren't in the other VCs carrier
+# - stones on the board shouldn't be in carriers, 
+#   e.g. 6x6, hex_board[6] = BLACK, vcs with destination S 
+#   look strange
 
 # rbh: bug?
 # at one point and/or terms were interchanged
 
 # rbh: todo
 # - output, each pair output only once
+
+# rbh: todo
+# - unit tests?
 
 #Example 3x3 board with labeled points and sides:
 #  N N N N
@@ -136,7 +145,7 @@ def add_initial_vcs(player_color, board):
 def vc_hash(semi, org, dest, carrier):
     return str(semi) + str(org) + str(dest) + str(carrier)
 
-def or_rule(vcs, board, hashes, shared_color, create_semis):
+def and_rule(vcs, board, hashes, shared_color, create_semis):
     new_vcs = []
     #iterate over all destination points
     for p in vcs:
@@ -178,7 +187,7 @@ def or_rule(vcs, board, hashes, shared_color, create_semis):
     #Return whether any new vcs were found
     return len(new_vcs) > 0
 
-def and_rule(vcs, board, hashes, empty_points):
+def or_rule(vcs, board, hashes, empty_points):
     new_vcs = []
     #iterate over all destination points
     for p in vcs:
@@ -242,11 +251,11 @@ def h_search(player_color, board):
     vc_hashes = set()
     while any_changes:
         #Standard or rule, create semi connections
-        any_changes = or_rule(connections, board, vc_hashes, EMPTY, True) 
+        any_changes = and_rule(connections, board, vc_hashes, EMPTY, True) 
         #Or rule except shared destination point is a player stone, create full connections
-        any_changes = or_rule(connections, board, vc_hashes, player_color, False) or any_changes
+        any_changes = and_rule(connections, board, vc_hashes, player_color, False) or any_changes
         #And rule, create full connections
-        any_changes = and_rule(connections, board, vc_hashes, empty_points) or any_changes
+        any_changes = or_rule(connections, board, vc_hashes, empty_points) or any_changes
         #Remove any connections which are supersets of other equivalent connections, or are semi connections for fully connected points
         remove_redundant_vcs(connections)
 
