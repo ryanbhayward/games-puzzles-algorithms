@@ -1,6 +1,16 @@
 import time
+#Owen Randall 2023
 #H-search proof of concept prototype
 #Not optimized or thoroughly tested
+
+# rbh: bug?
+# The or_rule function doesn't check that the intersection of the carriers for a and b are empty, and that the non-shared end points aren't in the other VCs carrier
+
+# rbh: bug?
+# at one point and/or terms were interchanged
+
+# rbh: todo
+# - output, each pair output only once
 
 #Example 3x3 board with labeled points and sides:
 #  N N N N
