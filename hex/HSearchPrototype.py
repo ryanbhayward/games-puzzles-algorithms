@@ -3,18 +3,16 @@ import time
 #H-search proof of concept prototype
 #Not optimized or thoroughly tested
 
-#RBH 2023
-# fixed names: or_rule, and_rule    (originally misleading)
-
-# rbh: bug/feature?
-#   stones on the board needn't be in carriers, 
-#   e.g. 6x6, hex_board[6] = BLACK, vcs with destination S 
-#   look strange
+#edits RBH 2023
+# fixed names: or_rule, and_rule  (originally misleading)
+# carriers:    only show EMPTY cells (omit player's stones)
+# sanity check: print color sets E B W, print board
+# added some small tests
 
 # rbh: todo
 # - vc.print: each pair output only once
-# - unit tests?
 # - semi: show key
+# - unit tests
 #-----------------------------
 
 #Example 3x3 board with labeled points and sides:
@@ -25,12 +23,21 @@ import time
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BOARD_X = 3
+BOARD_X = 4
 BOARD_SIZE = BOARD_X * BOARD_X
 
 EMPTY = 0
 BLACK = 1
 WHITE = 2
+
+# return E/B/W cell sets of a dxd hex_board
+def cell_sets(hb, d):
+  nn = len(hb)
+  assert(nn == d*d)
+  sets = (set(), set(), set())
+  for j in range(nn):
+    sets[hb[j]].add(j)
+  return sets
 
 #check board boundaries
 def E(p):
@@ -51,8 +58,8 @@ def SE(p):
 def SW(p):
     return W(p) and p < BOARD_SIZE - BOARD_X
 
-#Prints a board with labeled points and sides
-def print_labeled_board():
+#print hex board point-labels
+def print_board_labels():
     print(" ",end="")
     for i in range(BOARD_X+1):
         print("N ",end="")
@@ -68,6 +75,14 @@ def print_labeled_board():
         print(" ",end="")
     for i in range(BOARD_X+1):
         print("S ",end="")
+    print()
+
+# print an actual dxd board hb
+def show_board(hb, d):
+  for r in range(d):
+    print(r*' ', end='')
+    for c in range(d):
+      print('-*o'[hb[c+r*d]], end=' ')
     print()
 
 #appropriate functions and offsets for checking adjacent points
@@ -159,7 +174,8 @@ def and_rule(vcs, board, hashes, shared_color, create_semis):
                     continue
                 #Create the new carrier as the union of existsing carriers and the shared destination
                 new_carrier = a.carrier.union(b.carrier)
-                new_carrier.add(p)
+                # rbh: if p is empty, it is also added to the carrier
+                if board[p] == EMPTY: new_carrier.add(p)
                 #Make sure the vc hasn't already been created
                 if vc_hash(create_semis, a.org, b.org, new_carrier) in hashes:
                     continue
@@ -232,8 +248,8 @@ def remove_redundant_vcs(vcs):
             vcs[p].remove(vc)
 
 def h_search(player_color, board):
-    print("Board points:")
-    print_labeled_board()
+    #print("Board points:")
+    print_board_labels()
 
     start_time = time.time()
     #Create empty points set
@@ -269,16 +285,67 @@ def h_search(player_color, board):
 
 #init board
 hex_board = [0 for i in range(BOARD_SIZE)]
-#You can set stones by point index here for example:
-#6x6 centre-win pv
-#hex_board[20] = BLACK
-#hex_board[14] = WHITE
-#hex_board[15] = BLACK
-#hex_board[4] = WHITE
-#hex_board[5] = BLACK
-hex_board[3] = BLACK
-hex_board[6] = WHITE
-hex_board[5] = BLACK
 
+#You can set stones by point index here for example:
+def eg66():
+  #6x6 centre-win pv
+  assert(BOARD_X == 6)
+  hex_board[20] = BLACK
+  hex_board[14] = WHITE
+  hex_board[15] = BLACK
+  hex_board[4] = WHITE
+  hex_board[5] = BLACK
+  hex_board[10] = WHITE
+  hex_board[11] = BLACK
+  hex_board[16] = WHITE
+  hex_board[17] = BLACK
+  hex_board[22] = WHITE
+  hex_board[23] = BLACK
+  hex_board[34] = WHITE
+  hex_board[28] = BLACK
+
+def eg33c():
+  #3x3 near-obtuse
+  assert(BOARD_X == 3)
+  hex_board[3] = BLACK
+  hex_board[6] = WHITE
+  hex_board[5] = BLACK
+  hex_board[4] = WHITE
+
+def eg33b():
+  #3x3 obtuse
+  assert(BOARD_X == 3)
+  hex_board[6] = BLACK
+  hex_board[1] = WHITE
+
+def eg33():
+  #3x3 centre
+  assert(BOARD_X == 3)
+  hex_board[4] = BLACK
+
+def eg44():
+  #4x4 centre
+  assert(BOARD_X == 4)
+  hex_board[9] = BLACK
+
+def eg44b():
+  #4x4 obtuse
+  assert(BOARD_X == 4)
+  hex_board[12] = BLACK
+  hex_board[5] = WHITE
+  hex_board[6] = BLACK
+
+def eg44b2():
+  #4x4 obtuse
+  assert(BOARD_X == 4)
+  hex_board[12] = BLACK
+  hex_board[9] = WHITE
+  hex_board[6] = BLACK
+  hex_board[2] = BLACK
+  hex_board[3] = BLACK
+
+eg44b2()
 #perform h_search
 h_search(BLACK, hex_board)
+show_board(hex_board, BOARD_X)
+print(cell_sets(hex_board, BOARD_X))
