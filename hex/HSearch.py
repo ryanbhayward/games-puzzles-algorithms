@@ -23,7 +23,7 @@ import time
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BRD_X = 2
+BRD_X = 3
 BRD_SIZE = BRD_X * BRD_X
 
 EMPTY = 0
@@ -133,7 +133,7 @@ def add_initial_vcs(player_color, board):
             if board[p] == player_color or board[p] == EMPTY:
                 vcs[p].append(VC(False, "N", p, set()))
                 vcs["N"].append(VC(False, p, "N", set()))
-        # captured sets omitted from carrier    rbh
+        # captured sets can't be omitted from carrier  :( rbh
         #for p in range(BRD_X,  BRD_X + BRD_X - 1):
         #    if (board[p] != 3 - player_color) and \
         #            board[p - BRD_X] == EMPTY and   \
@@ -145,7 +145,7 @@ def add_initial_vcs(player_color, board):
             if board[p] == player_color or board[p] == EMPTY:
                 vcs[p].append(VC(False, "S", p, set()))
                 vcs["S"].append(VC(False, p, "S", set()))
-        # captured sets omitted from carrier    rbh
+        # captured sets can't be omitted from carrier  :( rbh
         #for p in range(BRD_SIZE-BRD_X-BRD_X+1, BRD_SIZE-BRD_X):
         #    if (board[p] != 3 - player_color) and \
         #            board[p + BRD_X - 1] == EMPTY and   \
@@ -318,6 +318,27 @@ def eg66():
   hex_board[34] = WHITE
   hex_board[28] = BLACK
 
+def eg44b2():
+  #4x4 obtuse
+  assert(BRD_X == 4)
+  hex_board[12] = BLACK
+  hex_board[9] = WHITE
+  hex_board[6] = BLACK
+  hex_board[2] = BLACK
+  hex_board[3] = BLACK
+
+def eg44b():
+  #4x4 obtuse
+  assert(BRD_X == 4)
+  hex_board[12] = BLACK
+  hex_board[5] = WHITE
+  hex_board[6] = BLACK
+
+def eg44():
+  #4x4 centre
+  assert(BRD_X == 4)
+  hex_board[9] = BLACK
+
 def eg33c():
   #3x3 near-obtuse
   assert(BRD_X == 3)
@@ -332,39 +353,16 @@ def eg33b():
   hex_board[6] = BLACK
   hex_board[1] = WHITE
 
-def eg22():
-  assert(BRD_X == 2)
-
 def eg33():
   #3x3 centre
   assert(BRD_X == 3)
   #hex_board[4] = BLACK
 
-def eg44():
-  #4x4 centre
-  assert(BRD_X == 4)
-  hex_board[9] = BLACK
+def eg22(): 
+  assert(BRD_X == 2)
+  #hex_board[1] = BLACK
 
-def eg44b():
-  #4x4 obtuse
-  assert(BRD_X == 4)
-  hex_board[12] = BLACK
-  hex_board[5] = WHITE
-  hex_board[6] = BLACK
-
-def eg44b2():
-  #4x4 obtuse
-  assert(BRD_X == 4)
-  hex_board[12] = BLACK
-  hex_board[9] = WHITE
-  hex_board[6] = BLACK
-  hex_board[2] = BLACK
-  hex_board[3] = BLACK
-
-eg22()
-#eg33b()
-#eg33c()
-#perform h_search
+eg33b()
 h_search(BLACK, hex_board)
 show_board(hex_board, BRD_X)
-print(cell_sets(hex_board, BRD_X))
+#print(cell_sets(hex_board, BRD_X))
