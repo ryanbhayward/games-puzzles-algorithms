@@ -4,22 +4,18 @@ import time
 #Not optimized or thoroughly tested
 
 #RBH 2023
-# - renamed or_rule, and_rule (originally something else)
+# fixed names: or_rule, and_rule    (originally misleading)
 
-# rbh: bug?
-# - The and_rule function doesn't check that the intersection of the carriers for a and b are empty, and that the non-shared end points aren't in the other VCs carrier
-# - stones on the board shouldn't be in carriers, 
+# rbh: bug/feature?
+#   stones on the board needn't be in carriers, 
 #   e.g. 6x6, hex_board[6] = BLACK, vcs with destination S 
 #   look strange
 
-# rbh: bug?
-# at one point and/or terms were interchanged
-
 # rbh: todo
-# - output, each pair output only once
-
-# rbh: todo
+# - vc.print: each pair output only once
 # - unit tests?
+# - semi: show key
+#-----------------------------
 
 #Example 3x3 board with labeled points and sides:
 #  N N N N
@@ -28,7 +24,7 @@ import time
 #   W 6 7 8 E
 #    S S S S
 
-#Change to desired board size (only supports square boards)
+#Change to desired board size (only supports rhombus boards: same # rows,cols)
 BOARD_X = 3
 BOARD_SIZE = BOARD_X * BOARD_X
 
@@ -77,7 +73,7 @@ def print_labeled_board():
 #appropriate functions and offsets for checking adjacent points
 adj_func_points = [(E, 1), (W, -1), (NE, -BOARD_X+1), (NW, -BOARD_X), (SE, BOARD_X), (SW, BOARD_X-1)]
 
-#yeilds adjacent points of board which are in vals
+#yields adjacent points of board which are in vals
 def get_neighbors(p, vals, board):
     for f, offset in adj_func_points:
         if f(p) and board[p + offset] in vals:
@@ -93,7 +89,8 @@ class VC:
         self.carrier = carrier #Set of points that connect org to dest
 
     def print(self):
-        print("Semi: " + str(self.semi) + ", Org: " + str(self.org) + ", Dest: " + str(self.dest) + ", Carrier: " + str(self.carrier))
+        # str(self.dest) printed by caller
+        print(str(self.org) + (" semi " if self.semi else " full ") + str(self.carrier))
 
 #Adds all adjacencies between player points or empty points
 def add_initial_vcs(player_color, board):
@@ -263,7 +260,8 @@ def h_search(player_color, board):
 
     #print found vcs
     for p in connections:
-        print("\nDestination point:", p)
+        #print("\nDestination point:", p)    rbh
+        print("\ndest", p)
         for vc in connections[p]:
             vc.print()
 
@@ -272,8 +270,15 @@ def h_search(player_color, board):
 #init board
 hex_board = [0 for i in range(BOARD_SIZE)]
 #You can set stones by point index here for example:
-hex_board[6] = BLACK
-#hex_board[1] = WHITE
+#6x6 centre-win pv
+#hex_board[20] = BLACK
+#hex_board[14] = WHITE
+#hex_board[15] = BLACK
+#hex_board[4] = WHITE
+#hex_board[5] = BLACK
+hex_board[3] = BLACK
+hex_board[6] = WHITE
+hex_board[5] = BLACK
 
 #perform h_search
 h_search(BLACK, hex_board)
