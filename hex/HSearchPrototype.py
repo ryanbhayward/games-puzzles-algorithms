@@ -23,8 +23,8 @@ import time
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BOARD_X = 4
-BOARD_SIZE = BOARD_X * BOARD_X
+BRD_X = 2
+BRD_SIZE = BRD_X * BRD_X
 
 EMPTY = 0
 BLACK = 1
@@ -41,39 +41,39 @@ def cell_sets(hb, d):
 
 #check board boundaries
 def E(p):
-    return p % BOARD_X != BOARD_X-1
+    return p % BRD_X != BRD_X-1
 
 def W(p):
-    return p % BOARD_X != 0
+    return p % BRD_X != 0
 
 def NE(p):
-    return E(p) and p >= BOARD_X
+    return E(p) and p >= BRD_X
 
 def NW(p):
-    return p >= BOARD_X
+    return p >= BRD_X
 
 def SE(p):
-    return p < BOARD_SIZE - BOARD_X
+    return p < BRD_SIZE - BRD_X
 
 def SW(p):
-    return W(p) and p < BOARD_SIZE - BOARD_X
+    return W(p) and p < BRD_SIZE - BRD_X
 
 #print hex board point-labels
 def print_board_labels():
     print(" ",end="")
-    for i in range(BOARD_X+1):
+    for i in range(BRD_X+1):
         print("N ",end="")
     print()
-    for i in range(BOARD_X):
+    for i in range(BRD_X):
         for j in range(i):
             print(" ",end="")
         print("W ",end="")
-        for j in range(BOARD_X):
-            print(str(i*BOARD_X + j) + " ",end="")
+        for j in range(BRD_X):
+            print(str(i*BRD_X + j) + " ",end="")
         print("E")
-    for i in range(BOARD_X):
+    for i in range(BRD_X):
         print(" ",end="")
-    for i in range(BOARD_X+1):
+    for i in range(BRD_X+1):
         print("S ",end="")
     print()
 
@@ -86,7 +86,7 @@ def show_board(hb, d):
     print()
 
 #appropriate functions and offsets for checking adjacent points
-adj_func_points = [(E, 1), (W, -1), (NE, -BOARD_X+1), (NW, -BOARD_X), (SE, BOARD_X), (SW, BOARD_X-1)]
+adj_func_points = [(E, 1), (W, -1), (NE, -BRD_X+1), (NW, -BRD_X), (SE, BRD_X), (SW, BRD_X-1)]
 
 #yields adjacent points of board which are in vals
 def get_neighbors(p, vals, board):
@@ -111,7 +111,7 @@ class VC:
 def add_initial_vcs(player_color, board):
     #vcs indexed by the destination point
     vcs = {}
-    for i in range(BOARD_SIZE):
+    for i in range(BRD_SIZE):
         vcs[i] = []
     if player_color == BLACK:
         for side in ["N", "S"]:
@@ -129,24 +129,38 @@ def add_initial_vcs(player_color, board):
     #connections between the sides of the board and the points of the board
     if player_color == BLACK:
         #north
-        for p in range(BOARD_X):
+        for p in range(BRD_X):
             if board[p] == player_color or board[p] == EMPTY:
                 vcs[p].append(VC(False, "N", p, set()))
                 vcs["N"].append(VC(False, p, "N", set()))
+        # captured sets omitted from carrier    rbh
+        #for p in range(BRD_X,  BRD_X + BRD_X - 1):
+        #    if (board[p] != 3 - player_color) and \
+        #            board[p - BRD_X] == EMPTY and   \
+        #            board[p - 1 - BRD_X] == EMPTY:
+        #        vcs[p].append(VC(False, "N", p, set()))
+        #        vcs["N"].append(VC(False, p, "N", set()))
         #south
-        for p in range(BOARD_SIZE-BOARD_X, BOARD_SIZE):
+        for p in range(BRD_SIZE-BRD_X, BRD_SIZE):
             if board[p] == player_color or board[p] == EMPTY:
                 vcs[p].append(VC(False, "S", p, set()))
                 vcs["S"].append(VC(False, p, "S", set()))
+        # captured sets omitted from carrier    rbh
+        #for p in range(BRD_SIZE-BRD_X-BRD_X+1, BRD_SIZE-BRD_X):
+        #    if (board[p] != 3 - player_color) and \
+        #            board[p + BRD_X - 1] == EMPTY and   \
+        #            board[p + BRD_X] == EMPTY:
+        #        vcs[p].append(VC(False, "S", p, set()))
+        #        vcs["S"].append(VC(False, p, "S", set()))
 
     else:
         #west
-        for p in range(0, BOARD_SIZE, BOARD_X):
+        for p in range(0, BRD_SIZE, BRD_X):
             if board[p] == player_color or board[p] == EMPTY:
                 vcs[p].append(VC(False, "W", p, set()))
                 vcs["W"].append(VC(False, p, "W", set()))
         #east
-        for p in range(BOARD_X-1, BOARD_SIZE, BOARD_X):
+        for p in range(BRD_X-1, BRD_SIZE, BRD_X):
             if board[p] == player_color or board[p] == EMPTY:
                 vcs[p].append(VC(False, "E", p, set()))
                 vcs["E"].append(VC(False, p, "E", set()))
@@ -254,7 +268,7 @@ def h_search(player_color, board):
     start_time = time.time()
     #Create empty points set
     empty_points = set()
-    for i in range(BOARD_SIZE):
+    for i in range(BRD_SIZE):
         if board[i] == EMPTY:
             empty_points.add(i)
     #Create initial connections
@@ -284,12 +298,12 @@ def h_search(player_color, board):
     print("\nTime taken:", end_time - start_time)
 
 #init board
-hex_board = [0 for i in range(BOARD_SIZE)]
+hex_board = [0 for i in range(BRD_SIZE)]
 
 #You can set stones by point index here for example:
 def eg66():
   #6x6 centre-win pv
-  assert(BOARD_X == 6)
+  assert(BRD_X == 6)
   hex_board[20] = BLACK
   hex_board[14] = WHITE
   hex_board[15] = BLACK
@@ -306,7 +320,7 @@ def eg66():
 
 def eg33c():
   #3x3 near-obtuse
-  assert(BOARD_X == 3)
+  assert(BRD_X == 3)
   hex_board[3] = BLACK
   hex_board[6] = WHITE
   hex_board[5] = BLACK
@@ -314,38 +328,43 @@ def eg33c():
 
 def eg33b():
   #3x3 obtuse
-  assert(BOARD_X == 3)
+  assert(BRD_X == 3)
   hex_board[6] = BLACK
   hex_board[1] = WHITE
 
+def eg22():
+  assert(BRD_X == 2)
+
 def eg33():
   #3x3 centre
-  assert(BOARD_X == 3)
-  hex_board[4] = BLACK
+  assert(BRD_X == 3)
+  #hex_board[4] = BLACK
 
 def eg44():
   #4x4 centre
-  assert(BOARD_X == 4)
+  assert(BRD_X == 4)
   hex_board[9] = BLACK
 
 def eg44b():
   #4x4 obtuse
-  assert(BOARD_X == 4)
+  assert(BRD_X == 4)
   hex_board[12] = BLACK
   hex_board[5] = WHITE
   hex_board[6] = BLACK
 
 def eg44b2():
   #4x4 obtuse
-  assert(BOARD_X == 4)
+  assert(BRD_X == 4)
   hex_board[12] = BLACK
   hex_board[9] = WHITE
   hex_board[6] = BLACK
   hex_board[2] = BLACK
   hex_board[3] = BLACK
 
-eg44b2()
+eg22()
+#eg33b()
+#eg33c()
 #perform h_search
 h_search(BLACK, hex_board)
-show_board(hex_board, BOARD_X)
-print(cell_sets(hex_board, BOARD_X))
+show_board(hex_board, BRD_X)
+print(cell_sets(hex_board, BRD_X))
