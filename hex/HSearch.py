@@ -1,4 +1,5 @@
 import time
+from HSinput import *
 #Owen Randall 2023
 #H-search proof of concept prototype
 #Not optimized or thoroughly tested
@@ -23,7 +24,7 @@ import time
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BRD_X = 3
+BRD_X = 6
 BRD_SIZE = BRD_X * BRD_X
 
 EMPTY = 0
@@ -299,70 +300,11 @@ def h_search(player_color, board):
 
 #init board
 hex_board = [0 for i in range(BRD_SIZE)]
-
 #You can set stones by point index here for example:
-def eg66():
-  #6x6 centre-win pv
-  assert(BRD_X == 6)
-  hex_board[20] = BLACK
-  hex_board[14] = WHITE
-  hex_board[15] = BLACK
-  hex_board[4] = WHITE
-  hex_board[5] = BLACK
-  hex_board[10] = WHITE
-  hex_board[11] = BLACK
-  hex_board[16] = WHITE
-  hex_board[17] = BLACK
-  hex_board[22] = WHITE
-  hex_board[23] = BLACK
-  hex_board[34] = WHITE
-  hex_board[28] = BLACK
+#  hex_board[0] = BLACK
+#  hex_board[3] = WHITE
 
-def eg44b2():
-  #4x4 obtuse
-  assert(BRD_X == 4)
-  hex_board[12] = BLACK
-  hex_board[9] = WHITE
-  hex_board[6] = BLACK
-  hex_board[2] = BLACK
-  hex_board[3] = BLACK
-
-def eg44b():
-  #4x4 obtuse
-  assert(BRD_X == 4)
-  hex_board[12] = BLACK
-  hex_board[5] = WHITE
-  hex_board[6] = BLACK
-
-def eg44():
-  #4x4 centre
-  assert(BRD_X == 4)
-  hex_board[9] = BLACK
-
-def eg33c():
-  #3x3 near-obtuse
-  assert(BRD_X == 3)
-  hex_board[3] = BLACK
-  hex_board[6] = WHITE
-  hex_board[5] = BLACK
-  hex_board[4] = WHITE
-
-def eg33b():
-  #3x3 obtuse
-  assert(BRD_X == 3)
-  hex_board[6] = BLACK
-  hex_board[1] = WHITE
-
-def eg33():
-  #3x3 centre
-  assert(BRD_X == 3)
-  #hex_board[4] = BLACK
-
-def eg22(): 
-  assert(BRD_X == 2)
-  #hex_board[1] = BLACK
-
-eg33b()
+eg66(BRD_X, hex_board)
 h_search(BLACK, hex_board)
 show_board(hex_board, BRD_X)
 #print(cell_sets(hex_board, BRD_X))
