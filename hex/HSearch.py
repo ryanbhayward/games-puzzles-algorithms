@@ -24,7 +24,7 @@ from HSinput import *
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BRD_X = 6
+BRD_X = 4
 BRD_SIZE = BRD_X * BRD_X
 
 EMPTY = 0
@@ -262,6 +262,20 @@ def remove_redundant_vcs(vcs):
         for vc in to_remove:
             vcs[p].remove(vc)
 
+def mustplay(player_color, connections):
+    print('\nwhite' if player_color == BLACK else '\nblack' + ' mustplay', end=' ')
+    mp = set(range(BRD_SIZE))
+    sides = ('N','S') if (player_color == BLACK) else ('W','E')
+    for vc in connections[sides[0]]:
+        if vc.org == sides[1]:
+            if not vc.semi:
+                print('winning vc found')
+                vc.print()
+                return
+            else:
+                mp &= vc.carrier
+    print(mp)
+
 def h_search(player_color, board):
     #print("Board points:")
     print_board_labels()
@@ -295,6 +309,7 @@ def h_search(player_color, board):
         print("\ndest", p)
         for vc in connections[p]:
             vc.print()
+    mustplay(player_color, connections)
 
     print("\nTime taken:", end_time - start_time)
 
@@ -304,7 +319,7 @@ hex_board = [0 for i in range(BRD_SIZE)]
 #  hex_board[0] = BLACK
 #  hex_board[3] = WHITE
 
-eg66(BRD_X, hex_board)
-h_search(BLACK, hex_board)
+eg44c(BRD_X, hex_board)
+h_search(WHITE, hex_board)
 show_board(hex_board, BRD_X)
 #print(cell_sets(hex_board, BRD_X))

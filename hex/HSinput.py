@@ -30,17 +30,23 @@ def eg44b2(d, hex_brd):
   hex_brd[2] = B
   hex_brd[3] = B
 
+def eg44c(d, hex_brd):
+  #4x4 off-obtuse
+  assert(d == 4)
+  hex_brd[8] = B
+  hex_brd[6] = W
+
 def eg44b(d, hex_brd):
   #4x4 obtuse
   assert(d == 4)
   hex_brd[12] = B
   hex_brd[5] = W
-  hex_brd[6] = B
+  #hex_brd[6] = B
 
 def eg44(d, hex_brd):
   #4x4 centre
   assert(d == 4)
-  hex_brd[9] = B
+  #hex_brd[9] = B
 
 def eg33c(d, hex_brd):
   #3x3 near-obtuse
