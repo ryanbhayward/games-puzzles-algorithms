@@ -10,6 +10,8 @@ from HSinput import *
 # sanity check: print color sets E B W, print board
 # added some small tests
 
+# bug: 5x5, black middle, doesn't find winning vc
+
 # rbh: todo
 # - vc.print: each pair output only once
 # - semi: show key
@@ -24,7 +26,7 @@ from HSinput import *
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BRD_X = 4
+BRD_X = 5
 BRD_SIZE = BRD_X * BRD_X
 
 EMP, BLK, WHT = 0, 1, 2
@@ -33,6 +35,11 @@ COLORS = ('empty', 'black', 'white')
 def opponent_name(s): return COLORS[3 - s]
 
 def player_name(s):   return COLORS[s]
+
+def point_str(p):
+    s = f'{p:2}'
+    if s[1] == ' ': s = ' ' + s[0]
+    return s
 
 # return E/B/W cell sets of a dxd hex_board
 def cell_sets(hb, d):
@@ -109,7 +116,7 @@ class VC:
 
     def print(self):
         # str(self.dest) printed by caller
-        print(str(self.org) + (" semi " if self.semi else " full ") + str(self.carrier))
+        print(point_str(self.org) + (" semi " if self.semi else " full ") + str(self.carrier))
 
 #Adds all adjacencies between player points or empty points
 def add_initial_vcs(player_color, board):
@@ -137,25 +144,11 @@ def add_initial_vcs(player_color, board):
             if board[p] == player_color or board[p] == EMP:
                 vcs[p].append(VC(False, "N", p, set()))
                 vcs["N"].append(VC(False, p, "N", set()))
-        # captured sets can't be omitted from carrier  :( rbh
-        #for p in range(BRD_X,  BRD_X + BRD_X - 1):
-        #    if (board[p] != 3 - player_color) and \
-        #            board[p - BRD_X] == EMP and   \
-        #            board[p - 1 - BRD_X] == EMP:
-        #        vcs[p].append(VC(False, "N", p, set()))
-        #        vcs["N"].append(VC(False, p, "N", set()))
         #south
         for p in range(BRD_SIZE-BRD_X, BRD_SIZE):
             if board[p] == player_color or board[p] == EMP:
                 vcs[p].append(VC(False, "S", p, set()))
                 vcs["S"].append(VC(False, p, "S", set()))
-        # captured sets can't be omitted from carrier  :( rbh
-        #for p in range(BRD_SIZE-BRD_X-BRD_X+1, BRD_SIZE-BRD_X):
-        #    if (board[p] != 3 - player_color) and \
-        #            board[p + BRD_X - 1] == EMP and   \
-        #            board[p + BRD_X] == EMP:
-        #        vcs[p].append(VC(False, "S", p, set()))
-        #        vcs["S"].append(VC(False, p, "S", set()))
 
     else:
         #west
@@ -281,6 +274,19 @@ def mustplay(player_color, connections):
     print(' ***', opponent_name(player_color), 'mustplay: ', end='')
     print(mp)
 
+def print_all(conns):
+    for p in conns:
+        print("\ndest", p)
+        for vc in conns[p]:
+            vc.print()
+
+def print_side_to_side(conns, player):
+    sides = ('N','S') if player == BLK else ('W','E')
+    for j in range(2):
+        print('\n vcs/scs with dest ', sides[j])
+        for vc in conns[sides[j]]:
+            vc.print()
+
 def h_search(player_color, board):
     #print("Board points:")
     print_board_labels()
@@ -297,28 +303,19 @@ def h_search(player_color, board):
     any_changes = True
     vc_hashes = set()
     while any_changes:
-        #Standard or rule, create semi connections
+        #Standard AND rule, create semi connections
         any_changes = and_rule(connections, board, vc_hashes, EMP, True) 
-        #Or rule except shared destination point is a player stone, create full connections
+        #AND rule except shared destination point is a player stone, create full connections
         any_changes = and_rule(connections, board, vc_hashes, player_color, False) or any_changes
-        #And rule, create full connections
+        #OR rule, create full connections
         any_changes = or_rule(connections, board, vc_hashes, empty_points) or any_changes
         #Remove any connections which are supersets of other equivalent connections, or are semi connections for fully connected points
         remove_redundant_vcs(connections)
 
     end_time = time.time()
 
-    #print found vcs
-    #for p in connections:
-    #   #print("\nDestination point:", p)    rbh
-    #    print("\ndest", p)
-    #    for vc in connections[p]:
-    #        vc.print()
-    sides = ('N','S') if player_color == BLK else ('W','E')
-    print('\n vcs/scs with dest ', sides[0])
-    for vc in connections[sides[0]]:
-        vc.print()
-
+    print_all(connections)
+    #print_side_to_side(connections, player_color)
     mustplay(player_color, connections)
 
     print("\nTime taken:", end_time - start_time)
@@ -350,7 +347,6 @@ def analyze(seq):
 # 12  2  4*
 #     9  6*
 
-
-m4 = [
-     ]
-analyze(m4)
+#m4 = [[BLK,8], [WHT,12], [BLK,7], [WHT,14], [WHT,10], [WHT,11]]
+m5 = [[BLK,12]]
+analyze(m5)
