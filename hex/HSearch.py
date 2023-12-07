@@ -6,7 +6,7 @@ from HSinput import *
 
 #edits RBH 2023
 # fixed names: or_rule, and_rule  (originally misleading)
-# carriers:    only show EMPTY cells (omit player's stones)
+# carriers:    only show EMP cells (omit player's stones)
 # sanity check: print color sets E B W, print board
 # added some small tests
 
@@ -27,9 +27,12 @@ from HSinput import *
 BRD_X = 4
 BRD_SIZE = BRD_X * BRD_X
 
-EMPTY = 0
-BLACK = 1
-WHITE = 2
+EMP, BLK, WHT = 0, 1, 2
+COLORS = ('empty', 'black', 'white')
+
+def opponent_name(s): return COLORS[3 - s]
+
+def player_name(s):   return COLORS[s]
 
 # return E/B/W cell sets of a dxd hex_board
 def cell_sets(hb, d):
@@ -114,7 +117,7 @@ def add_initial_vcs(player_color, board):
     vcs = {}
     for i in range(BRD_SIZE):
         vcs[i] = []
-    if player_color == BLACK:
+    if player_color == BLK:
         for side in ["N", "S"]:
             vcs[side] = []
     else:
@@ -123,46 +126,46 @@ def add_initial_vcs(player_color, board):
 
     #connections between points within the board
     for p, val in enumerate(board):
-        if val == player_color or val == EMPTY:
-            for adj in get_neighbors(p, [EMPTY, player_color], board):
+        if val == player_color or val == EMP:
+            for adj in get_neighbors(p, [EMP, player_color], board):
                 vcs[adj].append(VC(False, p, adj, set()))
     
     #connections between the sides of the board and the points of the board
-    if player_color == BLACK:
+    if player_color == BLK:
         #north
         for p in range(BRD_X):
-            if board[p] == player_color or board[p] == EMPTY:
+            if board[p] == player_color or board[p] == EMP:
                 vcs[p].append(VC(False, "N", p, set()))
                 vcs["N"].append(VC(False, p, "N", set()))
         # captured sets can't be omitted from carrier  :( rbh
         #for p in range(BRD_X,  BRD_X + BRD_X - 1):
         #    if (board[p] != 3 - player_color) and \
-        #            board[p - BRD_X] == EMPTY and   \
-        #            board[p - 1 - BRD_X] == EMPTY:
+        #            board[p - BRD_X] == EMP and   \
+        #            board[p - 1 - BRD_X] == EMP:
         #        vcs[p].append(VC(False, "N", p, set()))
         #        vcs["N"].append(VC(False, p, "N", set()))
         #south
         for p in range(BRD_SIZE-BRD_X, BRD_SIZE):
-            if board[p] == player_color or board[p] == EMPTY:
+            if board[p] == player_color or board[p] == EMP:
                 vcs[p].append(VC(False, "S", p, set()))
                 vcs["S"].append(VC(False, p, "S", set()))
         # captured sets can't be omitted from carrier  :( rbh
         #for p in range(BRD_SIZE-BRD_X-BRD_X+1, BRD_SIZE-BRD_X):
         #    if (board[p] != 3 - player_color) and \
-        #            board[p + BRD_X - 1] == EMPTY and   \
-        #            board[p + BRD_X] == EMPTY:
+        #            board[p + BRD_X - 1] == EMP and   \
+        #            board[p + BRD_X] == EMP:
         #        vcs[p].append(VC(False, "S", p, set()))
         #        vcs["S"].append(VC(False, p, "S", set()))
 
     else:
         #west
         for p in range(0, BRD_SIZE, BRD_X):
-            if board[p] == player_color or board[p] == EMPTY:
+            if board[p] == player_color or board[p] == EMP:
                 vcs[p].append(VC(False, "W", p, set()))
                 vcs["W"].append(VC(False, p, "W", set()))
         #east
         for p in range(BRD_X-1, BRD_SIZE, BRD_X):
-            if board[p] == player_color or board[p] == EMPTY:
+            if board[p] == player_color or board[p] == EMP:
                 vcs[p].append(VC(False, "E", p, set()))
                 vcs["E"].append(VC(False, p, "E", set()))
 
@@ -190,7 +193,7 @@ def and_rule(vcs, board, hashes, shared_color, create_semis):
                 #Create the new carrier as the union of existsing carriers and the shared destination
                 new_carrier = a.carrier.union(b.carrier)
                 # rbh: if p is empty, it is also added to the carrier
-                if board[p] == EMPTY: new_carrier.add(p)
+                if board[p] == EMP: new_carrier.add(p)
                 #Make sure the vc hasn't already been created
                 if vc_hash(create_semis, a.org, b.org, new_carrier) in hashes:
                     continue
@@ -263,17 +266,19 @@ def remove_redundant_vcs(vcs):
             vcs[p].remove(vc)
 
 def mustplay(player_color, connections):
-    print('\nwhite' if player_color == BLACK else '\nblack' + ' mustplay', end=' ')
+    print('\n ***', player_name(player_color), end=' ')
     mp = set(range(BRD_SIZE))
-    sides = ('N','S') if (player_color == BLACK) else ('W','E')
+    sides = ('N','S') if (player_color == BLK) else ('W','E')
     for vc in connections[sides[0]]:
         if vc.org == sides[1]:
             if not vc.semi:
-                print('winning vc found')
+                print(' winning vc !!! *** ')
                 vc.print()
                 return
             else:
                 mp &= vc.carrier
+    print('has not yet won')
+    print(' ***', opponent_name(player_color), 'mustplay: ', end='')
     print(mp)
 
 def h_search(player_color, board):
@@ -284,7 +289,7 @@ def h_search(player_color, board):
     #Create empty points set
     empty_points = set()
     for i in range(BRD_SIZE):
-        if board[i] == EMPTY:
+        if board[i] == EMP:
             empty_points.add(i)
     #Create initial connections
     connections = add_initial_vcs(player_color, board)
@@ -293,7 +298,7 @@ def h_search(player_color, board):
     vc_hashes = set()
     while any_changes:
         #Standard or rule, create semi connections
-        any_changes = and_rule(connections, board, vc_hashes, EMPTY, True) 
+        any_changes = and_rule(connections, board, vc_hashes, EMP, True) 
         #Or rule except shared destination point is a player stone, create full connections
         any_changes = and_rule(connections, board, vc_hashes, player_color, False) or any_changes
         #And rule, create full connections
@@ -304,11 +309,16 @@ def h_search(player_color, board):
     end_time = time.time()
 
     #print found vcs
-    for p in connections:
-        #print("\nDestination point:", p)    rbh
-        print("\ndest", p)
-        for vc in connections[p]:
-            vc.print()
+    #for p in connections:
+    #   #print("\nDestination point:", p)    rbh
+    #    print("\ndest", p)
+    #    for vc in connections[p]:
+    #        vc.print()
+    sides = ('N','S') if player_color == BLK else ('W','E')
+    print('\n vcs/scs with dest ', sides[0])
+    for vc in connections[sides[0]]:
+        vc.print()
+
     mustplay(player_color, connections)
 
     print("\nTime taken:", end_time - start_time)
@@ -316,10 +326,31 @@ def h_search(player_color, board):
 #init board
 hex_board = [0 for i in range(BRD_SIZE)]
 #You can set stones by point index here for example:
-#  hex_board[0] = BLACK
-#  hex_board[3] = WHITE
+#  hex_board[0] = BLK
+#  hex_board[3] = WHT
 
-eg44c(BRD_X, hex_board)
-h_search(WHITE, hex_board)
-show_board(hex_board, BRD_X)
-#print(cell_sets(hex_board, BRD_X))
+def analyze(seq):
+    if len(seq) == 0:
+        h_search(WHT, hex_board)
+        return
+    for move in seq:
+        hex_board[move[1]] = move[0]
+    h_search(move[0], hex_board)
+    show_board(hex_board, BRD_X)
+
+# proof tree for 1.B[a3] lose
+# * indicates fillin
+# B  W  B  W  B  W  B
+# 8 12  9 13 
+#       7 14*
+
+# proof tree for 1.B[a4] win
+# * indicates fillin
+#  B  W  B  W  B  W  B
+# 12  2  4*
+#     9  6*
+
+
+m4 = [
+     ]
+analyze(m4)

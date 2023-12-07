@@ -1,5 +1,4 @@
 #     -- HSinput.py --
-
 E,B,W = 0,1,2
 
 def eg66(d, hex_brd):
@@ -35,6 +34,12 @@ def eg44c(d, hex_brd):
   assert(d == 4)
   hex_brd[8] = B
   hex_brd[6] = W
+  hex_brd[5] = B
+  hex_brd[1] = B
+  hex_brd[2] = B
+  hex_brd[12] = W
+  hex_brd[9] = B
+  hex_brd[13] = W
 
 def eg44b(d, hex_brd):
   #4x4 obtuse
