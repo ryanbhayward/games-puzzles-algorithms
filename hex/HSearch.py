@@ -133,7 +133,7 @@ def add_initial_vcs(player_color, board):
 
     #connections between points within the board
     for p, val in enumerate(board):
-        if val == player_color or val == EMP:
+        if (val == player_color) or (val == EMP):
             for adj in get_neighbors(p, [EMP, player_color], board):
                 vcs[adj].append(VC(False, p, adj, set()))
     
@@ -173,28 +173,30 @@ def and_rule(vcs, board, hashes, shared_color, create_semis):
     #iterate over all destination points
     for p in vcs:
         #only consider shared destinations of the specified color
-        if type(p) == str or board[p] != shared_color:
+        if (type(p) == str) or (board[p] != shared_color):
             continue
         for a in vcs[p]:
             #only consider full vcs
             if a.semi:
                 continue
             for b in vcs[p]:
-                #make sure both vcs have a different origin
-                if b.semi or b.org == a.org:
+                #ensure both vcs have a different origin
+                if b.semi or (b.org == a.org):
                     continue
-                #Create the new carrier as the union of existsing carriers and the shared destination
+                #create new carrier: union existing carriers and shared destination
                 new_carrier = a.carrier.union(b.carrier)
-                # rbh: if p is empty, it is also added to the carrier
+                # rbh: if p==EMP, it is also added to the carrier
                 if board[p] == EMP: new_carrier.add(p)
-                #Make sure the vc hasn't already been created
+                #ensure vc not yet created
                 if vc_hash(create_semis, a.org, b.org, new_carrier) in hashes:
                     continue
-                #Make sure there isn't an existing full vc connecting the same points as the new semi vc
-                #and make sure there isn't an existing vc with a subset of the new carrier
+                #ensure no existing full vc joining same points as new semi vc
+                #ensure no existing vc with proper subset of new carrier
                 invalid = False
                 for c in vcs[b.org]:
-                    if c.org == a.org and (not c.semi and (create_semis or c.carrier.issubset(new_carrier))):
+                    if c.org == a.org and \
+                       (not c.semi and \
+                       (create_semis or c.carrier.issubset(new_carrier))):
                         invalid = True
                         break
                 if invalid:
@@ -216,19 +218,19 @@ def or_rule(vcs, board, hashes, empty_points):
     #iterate over all destination points
     for p in vcs:
         for a in vcs[p]:
-            #only consider semi vcs
+            #consider only semis
             if not a.semi:
                 continue
             for b in vcs[p]:
-                #make sure both vcs have a different origin and non-overlapping carriers (only empty points matter)
-                if not b.semi or a.org != b.org or empty_points.intersection(a.carrier.intersection(b.carrier)):
+                #ensure vcs same origin and non-intersecting carriers 
+                if not b.semi or a.org != b.org or a.carrier.intersection(b.carrier):
                     continue
                 #create the new carrier as the union of the existing carriers
                 new_carrier = a.carrier.union(b.carrier)
-                #make sure the vc hasn't already been created
+                #ensure vc not yet created
                 if vc_hash(False, a.org, a.dest, new_carrier) in hashes:
                     continue
-                #make sure there isn't an existing full vc which uses a subset of the new carrier
+                #ensure no existing full vc with subset carrier
                 found_subset = False
                 for c in vcs[a.dest]:
                     if not c.semi and c.org == a.org and c.carrier.issubset(new_carrier):
@@ -247,15 +249,26 @@ def or_rule(vcs, board, hashes, empty_points):
 
     return len(new_vcs) > 0
 
+def weird(vc,x,y):
+    return vc.org==x and vc.dest==y or vc.org==y and vc.dest==x
+
 def remove_redundant_vcs(vcs):
     for p in vcs:
         to_remove = []
         for a in vcs[p]:
             for b in vcs[p]:
-                if a != b and a.org == b.org and ((a.semi and not b.semi) or (a.semi == b.semi and b.carrier.issubset(a.carrier))):
+                # removed this: a.semi and not b.semi
+                if a != b and a.org == b.org and \
+                    a.semi == b.semi and b.carrier.issubset(a.carrier):
                     to_remove.append(a)
+                    if weird(a,11,'N'): 
+                        print('this is why we are removing')
+                        b.print()
                     break
         for vc in to_remove:
+            if weird(vc,11,'N'):
+                print('WEIRD')
+                vc.print()
             vcs[p].remove(vc)
 
 def mustplay(player_color, connections):
@@ -347,6 +360,9 @@ def analyze(seq):
 # 12  2  4*
 #     9  6*
 
-#m4 = [[BLK,8], [WHT,12], [BLK,7], [WHT,14], [WHT,10], [WHT,11]]
-m5 = [[BLK,12]]
-analyze(m5)
+#4x4
+#m = [[BLK,8], [WHT,12], [BLK,7], [WHT,14], [WHT,15], [WHT,11]]
+#5x5
+#m = [[BLK,12], [WHT,3], [BLK,6]]
+m = [[BLK,12]]
+analyze(m)
