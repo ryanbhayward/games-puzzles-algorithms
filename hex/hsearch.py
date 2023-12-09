@@ -1,5 +1,4 @@
 import time
-from HSinput import *
 #Owen Randall 2023
 #H-search proof of concept prototype
 #Not optimized or thoroughly tested
@@ -25,8 +24,9 @@ from HSinput import *
 #   W 6 7 8 E
 #    S S S S
 
-#Change to desired board size (only supports rhombus boards: same # rows,cols)
-BRD_X = 5
+# only supports rhombus boards: same number rows, cols
+# BRD_X * BRD_X board
+BRD_X = 4                
 BRD_SIZE = BRD_X * BRD_X
 
 EMP, BLK, WHT = 0, 1, 2
@@ -71,22 +71,21 @@ def SW(p):
 
 #print hex board point-labels
 def print_board_labels():
-    print(" ",end="")
+    print(' ',end='')
     for i in range(BRD_X+1):
-        print("N ",end="")
+        print(' n ',end='')
     print()
     for i in range(BRD_X):
         for j in range(i):
-            print(" ",end="")
-        print("W ",end="")
+            print(' ',end='')
+        print('w ',end='')
         for j in range(BRD_X):
-            print(str(i*BRD_X + j) + " ",end="")
-        print("E")
-    for i in range(BRD_X):
-        print(" ",end="")
+            print(f'{i*BRD_X + j:2}' + ' ',end='')
+        print(' e')
+    print(' ' * (BRD_X-2),end='')
     for i in range(BRD_X+1):
-        print("S ",end="")
-    print()
+        print('  s',end='')
+    print('\n')
 
 # print an actual dxd board hb
 def show_board(hb, d):
@@ -116,7 +115,7 @@ class VC:
 
     def print(self):
         # str(self.dest) printed by caller
-        print(point_str(self.org) + (" semi " if self.semi else " full ") + str(self.carrier))
+        print(point_str(self.org) + (' semi ' if self.semi else ' full ') + str(self.carrier))
 
 #Adds all adjacencies between player points or empty points
 def add_initial_vcs(player_color, board):
@@ -125,10 +124,10 @@ def add_initial_vcs(player_color, board):
     for i in range(BRD_SIZE):
         vcs[i] = []
     if player_color == BLK:
-        for side in ["N", "S"]:
+        for side in ['N', 'S']:
             vcs[side] = []
     else:
-        for side in ["W", "E"]:
+        for side in ['W', 'E']:
             vcs[side] = []
 
     #connections between points within the board
@@ -142,25 +141,25 @@ def add_initial_vcs(player_color, board):
         #north
         for p in range(BRD_X):
             if board[p] == player_color or board[p] == EMP:
-                vcs[p].append(VC(False, "N", p, set()))
-                vcs["N"].append(VC(False, p, "N", set()))
+                vcs[p].append(VC(False, 'N', p, set()))
+                vcs['N'].append(VC(False, p, 'N', set()))
         #south
         for p in range(BRD_SIZE-BRD_X, BRD_SIZE):
             if board[p] == player_color or board[p] == EMP:
-                vcs[p].append(VC(False, "S", p, set()))
-                vcs["S"].append(VC(False, p, "S", set()))
+                vcs[p].append(VC(False, 'S', p, set()))
+                vcs['S'].append(VC(False, p, 'S', set()))
 
     else:
         #west
         for p in range(0, BRD_SIZE, BRD_X):
             if board[p] == player_color or board[p] == EMP:
-                vcs[p].append(VC(False, "W", p, set()))
-                vcs["W"].append(VC(False, p, "W", set()))
+                vcs[p].append(VC(False, 'W', p, set()))
+                vcs['W'].append(VC(False, p, 'W', set()))
         #east
         for p in range(BRD_X-1, BRD_SIZE, BRD_X):
             if board[p] == player_color or board[p] == EMP:
-                vcs[p].append(VC(False, "E", p, set()))
-                vcs["E"].append(VC(False, p, "E", set()))
+                vcs[p].append(VC(False, 'E', p, set()))
+                vcs['E'].append(VC(False, p, 'E', set()))
 
     return vcs
 
@@ -289,7 +288,7 @@ def mustplay(player_color, connections):
 
 def print_all(conns):
     for p in conns:
-        print("\ndest", p)
+        print('\ndest', p)
         for vc in conns[p]:
             vc.print()
 
@@ -301,7 +300,7 @@ def print_side_to_side(conns, player):
             vc.print()
 
 def h_search(player_color, board):
-    #print("Board points:")
+    #print('Board points:')
     print_board_labels()
 
     start_time = time.time()
@@ -331,7 +330,7 @@ def h_search(player_color, board):
     #print_side_to_side(connections, player_color)
     mustplay(player_color, connections)
 
-    print("\nTime taken:", end_time - start_time)
+    print('\nTime taken:', end_time - start_time)
 
 #init board
 hex_board = [0 for i in range(BRD_SIZE)]
