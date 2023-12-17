@@ -32,9 +32,11 @@ BRD_SIZE = BRD_X * BRD_X
 EMP, BLK, WHT = 0, 1, 2
 COLORS = ('empty', 'black', 'white')
 
-def opponent_name(s): return COLORS[3 - s]
+def opponent_name(s): 
+    return COLORS[3 - s]
 
-def player_name(s):   return COLORS[s]
+def player_name(s):   
+    return COLORS[s]
 
 def point_str(p):
     s = f'{p:2}'
@@ -43,12 +45,12 @@ def point_str(p):
 
 # return E/B/W cell sets of a dxd hex_board
 def cell_sets(hb, d):
-  nn = len(hb)
-  assert(nn == d*d)
-  sets = (set(), set(), set())
-  for j in range(nn):
-    sets[hb[j]].add(j)
-  return sets
+    nn = len(hb)
+    assert(nn == d*d)
+    sets = (set(), set(), set())
+    for j in range(nn):
+        sets[hb[j]].add(j)
+    return sets
 
 #check board boundaries
 def E(p):
@@ -89,11 +91,11 @@ def print_board_labels():
 
 # print an actual dxd board hb
 def show_board(hb, d):
-  for r in range(d):
-    print(r*' ', end='')
-    for c in range(d):
-      print('-*o'[hb[c+r*d]], end=' ')
-    print()
+    for r in range(d):
+        print(r*' ', end='')
+        for c in range(d):
+            print('-*o'[hb[c+r*d]], end=' ')
+        print()
 
 #appropriate functions and offsets for checking adjacent points
 adj_func_points = [(E, 1), (W, -1), (NE, -BRD_X+1), (NW, -BRD_X), (SE, BRD_X), (SW, BRD_X-1)]
@@ -113,9 +115,12 @@ class VC:
         self.dest = dest #Destination point
         self.carrier = carrier #Set of points that connect org to dest
 
+    def mystr(self):
+        return point_str(self.org) + (' semi ' if self.semi else ' full ') + str(self.carrier)
+
     def print(self):
         # str(self.dest) printed by caller
-        print(point_str(self.org) + (' semi ' if self.semi else ' full ') + str(self.carrier))
+        print(self.mystr())
 
 #Adds all adjacencies between player points or empty points
 def add_initial_vcs(player_color, board):
@@ -289,8 +294,12 @@ def mustplay(player_color, connections):
 def print_all(conns):
     for p in conns:
         print('\ndest', p)
+        L = []
         for vc in conns[p]:
-            vc.print()
+            L.append(vc.mystr())
+        L.sort()
+        for x in L:
+            print(x)
 
 def print_side_to_side(conns, player):
     sides = ('N','S') if player == BLK else ('W','E')
