@@ -1,4 +1,14 @@
 import time
+
+# todo
+# class hex_board
+#    - n_rows, n_cols  <- can be different
+#    - above can be set in __init__
+#    - BLK, WHT  = 0, 1
+#    - P1 = BLK  <- can be WHITE
+#    - cells TOP, BTM, LFT, RGT
+#    - sides ((TOP,BTm),(LFT, RGT))  <- can be switched
+#    -        BLK sides  WHT sides  
 #Owen Randall 2023
 #H-search proof of concept prototype
 #Not optimized or thoroughly tested
