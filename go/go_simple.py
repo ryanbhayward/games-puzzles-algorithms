@@ -5,9 +5,11 @@
   * allow rectangular boards
              1 <= R <= 19 rows 
              1 <= C <= 19 columns
-  todo * allow input illegal position, report whether position is legal
+  todo * check whether position is legal
        * put more inside Game_state ?
 """
+
+from string import ascii_lowercase
 
 class go_board:
   BLACK, WHITE, EMPTY = 0, 1, 2
@@ -30,7 +32,7 @@ class go_board:
       for y in range(self.rows - 1, -1, -1): #print last row first
         for x in range(self.cols):
           print(f'{rc_point(y, x):3}', end='')
-        print('')
+        print()
 
     ### neighbors of each point
 
@@ -66,16 +68,21 @@ class go_board:
 
     def show_stones(self):
       print('\nstones of the go board\n')
+      print('  ', end='')
+      for x in range(self.cols):
+        print(' ' + ascii_lowercase[x], end='')
+      print()
       for y in range(self.rows - 1, -1, -1): #print last row first
+        thisrow = f'{y+1:2}'
         for x in range(self.cols):
-          print(' ' + point_str(self, rc_point(y, x)), end='')
-        print('')
+          thisrow += ' ' + point_str(self, rc_point(y, x))
+        print(thisrow)
 
     show_points(self)
     show_nbrs(self)
     self.stones[self.BLACK].add(rc_point(1, 1))
     self.stones[self.WHITE].add(rc_point(0, 0))
     show_stones(self)
-    print('')
+    print()
 
 go_board(4,6)
