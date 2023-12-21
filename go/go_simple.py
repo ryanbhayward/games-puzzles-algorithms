@@ -68,15 +68,15 @@ class go_board:
 
     def show_stones(self):
       print('\nstones of the go board\n')
-      print('  ', end='')
+      letters = '   '
       for x in range(self.cols):
-        print(' ' + ascii_lowercase[x], end='')
-      print()
+        letters += ' ' + ascii_lowercase[x]
+      print(letters)
       for y in range(self.rows - 1, -1, -1): #print last row first
-        thisrow = f'{y+1:2}'
+        this_row = f'{y+1:2}' + ' '
         for x in range(self.cols):
-          thisrow += ' ' + point_str(self, rc_point(y, x))
-        print(thisrow)
+          this_row += ' ' + point_str(self, rc_point(y, x))
+        print(this_row)
 
     show_points(self)
     show_nbrs(self)
