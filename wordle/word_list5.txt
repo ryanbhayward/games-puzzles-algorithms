@@ -8090,6 +8090,7 @@ laths
 lathy
 latin
 latke
+latte
 laton
 latro
 latus
