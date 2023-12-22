@@ -66,14 +66,14 @@ class go_board:
       elif p in self.stones[self.WHITE]: return 'o'
       else:                    return '.'
 
-    def show_stones(self):
-      print('\nstones of the go board\n')
-      letters = '   '
+    def show_board(self):
+      print('\nthe go board\n')
+      letters = '    '
       for x in range(self.cols):
         letters += ' ' + ascii_lowercase[x]
-      print(letters)
+      print(letters,'\n')
       for y in range(self.rows - 1, -1, -1): #print last row first
-        this_row = f'{y+1:2}' + ' '
+        this_row = f'{y+1:2}' + '  '
         for x in range(self.cols):
           this_row += ' ' + point_str(self, rc_point(y, x))
         print(this_row)
@@ -82,7 +82,7 @@ class go_board:
     show_nbrs(self)
     self.stones[self.BLACK].add(rc_point(1, 1))
     self.stones[self.WHITE].add(rc_point(0, 0))
-    show_stones(self)
+    show_board(self)
     print()
 
 go_board(4,6)
