@@ -10,8 +10,12 @@
 
 from string import ascii_lowercase
 
+def pad_string(s):
+  return ''.join([' ' + c for c in s])
+
 class go_board:
   BLACK, WHITE, EMPTY = 0, 1, 2
+  IO_CHRS = '*o.' # characters for stone output
 
   def opponent(self, clr):
     assert(clr == self.BLACK or clr == self.WHITE)
@@ -26,19 +30,19 @@ class go_board:
     def rc_point(y, x):
       return x + y * self.cols
 
-    def show_points(self):
-      print('\nnames of points of the go board\n')
-      for y in range(self.rows - 1, -1, -1): #print last row first
-        for x in range(self.cols):
-          print(f'{rc_point(y, x):3}', end='')
-        print()
-
     ### neighbors of each point
 
     self.nbrs = {} # dictionary:  point -> neighbors
     
     for point in range(self.n):
        self.nbrs[point] = set()
+
+    def show_points(self):
+      print('\nnames of points of the go board\n')
+      for y in range(self.rows - 1, -1, -1): #print last row first
+        for x in range(self.cols):
+          print(f'{rc_point(y, x):3}', end='')
+        print()
 
     for y in range(self.rows):
       for x in range(self.cols):
@@ -61,27 +65,33 @@ class go_board:
     self.stones = [set(), set()]
 
     def point_str(self, p):
-      if   p in self.stones[self.BLACK]: return '*'
-      elif p in self.stones[self.WHITE]: return 'o'
-      else:                    return '.'
+      if   p in self.stones[self.BLACK]: 
+        return '*'
+      if   p in self.stones[self.WHITE]: 
+        return 'o'
+      return '.'
+
+    def board_str(self):
+      return ''.join([point_str(self,p) for p in range(self.n)])
 
     def show_board(self):
-      print('\nthe go board\n')
-      letters = '    '
-      for x in range(self.cols):
-        letters += ' ' + ascii_lowercase[x]
-      print(letters,'\n')
+      bstr = board_str(self)
+      print('\nthe go board\n\n    ',end='')
+      print(pad_string(ascii_lowercase[0:self.cols]) + '\n')
       for y in range(self.rows - 1, -1, -1): #print last row first
-        this_row = f'{y+1:2}' + '  '
-        for x in range(self.cols):
-          this_row += ' ' + point_str(self, rc_point(y, x))
-        print(this_row)
+        print(f'{y+1:2}' + pad_string(bstr[y*self.cols : (y + 1)*self.cols]))
 
     show_points(self)
     show_nbrs(self)
     self.stones[self.BLACK].add(rc_point(1, 1))
+    self.stones[self.BLACK].add(rc_point(1, 2))
+    self.stones[self.BLACK].add(rc_point(1, 3))
     self.stones[self.WHITE].add(rc_point(0, 0))
     show_board(self)
     print()
 
-go_board(4,6)
+class go_env:
+  def __init__(self, r, c):
+    ge = go_board(r,c)
+
+go_env(4,5)
