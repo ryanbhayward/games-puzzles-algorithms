@@ -1,10 +1,9 @@
 """
-  * go_simple.py    rbh 2024
+  * simple go environment    rbh 2024
       ? legal moves
       ? tromp taylor score
   * allow rectangular boards
-             1 <= R <= 19 rows 
-             1 <= C <= 19 columns
+  * simple data structures 
   todo * check whether position is legal
        * put more inside Game_state ?
 """
