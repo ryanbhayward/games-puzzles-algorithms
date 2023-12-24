@@ -35,10 +35,12 @@ class go_board:
 
   def show_board(self):
     bstr = self.board_str()
-    print('')
-    for y in range(self.rows - 1, -1, -1): #print last row first
-      print(f'{y+1:2} ' + embed_blanks(bstr[y*self.cols : (y + 1)*self.cols]))
-    print('\n   ' + embed_blanks(ascii_lowercase[0:self.cols]))
+    outstr = '\n'
+    for y in reversed(range(self.rows)): #last row first
+      outstr += f'{y+1:2} ' + \
+        embed_blanks(bstr[y*self.cols : (y + 1)*self.cols]) + '\n'
+    outstr += '\n   ' + embed_blanks(ascii_lowercase[0:self.cols])
+    print(outstr)
 
   def show_point_names(self):  # confirm names look ok
     print('\nnames of points\n')
