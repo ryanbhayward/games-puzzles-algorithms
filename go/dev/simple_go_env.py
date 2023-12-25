@@ -9,57 +9,55 @@
 from string import ascii_lowercase
 
 ### IO ##############################################
-def embed_blanks(s): # embed blanks in string
+def spread(s): # embed blanks in string
   return ''.join([' ' + c for c in s])
 
 class go_board:
-  BLACK, WHITE, EMPTY  = 0, 1, 2
-  COLORS = (BLACK, WHITE)
+  BLK, WHT, EMP  = 0, 1, 2
+  COLORS = (BLK, WHT)
 
   ######## color to character
   def point_str(self, p):
-    if   p in self.stones[self.BLACK]: return '*'
-    if   p in self.stones[self.WHITE]: return 'o'
-    return '.'  # if not B/W must be EMPTY
+    if   p in self.stones[self.BLK]: return '*'
+    if   p in self.stones[self.WHT]: return 'o'
+    return '.'  # if not B/W must be EMP
 
   def board_str(self):
     return ''.join([self.point_str(p) for p in range(self.n)])
   ########
 
   #def opponent(self, player):
-  #  assert player in self.COLORS, 'player not BLACK/WHITE'
+  #  assert player in self.COLORS, 'player not BLK/WHT'
   #  return 1 - player
 
   def rc_point(self, y, x):
-    return x + y * self.cols
+    return x + y * self.c
 
   def show_board(self):
-    bstr = self.board_str()
-    outstr = '\n'
-    for y in reversed(range(self.rows)): #last row first
-      outstr += f'{y+1:2} ' + \
-        embed_blanks(bstr[y*self.cols : (y + 1)*self.cols]) + '\n'
-    outstr += '\n   ' + embed_blanks(ascii_lowercase[0:self.cols])
-    print(outstr)
+    bs, r, c = self.board_str(), self.r, self.c
+    print('')
+    for y in reversed(range(r)):
+      print(f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]))
+    print('\n   ' + spread(ascii_lowercase[:c]))
 
   def show_point_names(self):  # confirm names look ok
     print('\nnames of points\n')
-    for y in range(self.rows - 1, -1, -1): #print last row first
-      for x in range(self.cols):
+    for y in range(self.r - 1, -1, -1): #print last row first
+      for x in range(self.c):
         print(f'{self.rc_point(y, x):3}', end='')
       print()
 
   def add_stone(self, color, r, c):
     assert color in self.COLORS, 'invalid color'
     stns, point = self.stones, self.rc_point(r, c)
-    assert point not in stns[self.BLACK].union(stns[self.WHITE]), 'already a stone there'
+    assert point not in stns[self.BLK].union(stns[self.WHT]), 'already a stone there'
     stns[color].add(point)
 
   def __init__(self, r, c): 
 
     ### r horizontal lines, c vertical lines, r*c points
 
-    self.rows, self.cols, self.n = r, c, r * c
+    self.r, self.c, self.n = r, c, r * c
 
     ### neighbors of each point
 
@@ -68,16 +66,16 @@ class go_board:
     for point in range(self.n):
        self.nbrs[point] = set()
 
-    for y in range(self.rows):
-      for x in range(self.cols):
+    for y in range(self.r):
+      for x in range(self.c):
         p = self.rc_point(y,x)
         if x > 0: 
           self.nbrs[p].add( self.rc_point(y, x - 1) )
-        if x < self.cols - 1: 
+        if x < self.c - 1: 
           self.nbrs[p].add( self.rc_point(y, x + 1) )
         if y > 0: 
           self.nbrs[p].add( self.rc_point(y - 1, x) )
-        if y < self.rows - 1: 
+        if y < self.r - 1: 
           self.nbrs[p].add( self.rc_point(y + 1, x) )
 
     self.stones = [set(), set()]  # empty board to start
@@ -109,11 +107,11 @@ class go_env:
 ##################################################### 
 
 gb = go_board(4,5)
-gb.add_stone(gb.BLACK, 1, 0)
+gb.add_stone(gb.BLK, 1, 0)
 gb.show_board()
-gb.add_stone(gb.WHITE, 1, 2)
+gb.add_stone(gb.WHT, 1, 2)
 gb.show_board()
-gb.add_stone(gb.WHITE, 1, 3)
+gb.add_stone(gb.WHT, 1, 3)
 gb.show_board()
-gb.add_stone(gb.BLACK, 2, 4)
+gb.add_stone(gb.BLK, 2, 4)
 gb.show_board()
