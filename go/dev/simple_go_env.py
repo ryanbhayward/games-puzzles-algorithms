@@ -12,6 +12,26 @@ from string import ascii_lowercase
 def spread(s): # embed blanks in string
   return ''.join([' ' + c for c in s])
 
+class color:
+  green   = '\033[0;32m'
+  magenta = '\033[0;35m'
+  grey    = '\033[0;37m'
+  end     = '\033[0m'
+
+  def paint(s):
+    p = ''
+    for c in s:
+      if c == '*':
+        p += color.green + c + color.end
+      elif c == 'o':
+        p += color.magenta + c + color.end
+      elif c.isprintable():
+        p += color.grey + c + color.end
+      else:
+        p += c
+    return p
+  
+#################################################
 class go_board:
   BLK, WHT, EMP  = 0, 1, 2
   COLORS = (BLK, WHT)
@@ -33,12 +53,13 @@ class go_board:
   def rc_point(self, y, x):
     return x + y * self.c
 
-  def show_board(self):
+  def print(self):
     bs, r, c = self.board_str(), self.r, self.c
-    print('')
+    outs = '\n'
     for y in reversed(range(r)):
-      print(f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]))
-    print('\n   ' + spread(ascii_lowercase[:c]))
+      outs += f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]) + '\n'
+    outs += '\n   ' + spread(ascii_lowercase[:c])
+    print(color.paint(outs))
 
   def show_point_names(self):  # confirm names look ok
     print('\nnames of points\n')
@@ -108,10 +129,10 @@ class go_env:
 
 gb = go_board(4,5)
 gb.add_stone(gb.BLK, 1, 0)
-gb.show_board()
+gb.print()
 gb.add_stone(gb.WHT, 1, 2)
-gb.show_board()
+gb.print()
 gb.add_stone(gb.WHT, 1, 3)
-gb.show_board()
+gb.print()
 gb.add_stone(gb.BLK, 2, 4)
-gb.show_board()
+gb.print()
