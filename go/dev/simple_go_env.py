@@ -1,9 +1,9 @@
 """
   * simple go environment    rbh 2024
+      ? blocks and liberties
       ? legal moves
       ? tromp taylor score
-  todo 
-    - start to bring stuff over from other program
+      ? bring stuff over from other program
 """
 
 from string import ascii_lowercase
@@ -65,6 +65,11 @@ class go_board:
         if self.point_color(p) == pcol and self.is_root(p):
           print(self.blocks[p], end=' ')
       print()
+      print(self.IO_CHRS[pcol], 'liberties', end=' ')
+      for p in range(self.n):
+        if self.point_color(p) == pcol and self.is_root(p):
+          print(self.liberties[p], end=' ')
+      print()
 
   def print(self):
     bs, r, c = self.board_str(), self.r, self.c
@@ -92,6 +97,15 @@ class go_board:
     # proot will be root of merged block
     self.parent[qroot] = proot
     self.blocks[proot].update(self.blocks[qroot])
+    self.liberties[proot].update(self.liberties[qroot])
+    self.liberties[proot] -= self.blocks[proot]
+
+  def remove_liberties(self, p, q): 
+    proot = UF.find(self.parent, p)
+    qroot = UF.find(self.parent, q)
+    print('remove liberties from', proot)
+    self.liberties[proot] -= self.blocks[qroot]
+    self.liberties[qroot] -= self.blocks[proot]
 
   def add_stone(self, color, r, c):
     point, stns = self.rc_point(r, c), self.stones
@@ -104,8 +118,10 @@ class go_board:
     self.blocks[point].add(point)
 
     for n in self.nbrs[point]:
-      if n in self.stones[color]: # found a same-colored nbr
+      if n in self.stones[color]: # same-color nbr
         self.merge_blocks(n, point)
+      if n in self.stones[1 - color]: # opponent nbr
+        self.remove_liberties(n, point)
 
   def __init__(self, r, c): 
 
@@ -119,13 +135,13 @@ class go_board:
     self.nbrs      = {} # point -> neighbors
     self.blocks    = {} # point -> block
     self.liberties = {} # point -> liberties
-    self.parent   = {} # point -> parent in block
+    self.parent    = {} # point -> parent in block
 
     for point in range(self.n):
        self.nbrs[point]      = set()
        self.blocks[point]    = set()
        self.liberties[point] = set()
-       self.parent[point]   = point
+       self.parent[point]    = point
 
     print('\nparent of points\n')
     for p in range(self.n): 
@@ -144,6 +160,12 @@ class go_board:
         if y < self.r - 1: 
           self.nbrs[p].add( self.rc_point(y + 1, x) )
 
+    for p in range(self.n):
+      self.liberties[p].update(self.nbrs[p])
+
+    print('\nliberties\n')
+    for p in range(self.n):
+      print(f'{p:2}', self.liberties[p])
     #print('\nneighbors of points\n')
     #for p in self.nbrs: print(f'{p:2}', self.nbrs[p])
     #self.show_point_names()
@@ -160,6 +182,7 @@ class UF:        # union find
       x = parent[x]
     return x
 
+ # if you perform millions of UF opertions, this is better:
  # def find(parent,x): # with grandparent compression
  #   while True:
  #     px = parent[x]
@@ -175,16 +198,14 @@ class go_env:
     self.board = go_board(r,c)
 ##################################################### 
 
-gb = go_board(4,5)
-for move in ((0,1,0), \
-             (1,1,2), \
-             (1,1,4), \
-             (1,0,3), \
-             (1,2,3), \
-             (0,3,0), \
-             (1,1,3), \
-             (0,2,1), \
-             (0,2,0), \
-             (0,3,3)):
+m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
+           (0,3,0),(1,1,3),(0,2,1),(0,2,0),(0,3,3))
+
+m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
+
+#gb = go_board(4,5)
+#for move in m45demo:
+gb = go_board(2,2)
+for move in m22demo:
   gb.add_stone(move[0], move[1], move[2])
   gb.print()
