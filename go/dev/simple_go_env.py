@@ -33,7 +33,7 @@ class color:
   
 #################################################
 class go_board:
-  BLK, WHT, EMP  = 0, 1, 2
+  BLK, WHT, EMP, IO_CHRS  = 0, 1, 2, '*o.'
   COLORS = (BLK, WHT)
 
   ######## color to character
@@ -52,6 +52,19 @@ class go_board:
 
   def rc_point(self, y, x):
     return x + y * self.c
+  
+  def point_color(self, p):
+    if p in self.stones[self.BLK]: return self.BLK
+    if p in self.stones[self.WHT]: return self.WHT
+    return self.EMP
+
+  def show_blocks(self):
+    for pcol in self.COLORS:
+      print(self.IO_CHRS[pcol], 'blocks', end=' ')
+      for p in range(self.n):
+        if self.point_color(p) == pcol and self.is_root(p):
+          print(self.blocks[p], end=' ')
+      print()
 
   def print(self):
     bs, r, c = self.board_str(), self.r, self.c
@@ -60,6 +73,7 @@ class go_board:
       outs += f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]) + '\n'
     outs += '\n   ' + spread(ascii_lowercase[:c])
     print(color.paint(outs))
+    self.show_blocks()
 
   def show_point_names(self):  # confirm names look ok
     print('\nnames of points\n')
@@ -68,14 +82,30 @@ class go_board:
         print(f'{self.rc_point(y, x):3}', end='')
       print()
 
+  def is_root(self, p):
+    return self.parent[p] == p
+
+  def merge_blocks(self, p, q):
+    print('merge blocks', p, q)
+    proot = UF.find(self.parent, p)
+    qroot = UF.find(self.parent, q)
+    # proot will be root of merged block
+    self.parent[qroot] = proot
+    self.blocks[proot].update(self.blocks[qroot])
+
   def add_stone(self, color, r, c):
+    point, stns = self.rc_point(r, c), self.stones
+
     assert color in self.COLORS, 'invalid color'
-    stns, point = self.stones, self.rc_point(r, c)
-    assert point not in stns[self.BLK].union(stns[self.WHT]), 'already a stone there'
+    assert point not in stns[self.BLK].union(stns[self.WHT]), \
+           'already a stone there'
+
     stns[color].add(point)
+    self.blocks[point].add(point)
+
     for n in self.nbrs[point]:
       if n in self.stones[color]: # found a same-colored nbr
-        print('found a same-colored nbr')
+        self.merge_blocks(n, point)
 
   def __init__(self, r, c): 
 
@@ -83,17 +113,23 @@ class go_board:
 
     self.r, self.c, self.n = r, c, r * c
 
-    ### neighbors of each point
+    self.stones = [set(), set()]  # start with empty board
 
-    self.nbrs = {} # dictionary:  point -> neighbors
+    ### dictionairies
+    self.nbrs      = {} # point -> neighbors
+    self.blocks    = {} # point -> block
+    self.liberties = {} # point -> liberties
+    self.parent   = {} # point -> parent in block
 
     for point in range(self.n):
-       self.nbrs[point] = set()
+       self.nbrs[point]      = set()
+       self.blocks[point]    = set()
+       self.liberties[point] = set()
+       self.parent[point]   = point
 
-    self.block_parent = list(range(self.n))  # list: point -> block_parent
-
-    print('\nblock_parents of points\n')
-    for p in range(self.n): print(f'{p:2}', self.block_parent[p])
+    print('\nparent of points\n')
+    for p in range(self.n): 
+      print(f'{p:2}', self.parent[p])
     self.show_point_names()
 
     for y in range(self.r):
@@ -108,8 +144,6 @@ class go_board:
         if y < self.r - 1: 
           self.nbrs[p].add( self.rc_point(y + 1, x) )
 
-    self.stones = [set(), set()]  # empty board to start
-
     #print('\nneighbors of points\n')
     #for p in self.nbrs: print(f'{p:2}', self.nbrs[p])
     #self.show_point_names()
@@ -122,7 +156,7 @@ class UF:        # union find
     return y
 
   def find(parent, x):
-    while parent[x]:
+    while x != parent[x]:
       x = parent[x]
     return x
 
@@ -142,11 +176,15 @@ class go_env:
 ##################################################### 
 
 gb = go_board(4,5)
-gb.add_stone(gb.BLK, 1, 0)
-gb.print()
-gb.add_stone(gb.WHT, 1, 2)
-gb.print()
-gb.add_stone(gb.WHT, 1, 3)
-gb.print()
-gb.add_stone(gb.BLK, 2, 4)
-gb.print()
+for move in ((0,1,0), \
+             (1,1,2), \
+             (1,1,4), \
+             (1,0,3), \
+             (1,2,3), \
+             (0,3,0), \
+             (1,1,3), \
+             (0,2,1), \
+             (0,2,0), \
+             (0,3,3)):
+  gb.add_stone(move[0], move[1], move[2])
+  gb.print()
