@@ -73,6 +73,9 @@ class go_board:
     stns, point = self.stones, self.rc_point(r, c)
     assert point not in stns[self.BLK].union(stns[self.WHT]), 'already a stone there'
     stns[color].add(point)
+    for n in self.nbrs[point]:
+      if n in self.stones[color]: # found a same-colored nbr
+        print('found a same-colored nbr')
 
   def __init__(self, r, c): 
 
@@ -83,9 +86,15 @@ class go_board:
     ### neighbors of each point
 
     self.nbrs = {} # dictionary:  point -> neighbors
-    
+
     for point in range(self.n):
        self.nbrs[point] = set()
+
+    self.block_parent = list(range(self.n))  # list: point -> block_parent
+
+    print('\nblock_parents of points\n')
+    for p in range(self.n): print(f'{p:2}', self.block_parent[p])
+    self.show_point_names()
 
     for y in range(self.r):
       for x in range(self.c):
@@ -112,13 +121,18 @@ class UF:        # union find
     parent[x] = y
     return y
 
-  def find(parent,x): # with grandparent compression
-    while True:
-      px = parent[x]
-      if x == px: return x
-      gx = parent[px]
-      if px == gx: return px
-      parent[x], x = gx, gx
+  def find(parent, x):
+    while parent[x]:
+      x = parent[x]
+    return x
+
+ # def find(parent,x): # with grandparent compression
+ #   while True:
+ #     px = parent[x]
+ #     if x == px: return x
+ #     gx = parent[px]
+ #     if px == gx: return px
+ #     parent[x], x = gx, gx
 ##################################################### 
 
 ################################ not using this yet
