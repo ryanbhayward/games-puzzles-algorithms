@@ -1,6 +1,15 @@
 from collections import deque
-import hexio
-from hexio import Cell
+#import hexio
+#from hexio import Cell
+
+class Cell: #############  cells #########################
+  e,b,w,ch = 0,1,2, '.*@'       # empty, black, white
+
+  def get_ptm(ch):
+    return ord(ch) >> 5 # divide by the floor of 32 get player 1 or 2 based on char * or @
+
+  def opponent(c):
+    return 3-c
 
 class WinCheck:
     def __init__(self,board):

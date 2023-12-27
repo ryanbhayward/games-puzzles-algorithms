@@ -1,8 +1,8 @@
 # simple hex player RBH 2016
 import numpy as np
-import hexio
-from hexio import Cell
-from wincheck import BFSWinCheck
+#import hexio
+#from hexio import Cell
+from wincheck import BFSWinCheck, Cell
   
 class Hexposition:
 #  a hex board with 
@@ -40,7 +40,7 @@ class Hexposition:
       for k in range(self.brd.shape[1]):
         if k < self.rings or k >= cols + self.rings:
           if self.brd[j][k] == Cell.b: 
-            self.brd[j][k] = Cell.bw
+            self.brd[j][k] = Cell.b
           else:
             self.brd[j][k] = Cell.w
 
