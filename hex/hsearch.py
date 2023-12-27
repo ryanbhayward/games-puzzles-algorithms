@@ -36,11 +36,10 @@ import time
 
 # only supports rhombus boards: same number rows, cols
 # BRD_X * BRD_X board
-BRD_X = 4                
+BRD_X = 6                
 BRD_SIZE = BRD_X * BRD_X
 
-EMP, BLK, WHT = 0, 1, 2
-COLORS = ('empty', 'black', 'white')
+EMP, BLK, WHT, COLORS = 0, 1, 2, ('empty', 'black', 'white')
 
 def opponent_name(s): 
     return COLORS[3 - s]
@@ -63,23 +62,24 @@ def cell_sets(hb, d):
     return sets
 
 #check board boundaries
-def E(p):
-    return p % BRD_X != BRD_X-1
+def E(p): return p % BRD_X != BRD_X-1
+def W(p): return p % BRD_X != 0
+def NE(p): return E(p) and p >= BRD_X
+def NW(p): return p >= BRD_X
+def SE(p): return p < BRD_SIZE - BRD_X
+def SW(p): return W(p) and p < BRD_SIZE - BRD_X
 
-def W(p):
-    return p % BRD_X != 0
+#functions and offsets for checking adjacent points
+adj_func_points = [(E,1),(W,-1),(NE,-BRD_X+1),(NW,-BRD_X),(SE,BRD_X),(SW,BRD_X-1)]
 
-def NE(p):
-    return E(p) and p >= BRD_X
-
-def NW(p):
-    return p >= BRD_X
-
-def SE(p):
-    return p < BRD_SIZE - BRD_X
-
-def SW(p):
-    return W(p) and p < BRD_SIZE - BRD_X
+neighbors = {}
+for j in range(BRD_X*BRD_X):
+  s = set()
+  for f, offset in adj_func_points:
+    if f(j): s.add(j+offset)
+  neighbors[j] = s
+#for j in neighbors:
+  #print(j, neighbors[j])
 
 #print hex board point-labels
 def print_board_labels():
@@ -106,9 +106,6 @@ def show_board(hb, d):
         for c in range(d):
             print('-*o'[hb[c+r*d]], end=' ')
         print()
-
-#appropriate functions and offsets for checking adjacent points
-adj_func_points = [(E, 1), (W, -1), (NE, -BRD_X+1), (NW, -BRD_X), (SE, BRD_X), (SW, BRD_X-1)]
 
 #yields adjacent points of board which are in vals
 def get_neighbors(p, vals, board):
@@ -148,8 +145,11 @@ def add_initial_vcs(player_color, board):
     #connections between points within the board
     for p, val in enumerate(board):
         if (val == player_color) or (val == EMP):
-            for adj in get_neighbors(p, [EMP, player_color], board):
-                vcs[adj].append(VC(False, p, adj, set()))
+            #for adj in get_neighbors(p, [EMP, player_color], board):
+            #    vcs[adj].append(VC(False, p, adj, set()))
+            for adj in neighbors[p]:
+              if board[adj] in (EMP, player_color):
+                 vcs[adj].append(VC(False, p, adj, set()))
     
     #connections between the sides of the board and the points of the board
     if player_color == BLK:
@@ -345,7 +345,7 @@ def h_search(player_color, board):
 
     end_time = time.time()
 
-    print_all(connections)
+    #print_all(connections)
     #print_side_to_side(connections, player_color)
     mustplay(player_color, connections)
 
@@ -382,5 +382,5 @@ def analyze(seq):
 #m = [[BLK,8], [WHT,12], [BLK,7], [WHT,14], [WHT,15], [WHT,11]]
 #5x5
 #m = [[BLK,12], [WHT,3], [BLK,6]]
-m = [[BLK,12]]
+m = [[BLK,20]]
 analyze(m)
