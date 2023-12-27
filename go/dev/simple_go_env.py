@@ -1,5 +1,6 @@
 """
   * simple go environment    rbh 2024
+      ? class Cell: empty/B/W 0,1/2, opponent
       ? blocks and liberties
       ? legal moves
       ? tromp taylor score
@@ -7,36 +8,14 @@
 """
 
 from string import ascii_lowercase
+from go_io import Color, IO
 
-### IO ##############################################
-def spread(s): # embed blanks in string
-  return ''.join([' ' + c for c in s])
-
-class color:
-  green   = '\033[0;32m'
-  magenta = '\033[0;35m'
-  grey    = '\033[0;37m'
-  end     = '\033[0m'
-
-  def paint(s):
-    p = ''
-    for c in s:
-      if c == '*':
-        p += color.green + c + color.end
-      elif c == 'o':
-        p += color.magenta + c + color.end
-      elif c.isprintable():
-        p += color.grey + c + color.end
-      else:
-        p += c
-    return p
-  
 #################################################
 class go_board:
   BLK, WHT, EMP, IO_CHRS  = 0, 1, 2, '*o.'
   COLORS = (BLK, WHT)
 
-  ######## color to character
+  ######## cell_color to character
   def point_str(self, p):
     if   p in self.stones[self.BLK]: return '*'
     if   p in self.stones[self.WHT]: return 'o'
@@ -73,12 +52,13 @@ class go_board:
 
   def print(self):
     bs, r, c = self.board_str(), self.r, self.c
-    outs = '\n'
-    for y in reversed(range(r)):
-      outs += f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]) + '\n'
-    outs += '\n   ' + spread(ascii_lowercase[:c])
-    print(color.paint(outs))
-    self.show_blocks()
+    IO.show_board(bs, r, c)
+  #  outs = '\n'
+  #  for y in reversed(range(r)):
+  #    outs += f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]) + '\n'
+  #  outs += '\n   ' + spread(ascii_lowercase[:c])
+  #  print(Color.paint(outs))
+  #  self.show_blocks()
 
   def show_point_names(self):  # confirm names look ok
     print('\nnames of points\n')
