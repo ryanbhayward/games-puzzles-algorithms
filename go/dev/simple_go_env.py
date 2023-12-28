@@ -1,6 +1,5 @@
 """
   * simple go environment    rbh 2024
-      ? class Cell: empty/B/W 0,1/2, opponent
       ? blocks and liberties
       ? legal moves
       ? tromp taylor score
@@ -25,9 +24,9 @@ class go_board:
     return ''.join([self.point_str(p) for p in range(self.n)])
   ########
 
-  #def opponent(self, player):
-  #  assert player in self.COLORS, 'player not BLK/WHT'
-  #  return 1 - player
+  def opponent(self, player):
+    assert player in self.COLORS, 'player not BLK/WHT'
+    return 1 - player
 
   def rc_point(self, y, x):
     return x + y * self.c
@@ -100,7 +99,7 @@ class go_board:
     for n in self.nbrs[point]:
       if n in self.stones[color]: # same-color nbr
         self.merge_blocks(n, point)
-      if n in self.stones[1 - color]: # opponent nbr
+      if n in self.stones[self.opponent(color)]: # opponent nbr
         self.remove_liberties(n, point)
 
   def __init__(self, r, c): 
@@ -179,7 +178,7 @@ class go_env:
 ##################################################### 
 
 m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
-           (0,3,0),(1,1,3),(0,2,1),(0,2,0),(0,3,3))
+           (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
 
 m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
 
