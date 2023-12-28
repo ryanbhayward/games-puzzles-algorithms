@@ -5,13 +5,11 @@ from string import ascii_lowercase
 ############## board cells      ###############
 
 class Cell: 
-  e, b, w, io_ch = 0, 1, 2, '.*@'  # empty, black, white
+  b, w, e, io_ch = 0, 1, 2, '*@.'  # black, white, empty
 
-  def ch_to_cell(ch):
-    return Cell.io_ch.index(ch)
+  def ch_to_cell(ch): return Cell.io_ch.index(ch)
 
-  def opponent(c): 
-    return 3 - c
+  def opponent(c): return 1 - c
 
   def test():
     io_ch = Cell.io_ch
@@ -19,7 +17,7 @@ class Cell:
       c = Cell.ch_to_cell(ch)
       print(ch, c, io_ch[c])
     print()
-    for j in range(1,3):
+    for j in range(2):
       print(j, Cell.opponent(j))
 
 ############## end Class Cell
@@ -47,14 +45,10 @@ class Color:
   def paint(s):
     p = ''
     for c in s:
-      if c == '*':
-        p += Color.green + c + Color.end
-      elif c == 'o':
-        p += Color.magenta + c + Color.end
-      elif c.isprintable():
-        p += Color.grey + c + Color.end
-      else:
-        p += c
+      if c == '*': p += Color.green + c + Color.end
+      elif c == 'o': p += Color.magenta + c + Color.end
+      elif c.isprintable(): p += Color.grey + c + Color.end
+      else: p += c
     return p
 
 ############## end Class Color

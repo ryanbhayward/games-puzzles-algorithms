@@ -1,4 +1,7 @@
+#### based on an hsearch implementation by Owen Randall   rbh 2024 ***
+
 import time
+from hexio import Cell, IO
 
 # todo
 # class hex_board
@@ -11,21 +14,9 @@ import time
 #    -        BLK sides  WHT sides  
 #Owen Randall 2023
 #H-search proof of concept prototype
-#Not optimized or thoroughly tested
 
-#edits RBH 2023
-# fixed names: or_rule, and_rule  (originally misleading)
-# carriers:    only show EMP cells (omit player's stones)
-# sanity check: print color sets E B W, print board
-# added some small tests
-
-# bug: 5x5, black middle, doesn't find winning vc
-
-# rbh: todo
-# - vc.print: each pair output only once
-# - semi: show key
-# - unit tests
-#-----------------------------
+# bug/feature: 5x5, black middle, doesn't find winning vc
+# rbh: todo ???
 
 #Example 3x3 board with labeled points and sides:
 #  N N N N
@@ -53,13 +44,13 @@ def point_str(p):
     return s
 
 # return E/B/W cell sets of a dxd hex_board
-def cell_sets(hb, d):
-    nn = len(hb)
-    assert(nn == d*d)
-    sets = (set(), set(), set())
-    for j in range(nn):
-        sets[hb[j]].add(j)
-    return sets
+#def cell_sets(hb, d):
+#    nn = len(hb)
+#    assert(nn == d*d)
+#    sets = (set(), set(), set())
+#    for j in range(nn):
+#        sets[hb[j]].add(j)
+#    return sets
 
 #check board boundaries
 def E(p): return p % BRD_X != BRD_X-1
