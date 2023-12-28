@@ -56,7 +56,9 @@ class IO:
     stone_sets = (set(), set())
     stone_sets[0].add(0)
     stone_sets[1].add(1)
-    IO.disp(stone_sets, 3, 4)
+    for r in range(2,5):
+      for c in range(2,5):
+        IO.disp(stone_sets, r, c)
 
 ############## end Class IO
 
@@ -79,5 +81,5 @@ class Color:
 
 ############## end Class Color
 
-Cell.test()
-IO.test()
+#Cell.test()
+#IO.test()

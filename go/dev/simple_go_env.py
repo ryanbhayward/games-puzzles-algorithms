@@ -1,9 +1,9 @@
 """
   * simple go environment    rbh 2024
-      ? blocks and liberties
+      - blocks and liberties
       ? legal moves
       ? tromp taylor score
-      ? bring stuff over from other program
+      ? interact
 """
 
 from string import ascii_lowercase
