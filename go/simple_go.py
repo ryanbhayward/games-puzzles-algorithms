@@ -71,10 +71,7 @@ class go_board:
 
   def merge_blocks(self, p, q):
     print('merge blocks', p, q)
-    proot = UF.find(self.parent, p)
-    qroot = UF.find(self.parent, q)
-    # proot will be root of merged block
-    self.parent[qroot] = proot
+    proot, qroot = UF.union(self.parent, p, q)
     self.blocks[proot].update(self.blocks[qroot])
     self.liberties[proot].update(self.liberties[qroot])
     self.liberties[proot] -= self.blocks[proot]
@@ -152,9 +149,11 @@ class go_board:
 ################################ not using this yet
 class UF:        # union find
 
-  def union(parent,x,y):
-    parent[x] = y
-    return y
+  def union(parent, x, y):
+    x = UF.find(parent, x)
+    y = UF.find(parent, y)
+    parent[y] = x # x is root of merged trees
+    return x, y
 
   def find(parent, x):
     while x != parent[x]:
@@ -182,9 +181,10 @@ m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
 
 m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
 
-#gb = go_board(4,5)
-#for move in m45demo:
-gb = go_board(2,2)
-for move in m22demo:
+gb = go_board(4,5)
+for move in m45demo:
+#gb = go_board(2,2)
+#for move in m22demo:
   gb.add_stone(move[0], move[1], move[2])
   gb.print()
+gb.show_blocks()
