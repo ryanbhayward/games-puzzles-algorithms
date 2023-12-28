@@ -6,7 +6,6 @@
       ? interact
 """
 
-from string import ascii_lowercase
 from go_io import Color, IO
 
 #################################################
@@ -14,15 +13,13 @@ class go_board:
   BLK, WHT, EMP, IO_CHRS  = 0, 1, 2, '*o.'
   COLORS = (BLK, WHT)
 
-  ######## cell_color to character
-  def point_str(self, p):
+  def point_str(self, p): # cell_color to character
     if   p in self.stones[self.BLK]: return '*'
     if   p in self.stones[self.WHT]: return 'o'
     return '.'  # if not B/W must be EMP
 
   def board_str(self):
     return ''.join([self.point_str(p) for p in range(self.n)])
-  ########
 
   def opponent(self, player):
     assert player in self.COLORS, 'player not BLK/WHT'
@@ -35,6 +32,9 @@ class go_board:
     if p in self.stones[self.BLK]: return self.BLK
     if p in self.stones[self.WHT]: return self.WHT
     return self.EMP
+
+  def is_root(self, p):
+    return self.parent[p] == p
 
   def show_blocks(self):
     for pcol in self.COLORS:
@@ -52,12 +52,6 @@ class go_board:
   def print(self):
     bs, r, c = self.board_str(), self.r, self.c
     IO.show_board(bs, r, c)
-  #  outs = '\n'
-  #  for y in reversed(range(r)):
-  #    outs += f'{y+1:2} '+ spread(bs[y*c:(y+1)*c]) + '\n'
-  #  outs += '\n   ' + spread(ascii_lowercase[:c])
-  #  print(Color.paint(outs))
-  #  self.show_blocks()
 
   def show_point_names(self):  # confirm names look ok
     print('\nnames of points\n')
@@ -65,9 +59,6 @@ class go_board:
       for x in range(self.c):
         print(f'{self.rc_point(y, x):3}', end='')
       print()
-
-  def is_root(self, p):
-    return self.parent[p] == p
 
   def merge_blocks(self, p, q):
     print('merge blocks', p, q)
@@ -176,10 +167,9 @@ class go_env:
     self.board = go_board(r,c)
 ##################################################### 
 
+m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
 m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
            (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
-
-m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
 
 gb = go_board(4,5)
 for move in m45demo:

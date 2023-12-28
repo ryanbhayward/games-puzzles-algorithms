@@ -10,10 +10,10 @@
 #     * hex (by Luke Schultz)
 #     * hsearch (by Owen Randall)
 
-from copy import deepcopy
-from random import shuffle, choice
-import math
-from hexio import Cell, IO
+#from copy import deepcopy
+#from random import shuffle, choice
+#import math
+from hexgo_io import Cell, IO
 
 class B: ################ the board #######################
 
@@ -30,11 +30,21 @@ class B: ################ the board #######################
     return divmod(p, B.c)
   
   def show_point_names(self):  # confirm names look ok
-    print('\nnames of points\n')
-    for y in range(self.r - 1, -1, -1): #print last row first
+    print('\npoint names\n')
+    for y in range(self.r): #print last row first
+      print('  '*y, end='')
       for x in range(self.c):
-        print(f'{self.rc_point(y, x):3}', end='')
+        print(f'{self.rc_point(y, x):4}', end='')
       print()
+
+  def show_all(self):
+    IO.disp(self.stones, self.r, self.c)
+    self.show_point_names()
+    print('\npoint neighbors\n')
+    for p in self.nbrs: print(f'{p:2}', self.nbrs[p])
+    print('\nblock, liberties\n')
+    for p in self.block:
+      print(f'{p:2}', self.block[p], self.liberties[p])
 
   def __init__(self, rows, cols):
     B.r, B.c, B.n  = rows, cols, rows*cols
@@ -49,7 +59,7 @@ class B: ################ the board #######################
     ### dictionaries
     B.stones = [set(), set()]  # [black stones, white stones]
     B.nbrs      = {} # point -> set of neighbors
-    B.blocks    = {} # point -> block (set of points)
+    B.block    = {} # point -> block (set of points)
     B.liberties = {} # point -> liberties (set of points)
     # parent: for union find  is_root(x): return parent[x] == x
     B.parent    = {} # point -> parent in block
@@ -69,22 +79,14 @@ class B: ################ the board #######################
           nbr = j + self.rc_point(y,x) 
           if nbr in board_points:
             B.nbrs[p].add(nbr)
-        
-    print('\nneighbors of points\n')
-    for p in B.nbrs: print(f'{p:2}', B.nbrs[p])
-    self.show_point_names()
 
     for point in range(B.top, self.n):
-       B.blocks[point]    = set()
+       B.block[point]    = set()
        B.liberties[point] = set()
        B.parent[point]    = point
 
     for p in range(B.top, self.n):
       self.liberties[p].update(self.nbrs[p])
-
-    print('\nliberties\n')
-    for p in range(self.n):
-      print(f'{p:2}', self.liberties[p])
 
 def disp_parent(parent):  # convert parent to string picture
   psn, s = 0, ''
@@ -290,9 +292,8 @@ def interact():
     if not ok:
       return
 
-Board = B(2,3)
-
-IO.disp(B.stones, B.r, B.c)
+board = B(2,3)
+board.show_all()
 
 #big_tst()
 #interact()

@@ -1,4 +1,6 @@
-############## rbh 2024      ###############
+"""
+  simple io for go and hex         rbh 2024
+"""
 
 from string import ascii_lowercase
 
@@ -40,7 +42,7 @@ class IO:
     return Cell.io_ch[2]
 
   def disp(stone_sets, rows, cols): 
-    s = '   ' + ' '.join([ascii_lowercase[c] for c in range(cols)]) + '\n'
+    s = '\n   ' + ' '.join([ascii_lowercase[c] for c in range(cols)]) + '\n'
     p =  -1
     for y in range(rows):
       s += '\n' + y*' ' + f'{y+1:2}  ' 
@@ -49,7 +51,7 @@ class IO:
          s += ' ' + IO.point_ch(stone_sets, p)
       s += ' ' + Cell.io_ch[1]
     s += '\n    ' + ' '*rows + (' ' + Cell.io_ch[0])*cols
-    print(Color.paint(s + '\n', Cell.io_ch))
+    print(Color.paint(s, Cell.io_ch))
 
   def test():
     print('tests for class IO\n')
