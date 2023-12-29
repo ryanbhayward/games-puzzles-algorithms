@@ -13,7 +13,7 @@
 #from copy import deepcopy
 #from random import shuffle, choice
 #import math
-from hexgo_io import Cell, IO
+from hexgo import Cell, Color, IO, Pt, UF
 
 class B: ################ the board #######################
 
@@ -39,7 +39,7 @@ class B: ################ the board #######################
 
   def show_all(self):
     IO.disp(self.stones, self.r, self.c)
-    self.show_point_names()
+    IO.show_hex_point_names()
     print('\npoint neighbors\n')
     for p in self.nbrs: print(f'{p:2}', self.nbrs[p])
     print('\nblock, liberties\n')
