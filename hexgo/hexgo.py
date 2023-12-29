@@ -101,26 +101,28 @@ class Pt: ############## board points     ###############
   def rc_point(row, col, num_cols):
     return col + row * num_cols
 
+ # def rc_of(self, p): # return usual row, col coordinates
+ #   return divmod(p, B.c)
+
   def point_color(stones, p):
     if p in stones[Cell.b]: return Cell.b
     if p in stones[Cell.w]: return Cell.w
     return Cell.e
 
-  def show_go_point_names(r, c):  # confirm names look ok
-    print('\ngo board point names\n')
-    for y in range(r - 1, -1, -1): #print last row first
-      for x in range(c):
-        print(f'{Pt.rc_point(y, x, c):3}', end='')
-      print()
-
-  def show_hex_point_names(r, c):  # confirm names look ok
-    print('\nhex board point names\n')
-    for y in range(r): #print last row first
-      print('  '*y, end='')
-      for x in range(c):
-        print(f'{Pt.rc_point(y, x, c):4}', end='')
-      print()
-
+  def show_point_names(gt, r, c):  # confirm names look ok
+    if gt: # hex_game
+      print('\nhex board point names\n')
+      for y in range(r): #print last row first
+        print('  '*y, end='')
+        for x in range(c):
+          print(f'{Pt.rc_point(y, x, c):4}', end='')
+        print()
+    else:
+      print('\ngo board point names\n')
+      for y in range(r - 1, -1, -1): #print last row first
+        for x in range(c):
+          print(f'{Pt.rc_point(y, x, c):3}', end='')
+        print()
 
 class UF: ############# simple union/find  ##############
 

@@ -1,0 +1,3 @@
+right now, stone_board is go-specific, so newgo works
+  next step is to make stone_board generic,
+    and then switch hex.py to newhex.py

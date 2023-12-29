@@ -1,16 +1,12 @@
 """
-  * simple go environment    rbh 2024
-      - blocks and liberties
-      ? legal moves
-      ? tromp taylor score
-      ? interact
+  shared classes for games with rectangular boards, b/w/e/ cells
 """
 
 from hexgo import Cell, Color, Game, IO, Pt, UF
 from time import time
 
 #################################################
-class go_board:
+class Stone_board:
 
   def print(self):
     IO.disp(self.game_type, IO.board_str(self.stones, self.n), self.r, self.c)
@@ -45,9 +41,9 @@ class go_board:
       if n in self.stones[Cell.opponent(color)]: # opponent nbr
         self.remove_liberties(n, point)
 
-  def __init__(self, rows, cols): 
+  def __init__(self, gt, rows, cols): 
 
-    self.game_type = Game.go_game # what happens if this is hex_game?
+    self.game_type = gt
     ### r horizontal lines, c vertical lines, r*c points
     self.r, self.c, self.n = rows, cols, rows * cols
     self.board_range = range(self.n) # board points
@@ -68,7 +64,7 @@ class go_board:
     print('\nparents of points\n')
     for p in range(self.n): 
       print(f'{p:2}', self.parents[p])
-    Pt.show_go_point_names(self.r, self.c)
+    Pt.show_point_names(self.game_type, self.r, self.c)
 
     for y in range(self.r):
       for x in range(self.c):
@@ -91,19 +87,3 @@ class go_board:
 #    self.board = go_board(r,c)
 ##################################################### 
 
-m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
-m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
-           (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
-
-start_time = time()
-
-gb = go_board(6,6)
-for move in m45demo:
-#gb = go_board(2,2)
-#for move in m22demo:
-  gb.add_stone(move[0], move[1], move[2])
-  gb.print()
-IO.show_blocks(gb.n, gb.stones, gb.parents, gb.blocks, gb.liberties)
-
-end_time = time()
-print('time ', end_time - start_time)

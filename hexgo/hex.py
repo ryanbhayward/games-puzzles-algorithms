@@ -24,13 +24,10 @@ class B: ################ the board #######################
 
   ######## positions <------>   row, column coordinates
 
-  def rc_of(self, p): # return usual row, col coordinates
-    return divmod(p, B.c)
-  
   def show_all(self):
     bs = IO.board_str(self.stones, self.n)
     IO.disp(self.game_type, bs, self.r, self.c)
-    Pt.show_hex_point_names(self.r, self.c)
+    Pt.show_point_names(self.game_type, self.r, self.c)
     IO.show_blocks(self.n, self.stones, self.parents, self.blocks, self.liberties)
 
   def __init__(self, rows, cols):
@@ -136,21 +133,8 @@ def tst(r,c):
     for c in range(B.c):
       p = psn_of(r,c)
       print('{:3}'.format(p), end='')
-      assert (r,c) == rc_of(p)
+      assert (r,c) == IO.rc_of(p)
     print('')
-
-  for r in range(-B.g, B.r + B.g):
-    for c in range(-B.g, B.c + B.g):
-      p = fat_psn_of(r,c)
-      #print(r,c,p,B.rc_of_fat(p))
-      print('{:3}'.format(p), end='')
-      assert (r,c) == (rc_of_fat(p))
-    print('')
-
-  f, (a,b,c,d) = B.empty_fat_brd, B.border
-  assert(f[a] == Cell.b and f[b] == Cell.b)
-  assert(f[c] == Cell.w and f[d] == Cell.w)
-  print(B.r, B.c, 'borders',a,b,c,d)
 
 def big_tst():
   for j in range(1,6):
