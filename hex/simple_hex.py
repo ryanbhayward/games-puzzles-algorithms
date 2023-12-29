@@ -29,22 +29,10 @@ class B: ################ the board #######################
   def rc_of(self, p): # return usual row, col coordinates
     return divmod(p, B.c)
   
-  def show_point_names(self):  # confirm names look ok
-    print('\npoint names\n')
-    for y in range(self.r): #print last row first
-      print('  '*y, end='')
-      for x in range(self.c):
-        print(f'{self.rc_point(y, x):4}', end='')
-      print()
-
   def show_all(self):
-    IO.disp(self.stones, self.r, self.c)
-    IO.show_hex_point_names()
-    print('\npoint neighbors\n')
-    for p in self.nbrs: print(f'{p:2}', self.nbrs[p])
-    print('\nblock, liberties\n')
-    for p in self.block:
-      print(f'{p:2}', self.block[p], self.liberties[p])
+    IO.disp_hex(self.stones, self.r, self.c)
+    Pt.show_hex_point_names(self.r, self.c)
+    IO.show_blocks(self.n, self.stones, self.parents, self.blocks, self.liberties)
 
   def __init__(self, rows, cols):
     B.r, B.c, B.n  = rows, cols, rows*cols
@@ -58,11 +46,11 @@ class B: ################ the board #######################
 
     ### dictionaries
     B.stones = [set(), set()]  # [black stones, white stones]
-    B.nbrs      = {} # point -> set of neighbors
-    B.block    = {} # point -> block (set of points)
-    B.liberties = {} # point -> liberties (set of points)
-    # parent: for union find  is_root(x): return parent[x] == x
-    B.parent    = {} # point -> parent in block
+    B.nbrs      = {} # point -> neighbor set
+    B.blocks    = {} # point -> block set 
+    B.liberties = {} # point -> liberties set
+    # parents: for union find  is_root(x): return parents[x] == x
+    B.parents    = {} # point -> parents in block
 
     B.nbrs[B.top] = set(range(B.c))
     B.nbrs[B.btm] = set(range(B.c*(B.r-1), B.n))
@@ -81,26 +69,26 @@ class B: ################ the board #######################
             B.nbrs[p].add(nbr)
 
     for point in range(B.top, self.n):
-       B.block[point]    = set()
+       B.blocks[point]    = set()
        B.liberties[point] = set()
-       B.parent[point]    = point
+       B.parents[point]    = point
 
     for p in range(B.top, self.n):
       self.liberties[p].update(self.nbrs[p])
 
-def disp_parent(parent):  # convert parent to string picture
+def disp_parents(parents):  # convert parents to string picture
   psn, s = 0, ''
   for fr in range(B.h):
     s += fr*' ' + ' '.join([
-    #      ('{:3d}'.format(parent[psn+k]))     \
-           ('  *' if parent[psn+k]==psn+k else \
-            '{:3d}'.format(parent[psn+k]))     \
+    #      ('{:3d}'.format(parents[psn+k]))     \
+           ('  *' if parents[psn+k]==psn+k else \
+            '{:3d}'.format(parents[psn+k]))     \
            for k in range(B.w)]) + '\n'
     psn += B.w
   return s
 
-def show_parent(P):
-  print(disp_parent(P))
+def show_parents(P):
+  print(disp_parents(P))
 
 
 ### mcts ########################################
@@ -116,17 +104,17 @@ def legal_moves(board):
 
 class UF:        # union find
 
-  def union(parent,x,y):  
-    parent[x] = y
+  def union(parents,x,y):  
+    parents[x] = y
     return y
 
-  def find(parent,x): # using grandparent compression
+  def find(parents,x): # using grandparents compression
     while True:
-      px = parent[x]
+      px = parents[x]
       if x == px: return x
-      gx = parent[px]
+      gx = parents[px]
       if px == gx: return px
-      parent[x], x = gx, gx
+      parents[x], x = gx, gx
 
 def win_check(P, color):
   if color == Cell.b:
@@ -141,7 +129,7 @@ def tst(r,c):
   print(paint(disp(B.empty_brd)))
   print(disp(B.empty_fat_brd))
   print(paint(disp(B.empty_fat_brd)))
-  print(disp_parent(B.parent))
+  print(disp_parents(B.parents))
 
   for r in range(B.r):
     for c in range(B.c):
@@ -188,8 +176,8 @@ def empty_cells(brd):
       L.append(j)
   return L
 
-def parent_update(brd, P, psn, color):
-# update parent-structure after move color --> psn
+def parents_update(brd, P, psn, color):
+# update parents-structure after move color --> psn
   captain = UF.find(P, psn)
   for j in range(6):  # 6 neighbours
     nbr = psn + B.nbr_offset[j]
@@ -202,7 +190,7 @@ def putstone(brd, p, cell):
 
 def putstone_and_update(brd, P, psn, color):
   putstone(brd, psn, color)
-  parent_update(brd, P, psn, color)
+  parents_update(brd, P, psn, color)
 
 def undo(H, brd):  # pop last location, erase that cell
   if len(H)==0:
@@ -226,7 +214,7 @@ def make_move(brd, P, cmd, H):
               return
             else:   
               #putstone(brd, psn, color)
-              #parent_update(brd, P, psn, color)
+              #parents_update(brd, P, psn, color)
               putstone_and_update(brd, P, psn, color)
               H.append(psn) # add location to history
               if win_check(P, color): print(' win: game over')
@@ -280,11 +268,11 @@ def act_on_request(board, P, history):
 def interact():
   Board = B(4,4)
   #board, history = deepcopy(Board.empty_fat_brd), []
-  P = deepcopy(Board.parent)
+  P = deepcopy(Board.parents)
   while True:
     show_board(board)
     print('legal ', legal_moves(board),'\n')
-    show_parent(P)
+    show_parents(P)
     #sim_test(board, P, Cell.b, 10000)
     #sim_test(board, P, Cell.w, 10000)
     ok, msg = act_on_request(board, P, history)

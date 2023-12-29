@@ -23,14 +23,14 @@ class go_board:
 
   def merge_blocks(self, p, q):
     print('merge blocks', p, q)
-    proot, qroot = UF.union(self.parent, p, q)
+    proot, qroot = UF.union(self.parents, p, q)
     self.blocks[proot].update(self.blocks[qroot])
     self.liberties[proot].update(self.liberties[qroot])
     self.liberties[proot] -= self.blocks[proot]
 
   def remove_liberties(self, p, q): 
-    proot = UF.find(self.parent, p)
-    qroot = UF.find(self.parent, q)
+    proot = UF.find(self.parents, p)
+    qroot = UF.find(self.parents, q)
     print('remove liberties from', proot)
     self.liberties[proot] -= self.blocks[qroot]
     self.liberties[qroot] -= self.blocks[proot]
@@ -63,17 +63,17 @@ class go_board:
     self.nbrs      = {} # point -> neighbors
     self.blocks    = {} # point -> block
     self.liberties = {} # point -> liberties
-    self.parent    = {} # point -> parent in block
+    self.parents    = {} # point -> parents in block
 
     for point in range(self.n):
        self.nbrs[point]      = set()
        self.blocks[point]    = set()
        self.liberties[point] = set()
-       self.parent[point]    = point
+       self.parents[point]    = point
 
-    print('\nparent of points\n')
+    print('\nparents of points\n')
     for p in range(self.n): 
-      print(f'{p:2}', self.parent[p])
+      print(f'{p:2}', self.parents[p])
     Pt.show_go_point_names(self.r, self.c)
 
     for y in range(self.r):
@@ -107,4 +107,4 @@ for move in m45demo:
 #for move in m22demo:
   gb.add_stone(move[0], move[1], move[2])
   gb.print()
-IO.show_blocks(gb.n, gb.stones, gb.parent, gb.blocks, gb.liberties)
+IO.show_blocks(gb.n, gb.stones, gb.parents, gb.blocks, gb.liberties)
