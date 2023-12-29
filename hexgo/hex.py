@@ -13,7 +13,8 @@
 #from copy import deepcopy
 #from random import shuffle, choice
 #import math
-from hexgo import Cell, Color, IO, Pt, UF
+from time import time
+from hexgo import Cell, Color, Game, IO, Pt, UF
 
 class B: ################ the board #######################
 
@@ -23,21 +24,22 @@ class B: ################ the board #######################
 
   ######## positions <------>   row, column coordinates
 
-  def rc_point(self, row, col):
-    return col + row*self.c
-
   def rc_of(self, p): # return usual row, col coordinates
     return divmod(p, B.c)
   
   def show_all(self):
-    IO.disp_hex(self.stones, self.r, self.c)
+    bs = IO.board_str(self.stones, self.n)
+    IO.disp(self.game_type, bs, self.r, self.c)
     Pt.show_hex_point_names(self.r, self.c)
     IO.show_blocks(self.n, self.stones, self.parents, self.blocks, self.liberties)
 
   def __init__(self, rows, cols):
+    B.game_type = Game.hex_game
     B.r, B.c, B.n  = rows, cols, rows*cols
-    B.top, B.btm, B.left, B.right = -4, -3, -2, -1
-    B.border = (B.top, B.btm, B.left, B.right)
+    B.top, B.btm, B.lft, B.rgt = -4, -3, -2, -1
+    B.all_range = range(B.top, B.n) # board and side points
+    B.board_range = range(B.n) # board points
+    B.border = (B.top, B.btm, B.lft, B.rgt)
 
     B.nbr_offset = (-B.n, -B.n+1, 1, B.n, B.n-1, -1)
     #   0 1
@@ -54,17 +56,16 @@ class B: ################ the board #######################
 
     B.nbrs[B.top] = set(range(B.c))
     B.nbrs[B.btm] = set(range(B.c*(B.r-1), B.n))
-    B.nbrs[B.left] = set([self.rc_point(j,0) for j in range(B.r)])
-    B.nbrs[B.right] = set([self.rc_point(j,B.c-1) for j in range(B.r)])
-    for point in range(B.n):
-       B.nbrs[point]      = set()
+    B.nbrs[B.lft] = set([Pt.rc_point(j, 0, B.c) for j in range(B.r)])
+    B.nbrs[B.rgt] = set([Pt.rc_point(j, B.c-1, B.c) for j in range(B.r)])
+    for point in range(B.n): B.nbrs[point] = set()
 
     board_points = set(range(self.n))
     for y in range(B.r):
       for x in range(B.c):
-        p = self.rc_point(y,x)
+        p = Pt.rc_point(y, x, B.c)
         for j in B.nbr_offset:
-          nbr = j + self.rc_point(y,x) 
+          nbr = j + Pt.rc_point(y, x, B.c) 
           if nbr in board_points:
             B.nbrs[p].add(nbr)
 
@@ -280,8 +281,11 @@ def interact():
     if not ok:
       return
 
-board = B(2,3)
+start_time = time()
+board = B(6,6)
 board.show_all()
+end_time = time()
+print('time ', end_time - start_time)
 
 #big_tst()
 #interact()

@@ -1,12 +1,14 @@
 """
-  classes Cell, Color, IO, Point, UF, for hex and go  rbh 2024
+  for hex and go  rbh 2024
+  classes Cell, Color, Game, IO, Point, UF   i
 """
 
 from string import ascii_lowercase
 
+class Game:
+  go_game, hex_game = 0, 1
 
-class Cell: ############## board cells      ###############
-
+class Cell: ############## board cells ###############
   b, w, e, io_ch = 0, 1, 2, '*@.'  # black, white, empty
   bw = (b, w)
 
@@ -55,26 +57,21 @@ class IO:  ############## hex and go output #############
     if p in stone_sets[1]: return Cell.io_ch[1]
     return Cell.io_ch[2]
 
-  def disp_hex(stone_sets, rows, cols): 
-    s = '\n   ' + ' '.join([ascii_lowercase[c] for c in range(cols)]) + '\n'
-    p =  -1
-    for y in range(rows):
-      s += '\n' + y*' ' + f'{y+1:2}  ' 
-      for c in range(cols):
-         p += 1
-         s += ' ' + IO.point_ch(stone_sets, p)
-      s += ' ' + Cell.io_ch[1]
-    s += '\n    ' + ' '*rows + (' ' + Cell.io_ch[0])*cols
-    print(Color.paint(s, Cell.io_ch))
-
   def board_str(stone_sets, n):
     return ''.join([IO.point_ch(stone_sets, p) for p in range(n)])
 
-  def disp_go(bs, r, c):
+  def disp(is_hex, bs, r, c): 
     s = '\n'
-    for y in reversed(range(r)): # print last row first
-      s += f'{y+1:2} '+ IO.spread(bs[y*c:(y+1)*c]) + '\n'
-    s += '\n   ' + IO.spread(ascii_lowercase[:c])
+    if is_hex: # print hex board
+      s += '   ' + IO.spread(ascii_lowercase[:c]) + '\n'
+      for y in range(r):
+        s += y*' ' + f'{y+1:2}  ' +IO.spread(bs[y*c:(y+1)*c])
+        s += ' ' + Cell.io_ch[1] + '\n'
+      s += '    ' + ' '*r + (' ' + Cell.io_ch[0])*c
+    else:     # print go board
+      for y in reversed(range(r)): # print last row first
+        s += f'{y+1:2} '+ IO.spread(bs[y*c:(y+1)*c]) + '\n'
+      s += '\n   ' + IO.spread(ascii_lowercase[:c])
     print(Color.paint(s, Cell.io_ch))
 
   def show_blocks(n, stones, parents, blocks, liberties):
