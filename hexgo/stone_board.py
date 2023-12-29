@@ -26,13 +26,13 @@ class Stone_board:
     self.liberties[qroot] -= self.blocks[proot]
 
   def add_stone(self, color, r, c):
-    point, stns = Pt.rc_point(r, c, self.c), self.stones
+    point = Pt.rc_point(r, c, self.c)
 
     assert color in Cell.bw, 'invalid stone value'
-    assert point not in stns[Cell.b].union(stns[Cell.w]), \
-           'already a stone there'
+    assert point not in self.stones[Cell.b] and \
+           point not in self.stones[Cell.w], 'already a stone there'
 
-    stns[color].add(point)
+    self.stones[color].add(point)
     self.blocks[point].add(point)
 
     for n in self.nbrs[point]:

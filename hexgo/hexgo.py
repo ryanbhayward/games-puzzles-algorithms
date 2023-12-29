@@ -60,14 +60,18 @@ class IO:  ############## hex and go output #############
   def board_str(stone_sets, n):
     return ''.join([IO.point_ch(stone_sets, p) for p in range(n)])
 
+  def show_dict(msg, d):
+    print(msg)
+    for x in d: print(x, d[x])
+
   def disp(is_hex, bs, r, c): 
     s = '\n'
     if is_hex: # print hex board
-      s += '   ' + IO.spread(ascii_lowercase[:c]) + '\n'
+      s += '  ' + IO.spread(ascii_lowercase[:c]) + '\n'
       for y in range(r):
-        s += y*' ' + f'{y+1:2}  ' +IO.spread(bs[y*c:(y+1)*c])
+        s += y*' ' + f'{y+1:2} ' +IO.spread(bs[y*c:(y+1)*c])
         s += ' ' + Cell.io_ch[1] + '\n'
-      s += '    ' + ' '*r + (' ' + Cell.io_ch[0])*c
+      s += '   ' + ' '*r + (' ' + Cell.io_ch[0])*c
     else:     # print go board
       for y in reversed(range(r)): # print last row first
         s += f'{y+1:2} '+ IO.spread(bs[y*c:(y+1)*c]) + '\n'
@@ -100,6 +104,9 @@ class Pt: ############## board points     ###############
 
   def rc_point(row, col, num_cols):
     return col + row * num_cols
+
+  def hex_rc_point(row, col, num_cols):
+    return col + 1  + (row + 1) * (num_cols + 2)
 
  # def rc_of(self, p): # return usual row, col coordinates
  #   return divmod(p, B.c)
