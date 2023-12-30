@@ -1,6 +1,6 @@
 """
   for hex and go  rbh 2024
-  classes Cell, Color, Game, IO, Point, UF   i
+  classes Cell, Color, Game, IO, Point, UF
 """
 
 from string import ascii_lowercase
@@ -60,9 +60,13 @@ class IO:  ############## hex and go output #############
   def board_str(stone_sets, n):
     return ''.join([IO.point_ch(stone_sets, p) for p in range(n)])
 
-  def show_dict(msg, d):
-    print(msg)
+  def show_pairs(msg, d):
+    print('\n' + msg)
     for x in d: print(x, d[x])
+
+  def show_dict(msg, d):
+    print('\n' + msg)
+    for x in d: print(x, sorted(d[x]))
 
   def disp(is_hex, bs, r, c): 
     s = '\n'
@@ -78,15 +82,15 @@ class IO:  ############## hex and go output #############
       s += '\n   ' + IO.spread(ascii_lowercase[:c])
     print(Color.paint(s, Cell.io_ch))
 
-  def show_blocks(n, stones, parents, blocks, liberties):
+  def show_blocks(p_range, n, stones, parents, blocks, liberties):
     for pcol in Cell.bw:
       print(Cell.io_ch[pcol], 'blocks', end=' ')
-      for p in range(n):
+      for p in p_range:
         if Pt.point_color(stones, p) == pcol and UF.is_root(parents, p):
           print(blocks[p], end=' ')
       print()
       print(Cell.io_ch[pcol], 'liberties', end=' ')
-      for p in range(n):
+      for p in p_range:
         if Pt.point_color(stones, p) == pcol and UF.is_root(parents, p):
           print(liberties[p], end=' ')
       print()
@@ -118,12 +122,14 @@ class Pt: ############## board points     ###############
 
   def show_point_names(gt, r, c):  # confirm names look ok
     if gt: # hex_game
-      print('\nhex board point names\n')
+      print('\nhex board point names')
+      print('  ', '-4  '*c)
       for y in range(r): #print last row first
-        print('  '*y, end='')
+        print('  '*y, '-1', end='')
         for x in range(c):
           print(f'{Pt.rc_point(y, x, c):4}', end='')
-        print()
+        print('  -3')
+      print('   ' + '   '*r, '-2  '*c, sep='')
     else:
       print('\ngo board point names\n')
       for y in range(r - 1, -1, -1): #print last row first

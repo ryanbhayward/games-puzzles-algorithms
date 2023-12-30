@@ -25,13 +25,10 @@ class Stone_board:
     self.liberties[proot] -= self.blocks[qroot]
     self.liberties[qroot] -= self.blocks[proot]
 
-  def add_stone(self, color, r, c):
-    point = Pt.rc_point(r, c, self.c)
-
+  def add_stone(self, color, point):
     assert color in Cell.bw, 'invalid stone value'
     assert point not in self.stones[Cell.b] and \
            point not in self.stones[Cell.w], 'already a stone there'
-
     self.stones[color].add(point)
     self.blocks[point].add(point)
 
@@ -42,43 +39,66 @@ class Stone_board:
         self.remove_liberties(n, point)
 
   def __init__(self, gt, rows, cols): 
-
     self.game_type = gt
-    ### r horizontal lines, c vertical lines, r*c points
     self.r, self.c, self.n = rows, cols, rows * cols
-    self.board_range = range(self.n) # board points
+    if gt: # hex game 
+      self.top, self.rgt, self.btm, self.lft = -4, -3, -2, -1
+      self.border = range(self.top, 0) # -4, -3, -2, -1
+      self.p_range = range(self.top, self.n)
+      self.nbr_offset = ((-1,0),(-1,1),(0,1),(1,0),(1,-1),(0,-1))
+      #   0 1
+      #  5 . 2
+      #   4 3
+    else:
+      self.p_range = range(self.n)
+      self.nbr_offset = ((-1,0),(0,1),(1,0),(0,-1))
+      #    0 
+      #  3 . 1
+      #    2
     self.stones = [set(), set()]  # start with empty board
 
-    ### dictionairies
+    ### dictionaries
     self.nbrs      = {} # point -> neighbors
     self.blocks    = {} # point -> block
     self.liberties = {} # point -> liberties
     self.parents   = {} # point -> parents in block
 
-    for point in range(self.n):
-       self.nbrs[point]      = set()
-       self.blocks[point]    = set()
-       self.liberties[point] = set()
-       self.parents[point]    = point
+    for point in self.p_range:
+      self.nbrs[point]      = set()
+      self.blocks[point]    = set()
+      self.liberties[point] = set()
+      self.parents[point]    = point
 
-    print('\nparents of points\n')
-    for p in range(self.n): 
-      print(f'{p:2}', self.parents[p])
+    r_range, c_range  = range(self.r), range(self.c)
+    for r in range(self.r):
+      for c in range(self.c):
+        for (y,x) in self.nbr_offset:
+          if r+y in r_range and c+x in c_range:
+            self.nbrs[Pt.rc_point(r,c,self.c)].add(Pt.rc_point(r+y,c+x,self.c))
+
+    # if hex, add nbrs with top/bottom/left/right
+    if gt:
+      for j in range(self.c):
+        self.nbrs[self.top].add(j)
+        self.nbrs[j].add(self.top)
+        self.nbrs[self.btm].add(self.n-j-1)
+        self.nbrs[self.n-j-1].add(self.btm)
+      for k in range(self.r):
+        self.nbrs[self.lft].add(k*self.c)
+        self.nbrs[k*self.c].add(self.lft)
+        self.nbrs[self.rgt].add(k*self.c+self.c-1)
+        self.nbrs[k*self.c+self.c-1].add(self.rgt)
+
+      self.add_stone(Cell.b, self.top)
+      self.add_stone(Cell.b, self.btm)
+      self.add_stone(Cell.w, self.lft)
+      self.add_stone(Cell.w, self.rgt)
+
+    IO.show_dict('point neighbor sets', self.nbrs)
+    IO.show_pairs('point parents', self.parents)
     Pt.show_point_names(self.game_type, self.r, self.c)
 
-    for y in range(self.r):
-      for x in range(self.c):
-        p = Pt.rc_point(y, x, self.c)
-        if x > 0: 
-          self.nbrs[p].add( Pt.rc_point(y, x - 1, self.c) )
-        if x < self.c - 1: 
-          self.nbrs[p].add( Pt.rc_point(y, x + 1, self.c) )
-        if y > 0: 
-          self.nbrs[p].add( Pt.rc_point(y - 1, x, self.c) )
-        if y < self.r - 1: 
-          self.nbrs[p].add( Pt.rc_point(y + 1, x, self.c) )
-
-    for p in range(self.n):
+    for p in self.p_range:
       self.liberties[p].update(self.nbrs[p])
 
 ################################ not using this yet
