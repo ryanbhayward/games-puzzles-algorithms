@@ -62,7 +62,8 @@ class IO:  ############## hex and go output #############
 
   def show_pairs(msg, d):
     print('\n' + msg)
-    for x in d: print(x, d[x])
+    for x in d: print(x, d[x], end=' : ')
+    print()
 
   def show_dict(msg, d):
     print('\n' + msg)
