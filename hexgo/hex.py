@@ -22,17 +22,18 @@ from hexgo import Cell, Color, Game, IO, Pt, UF
 from stone_board import Stone_board
 from time import time
 
-mdemo =   ((0,0,1),(0,1,0))
-m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
-m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3),\
-           (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
+#mdemo =   ((0,0,1),(0,1,0))
+#m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
+#m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3),\
+#           (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
+m33demo  = ((0,1,1),(1,0,0),(0,2,1),(1,2,2),(0,0,1))
 
 start_time = time()
 
-hb = Stone_board(Game.hex_game, 6, 6)
+hb = Stone_board(Game.hex_game, 3, 3)
 IO.show_blocks(hb.p_range, hb.n, hb.stones, hb.parents, hb.blocks, hb.liberties)
 
-for move in m45demo:
+for move in m33demo:
   hb.add_stone(move[0], Pt.rc_point(move[1], move[2], hb.c))
   hb.print()
   IO.show_blocks(hb.p_range, hb.n, hb.stones, hb.parents, hb.blocks, hb.liberties)
