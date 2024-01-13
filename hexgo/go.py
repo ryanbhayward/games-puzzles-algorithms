@@ -19,12 +19,12 @@ m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
 start_time = time()
 
 gb = Stone_board(Game.go_game, 3, 4)
-IO.show_blocks(gb.p_range, gb.n, gb.stones, gb.parents, gb.blocks, gb.liberties)
+gb.show_blocks()
 for move in m34demo:
   gb.add_stone(move[0], Pt.rc_point(move[1], move[2], gb.c))
   IO.show_pairs('point parents', gb.parents)
   gb.print()
-IO.show_blocks(gb.p_range, gb.n, gb.stones, gb.parents, gb.blocks, gb.liberties)
+gb.show_blocks()
 
 end_time = time()
 print('time ', end_time - start_time)

@@ -26,17 +26,18 @@ from time import time
 #m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
 #m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3),\
 #           (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
-m33demo  = ((0,1,1),(1,0,0),(0,2,1),(1,2,2),(0,0,1))
+#m33demo  = ((0,1,1),(1,0,0),(0,2,1),(1,2,2),(0,0,1))
+m33demo  = []
 
 start_time = time()
 
-hb = Stone_board(Game.hex_game, 3, 3)
-IO.show_blocks(hb.p_range, hb.n, hb.stones, hb.parents, hb.blocks, hb.liberties)
+hb = Stone_board(Game.hex_game, 1, 1)
+hb.show_blocks()
 
 for move in m33demo:
   hb.add_stone(move[0], Pt.rc_point(move[1], move[2], hb.c))
   hb.print()
-  IO.show_blocks(hb.p_range, hb.n, hb.stones, hb.parents, hb.blocks, hb.liberties)
+  hb.show_blocks()
 
 end_time = time()
 print('time ', end_time - start_time)

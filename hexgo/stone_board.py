@@ -38,6 +38,27 @@ class Stone_board:
       if n in self.stones[Cell.opponent(color)]: # opponent nbr
         self.remove_liberties(n, point)
 
+  def show_parents(self):
+    print('\n  point parents')
+    for x in self.parents: 
+      print(x, ' ', self.parents[x], sep='', end='  ')
+    print()
+
+  def show_blocks(self):
+    for pcol in Cell.bw:
+      print(Cell.io_ch[pcol], 'blocks', end=' ')
+      for p in self.p_range:
+        if Pt.point_color(self.stones, p) == pcol and \
+           UF.is_root(self.parents, p):
+          print(self.blocks[p], end=' ')
+      print()
+      print(Cell.io_ch[pcol], 'liberties', end=' ')
+      for p in self.p_range:
+        if Pt.point_color(self.stones, p) == pcol and \
+           UF.is_root(self.parents, p):
+          print(self.liberties[p], end=' ')
+      print()
+
   def __init__(self, gt, rows, cols): 
     self.game_type = gt
     self.r, self.c, self.n = rows, cols, rows * cols
@@ -95,7 +116,7 @@ class Stone_board:
       self.add_stone(Cell.w, self.rgt)
 
     IO.show_dict('point neighbor sets', self.nbrs)
-    IO.show_pairs('point parents', self.parents)
+    self.show_parents()
     Pt.show_point_names(self.game_type, self.r, self.c)
 
     for p in self.p_range:
@@ -106,4 +127,3 @@ class Stone_board:
 #  def __init__(self, r, c):
 #    self.board = go_board(r,c)
 ##################################################### 
-

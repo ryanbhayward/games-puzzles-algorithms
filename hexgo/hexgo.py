@@ -70,6 +70,8 @@ class IO:  ############## hex and go output #############
     for x in d: print(x, sorted(d[x]))
 
   def disp(is_hex, bs, r, c): 
+    print('disp')
+    print(bs)
     s = '\n'
     if is_hex: # print hex board
       s += '  ' + IO.spread(ascii_lowercase[:c]) + '\n'
@@ -82,19 +84,6 @@ class IO:  ############## hex and go output #############
         s += f'{y+1:2} '+ IO.spread(bs[y*c:(y+1)*c]) + '\n'
       s += '\n   ' + IO.spread(ascii_lowercase[:c])
     print(Color.paint(s, Cell.io_ch))
-
-  def show_blocks(p_range, n, stones, parents, blocks, liberties):
-    for pcol in Cell.bw:
-      print(Cell.io_ch[pcol], 'blocks', end=' ')
-      for p in p_range:
-        if Pt.point_color(stones, p) == pcol and UF.is_root(parents, p):
-          print(blocks[p], end=' ')
-      print()
-      print(Cell.io_ch[pcol], 'liberties', end=' ')
-      for p in p_range:
-        if Pt.point_color(stones, p) == pcol and UF.is_root(parents, p):
-          print(liberties[p], end=' ')
-      print()
 
   def test():
     print('tests for class IO\n')
@@ -124,13 +113,13 @@ class Pt: ############## board points     ###############
   def show_point_names(gt, r, c):  # confirm names look ok
     if gt: # hex_game
       print('\nhex board point names')
-      print('  ', '-4  '*c)
+      print(' '*2*c + '  -4')
       for y in range(r): #print last row first
-        print('  '*y, '-1', end='')
+        print('  '*y + ('-1' if (r==1 or y==(r//2)) else '  '), end='')
         for x in range(c):
           print(f'{Pt.rc_point(y, x, c):4}', end='')
-        print('  -3')
-      print('   ' + '   '*r, '-2  '*c, sep='')
+        print('  -3' if (r==1 or y==(r//2)) else '')
+      print(' '*(2*r + 2*c) + '-2')
     else:
       print('\ngo board point names\n')
       for y in range(r - 1, -1, -1): #print last row first
