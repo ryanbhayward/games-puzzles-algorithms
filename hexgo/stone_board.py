@@ -38,10 +38,17 @@ class Stone_board:
       if n in self.stones[Cell.opponent(color)]: # opponent nbr
         self.remove_liberties(n, point)
 
+  def hex_win(self, cell_color):
+     assert self.game_type == Game.hex_game
+     if cell_color == Cell.b:
+       return UF.in_same_block(self.parents, self.top, self.btm)
+     return UF.in_same_block(self.parents, self.lft, self.rgt)
+
   def show_parents(self):
-    print('\n  point parents')
+    print('parents ',end='')
     for x in self.parents: 
-      print(x, ' ', self.parents[x], sep='', end='  ')
+      if x != self.parents[x]:
+        print(x, ' ', self.parents[x], sep='', end='  ')
     print()
 
   def show_blocks(self):

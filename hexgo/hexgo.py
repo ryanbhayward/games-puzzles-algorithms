@@ -70,8 +70,6 @@ class IO:  ############## hex and go output #############
     for x in d: print(x, sorted(d[x]))
 
   def disp(is_hex, bs, r, c): 
-    print('disp')
-    print(bs)
     s = '\n'
     if is_hex: # print hex board
       s += '  ' + IO.spread(ascii_lowercase[:c]) + '\n'
@@ -139,6 +137,9 @@ class UF: ############# simple union/find  ##############
     while x != parents[x]:
       x = parents[x]
     return x
+
+  def in_same_block(parents, x, y):
+     return UF.find(parents, x) == UF.find(parents,y)
 
   def is_root(parents, p):
     return parents[p] == p
