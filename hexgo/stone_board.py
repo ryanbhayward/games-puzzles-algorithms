@@ -38,8 +38,17 @@ class Stone_board:
       if n in self.stones[Cell.opponent(color)]: # opponent nbr
         self.remove_liberties(n, point)
 
+  def make_move(self, move):
+    self.add_stone(move[0], Pt.rc_point(move[1], move[2], self.c))
+    self.print()
+    self.show_blocks()
+    self.show_parents()
+    if self.hex_win(Cell.b): print('!!! game over: black wins')
+    if self.hex_win(Cell.w): print('!!! game over: white wins')
+
   def hex_win(self, cell_color):
-     assert self.game_type == Game.hex_game
+     if self.game_type != Game.hex_game: 
+         return False
      if cell_color == Cell.b:
        return UF.in_same_block(self.parents, self.top, self.btm)
      return UF.in_same_block(self.parents, self.lft, self.rgt)
@@ -57,13 +66,13 @@ class Stone_board:
       for p in self.p_range:
         if Pt.point_color(self.stones, p) == pcol and \
            UF.is_root(self.parents, p):
-          print(self.blocks[p], end=' ')
+          print(p, self.blocks[p], end=' ')
       print()
       print(Cell.io_ch[pcol], 'liberties', end=' ')
       for p in self.p_range:
         if Pt.point_color(self.stones, p) == pcol and \
            UF.is_root(self.parents, p):
-          print(self.liberties[p], end=' ')
+          print(p, self.liberties[p], end=' ')
       print()
 
   def __init__(self, gt, rows, cols): 

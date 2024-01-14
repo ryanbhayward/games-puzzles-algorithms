@@ -12,19 +12,14 @@ from stone_board import Stone_board
 m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
 # 1.b b3  2.w c3 ...
 #m34demo = ((0,2,1),(1,2,2),(0,1,2),(1,1,3),(0,1,1))
-m34demo = ((0,2,1),(1,2,2),(0,1,1),(1,1,3),(0,1,2))
+m34demo = ((0,2,1),(1,2,2),(0,1,1),(1,1,3),(0,1,2),(0,0,1))
 m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3), \
            (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
 
 start_time = time()
-
 gb = Stone_board(Game.go_game, 3, 4)
-gb.show_blocks()
-for move in m34demo:
-  gb.add_stone(move[0], Pt.rc_point(move[1], move[2], gb.c))
-  IO.show_pairs('point parents', gb.parents)
-  gb.print()
-gb.show_blocks()
 
-end_time = time()
-print('time ', end_time - start_time)
+for move in m34demo:
+  gb.make_move(move)
+
+print('time ', time() - start_time)
