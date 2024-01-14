@@ -14,25 +14,22 @@
 #     * hex (by Luke Schultz)
 #     * hsearch (by Owen Randall)
 
-#from copy import deepcopy
-#from random import shuffle, choice
-#import math
-
 from hexgo import Cell, Color, Game, IO, Pt, UF
 from stone_board import Stone_board
 from time import time
 
-#mdemo =   ((0,0,1),(0,1,0))
-#m22demo = ((0,0,0),(1,0,1),(0,1,1),(1,1,0))
-#m45demo = ((0,1,0),(1,1,2),(1,1,4),(1,0,3),(1,2,3),\
-#           (0,3,0),(1,1,3),(0,2,1),(1,2,0),(0,3,3))
-m33demo  = ((0,1,1),(1,0,0),(0,2,1),(1,2,2),(0,0,1))
-m33tdemo  = ((1,1,1),(0,0,0),(1,0,2),(0,2,2),(1,2,0))
+b,w = 0,1
+m33demo  = ((b,1,1),(w,0,0),(b,2,1),(w,2,2),(b,0,1))
+m33tdemo  = ((w,1,1),(b,0,0),(w,0,2),(b,2,2),(w,2,0))
+hw1 = ((b,0,1),(w,0,2),
+       (b,1,2),(w,1,3),
+       (b,1,1),(w,0,0),
+       (b,2,0))
 
 start_time = time()
-hb = Stone_board(Game.hex_game, 3, 3)
+hb = Stone_board(Game.hex_game, 3, 4)
 
-for move in m33demo:
+for move in hw1:
   hb.make_move(move)
 
 print('time ', time() - start_time)

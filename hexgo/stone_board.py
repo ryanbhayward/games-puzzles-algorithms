@@ -12,7 +12,7 @@ class Stone_board:
     IO.disp(self.game_type, IO.board_str(self.stones, self.n), self.r, self.c)
 
   def merge_blocks(self, p, q):
-    print('merge blocks', p, q)
+    print('union blocks', p, q)
     proot, qroot = UF.union(self.parents, p, q)
     self.blocks[proot].update(self.blocks[qroot])
     self.liberties[proot].update(self.liberties[qroot])
@@ -21,11 +21,12 @@ class Stone_board:
   def remove_liberties(self, p, q): 
     proot = UF.find(self.parents, p)
     qroot = UF.find(self.parents, q)
-    print('remove liberties from', proot)
+    #print('remove liberties from', proot)
     self.liberties[proot] -= self.blocks[qroot]
     self.liberties[qroot] -= self.blocks[proot]
 
   def add_stone(self, color, point):
+    print('\n-------------\nadd_stone', Cell.io_ch[color], point)
     assert color in Cell.bw, 'invalid stone value'
     assert point not in self.stones[Cell.b] and \
            point not in self.stones[Cell.w], 'already a stone there'
@@ -40,11 +41,11 @@ class Stone_board:
 
   def make_move(self, move):
     self.add_stone(move[0], Pt.rc_point(move[1], move[2], self.c))
-    self.print()
     self.show_blocks()
     self.show_parents()
     if self.hex_win(Cell.b): print('!!! game over: black wins')
     if self.hex_win(Cell.w): print('!!! game over: white wins')
+    #self.print()
 
   def hex_win(self, cell_color):
      if self.game_type != Game.hex_game: 
