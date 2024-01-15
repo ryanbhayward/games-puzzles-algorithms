@@ -6,6 +6,7 @@
 import numpy as np
 from copy import deepcopy
 from random import shuffle, choice
+from time import sleep
 #import math
 
 class Cell: #############  cells #########################
@@ -255,6 +256,7 @@ show_board(board)
 legal = legal_moves(board, B.r, B.c)
 t = 0
 while len(legal)>0:
+  sleep(.5)
   print(len(legal), ' legal moves here')
   mv = choice(legal)
   peg_move(board, mv[0], mv[1])
