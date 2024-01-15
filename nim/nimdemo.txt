@@ -1,0 +1,64 @@
+            pile sizes in binary
+
+a             1011011010101010001
+b             1010010100101010101
+c              101011011000000001
+d              100010101010101101
+
+nimsum        0000000000010101000
+
+nimsum is not 0, so we can win...  how?
+
+we want to remove stones from a pile,
+
+so that the resulting nimsum  is ... 0  :)
+
+* do we have a winning move from pile a?
+
+find the column of the leftmost 1 in the nimsum...
+
+a             1011011010101010001
+b             1010010100101010101
+c              101011011000000001
+nimsum        0000000000010101000
+
+old d          100010101010101101
+we want        """"""""""0"0"0"""
+
+new d          100010101000000101
+    
+
+
+a        001
+b        010
+c        110
+c        110
+         011  <- this is how much we want to reduce pile c
+              so winning move: remove 3 from pile c
+
+a             1011011010101010001
+b             1010010100101010101
+c              101011011000000001
+d              100010101010101101
+
+nimsum        0000000000010101000
+                         ^
+1st: find column of leftmost 1 in nimsum
+next: pick any pile with a 1 in that column (here, must be d)
+next: nimsum d with all piles
+
+a             1011011010101010001
+b             1010010100101010101
+c              101011011000000001
+d              100010101010101101
+d              100010101010101101
+
+new d          100010101000000101   <- move to this many
+
+finally: move to pile with that many stones
+
+a             1011011010101010001
+b             1010010100101010101
+c              101011011000000001
+new d          100010101000000101  
+              0000000000000000000  :)

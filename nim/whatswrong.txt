@@ -1,0 +1,52 @@
+
+
+how long to compute fib(40)
+
+with this code?
+
+def fib(n):
+  if n<=1: return n
+  return fib(n-2)+fib(n-1)
+
+well, let's count the total number of recursion calls.
+
+n  calls to compute fib(n)
+
+0       1
+1       1 
+2       3    1 c(0)  c(1)
+3            1 c(1)  c(2)
+        5    1    1     3
+4            1 c(2)  c(3)
+              1    3     5
+        9
+5            1  c(3)  c(4)
+              1     5     9
+       15
+
+...
+
+40          1   + c(38)  + c(39)
+
+exercise: prove that c(n) >= f(n)
+
+n   f(n)  c(n)
+
+0    0     1
+1    1     1
+2    1     3
+3    2     5
+4    3     9
+5    5    15
+6
+7
+8
+9
+
+
+
+
+
+
+
+       
