@@ -37,10 +37,13 @@ def readtree():
   return L,T,V, L[0]
 
 def showtree(L,T,V):
+  print('showtree')
   for v in sorted(L):
     print(v, end=' ')
-    if (v in T and len(T[v])>0): print(T[v], end=' ')
-    if v in V:                   print(V[v], end=' ')
+    if (v in T and len(T[v])>0): 
+      print(T[v], end=' ')
+    if v in V:  
+      print(V[v], end=' ')
     print('')
   print('')
 
