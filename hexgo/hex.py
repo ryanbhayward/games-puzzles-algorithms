@@ -29,7 +29,9 @@ hw1 = ((b,0,1),(w,0,2),
 start_time = time()
 hb = Stone_board(Game.hex_game, 3, 4)
 
-for move in hw1:
-  hb.make_move(move)
+#for move in hw1:
+#  hb.make_move(move)
+
+hb.bfs_demo(0)
 
 print('time ', time() - start_time)

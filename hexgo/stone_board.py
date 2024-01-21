@@ -76,6 +76,20 @@ class Stone_board:
           print(p, self.liberties[p], end=' ')
       print()
 
+  def bfs_demo(self, start):
+    def add_to_q(point, seen, q):
+      print(point, end=' ')
+      seen[point] = True
+      q.append(point)
+      
+    myqueue, seen = [], [False]*len(self.p_range)
+    add_to_q(start, seen, myqueue)
+    while len(myqueue) > 0:
+      cell = myqueue.pop(0)
+      for nbr in self.nbrs[cell]:
+        if not seen[nbr]: add_to_q(nbr, seen, myqueue)
+    print('')
+
   def __init__(self, gt, rows, cols): 
     self.game_type = gt
     self.r, self.c, self.n = rows, cols, rows * cols

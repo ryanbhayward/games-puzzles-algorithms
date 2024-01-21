@@ -8,7 +8,6 @@ from hexgo import Cell, Color, Game, IO, Pt, UF
 from time import time
 from stone_board import Stone_board
 
-
 b,w = 0,1
 
 m22demo = ((b,0,0),(w,0,1),(b,1,1),(w,1,0))
@@ -23,7 +22,8 @@ hw1 = ((b,2,1),(w,2,2),
 start_time = time()
 gb = Stone_board(Game.go_game, 3, 4)
 
-for move in hw1:
-  gb.make_move(move)
+#for move in hw1:
+#  gb.make_move(move)
+gb.bfs_demo(0)
 
 print('time ', time() - start_time)

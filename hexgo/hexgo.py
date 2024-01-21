@@ -67,7 +67,7 @@ class IO:  ############## hex and go output #############
 
   def show_dict(msg, d):
     print('\n' + msg)
-    for x in d: print(x, sorted(d[x]))
+    for x in d: print(x, d[x])
 
   def disp(is_hex, bs, r, c): 
     s = '\n'
