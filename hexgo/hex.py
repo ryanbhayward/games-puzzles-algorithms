@@ -27,13 +27,14 @@ hw1 = ((b,0,1),(w,0,2),
        (b,2,0))
 
 start_time = time()
-hb = Stone_board(Game.hex_game, 3, 4)
+hb = Stone_board(Game.hex_game, 2, 3)
 
 #for move in hw1:
 #  hb.make_move(move)
 
 for sort_nbrs in (True, False):
   hb.bfs_demo(0, sort_nbrs)
-  hb.dfs_demo(0, sort_nbrs)
+  hb.dfs_demo(0, sort_nbrs, True)
+  hb.dfs_demo(0, sort_nbrs, False)
 
 print('\ntime ', time() - start_time)

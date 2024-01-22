@@ -26,7 +26,8 @@ gb = Stone_board(Game.go_game, 3, 4)
 #  gb.make_move(move)
 
 for sort_nbrs in (True, False):
-  gb.bfs_demo(0, sort_nbrs)
-  gb.dfs_demo(0, sort_nbrs)
+  gb.bfs_demo(2, sort_nbrs)
+  gb.dfs_demo(2, sort_nbrs, True)
+  gb.dfs_demo(2, sort_nbrs, False)
 
 print('\ntime ', time() - start_time)

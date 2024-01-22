@@ -76,18 +76,20 @@ class Stone_board:
           print(p, self.liberties[p], end=' ')
       print()
 
-  def dfs(self, p, seen, sort_nbrs): # p is cell in hex, point in go
+  def dfs(self, p, seen, sort_nbrs, pre_order): # p is cell in hex, point in go
     if not seen[p]:
-      print(p, end=' ')
+      if pre_order: print(p, end=' ')
       seen[p] = True
       for nbr in sorted(self.nbrs[p]) if sort_nbrs else self.nbrs[p]:
-        self.dfs(nbr, seen, sort_nbrs)
+        self.dfs(nbr, seen, sort_nbrs, pre_order)
+      if not pre_order: print(p, end=' ')
 
-  def dfs_demo(self, start, sort_nbrs): # start is cell in hex, point in go
+  def dfs_demo(self, start, sort_nbrs, pre_order): # start: hex/cell, go/point
     print('\ndfs from ', start, 'with nbrs', 
-          '' if sort_nbrs else 'not', 'sorted')
+          '' if sort_nbrs else 'not', 'sorted',
+          'pre-order' if pre_order else 'post-order')
     seen = [False]*len(self.p_range)
-    self.dfs(start, seen, sort_nbrs)
+    self.dfs(start, seen, sort_nbrs, pre_order)
     print('')
 
   def bfs_demo(self, start, sort_nbrs): # start is cell in hex, point in go
