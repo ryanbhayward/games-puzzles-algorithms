@@ -32,6 +32,8 @@ hb = Stone_board(Game.hex_game, 3, 4)
 #for move in hw1:
 #  hb.make_move(move)
 
-hb.bfs_demo(0)
+for sort_nbrs in (True, False):
+  hb.bfs_demo(0, sort_nbrs)
+  hb.dfs_demo(0, sort_nbrs)
 
-print('time ', time() - start_time)
+print('\ntime ', time() - start_time)

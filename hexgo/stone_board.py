@@ -76,17 +76,34 @@ class Stone_board:
           print(p, self.liberties[p], end=' ')
       print()
 
-  def bfs_demo(self, start):
-    def add_to_q(point, seen, q):
-      print(point, end=' ')
-      seen[point] = True
-      q.append(point)
+  def dfs(self, p, seen, sort_nbrs): # p is cell in hex, point in go
+    if not seen[p]:
+      print(p, end=' ')
+      seen[p] = True
+      for nbr in sorted(self.nbrs[p]) if sort_nbrs else self.nbrs[p]:
+        self.dfs(nbr, seen, sort_nbrs)
+
+  def dfs_demo(self, start, sort_nbrs): # start is cell in hex, point in go
+    print('\ndfs from ', start, 'with nbrs', 
+          '' if sort_nbrs else 'not', 'sorted')
+    seen = [False]*len(self.p_range)
+    self.dfs(start, seen, sort_nbrs)
+    print('')
+
+  def bfs_demo(self, start, sort_nbrs): # start is cell in hex, point in go
+    def add_to_q(p, seen, q):
+      print(p, end=' ')
+      seen[p] = True
+      q.append(p)
       
-    myqueue, seen = [], [False]*len(self.p_range)
+    print('\nbfs from ', start, 'with nbrs', 
+          '' if sort_nbrs else 'not', 'sorted')
+    seen = [False]*len(self.p_range)
+    myqueue = []
     add_to_q(start, seen, myqueue)
     while len(myqueue) > 0:
       cell = myqueue.pop(0)
-      for nbr in self.nbrs[cell]:
+      for nbr in sorted(self.nbrs[cell]) if sort_nbrs else self.nbrs[cell]:
         if not seen[nbr]: add_to_q(nbr, seen, myqueue)
     print('')
 
