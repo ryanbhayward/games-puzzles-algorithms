@@ -96,10 +96,10 @@ def get_command():
   return sl[0]
 
 def play():
-  r,c = get_dimensions()
-  #r,c = 3,3
+  #r,c = get_dimensions()
+  r,c = 3,3
   st = Tile(r,c)
-  #st.state = [0,1,2,3,4,5,6,7,8]
+  st.state = [0,8,7,6,5,4,3,2,1]
   st.showpretty()
   while True:
     ndx0 = st.state.index(min(st.state)) # index of 0

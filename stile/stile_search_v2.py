@@ -145,7 +145,7 @@ class Tile:
       if nodes_this_level == 0:
         nodes_this_level = len(Fringe)
         Levels.append(nodes_this_level)
-        print(' ',iteration,'iterations, level',len(Levels),'has',nodes_this_level,'nodes')
+        print(' ',iteration,'iterations, level',len(Levels)-1,'has',nodes_this_level,'nodes')
         if iteration > 12 and nodes_this_level > 0 and nodes_this_level <= 2:
           for x in Fringe:
             print(pretty(x, self.cols, True))
