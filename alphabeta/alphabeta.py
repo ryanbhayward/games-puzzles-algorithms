@@ -4,10 +4,51 @@ from sys import stdin
 
 NEGINF, INF = -999, 999
 
-def mymax(a,b):
-  if a == None: return b
-  if b == None: return a
-  return max(a,b)
+def isTerminalNode(v,V): # V is the set of terminal nodes
+  return v in V
+
+def isMaxNode(v, d): # in our examples, terminal iff even depth
+  return 0 == d % 2
+
+def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
+  print(d*'  ', v, 'MAX node' if isMaxNode(v,d) else 'MIN node', end=': ')
+  print('?', alpha, beta)
+  if isTerminalNode(v,V):
+    val = V[v] 
+    print(d*'  ', 'leaf value',val)
+    return val
+  if isMaxNode(v, d):
+    val = NEGINF
+    for c in T[v]:
+      ab = alphabeta(d+1, T, V, c, alpha, beta)
+      if ab > val: # have improved on current mmax value
+        alpha, val = ab, ab
+        print((d+1)*'  ',c,'new best child of',v, end=': ')
+      else:
+        print((d+1)*'  ',c,'not best child of',v, end=': ')
+      print(val, alpha, beta)
+      if alpha > beta:
+        print((d+1)*'  ','alpha > beta, prune remaining children of', v)
+        break
+    #print(d*'  ', v, 'done')
+    print(d*'  ', val, alpha, beta)
+    return val
+  #else a MIN node
+  val = INF
+  for c in T[v]:
+    ab = alphabeta(d+1, T, V, c, alpha, beta)
+    if ab < val:
+      beta, val = ab, ab
+      print((d+1)*'  ', c,'new best child of',v, end=': ')
+    else:
+      print((d+1)*'  ', c,'not best child of',v, end=': ') 
+    print(val, alpha, beta)
+    if alpha > beta:
+      print((d+1)*'  ','alpha > beta, prune remaining children of', v)
+      break
+  #print(d*'  ', v, 'done')
+  print(d*'  ', val, alpha, beta)
+  return val
 
 def readtree():
 # L   labels,  ie. single-character node names
@@ -52,51 +93,6 @@ def showtree(L,T,V):
     print('')
   print('')
 
-def isTerminalNode(v,V): # V is the set of terminal nodes
-  return v in V
-
-def isMaxNode(v, d): # terminal iff even depth
-  return 0 == d % 2
-
-def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
-  print(d*'  ', v, 'max' if 0==d%2 else 'min')
-  print(d*'  ', '?', alpha, beta)
-  if isTerminalNode(v,V):
-    val = V[v]; print(d*'  ', 'leaf value',val)
-    return val
-  if isMaxNode(v, d):
-    val = NEGINF
-    for c in T[v]:
-      ab = alphabeta(d+1, T, V, c, alpha, beta)
-      if ab > val: # have improved on current mmax value
-        alpha, val = ab, ab
-        print((d+1)*'  ',c,'new best child of',v)
-      else:
-        print((d+1)*'  ',c,'not best child of',v)
-      print((d+1)*'  ', val, alpha, beta)
-      if alpha > beta:
-        print((d+1)*'  ','alpha > beta, prune remaining children of', v)
-        break
-    print(d*'  ', v, 'done')
-    print(d*'  ', val, alpha, beta)
-    return val
-  else: # a MIN node
-    val = INF
-    for c in T[v]:
-      ab = alphabeta(d+1, T, V, c, alpha, beta)
-      if ab < val:
-        beta, val = ab, ab
-        print((d+1)*'  ', c,'new best child of',v)
-      else:
-        print((d+1)*'  ', c,'not best child of',v) 
-      print((d+1)*'  ', val, alpha, beta)
-      if alpha > beta:
-        print((d+1)*'  ','alpha > beta, prune remaining children of', v)
-        break
-    print(d*'  ', v, 'done')
-    print(d*'  ', val, alpha, beta)
-    return val
-
 L,T,V,root = readtree()
-showtree(L,T,V)
+#showtree(L,T,V)
 alphabeta(0, T, V, root, NEGINF, INF)
