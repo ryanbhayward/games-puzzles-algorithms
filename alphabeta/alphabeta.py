@@ -15,13 +15,13 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
   print('?', alpha, beta)
   if isTerminalNode(v,V):
     val = V[v] 
-    print(d*'  ', 'leaf value',val)
+    print(d*'  ', v, 'leaf, val',val)
     return val
   if isMaxNode(v, d):
     val = NEGINF
     for c in T[v]:
       ab = alphabeta(d+1, T, V, c, alpha, beta)
-      if ab > val: # have improved on current mmax value
+      if ab > val: # have improved current mmax value
         alpha, val = ab, ab
         print((d+1)*'  ',c,'new best child of',v, end=': ')
       else:
@@ -30,7 +30,6 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
       if alpha > beta:
         print((d+1)*'  ','alpha > beta, prune remaining children of', v)
         break
-    #print(d*'  ', v, 'done')
     print(d*'  ', val, alpha, beta)
     return val
   #else a MIN node
@@ -46,7 +45,6 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
     if alpha > beta:
       print((d+1)*'  ','alpha > beta, prune remaining children of', v)
       break
-  #print(d*'  ', v, 'done')
   print(d*'  ', val, alpha, beta)
   return val
 
@@ -59,8 +57,7 @@ def readtree():
     if line[0] != '#':
       lines.append(line.strip())
   L = []
-  # get labels, ie. node names
-  for c in lines[0]:
+  for c in lines[0]: # get labels (node names)
     L.append(c)
   T,V = {}, {}
   for j in range(1,len(lines)):
