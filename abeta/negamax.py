@@ -11,7 +11,7 @@ def negamax(d, T, V, v): # leaf scores for player-to-move
   if isTerminalNode(v,V): 
     val = V[v]; print(d*'  ', v, 'leaf', val); return val
   val = NEGINF
-  for c in T[v]:
+  for c in T[v]: # for each child c of v
     val = max(val, -negamax(d+1, T, V, c))
   print(d*'  ', v, val)
   return val
