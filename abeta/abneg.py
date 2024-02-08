@@ -9,7 +9,7 @@ NEGINF, INF = -999, 999
 
 def offset(d): print('  '*d,end='')
 
-def alphabetanega(d, T, V, v, alpha, beta): #leaf scores for root player
+def abnega(d, T, V, v, alpha, beta): #leaf scores for root player
   def showdata():
     sleep(.05)
     offset(d)
@@ -28,8 +28,8 @@ def alphabetanega(d, T, V, v, alpha, beta): #leaf scores for root player
     return val
   for c in T[v]:
     # if no comment needed, use following line instead
-    # so_far = max(so_far,-alphabetanega(d+1,T,V,c, -beta, -alpha))
-    cval = -alphabetanega(d+1,T,V,c, -beta, -alpha)
+    # so_far = max(so_far,-abnega(d+1,T,V,c, -beta, -alpha))
+    cval = -abnega(d+1,T,V,c, -beta, -alpha)
     if cval > so_far:
       offset(d+1)
       print(c,'now best child of',v)
@@ -91,4 +91,4 @@ def showtree(L,T,V):
 
 L,T,V,root = readtree()
 showtree(L,T,V)
-alphabetanega(0, T, V, root, NEGINF, INF)
+abnega(0, T, V, root, NEGINF, INF)
