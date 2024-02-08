@@ -1,35 +1,19 @@
-# simple alpha-beta-search demo  rbh 2019
-from time import sleep
+# simple negamax   rbh 2024
 from sys import stdin
 
-NEGINF, INF = -999, 999
+NEGINF = -999
 
 def isTerminalNode(v,V): # V is the set of terminal nodes
   return v in V
 
-def isMaxNode(v, d): # in our examples, terminal iff even depth
-  return 0 == d % 2
-
-def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
-  print(d*'  ', v,'MAX' if isMaxNode(v,d) else 'MIN','?',alpha,beta)
+def negamax(d, T, V, v): # leaf scores for player-to-move
+  print(d*'  ', v)
   if isTerminalNode(v,V): 
     val = V[v]; print(d*'  ', v, 'leaf', val); return val
-  if isMaxNode(v, d):
-    val = NEGINF
-    for c in T[v]:
-      ab = alphabeta(d+1, T, V, c, alpha, beta)
-      if ab > val: alpha, val = ab, ab
-      if alpha > beta: 
-        print((d+1)*'  ','prune rem. ch. of', v); break
-    print(d*'  ', v, val, alpha, beta)
-    return val
-  val = INF
+  val = NEGINF
   for c in T[v]:
-    ab = alphabeta(d+1, T, V, c, alpha, beta)
-    if ab < val: beta, val = ab, ab
-    if alpha > beta: 
-      print((d+1)*'  ','prune rem. ch. of', v); break
-  print(d*'  ', v, val, alpha, beta)
+    val = max(val, -negamax(d+1, T, V, c))
+  print(d*'  ', v, val)
   return val
 
 def readtree():
@@ -76,4 +60,4 @@ def showtree(L,T,V):
 
 L,T,V,root = readtree()
 #showtree(L,T,V)
-alphabeta(0, T, V, root, NEGINF, INF)
+negamax(0, T, V, root)
