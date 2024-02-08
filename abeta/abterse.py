@@ -1,5 +1,4 @@
-# simple alpha-beta-search demo  rbh 2019
-from time import sleep
+# a bit less verbose than alphabeta.py    rbh 2024
 from sys import stdin
 
 NEGINF, INF = -999, 999
