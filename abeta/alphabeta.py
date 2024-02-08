@@ -30,7 +30,7 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
       if alpha > beta:
         print((d+1)*'  ','alpha > beta, prune remaining children of', v)
         break
-    print(d*'  ', val, alpha, beta)
+    print(d*'  ', v, val, alpha, beta)
     return val
   #else a MIN node
   val = INF
@@ -45,7 +45,7 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
     if alpha > beta:
       print((d+1)*'  ','alpha > beta, prune remaining children of', v)
       break
-  print(d*'  ', val, alpha, beta)
+  print(d*'  ', v, val, alpha, beta)
   return val
 
 def readtree():
