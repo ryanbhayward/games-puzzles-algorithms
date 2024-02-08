@@ -1,4 +1,4 @@
-# simple alpha-beta-search demo  rbh 2019
+# simple alpha-beta-search demo  rbh 2019 (edits 2024)
 from time import sleep
 from sys import stdin
 
