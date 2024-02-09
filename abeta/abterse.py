@@ -18,7 +18,7 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
     for c in T[v]:
       ab = alphabeta(d+1, T, V, c, alpha, beta)
       if ab > val: alpha, val = ab, ab
-      if alpha > beta: 
+      if alpha >= beta: 
         print((d+1)*'  ','prune rem. ch. of', v); break
     print(d*'  ', v, val, alpha, beta)
     return val
@@ -26,7 +26,7 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
   for c in T[v]:
     ab = alphabeta(d+1, T, V, c, alpha, beta)
     if ab < val: beta, val = ab, ab
-    if alpha > beta: 
+    if alpha >= beta: 
       print((d+1)*'  ','prune rem. ch. of', v); break
   print(d*'  ', v, val, alpha, beta)
   return val

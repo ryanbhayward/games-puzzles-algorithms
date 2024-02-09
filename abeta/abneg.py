@@ -40,7 +40,7 @@ def abnega(d, T, V, v, alpha, beta): #leaf scores for root player
       alpha = so_far
       offset(d+1)
       print(c,'improved alpha(',v,') to',alpha)
-    if alpha > beta:
+    if alpha >= beta:
       offset(d+1)
       print('alpha > beta, prune remaining children of', v)
       break

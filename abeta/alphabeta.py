@@ -27,7 +27,7 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
       else:
         print((d+1)*'  ',c,'not best child of',v, end=': ')
       print(val, alpha, beta)
-      if alpha > beta:
+      if alpha >= beta:
         print((d+1)*'  ','alpha > beta, prune remaining children of', v)
         break
     print(d*'  ', v, val, alpha, beta)
@@ -42,7 +42,7 @@ def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
     else:
       print((d+1)*'  ', c,'not best child of',v, end=': ') 
     print(val, alpha, beta)
-    if alpha > beta:
+    if alpha >= beta:
       print((d+1)*'  ','alpha > beta, prune remaining children of', v)
       break
   print(d*'  ', v, val, alpha, beta)
