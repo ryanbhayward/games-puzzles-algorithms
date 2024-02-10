@@ -1,5 +1,6 @@
-# classic ttt: 3x3 board          RBH 2016  
-#       revised 2024: no numpy
+# classic ttt: 3x3 board   RBH 2016
+#   (tidied 2024 - no numpy )
+#
 # - genmove finds value of all moves, using alphabeta search
 
 # implemented this alphabeta improvement:
@@ -9,8 +10,6 @@
 #  - the symmetry group (rotate/flip) of the board has 8 elements:
 #  -   if any two symmetries operations yield the same position, then
 #  -   the two corresponding positions are isomorphic
-
-#import numpy as np
 
 class TransposType:
   LOWER = 0;
@@ -28,21 +27,24 @@ class Transpos:
     self.value = value
 
 class Cell: # each cell is one of these: empty, x, o
-  n, e, x, o, chars =  9, 0, 1, 2, '.xo' 
+  n,e,x,o,chars  = 9, 0, 1, 2, '.xo'
 
 def opponent(c): return 3-c
 
-ttt_states = 19683  # 3**Cell.n
+# each cell is 0,1,2
+# so number positions == 3**9
+# can represent position as 9-digit base_3 number
 
-powers_of_3 = ( # for converting position to base_3 int
-      1, 3, 9, 27, 81, 243, 729, 2187, 6561)
+ttt_states = 19683  # 3**Cell.n
+powers_of_3 = (# for converting position to base_3 int
+  1, 3, 9, 27, 81, 243, 729, 2187, 6561)
 
 def board_to_int(B):
-  return sum(B*powers_of_3) # numpy multiplies vectors componentwise
+  return sum([B[j]*powers_of_3[j] for j in range(Cell.n)]) 
 
 # consider all possible isomorphic positions, return min
-def min_iso(L): # using numpy array indexing here
-  return min([board_to_int( L[Isos[j]] ) for j in range(8)])
+def min_iso(L): 
+  return min([board_to_int([L[Isos[j][k]] for k in range(Cell.n)]) for j in range(8)])
 
 # convert from integer for board position
 def base_3( y ): 
@@ -51,7 +53,7 @@ def base_3( y ):
   for j in range(Cell.n):
     y, L[j] = divmod(y,3)
     if y==0: break
-  return np.array( L, dtype = np.int16)
+  return L
 
 # input-output ################################################
 def char_to_cell(c): 
@@ -145,7 +147,7 @@ class Position: # ttt board with x,o,e cells
 
   def non_iso_moves(self, L, cell): # non-isomorphic moves
     assert(len(L)>0)
-    H, X = [], []
+    H, X = [], []  # hash values, moves
     for j in range(len(L)):
       p = L[j]
       self.brd[p] = cell
@@ -154,9 +156,7 @@ class Position: # ttt board with x,o,e cells
         H.append(h)
         X.append(j)
       self.brd[p] = Cell.e
-    L = np.array(L)
-    X = np.array(X)
-    return L[X]
+    return X
 
   def has_win(self, z):
     win_found = False
