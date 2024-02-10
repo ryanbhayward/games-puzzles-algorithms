@@ -1,6 +1,12 @@
 # classic ttt: 3x3 board   RBH 2016
-#   (tidied 2024 - no numpy )
-#
+#   (tidied and simplified 2024
+#      - no numpy
+#      - added printing of non-iso moves
+#      - added simple negamax (does not use tt)
+#      - exercise 1: how much does early-win-abort improve negamax?
+#      - exercise 2: how much does non_iso_moves improve negamax?
+#      - exercise 3: anything else?
+# - genmove finds value of all moves, using alphabeta search
 # - genmove finds value of all moves, using alphabeta search
 
 # implemented this alphabeta improvement:
@@ -154,7 +160,7 @@ class Position: # ttt board with x,o,e cells
       h = min_iso(self.brd)
       if h not in H:
         H.append(h)
-        X.append(j)
+        X.append(p)
       self.brd[p] = Cell.e
     return X
 
@@ -195,7 +201,8 @@ class Position: # ttt board with x,o,e cells
           for cell in L:
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
-            ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
+            #ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
+            ab, c = negamax(0, 0, self, opponent(ptm))
             print('  result','{:2d}'.format(-ab), '  nodes',c)
             self.brd[cell] = Cell.e   
     else:
@@ -224,6 +231,23 @@ def undo(H, brd):  # pop last location, erase that cell
     brd[lcn] = Cell.e
 
 ####################### alpha-beta negamax search
+def negamax(calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
+  calls += 1
+  if psn.has_win(ptm):     
+    return 1, calls  # previous move created win
+  M = psn.legal_moves()
+  if len(M) == 0:          
+    return 0, calls  # board full, no winner
+  L = psn.non_iso_moves(M, ptm)
+  so_far = -1  # best score so far
+  for cell in L:
+    psn.brd[cell] = ptm
+    nmx, c = negamax(0, d+1, psn, opponent(ptm))
+    so_far = max(so_far, -nmx)
+    calls += c
+    psn.brd[cell] = Cell.e   # reset brd to original
+  return so_far, calls
+
 def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
   o_alpha = alpha
   if use_tt:
@@ -271,7 +295,8 @@ def info(p, use_tt, AB):
                                         #p.non_iso_moves(L,Cell.o))
     for cell in (Cell.x, Cell.o):
       print('  ',Cell.chars[cell], 'alphabeta',end='')
-      ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
+    #  ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
+      ab, c = negamax(0, 0, p, cell)
       print('  result','{:2d}'.format(ab), '  nodes',c)
     if p.game_over():
       pass
@@ -288,6 +313,12 @@ def interact(use_tt):
       return
     if cmd[0][0]=='h':
       printmenu()
+    if cmd[0][0]=='m':
+      L = p.legal_moves()
+      mx = p.non_iso_moves(L, Cell.x)
+      mo = p.non_iso_moves(L, Cell.o)
+      print('non-isomorphic moves for x', mx)
+      print('non-isomorphic moves for o', mo)
     elif cmd[0][0]=='?':
       info(p, use_tt, AB)
     elif cmd[0][0]=='u':
