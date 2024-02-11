@@ -13,6 +13,8 @@
 #  - search only over non-isomorphic children
 #  - board symmetry group (rotate/flip) has 8 elements
 
+from math import factorial
+
 class TransposType:
   LOWER = 0;
   EXACT = 1;
@@ -40,6 +42,12 @@ def opponent(c): return 3-c
 ttt_states = 19683  # 3**Cell.n
 powers_of_3 = (# for conversion: vector to base_3_int
   1, 3, 9, 27, 81, 243, 729, 2187, 6561)
+
+def num_nodes(n):
+  return sum([factorial(n)//factorial(k) for k in range(n+1)])
+
+for k in range(3,10):
+  print('number nodes in ttt tree', k, num_nodes(k))
 
 def board_to_int(B):
   return sum([B[j]*powers_of_3[j] for j in range(Cell.n)]) 
@@ -159,12 +167,12 @@ class Position: # ttt board with x,o,e cells
     return X
 
   def has_win(self, z):
-    win_found = False
-    for t in Win_lines:
-      if (self.brd[t[0]] == z and
-          self.brd[t[1]] == z and
-          self.brd[t[2]] == z):
-        return True
+    #win_found = False
+    #for t in Win_lines:
+    #  if (self.brd[t[0]] == z and
+    #      self.brd[t[1]] == z and
+    #      self.brd[t[2]] == z):
+    #    return True
     return False
 
   def game_over(self):
@@ -196,7 +204,7 @@ class Position: # ttt board with x,o,e cells
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
             #ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
-            ab, c = negamax(0, 0, self, opponent(ptm))
+            ab, c = nega(0, 0, self, opponent(ptm))
             print('  result','{:2d}'.format(-ab), '  nodes',c)
             self.brd[cell] = Cell.e   
     else:
@@ -225,21 +233,30 @@ def undo(H, brd):  # pop last location, erase that cell
     brd[lcn] = Cell.e
 
 ####################### negamax, alphabeta 
-def negamax(calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
+def nega(calls, d, psn, ptm):
+  D = {}
+  return negamax(D, calls, d, psn, ptm)
+
+def negamax(D, calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
+  psnint = board_to_int(psn.brd)
+  if psnint in D: 
+    return D[psnint]
   calls += 1
   if psn.has_win(ptm):     
     return 1, calls  # previous move created win
-  M = psn.legal_moves()
-  if len(M) == 0:          
-    return 0, calls  # board full, no winner
-  L = psn.non_iso_moves(M, ptm)
+  #M = psn.legal_moves()
+  #if len(M) == 0:          
+  #  return 0, calls  # board full, no winner
+  #L = psn.non_iso_moves(M, ptm)
+  L = psn.legal_moves()
   so_far = -1  # best score so far
   for cell in L:
     psn.brd[cell] = ptm
-    nmx, c = negamax(0, d+1, psn, opponent(ptm))
+    nmx, c = negamax(D, 0, d+1, psn, opponent(ptm))
     so_far = max(so_far, -nmx)
     calls += c
     psn.brd[cell] = Cell.e   # reset brd to original
+  D[psnint] = so_far
   return so_far, calls
 
 def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
@@ -290,7 +307,7 @@ def info(p, use_tt, AB):
     for cell in (Cell.x, Cell.o):
       print('  ',Cell.chars[cell], 'alphabeta',end='')
     #  ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
-      ab, c = negamax(0, 0, p, cell)
+      ab, c = nega(0, 0, p, cell)
       print('  result','{:2d}'.format(ab), '  nodes',c)
     if p.game_over():
       pass
