@@ -1,21 +1,17 @@
-# classic ttt: 3x3 board   RBH 2016
-#   (tidied and simplified 2024
+# classic ttt: 3x3 board   RBH 2016 revised 2024
 #      - no numpy
-#      - added printing of non-iso moves
-#      - added simple negamax (does not use tt)
-#      - exercise 1: how much does early-win-abort improve negamax?
-#      - exercise 2: how much does non_iso_moves improve negamax?
-#      - exercise 3: anything else?
-# - genmove finds value of all moves, using alphabeta search
-# - genmove finds value of all moves, using alphabeta search
+#      - print non-iso moves
+#      - simple negamax (no tt)
+#      - exercise 1: early-win-abort improve negamax?
+#      - exercise 2: non_iso_moves improve negamax?
+#      - exercise 3: opp't win-threats?
 
-# implemented this alphabeta improvement:
-#  - instead of searching over all children of a node,
+# next: board class with sets
+
+# - genmove: mmx (alphabeta), all moves
+# - alphabeta
 #  - search only over non-isomorphic children
-#  - (any two isomorphic children will have the same value)
-#  - the symmetry group (rotate/flip) of the board has 8 elements:
-#  -   if any two symmetries operations yield the same position, then
-#  -   the two corresponding positions are isomorphic
+#  - board symmetry group (rotate/flip) has 8 elements
 
 class TransposType:
   LOWER = 0;
@@ -42,18 +38,16 @@ def opponent(c): return 3-c
 # can represent position as 9-digit base_3 number
 
 ttt_states = 19683  # 3**Cell.n
-powers_of_3 = (# for converting position to base_3 int
+powers_of_3 = (# for conversion: vector to base_3_int
   1, 3, 9, 27, 81, 243, 729, 2187, 6561)
 
 def board_to_int(B):
   return sum([B[j]*powers_of_3[j] for j in range(Cell.n)]) 
 
-# consider all possible isomorphic positions, return min
-def min_iso(L): 
+def min_iso(L): # min over all isomorphic positions
   return min([board_to_int([L[Isos[j][k]] for k in range(Cell.n)]) for j in range(8)])
 
-# convert from integer for board position
-def base_3( y ): 
+def base_3(y): # int_to_board
   assert(y <= ttt_states)
   L = [0]*Cell.n
   for j in range(Cell.n):
@@ -115,7 +109,7 @@ def showboard(psn):
     pretty += '\n'
   print(pretty)
 
-### permutations showing possible board isomorphisms
+### isomorphism permutations
 Isos = ( (0,1,2,3,4,5,6,7,8),
          (0,3,6,1,4,7,2,5,8),
          (2,1,0,5,4,3,8,7,6),
@@ -336,4 +330,3 @@ def interact(use_tt):
       printmenu()
 
 interact(False)
-
