@@ -224,7 +224,7 @@ def undo(H, brd):  # pop last location, erase that cell
     lcn = H.pop()
     brd[lcn] = Cell.e
 
-####################### alpha-beta negamax search
+####################### negamax, alphabeta 
 def negamax(calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
   calls += 1
   if psn.has_win(ptm):     
