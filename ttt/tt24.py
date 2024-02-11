@@ -234,13 +234,13 @@ def undo(H, brd):  # pop last location, erase that cell
 
 ####################### negamax, alphabeta 
 def nega(calls, d, psn, ptm):
-  D = {}
-  return negamax(D, calls, d, psn, ptm)
+  TT = {}
+  return negamax(TT, calls, d, psn, ptm)
 
-def negamax(D, calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
-  psnint = board_to_int(psn.brd)
-  if psnint in D: 
-    return D[psnint]
+def negamax(TT, calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
+  psn_int = board_to_int(psn.brd)
+  if psn_int in TT: 
+    return TT[psn_int], calls
   calls += 1
   if psn.has_win(ptm):     
     return 1, calls  # previous move created win
@@ -252,11 +252,11 @@ def negamax(D, calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
   so_far = -1  # best score so far
   for cell in L:
     psn.brd[cell] = ptm
-    nmx, c = negamax(D, 0, d+1, psn, opponent(ptm))
+    nmx, c = negamax(TT, 0, d+1, psn, opponent(ptm))
     so_far = max(so_far, -nmx)
     calls += c
     psn.brd[cell] = Cell.e   # reset brd to original
-  D[psnint] = so_far
+  TT[psn_int] = so_far
   return so_far, calls
 
 def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
