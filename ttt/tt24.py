@@ -141,7 +141,6 @@ class Position: # ttt board with x,o,e cells
     return X
 
   def has_win(self, z):
-    win_found = False
     for t in Win_lines:
       if (self.brd[t[0]] == z and
           self.brd[t[1]] == z and
@@ -150,7 +149,6 @@ class Position: # ttt board with x,o,e cells
     return False
 
   def game_over(self):
-    win_found = False
     for z in (Cell.x, Cell.o):
       if (self.has_win(z)):
         print('\n  game_over: ',Cell.chars[z],'wins\n')
