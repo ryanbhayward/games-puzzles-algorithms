@@ -10,43 +10,26 @@
 
 # todo? board class with sets
 
-# - genmove: mmx (alphabeta), all moves
-# - alphabeta
+# - genmove: negamax, all moves
+# - negamax
 #  - search only over non-isomorphic children
 #  - board symmetry group (rotate/flip) has 8 elements
 
 from math import factorial
 
-class TransposType:
-  LOWER = 0;
-  EXACT = 1;
-  UPPER = 2;
-
-class Transpos:
-  type = None
-  depth = None
-  value = None
-
-  def __init__(self, type, depth, value):
-    self.type = type
-    self.depth = depth
-    self.value = value
-
 class Cell: # each cell is one of these: empty, x, o
-  n,e,x,o,chars  = 9, 0, 1, 2, '.xo'
+  n, e, x, o, chars  = 9, 0, 1, 2, '.xo'
 
 def opponent(c): return 3 - c
 
-# each cell 0,1,2, so 3**9 positions
-# can represent position as 9-digit base_3 number
-
-powers_of_3 = (# for conversion: vector to base_3_int
+# cells 0,1,2, 3**9 positions, can hash psn as 9-digit base_3 integer
+powers_of_3 = (# for conversion from vector to integer
   1, 3, 9, 27, 81, 243, 729, 2187, 6561)
 
 def board_to_int(B):
   return sum([B[j]*powers_of_3[j] for j in range(Cell.n)]) 
 
-def min_iso(L): # min over all isomorphic positions
+def min_iso(L): # all positions in L are iso: return min board_to_int
   return min([board_to_int([L[Isos[j][k]] for k in range(Cell.n)]) for j in range(8)])
 
 def base_3(y): # int_to_board
@@ -119,18 +102,15 @@ Isos = ( (0,1,2,3,4,5,6,7,8),
          (8,7,6,5,4,3,2,1,0),
          (8,5,2,7,4,1,6,3,0),
          (6,7,8,3,4,5,0,1,2),
-         (6,3,0,7,4,1,8,5,2)
-         )
+         (6,3,0,7,4,1,8,5,2)  )
 
 Win_lines = ( # 8 winning lines, as location triples
-  (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)
-  )
+  (0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6) )
 
 ##################### board state ########################
-# cell indices, or locations:
-#   0 1 2
-#   3 4 5
-#   6 7 8
+#   cell names   0 1 2
+#                3 4 5
+#                6 7 8
 
 def rc_to_lcn(r,c): 
   return r*3 + c
@@ -161,12 +141,12 @@ class Position: # ttt board with x,o,e cells
     return X
 
   def has_win(self, z):
-    #win_found = False
-    #for t in Win_lines:
-    #  if (self.brd[t[0]] == z and
-    #      self.brd[t[1]] == z and
-    #      self.brd[t[2]] == z):
-    #    return True
+    win_found = False
+    for t in Win_lines:
+      if (self.brd[t[0]] == z and
+          self.brd[t[1]] == z and
+          self.brd[t[2]] == z):
+         return True
     return False
 
   def game_over(self):
@@ -183,7 +163,7 @@ class Position: # ttt board with x,o,e cells
   def __init__(self, y):
     self.brd = base_3(y)
 
-  def genmove(self, request, use_tt, AB):
+  def genmove(self, request, use_tt, use_iso, MMX):
     if request[0]:
       L = self.legal_moves()
       if len(L)==0:
@@ -193,13 +173,11 @@ class Position: # ttt board with x,o,e cells
         if self.has_win(ptm) or self.has_win(opponent(ptm)):
           print('board already has winning line(s)')
         else:
-          #A = self.non_iso_moves(L,ptm)
           for cell in L:
             self.brd[cell] = ptm
             print(' ',Cell.chars[ptm],'plays',lcn_to_alphanum(cell),end='')
-            #ab, c = ab_neg(use_tt, AB, 0,0,self,opponent(ptm),-1,1)
-            ab, c = nega(0, 0, self, opponent(ptm))
-            print('  result','{:2d}'.format(-ab), '  nodes',c)
+            nmx, c = negamax(use_tt, use_iso, MMX, 0, 0, self, opponent(ptm))
+            print('  result','{:2d}'.format(-nmx), '  nodes',c)
             self.brd[cell] = Cell.e   
     else:
       print(request[2])
@@ -226,48 +204,51 @@ def undo(H, brd):  # pop last location, erase that cell
     lcn = H.pop()
     brd[lcn] = Cell.e
 
-####################### negamax, alphabeta 
-def nega(calls, d, psn, ptm):
-  TT = {}
-  return negamax(TT, calls, d, psn, ptm)
-
-def negamax(TT, calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
+####################### negamax 
+def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
   psn_int = board_to_int(psn.brd)
-  if psn_int in TT: 
-    return TT[psn_int], calls
+  if use_tt and (psn_int in MMX[ptm - 1]): 
+    return MMX[ptm - 1][psn_int], calls
   calls += 1
   if psn.has_win(ptm):     
     return 1, calls  # previous move created win
-  #M = psn.legal_moves()
-  #if len(M) == 0:          
-  #  return 0, calls  # board full, no winner
-  #L = psn.non_iso_moves(M, ptm)
-  L = psn.legal_moves()
+  if use_iso:
+    M = psn.legal_moves()
+    if len(M) == 0:          
+      return 0, calls  # board full, no winner
+    L = psn.non_iso_moves(M, ptm)
+  else: 
+    L = psn.legal_moves()
   so_far = -1  # best score so far
   for cell in L:
     psn.brd[cell] = ptm
-    nmx, c = negamax(TT, 0, d+1, psn, opponent(ptm))
+    nmx, c = negamax(use_tt, use_iso, MMX, 0, d+1, psn, opponent(ptm))
     so_far = max(so_far, -nmx)
     calls += c
     psn.brd[cell] = Cell.e   # reset brd to original
-  TT[psn_int] = so_far
+  if use_tt: MMX[ptm - 1][psn_int] = so_far
   return so_far, calls
 
-def info(p, use_tt, AB):
+def info(p, use_tt, use_iso, MMX):
     h, L = min_iso(p.brd), p.legal_moves()
     print('  min_iso', h, '\n  legal moves', L)
-    #print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
-                                        #p.non_iso_moves(L,Cell.o))
-    for cell in (Cell.x, Cell.o):
-      print('  ',Cell.chars[cell], 'alphabeta',end='')
-    #  ab, c = ab_neg(use_tt, AB, 0, 0, p, cell, -1, 1)
-      ab, c = nega(0, 0, p, cell)
-      print('  result','{:2d}'.format(ab), '  nodes',c)
+    print('  non-isomorphic moves x o', p.non_iso_moves(L,Cell.x), 
+                                        p.non_iso_moves(L,Cell.o))
+    for ptm in (Cell.x, Cell.o):
+      print('  ',Cell.chars[ptm], 'minimax',end='')
+      nmx, c = negamax(use_tt, use_iso, MMX, 0, 0, p, ptm)
+      print('  result','{:2d}'.format(nmx), '  nodes',c)
     if p.game_over():
       pass
 
-def interact(use_tt):
-  AB = ({}, {})  # x- and o- dictionaries of alphabeta values
+def msg(tt, iso):
+  if not tt and not iso: return("no TT, no isomorphisms")
+  elif not tt: return("isomorphisms but no TT")
+  elif iso: return("isomorphisms and TT")
+  else: return("TT but no isomorphisms")
+
+def interact(use_tt, use_iso):
+  MMX = ({}, {})  # x and o dictionaries of minimax values
   p = Position(0)
   history = []  # used for erasing, so only need locations
   while True:
@@ -282,18 +263,20 @@ def interact(use_tt):
       L = p.legal_moves()
       mx = p.non_iso_moves(L, Cell.x)
       mo = p.non_iso_moves(L, Cell.o)
-      print('non-isomorphic moves for x', mx)
-      print('non-isomorphic moves for o', mo)
+      print('non-isomorphic x moves', mx)
+      print('non-isomorphic o moves', mo)
     elif cmd[0][0]=='?':
-      info(p, use_tt, AB)
+      info(p, use_tt, use_iso, MMX)
     elif cmd[0][0]=='u':
       undo(history, p.brd)
     elif cmd[0][0]=='g':
-      p.genmove(genmoverequest(cmd), use_tt, AB)
+      p.genmove(genmoverequest(cmd), use_tt, use_iso, MMX)
     elif cmd[0][0]=='t':
       use_tt = not(use_tt)
-      if not (use_tt): print('\n not using TT\n')
-      else: print('\n using TT\n')
+      print('\nusing ' + msg(use_tt, use_iso))
+    elif cmd[0][0]=='s':
+      use_iso = not(use_iso)
+      print('\nusing ' + msg(use_tt, use_iso))
     elif (cmd[0][0] in Cell.chars):
       p.makemove(cmd, history)
     else:
@@ -308,5 +291,5 @@ def tree_size():
   for k in range(10):
     print('k', k, 'node', num_nodes(k))
 
-#tree_size()
-interact(False)
+tree_size()
+interact(False, False)
