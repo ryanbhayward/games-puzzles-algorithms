@@ -1,12 +1,14 @@
-# classic ttt: 3x3 board   RBH 2016 revised 2024
+# classic ttt: 3x3 board  rbh (2016, 2019, 2022, 2024)
 #      - no numpy
+#      - no alphabeta (in previous version of this program)
 #      - print non-iso moves
 #      - simple negamax (no tt)
+
 #      - exercise 1: early-win-abort improve negamax?
 #      - exercise 2: non_iso_moves improve negamax?
 #      - exercise 3: opp't win-threats?
 
-# next: board class with sets
+# todo? board class with sets
 
 # - genmove: mmx (alphabeta), all moves
 # - alphabeta
@@ -33,21 +35,13 @@ class Transpos:
 class Cell: # each cell is one of these: empty, x, o
   n,e,x,o,chars  = 9, 0, 1, 2, '.xo'
 
-def opponent(c): return 3-c
+def opponent(c): return 3 - c
 
-# each cell is 0,1,2
-# so number positions == 3**9
+# each cell 0,1,2, so 3**9 positions
 # can represent position as 9-digit base_3 number
 
-ttt_states = 19683  # 3**Cell.n
 powers_of_3 = (# for conversion: vector to base_3_int
   1, 3, 9, 27, 81, 243, 729, 2187, 6561)
-
-def num_nodes(n):
-  return sum([factorial(n)//factorial(k) for k in range(n+1)])
-
-for k in range(3,10):
-  print('number nodes in ttt tree', k, num_nodes(k))
 
 def board_to_int(B):
   return sum([B[j]*powers_of_3[j] for j in range(Cell.n)]) 
@@ -56,7 +50,7 @@ def min_iso(L): # min over all isomorphic positions
   return min([board_to_int([L[Isos[j][k]] for k in range(Cell.n)]) for j in range(8)])
 
 def base_3(y): # int_to_board
-  assert(y <= ttt_states)
+  assert(y <= 19683) # 3**Cell.n, also number of ttt positions
   L = [0]*Cell.n
   for j in range(Cell.n):
     y, L[j] = divmod(y,3)
@@ -259,46 +253,6 @@ def negamax(TT, calls, d, psn, ptm): # ptm: 1/0/-1 win/draw/loss
   TT[psn_int] = so_far
   return so_far, calls
 
-def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/loss
-  o_alpha = alpha
-  if use_tt:
-    b_int = board_to_int(psn.brd)
-    if b_int in AB[ptm-1] and (AB[ptm-1][b_int].depth >= d):
-      t_pos = AB[ptm - 1][b_int]
-      if t_pos.type == TransposType.EXACT:
-        return t_pos.value, 0
-      elif t_pos.type == TransposType.UPPER:
-        beta = min(beta, t_pos.value)
-      elif t_pos.type == TransposType.LOWER:
-        alpha = max(alpha, t_pos.value)
-      if alpha >= beta:
-        return t_pos.value, 0
-  calls += 1
-  if psn.has_win(ptm):     
-    return 1, calls  # previous move created win
-  L = psn.legal_moves()
-  if len(L) == 0:          
-    return 0, calls  # board full, no winner
-  #A = psn.non_iso_moves(L,ptm)
-  so_far = -1  # best score so far
-  for cell in L:
-    psn.brd[cell] = ptm
-    ab, c = ab_neg(use_tt, AB, 0, d+1, psn, opponent(ptm), -beta, -alpha)
-    so_far = max(so_far,-ab)
-    calls += c
-    psn.brd[cell] = Cell.e   # reset brd to original
-    alpha = max(alpha, so_far)
-    if alpha >= beta:
-      break
-  if use_tt:
-    if so_far <= o_alpha:
-      AB[ptm - 1][b_int] = Transpos(type=TransposType.UPPER,depth=d,value=so_far)
-    elif so_far >= o_alpha:
-      AB[ptm - 1][b_int] = Transpos(type=TransposType.LOWER, depth=d, value=so_far)
-    else:
-      AB[ptm - 1][b_int] = Transpos(type=TransposType.EXACT, depth=d, value=so_far)
-  return so_far, calls
-
 def info(p, use_tt, AB):
     h, L = min_iso(p.brd), p.legal_moves()
     print('  min_iso', h, '\n  legal moves', L)
@@ -346,4 +300,13 @@ def interact(use_tt):
       print('\n ???????\n')
       printmenu()
 
+def num_nodes(n):
+  return sum([factorial(n)//factorial(k) for k in range(n+1)])
+
+def tree_size():
+  print('\nnumber of nodes in no-win ttt tree with k empty cells\n')
+  for k in range(10):
+    print('k', k, 'node', num_nodes(k))
+
+#tree_size()
 interact(False)
