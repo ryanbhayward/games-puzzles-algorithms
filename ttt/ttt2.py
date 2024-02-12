@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # classic ttt: 3x3 board          RBH 2016
 # - genmove finds value of all moves, using alphabeta search
 
@@ -309,4 +307,3 @@ def interact(use_tt):
       printmenu()
 
 interact(False)
-

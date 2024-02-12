@@ -1,5 +1,11 @@
 # 2019 RBH    started lines-based ttt program
 import numpy as np
+# TODO
+#  - switch to lines format?
+#  - lines format: record impossible-to-complete lines
+#  - check for winning move (any linesum 2) before search
+#  - check for no-win-possible (all lines impossible-to-complete)
+#  - check for forced moves (no win possible: block winning opponent moves)
 
 # Cells
 #          0  1  2    <- row 0   R0
