@@ -219,8 +219,8 @@ def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
     psn.brd[cell] = ptm
     nmx, c = negamax(use_tt, use_iso, MMX, 0, d+1, psn, opponent(ptm))
     so_far, calls = max(so_far, -nmx), calls + c
-    psn.brd[cell] = Cell.e   # reset brd to original
-    #if so_far == 1: break
+    psn.brd[cell] = Cell.e  # reset brd to original
+    #if so_far == 1: break   # improvement: return once win found
   if use_tt: MMX[ptm - 1][psn_int] = so_far
   return so_far, calls
 
