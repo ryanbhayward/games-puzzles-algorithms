@@ -204,26 +204,23 @@ def undo(H, brd):  # pop last location, erase that cell
 
 ####################### negamax 
 def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
+  calls += 1
   psn_int = board_to_int(psn.brd)
   if use_tt and (psn_int in MMX[ptm - 1]): 
     return MMX[ptm - 1][psn_int], calls
-  calls += 1
   if psn.has_win(ptm):     
     return 1, calls  # previous move created win
-  if use_iso:
-    M = psn.legal_moves()
-    if len(M) == 0:          
-      return 0, calls  # board full, no winner
-    L = psn.non_iso_moves(M, ptm)
-  else: 
-    L = psn.legal_moves()
+  G = psn.legal_moves()
+  if len(G) == 0:          
+    return 0, calls  # board full, no winner
+  L = psn.non_iso_moves(G, ptm) if use_iso else G
   so_far = -1  # best score so far
   for cell in L:
     psn.brd[cell] = ptm
     nmx, c = negamax(use_tt, use_iso, MMX, 0, d+1, psn, opponent(ptm))
-    so_far = max(so_far, -nmx)
-    calls += c
+    so_far, calls = max(so_far, -nmx), calls + c
     psn.brd[cell] = Cell.e   # reset brd to original
+    #if so_far == 1: break
   if use_tt: MMX[ptm - 1][psn_int] = so_far
   return so_far, calls
 
