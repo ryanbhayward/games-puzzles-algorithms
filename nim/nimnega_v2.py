@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # compute nim values using negamax and a dictionary
 #   that holds values already computed     RBH 2019
 # version 2.0 December 2020 new features
