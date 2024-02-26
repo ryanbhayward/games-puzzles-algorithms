@@ -64,7 +64,7 @@ class Nimgame:
     self.state[pile] -= n
 
 def printmenu():
-  print('\n  a 2      remove  2  stones from pile a')
+  print('\n  a 2      remove 2 stones from pile a')
   print('  ?        show all winmoves')
   print('  h        help -- print this menu')
   print('  [return]          quit\n')
@@ -75,15 +75,15 @@ def xorsum(L): return reduce(ixor, L)
   #return xsum
 
 def nimreport(P): # report all winning nim moves from P, use formula
-  print(' reduce a pile with k stones to k+sum stones ?')
+  print('\n reduce k-pile to (k xor sum)-pile ?')
   total = xorsum(P)
   if total==0:
-    print('\n no: loss')
+    print('\n no: losing position')
     return
   for j in P:
     tj = total^j
-    if j >= tj: 
-      print('\n yes: take',j - tj,'from pile with',j)
+    if j >= tj: print('\n yes  reduce ',j,'-pile to ',
+      tj,'-pile, take ', j-tj,' stone(s)',sep='')
 
 def playgame():
   g = Nimgame()
