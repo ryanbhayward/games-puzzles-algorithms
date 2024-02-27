@@ -1,6 +1,6 @@
 """
-looks like I used this to count legal go positions on small boards RBH 2019
-looks similar to go_play.py
+count legal go positions on small boards RBH 2019
+similar to go_play.py
 """
 
 import numpy as np
@@ -269,6 +269,9 @@ def count_legal_positions(r,c):
 
 count_legal_positions(2,2)
 count_legal_positions(2,3)
+count_legal_positions(2,4)
+count_legal_positions(2,5)
+count_legal_positions(2,6)
 count_legal_positions(3,3)
 count_legal_positions(3,4)
 
