@@ -74,7 +74,9 @@ def xab(n, black, white, alpha, beta, passed):
     nodes[n] += 1 # nodes visited at this depth
     if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
 
-    # if opponent passed and we now pass, terminal position so calculate score, otw continue search
+    # make pass move
+    #   if previous opponent move was pass, position is terminal: calculate score
+    #   otherwise continue search with parameter passed == 1
     s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
     if (s > alpha):
         alpha = s
