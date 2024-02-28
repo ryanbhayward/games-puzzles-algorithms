@@ -74,14 +74,6 @@ def xab(n, black, white, alpha, beta, passed):
     nodes[n] += 1 # nodes visited at this depth
     if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
 
-    # make pass move
-    #   if previous opponent move was pass, position is terminal: calculate score
-    #   otherwise continue search with parameter passed == 1
-    s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
-    if (s > alpha):
-        alpha = s
-        if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
-
     for i in range(NMOVES): # loop through possible moves
         if (xhasmove(black, white, i)):
             newblack, newwhite = black, white
@@ -94,6 +86,14 @@ def xab(n, black, white, alpha, beta, passed):
             if (s > alpha):
                 alpha = s
                 if (alpha >= beta and CUT): return alpha # prune if score > alpha and after update whether alpha >= beta
+
+    # make pass move
+    #   if previous opponent move was pass, position is terminal: calculate score
+    #   otherwise continue search with parameter passed == 1
+    s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
+    if (s > alpha):
+        alpha = s
+        if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
     return alpha
 
 def oab(n, black, white, alpha, beta, passed): # see xab for comments
@@ -101,11 +101,6 @@ def oab(n, black, white, alpha, beta, passed): # see xab for comments
     global nodes
     nodes[n] += 1 
     if (n < NSHOW): show(n, black, white, alpha, beta, passed) 
-
-    s = score(black, white) if passed else xab(n + 1, black, white, alpha, beta, 1) 
-    if (s < beta):
-        beta = s
-        if (beta <= alpha and CUT): return beta 
 
     for i in range(NMOVES): 
         if (ohasmove(black, white, i)): 
@@ -119,6 +114,11 @@ def oab(n, black, white, alpha, beta, passed): # see xab for comments
             if (s < beta):
                 beta = s
                 if (beta <= alpha and CUT): return beta 
+
+    s = score(black, white) if passed else xab(n + 1, black, white, alpha, beta, 1) 
+    if (s < beta):
+        beta = s
+        if (beta <= alpha and CUT): return beta 
     return beta
 
 def main():
