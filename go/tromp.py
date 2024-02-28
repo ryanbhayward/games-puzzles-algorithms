@@ -1,20 +1,21 @@
-# Python program to solve 2x2 go with area rules and positional superko
-# translation of John Tromp's program by Jake Hennig 2024
+# Jake Hennig 2024
+# translation of John Tromp's c program to python3
+# solve 2x2 go with area rules and positional superko
 
 # Note that suicide is not possible in this case
 # Trying moves before passes slows search dramatically
 
-NSHOW = 4  # the max depth that output of searches is displayed
-NMOVES = 4  # of possible moves player can make
-CUT = 1  # CUT set to 1 allows for pruning otherwise if set to 0 it just uses minimax
+NSHOW = 4  # max depth for displying search output
+NMOVES = 4  # max number possible moves
+CUT = 1  # CUT 1 allows pruning otherwise, CUT 0 is minimax
 
 h = [0] * 256  # bitmap of positions in game history
 nodes = [0] * 99  # number of nodes visited at each depth
-ngames = 0  # total  # of games played
+ngames = 0  # total  number games played
 
 def show(n, black, white, alpha, beta, passed):
     """Print 2-line ASCII representation of position"""
-    print(f"{n} ({alpha},{beta})", "pass" if passed else "") # prints current depth, alpha, beta, and if player passed turn */
+    print(f"{n} ({alpha},{beta})", "pass" if passed else "") # prints depth, alpha, beta, and if player passed turn */
     for i in range(4):
         if (i % 2 == 0):
             print(" ", end="")
@@ -47,98 +48,86 @@ def score(black, white):
     """Calculate the score of the position"""
     global ngames
     ngames += 1 # counts number of games played
-    if (black == 0):
-        return -4 if white else 0 # black has no stones, white wins (-4), unless white also has no pieces left then it's a draw (0)
-    if (white == 0):
-        return 4 # white has no pieces left, black wins (+4) */
-    else:
-        return popcnt[black] - popcnt[white] # calculates score based on the number of pieces each player has
+    if (black == 0): return -4 if white else 0 # black no stones? white wins (-4) unless white also no stones (draw 0)
+    if (white == 0): return 4 # white no stones: black wins +4 */
+    else: return popcnt[black] - popcnt[white] # score is stones difference
 
 def xhasmove(black, white, move):
     """Check if black has a valid move"""
-    move = 1 << move # get binary representation of the move
-    if (black | white) & move or popcnt[black] == 3 or owns(white): # checks if move is legal for black
-        return False # move impossible
-    newblack = black | move # updates black's position after move
-    newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white # updated white's position after move
-    return not visited(newblack, newwhite) # checks if new position has been visited before
+    move = 1 << move # get move binary representation
+    if (black | white) & move or popcnt[black] == 3 or owns(white): return False # no 
+    newblack = black | move # update black position
+    newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white # update white position after move
+    return not visited(newblack, newwhite) # new position visited before?
 
-def ohasmove(black, white, move):
+def ohasmove(black, white, move): # see xhasmove for comments
     """Check if white has a valid move"""
-    move = 1 << move # get binary representation of the move
-    if (black | white) & move or popcnt[white] == 3 or owns(black): # checks if move is legal for white
-        return False # move impossible
-    newwhite = white | move # updates white's position after move
-    newblack = 0 if (newwhite | black) == 15 or owns(newwhite) else black # updates black's position after move
-    return not visited(newblack, newwhite) # checks if new position has been visited before
+    move = 1 << move 
+    if (black | white) & move or popcnt[white] == 3 or owns(black): return False 
+    newwhite = white | move 
+    newblack = 0 if (newwhite | black) == 15 or owns(newwhite) else black 
+    return not visited(newblack, newwhite) 
 
 def xab(n, black, white, alpha, beta, passed):
     """Alpha-beta search for black's turn"""
     global nodes
-    nodes[n] += 1 # counts nodes visited at this depth
-    if n < NSHOW:
-        show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
+    nodes[n] += 1 # nodes visited at this depth
+    if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
 
-    s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) # calculates score or explores further for black's turn
+    # if opponent passed and we now pass, terminal position so calculate score, otw continue search
+    s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
     if (s > alpha):
         alpha = s
-        if (alpha >= beta and CUT):
-            return alpha # prune if current score (s) is > than alpha, and after updating alpha it's still >= to beta
+        if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
 
     for i in range(NMOVES): # loop through possible moves
-        if (xhasmove(black, white, i)): # checks if the move is possible
+        if (xhasmove(black, white, i)):
             newblack, newwhite = black, white
             move = 1 << i
             newblack = black | move
             newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white
-            visit(newblack, newwhite) # visits the new position
+            visit(newblack, newwhite) 
             s = oab(n + 1, newblack, newwhite, alpha, beta, 0)
-            unvisit(newblack, newwhite) # unvisit the new position
+            unvisit(newblack, newwhite) 
             if (s > alpha):
                 alpha = s
-                if (alpha >= beta and CUT):
-                    return alpha # prune if current score (s) is > than alpha, and after updating alpha it's still >= to beta
-    
+                if (alpha >= beta and CUT): return alpha # prune if score > alpha and after update whether alpha >= beta
     return alpha
 
-def oab(n, black, white, alpha, beta, passed):
+def oab(n, black, white, alpha, beta, passed): # see xab for comments
     """Alpha-beta search for white's turn"""
     global nodes
-    nodes[n] += 1 # counts nodes visited at this depth
-    if (n < NSHOW):
-        show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
+    nodes[n] += 1 
+    if (n < NSHOW): show(n, black, white, alpha, beta, passed) 
 
-    s = score(black, white) if passed else xab(n + 1, black, white, alpha, beta, 1) # calculates score or explores further for white's turn
+    s = score(black, white) if passed else xab(n + 1, black, white, alpha, beta, 1) 
     if (s < beta):
         beta = s
-        if (beta <= alpha and CUT):
-            return beta # prune if current score (s) < than beta, and after updating beta it's still <= to alpha
+        if (beta <= alpha and CUT): return beta 
 
-    for i in range(NMOVES): # loop through possible moves
-        if (ohasmove(black, white, i)): # checks if the move is possible
+    for i in range(NMOVES): 
+        if (ohasmove(black, white, i)): 
             newblack, newwhite = black, white
             move = 1 << i
             newwhite = white | move
             newblack = 0 if (newwhite | black) == 15 or owns(newwhite) else black
-            visit(newblack, newwhite) # visits the new position
+            visit(newblack, newwhite) 
             s = xab(n + 1, newblack, newwhite, alpha, beta, 0)
-            unvisit(newblack, newwhite) # unvisit the new position
+            unvisit(newblack, newwhite) 
             if (s < beta):
                 beta = s
-                if (beta <= alpha and CUT):
-                    return beta # prune if current score (s) < than beta, and after updating beta it's still <= to alpha
-    
+                if (beta <= alpha and CUT): return beta 
     return beta
 
 def main():
     s = 0
-    c = xab(0, 0, 0, -4, 4, 0) # starts the alpha-beta search from the initial position
+    c = xab(0, 0, 0, -4, 4, 0) # start alphabeta search from empty board
     for i, count in enumerate(nodes):
-        s += count # count total nodes visited
+        s += count # total nodes visited
         if (count):
-            print(f"{i}: {count}") # prints nodes visited at each depth
+            print(f"{i}: {count}") # nodes visited at each depth
 
-    print(f"total: {s}\nngames: {ngames}\nx wins by {c}") # prints total nodes visited and game stats
+    print(f"total: {s}\nngames: {ngames}\nx wins by {c}") # nodes visited and game stats
 
 if __name__ == "__main__":
     main()
