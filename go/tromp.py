@@ -19,7 +19,7 @@ def show(n, black, white, alpha, beta, passed):
     for i in range(4):
         if (i % 2 == 0):
             print(" ", end="")
-        print(".XO#"[((black >> i) & 1) + 2 * ((white >> i) & 1)], end=" ") # prints the board state (X - black, O - white) */
+        print(".*o#"[((black >> i) & 1) + 2 * ((white >> i) & 1)], end=" ") # prints the board state (X - black, O - white) */
         if (i & 1):
             print() # place new line after every two characters - 2x2 board */
 # 1000 top-left, 0100 top-right, 0010 bottom-left, 0001 bottom-right
