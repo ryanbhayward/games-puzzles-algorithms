@@ -248,8 +248,8 @@ def ab_neg(use_tt, AB, calls, d, psn, ptm, alpha, beta): # ptm: 1/0/-1 win/draw/
       if alpha >= beta:
         return t_pos.value, 0
   calls += 1
-  if psn.has_win(ptm):     
-    return 1, calls  # previous move created win
+  if psn.has_win(opponent(ptm)):     
+    return -1, calls  # previous move created win
   L = psn.legal_moves()
   if len(L) == 0:          
     return 0, calls  # board full, no winner
