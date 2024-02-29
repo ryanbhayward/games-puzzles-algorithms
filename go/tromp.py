@@ -54,7 +54,7 @@ def score(black, white):
 
 def xhasmove(black, white, move):
     """Check if black has a valid move"""
-    move = 1 << move # get move binary representation
+    move = 1 << move # shift move left 1 bit
     if (black | white) & move or popcnt[black] == 3 or owns(white): return False # no 
     newblack = black | move # update black position
     newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white # update white position after move
@@ -82,7 +82,7 @@ def xab(n, black, white, alpha, beta, passed):
         alpha = s
         if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
 
-    for i in range(NMOVES): # loop through possible moves
+    for i in range(NMOVES):  # try moves topleft, topright, btmleft, btmright
         if (xhasmove(black, white, i)):
             newblack, newwhite = black, white
             move = 1 << i
@@ -107,7 +107,7 @@ def oab(n, black, white, alpha, beta, passed): # see xab for comments
         beta = s
         if (beta <= alpha and CUT): return beta 
 
-    for i in range(NMOVES): 
+    for i in range(NMOVES):
         if (ohasmove(black, white, i)): 
             newblack, newwhite = black, white
             move = 1 << i

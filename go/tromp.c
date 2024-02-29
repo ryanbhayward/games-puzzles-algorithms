@@ -60,7 +60,7 @@ int score(int black, int white)
 
 int xhasmove(int black, int white, int move, int *newblack, int *newwhite) /* whether black has valid move */
 {
-  move = 1 << move; /* get move bin-rep */
+  move = 1 << move; /* shift move left 1 bit */
   /*  position already occupied? black has 3 stones? white owns board?  */
   if ((black | white) & move || popcnt[black] == 3 || owns(white)) 
     return 0; /* move invalid */
