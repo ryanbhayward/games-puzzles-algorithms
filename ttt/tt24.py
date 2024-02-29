@@ -208,8 +208,8 @@ def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
   psn_int = board_to_int(psn.brd)
   if use_tt and (psn_int in MMX[ptm - 1]): 
     return MMX[ptm - 1][psn_int], calls
-  if psn.has_win(ptm):     
-    return 1, calls  # previous move created win
+  if psn.has_win(opponent(ptm)):     
+    return -1, calls  # previous move created win
   G = psn.legal_moves()
   if len(G) == 0:          
     return 0, calls  # board full, no winner
