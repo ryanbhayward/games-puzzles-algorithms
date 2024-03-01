@@ -122,6 +122,7 @@ def lcn_to_alphanum(p):
 class Position: # ttt board with x,o,e cells
   def legal_moves(self):
     L = []
+    #for j in (4, 0, 2, 6, 8, 1, 3, 5, 7):
     for j in range(Cell.n):
       if self.brd[j]==Cell.e: 
         L.append(j)
