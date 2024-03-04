@@ -58,21 +58,23 @@ class Hex0:
 
         char_reprs = {BLACK: "x", WHITE: "o", BORDER: "~", BLANK: "."}
         string = "   "
-        for i in range(0, self.game_dim):
-            string += "x "
-        string += "\n"
-        string += "    "
+        #for i in range(0, self.game_dim):
+        #    string += "x "
+        #string += "\n"
+        #string += "    "
         for i in range(0, self.game_dim):
             string += chr(i+97) + " "
         string += "\n"
         for i in range(1, self.board_dim-1):
             string += " " * i
-            string += "o" + " " + str(i) + " "
+            #string += "o" + " " + str(i) + " "
+            string += str(i) + " "
 
             for j in range(1, self.board_dim-1):
                 string += char_reprs[self.board[(i*self.board_dim)+j]] + " "
             string += "o\n"
-        string += " " * (self.board_dim + 3)
+        #string += " " * (self.board_dim + 3)
+        string += " " * (self.board_dim + 1)
         for i in range(0, self.game_dim):
             string += "x "
 
