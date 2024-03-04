@@ -131,7 +131,7 @@ class Mcts1(Mcts0):
             return self.winning_move
 
         # return move after set amount of time
-        end_time = time.time() + 15
+        end_time = time.time() + 5
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse

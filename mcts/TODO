@@ -1,0 +1,5 @@
+bugs
+ - undo from an empty board erases board
+
+fixes
+ - replace log, sqrt: too slow

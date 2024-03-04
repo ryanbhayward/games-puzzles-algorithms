@@ -57,7 +57,7 @@ class Hex0:
         """Returns string representation of board."""
 
         char_reprs = {BLACK: "x", WHITE: "o", BORDER: "~", BLANK: "."}
-        string = "   "
+        string = "\n    "
         #for i in range(0, self.game_dim):
         #    string += "x "
         #string += "\n"
@@ -68,13 +68,13 @@ class Hex0:
         for i in range(1, self.board_dim-1):
             string += " " * i
             #string += "o" + " " + str(i) + " "
-            string += str(i) + " "
+            string += '{:2d}'.format(i) + "  "
 
             for j in range(1, self.board_dim-1):
                 string += char_reprs[self.board[(i*self.board_dim)+j]] + " "
             string += "o\n"
         #string += " " * (self.board_dim + 3)
-        string += " " * (self.board_dim + 1)
+        string += " " * (self.board_dim + 3)
         for i in range(0, self.game_dim):
             string += "x "
 

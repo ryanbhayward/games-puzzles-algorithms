@@ -74,7 +74,7 @@ def command_loop(game):
             previous_game = game.copy()
             game = boardversions[boardversion](size)
             print(str(game))
-        elif args[0] == "undo":
+        elif args[0] == "undo" or args[0] == 'u':
             game = previous_game
             print(str(game))
         elif args[0] == "gameversion":
@@ -94,7 +94,7 @@ def command_loop(game):
             except:
                 print("invalid mcts version, see readme for list of versions")
                 continue
-        elif args[0] == "mcts" or args[0] == "?":
+        elif args[0] == "mcts" or args[0] == "g":  #alias for genmove
             try:
                 assert(args[1] == "x" or args[1] == "o")
             except:
