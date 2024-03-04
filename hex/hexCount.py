@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# todo: estimate number of not-yet-game-over k-stone hex positions
+
 def factorial(n):
     if n == 0:
         return 1
@@ -25,7 +27,6 @@ def pascalTriangle(n):
 def boardStates(n, k):
 #   number of different (up to 180 degree rotation) k-stone nxn hex states
 #       can be deduced from the Tromp formulas in Browne's book
-
 #   exact answer if we ignore rotational symmetry:
     xTerm  = choose(n * n, (k + 1) // 2) * choose(n * n - (k + 1) // 2,  k // 2)
 #   adjust for symmetry 
