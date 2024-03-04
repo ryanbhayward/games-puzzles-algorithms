@@ -94,7 +94,7 @@ def command_loop(game):
             except:
                 print("invalid mcts version, see readme for list of versions")
                 continue
-        elif args[0] == "mcts":
+        elif args[0] == "mcts" or args[0] == "?":
             try:
                 assert(args[1] == "x" or args[1] == "o")
             except:
