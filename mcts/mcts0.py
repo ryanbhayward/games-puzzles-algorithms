@@ -2,6 +2,10 @@
 # Fall 2022, Winter 2023, Spring 2023, Summer 2023, Fall 2023
 # Written with the help of GitHub Copilot
 
+# MCTS code largely taken from
+# https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
+# November 27, 2022
+
 import time
 import random
 from math import sqrt, log
