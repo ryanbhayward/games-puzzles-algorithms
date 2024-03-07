@@ -52,17 +52,19 @@ def score(black, white):
     if (white == 0): return 4 # white no stones: black wins +4 */
     else: return popcnt[black] - popcnt[white] # score is stones difference
 
-def xhasmove(black, white, move):
+def xhasmove(black, white, move_index):
     """Check if black has a valid move"""
-    move = 1 << move # get move binary representation
+    moves = [1, 2, 4, 8] # Different possible move decimal values
+    move = moves[move_index] # Get selected move
     if (black | white) & move or popcnt[black] == 3 or owns(white): return False # no 
     newblack = black | move # update black position
     newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white # update white position after move
     return not visited(newblack, newwhite) # new position visited before?
 
-def ohasmove(black, white, move): # see xhasmove for comments
+def ohasmove(black, white, move_index): # see xhasmove for comments
     """Check if white has a valid move"""
-    move = 1 << move 
+    moves = [1, 2, 4, 8]
+    move = moves[move_index]
     if (black | white) & move or popcnt[white] == 3 or owns(black): return False 
     newwhite = white | move 
     newblack = 0 if (newwhite | black) == 15 or owns(newwhite) else black 
