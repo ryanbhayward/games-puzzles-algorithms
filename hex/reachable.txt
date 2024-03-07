@@ -1,0 +1,8 @@
+wrt reachable positions:   
+a hex position is reachable iff number of black stones - number of white stones
+is equal to 1 or 0, and
+* either neither side has joined their sides, or* one side has joined their sides and there is a cut stone  who removal leaves the board with no winner
+
+... it would be interesting to use random methods to
+estimate these some day, so we can
+more accurately talk about the size of the hex search dag...
