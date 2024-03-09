@@ -41,6 +41,7 @@ There are different implementations of Hex, and MCTS given.
 
 ## TODO
 
+0. implement a string or set UF-win check implementation
 1. Setup testsuit
 2. Debugging / verbose output
 3. Simple bridges

@@ -3,3 +3,8 @@ bugs
 
 fixes
  - replace log, sqrt: too slow
+
+features
+- fast (string or set) hex implementation that uses UF and tracks winning moves in simulation
+- print message when winning move found
+- print each node in mcts, for the first k nodes (k could be 0)

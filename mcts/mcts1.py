@@ -135,17 +135,15 @@ class Mcts1(Mcts0):
             return self.winning_move
 
         # return move after set amount of time
-        end_time = time.time() + 5
+        end_time = time.time() + 1
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
 
-        """
         for child in self.root_node.children:
             print(child.move, child.sims, child.results)
-        """
         return self.get_best_move()
 
     def best_uct(self, node: TreeNode1) -> TreeNode1:

@@ -36,7 +36,10 @@ def command_loop(game):
     global mctsversion
 
     command = None
-    while command != "exit" and command != "quit" and command != "q":
+    while True:
+        if command != None and (command == 'q' or len(command) == 0):
+          print('\n    ... adios   :)    ... \n')
+          return
         print("= ", end="")
         command = input().lower()
 
