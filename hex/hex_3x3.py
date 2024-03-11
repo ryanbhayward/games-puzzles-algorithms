@@ -2,9 +2,7 @@
 3-3 hex program, based on ttt and 3x3 go programs RBH 2019
 """
 
-import numpy as np
 import copy
-from collections import deque
 
 """
 points on the board
@@ -20,11 +18,9 @@ def oppCH(ch):
   else: assert(False)
 
 """
-board: one-dimensional string
-
-index positions for     board:    6 7 8       <- row 2
-                                   3 4 5       <- row 1
-                                    0 1 2       <- row 0
+board: 1-dim string: indices 6 7 8   <- row 2
+                              3 4 5   <- row 1
+                               0 1 2   <- row 0
 """
 
 def coord_to_point(r, c, C): 
@@ -67,7 +63,6 @@ for r in range(ROWS):
 for c in range(COLS):
   TOP_ROW.add(coord_to_point(0, c, COLS))
   BTM_ROW.add(coord_to_point(ROWS-1, c, COLS))
-
 #print(LFT_COL, RGT_COL, TOP_ROW, BTM_ROW)
 
 """
@@ -105,8 +100,8 @@ def has_win(s, p): # for 3x3 board only
 def can_win(s, ptm): # assume neither player has won yet
   blanks, calls = [], 1
   #for j in range(N):
-  #for j in (0, 1, 2, 3, 4, 5, 6, 7, 8): # natural order
-  for j in (4, 2, 6, 3, 5, 1, 7, 0, 8): # better 3x3 move order
+  for j in (0, 1, 2, 3, 4, 5, 6, 7, 8): # natural order
+  #for j in (4, 2, 6, 3, 5, 1, 7, 0, 8): # better 3x3 move order
     if s[j]==ECH: blanks.append(j)
   #if len(blanks)==0: print('whoops',s)
   #assert(len(blanks)>0) # since x has no draws
