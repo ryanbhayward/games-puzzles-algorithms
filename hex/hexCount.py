@@ -1,65 +1,30 @@
-#!/usr/bin/env python
+# upper bound on number of hex positions reachable from empty board
+#   * ignore symmetry
+#   * ignore positions when game already ended
+# revised 2024 rbh
+#   todo
+#     * count true reachable (stop once game ends)
+#     * also consider symmetry (see dev)
 
-# todo: estimate number of not-yet-game-over k-stone hex positions
+from math import comb, floor, ceil
 
-def factorial(n):
-    if n == 0:
-        return 1
-    else:
-        return n * factorial(n - 1)
+def board_states(n, k):
+  s1, s2 = ceil(k/2), floor(k/2) # number of stones for players 1 and 2
+  return comb(n*n, s1) * comb(n*n - s1, s2)
 
-def choose(n, k):
-    if 0 <= k <= n:
-        p = 1
-        for t in range(min(k, n - k)):
-           p = (p * (n - t)) // (t + 1)
-        return p
-    else:
-        return 0
-	
-def pascalTriangle(n):
-    for x in range(n + 1):
-        for y in range(x + 1):
-            print(choose(x, y),end='')
-        print('')
-    print('')
+def upto_states(n, s): #   board_states with at most s stones
+    return sum([board_states(n,k) for k in range(s+1)])
 
-def boardStates(n, k):
-#   number of different (up to 180 degree rotation) k-stone nxn hex states
-#       can be deduced from the Tromp formulas in Browne's book
-#   exact answer if we ignore rotational symmetry:
-    xTerm  = choose(n * n, (k + 1) // 2) * choose(n * n - (k + 1) // 2,  k // 2)
-#   adjust for symmetry 
-    kd4 = k // 4 ; sTerm = 0
-    if 0 == k % 4 or \
-       1 == k % 4 and 1 == n % 2:
-        sTerm = choose(n * n // 2, kd4) * choose(n * n // 2 - kd4, kd4)
-    if 3 == k % 4 and 1 == n % 2:
-        sTerm = choose(n * n // 2, kd4) * choose(n * n // 2 - kd4, 1 + kd4)
-#   each state now counted twice, so ...
-    return (xTerm + sTerm) // 2
-
-def uptoStates(n, s):
-#   boardStates with at most s stones
-    accum = 0
-    for k in range(s + 1):
-        accum = accum + boardStates(n, k)
-    return accum
-
-def upperBound(n):
+def power3(n):
 #   if no limit on relative stone numbers, then each cell empty/black/white
-#   divide by two to remove rotational symmetry
-    return (3**(n * n) + 1) / 2
+    return (3**(n * n))
 
-def showCounts(n):
-    print(n,'x',n, 'Hex states')
-    accum = 0
-    for k in range(n * n + 1):
-        b = boardStates(n, k)
-        accum = accum + b
-        print(k, k % 4, b)
-    print('=', accum)
-    print(' ', upperBound(n), '\n')
+def show(n):
+    print('\n hex ',n, 'x', n,' board', sep='')
+    #for k in range(n*n+1):
+    #  print('  ', k, 'stones', board_states(n, k))
+    print(' positions', upto_states(n, n*n))
+    print(' ^3-bound ', power3(n))
 
 def nodeCount7x7():
 # number of nodes in 7x7 solver recursion tree, cf TCS paper
@@ -71,16 +36,5 @@ def nodeCount7x7():
 	89 + 90 + 42387 + 405194 + 2248 + 200341 + 46823 + \
 	502521 + 1084920 + 213929 + 2564080 + 1718714 + 389754 + 76212
 
-for n in range(1, 11):
-    #print n, '\n', 1.0*uptoStates(n, n*n/2), '\n', uptoStates(n, n*n), '\n', upperBound(n), '\n'
-    #print n, '\n', 1.0*uptoStates(n, n*n/2)
-    #print n, '\n', uptoStates(n, n*n/2)
-    print(n, '\n', uptoStates(n, n*n))
-    print( '')
-
-print('7x7 node count', nodeCount7x7())
-#for x in range(7):
-	#print 'full board states', x,'x',x,' board: ',boardStates(x,x*x)
-
-#for k in range(1,5):
-  #print k, boardStates(2,k)
+for n in range(1,7):
+    show(n)
