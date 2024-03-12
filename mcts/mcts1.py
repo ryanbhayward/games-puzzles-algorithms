@@ -25,9 +25,9 @@ class TreeNode1(TreeNode0):
             game_copy = self.game.copy()
             game_copy.play_move(move, self.player)
             won = game_copy.check_win(move)
-            self.children.append(
-                TreeNode1(game_copy, 3-self.player, move, self)
-            )
+            t = TreeNode1(game_copy, 3-self.player, move, self)
+            print('append from', self.move, t.move)
+            self.children.append(t)
 
             if won:
                 self.children[-1].backpropagate(float('inf'))
@@ -74,11 +74,12 @@ class RootNode1(TreeNode1):
             won = game_copy.check_win(move)
 
             if won:
+                print('root win found')
                 return move
 
-            self.children.append(
-                TreeNode1(game_copy, 3-self.player, move, self)
-            )
+            t = TreeNode1(game_copy, 3-self.player, move, self)
+            print('root expand from', self.move, t.move)
+            self.children.append(t)
 
         self.is_leaf = False
         return None
@@ -135,9 +136,11 @@ class Mcts1(Mcts0):
             return self.winning_move
 
         # return move after set amount of time
-        end_time = time.time() + 1
+        end_time = time.time() + .1
 
-        while time.time() < end_time:
+        #while time.time() < end_time:
+        max_sims = 20
+        while self.root_node.sims < max_sims:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
@@ -162,6 +165,7 @@ class Mcts1(Mcts0):
         """
 
         if len(node.moves) == 0:
+            print('terminal node')
             return node  # if terminal node, return node
 
         best_uct = None
