@@ -8,7 +8,6 @@ too slow for larger boards
 4x4 empty board, x-to-move, x wins, 7034997 calls
 """
 
-import numpy as np
 import copy
 from collections import deque
 
@@ -33,11 +32,9 @@ index positions for     board:    0 1 2       <- row 0
                                     6 7 8       <- row 2
 """
 
-def coord_to_point(r, c, C): 
-  return c + r*C
+def coord_to_point(r, c, C): return c + r*C
 
-def point_to_coord(p, C): 
-  return divmod(p, C)
+def point_to_coord(p, C): return divmod(p, C)
 
 def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
@@ -78,8 +75,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS = 4
-COLS = 4
+ROWS, COLS = 4, 4
 N = ROWS * COLS
 
 NBRS = []
