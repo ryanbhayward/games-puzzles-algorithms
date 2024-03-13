@@ -10,6 +10,16 @@ import time
 import random
 from math import sqrt, log
 
+VERBOSE_SIMS = 20 # verbose output for these
+MCTS_TIME = .1
+
+def root_node_sims(node):
+  if node.parent == None: return node.sims
+  return root_node_sims(node.parent)
+
+def path_from_root(node):
+  if node.parent == None: return '*'
+  return path_from_root(node.parent) + ' ' + str(node.move)
 
 class TreeNode0:
     def __init__(self, game, player: int, move=None, parent=None):
@@ -64,14 +74,13 @@ class TreeNode0:
         game_copy = self.game.copy()
         player = self.player
         moves = game_copy.get_legal_moves()
-        which, move_seq = self, ''  # which tree node are we at?
-        while which != None:
-           move_seq = str(which.move) + ' ' + move_seq
-           which = which.parent
-        print(move_seq, 'rollout ', sep='', end='')
+        rs = root_node_sims(self)
+        if rs < VERBOSE_SIMS:
+            print('sim', rs+1, '  ', path_from_root(self), 'roll', end=' ')
         while len(moves) > 0:
             move_index = random.randint(0, len(moves)-1)  # Select random move
-            print(moves[move_index], end=' ')
+            if rs < VERBOSE_SIMS:
+                print(' ', moves[move_index], sep='', end='')
             game_copy.play_move(moves[move_index], player)
             won = game_copy.check_win(moves[move_index])
 
@@ -83,12 +92,11 @@ class TreeNode0:
             player = 3 - player  # invert color / switch player
 
         if player != self.player:  # parent player won
-            print(' parent win')
+            if rs < VERBOSE_SIMS: print(': parent win')
             return True
         else:  # parent player lost
-            print(' parent loss')
+            if rs < VERBOSE_SIMS: print(': parent loss')
             return False
-
 
 class RootNode0(TreeNode0):
     def expand_node(self):
@@ -152,11 +160,11 @@ class Mcts0:
         """
 
         if self.winning_move is not None:
-            print("number of simulations performed:", self.root_node.sims)
+            print("total simulations", self.root_node.sims)
             return self.winning_move
 
         # return move after set amount of time
-        end_time = time.time() + 15
+        end_time = time.time() + MCTS_TIME
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse

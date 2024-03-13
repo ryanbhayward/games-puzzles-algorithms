@@ -6,7 +6,7 @@
 import time
 from math import sqrt, log
 
-from mcts0 import TreeNode0, Mcts0
+from mcts0 import TreeNode0, Mcts0, VERBOSE_SIMS, MCTS_TIME, root_node_sims
 
 class TreeNode1(TreeNode0):
     def __init__(self, game, player: int, move=None, parent=None):
@@ -22,7 +22,8 @@ class TreeNode1(TreeNode0):
             game_copy.play_move(move, self.player)
             won = game_copy.check_win(move)
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            print('expand', self.move, '->', t.move)
+            if root_node_sims(self) <= VERBOSE_SIMS:
+                print('    expand', self.move, '->', t.move)
             self.children.append(t)
 
             if won:
@@ -75,7 +76,7 @@ class RootNode1(TreeNode1):
                 return move
 
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            print('root expand', self.move, '->', t.move)
+            print('    root expand', self.move, '->', t.move)
             self.children.append(t)
 
         self.is_leaf = False
@@ -129,22 +130,21 @@ class Mcts1(Mcts0):
         """
 
         if self.winning_move is not None:
-            print("number of simulations performed:", self.root_node.sims)
+            print("simulations", self.root_node.sims)
             return self.winning_move
 
         # return move after set amount of time
-        end_time = time.time() + .1
+        end_time = time.time() + MCTS_TIME
 
-        #while time.time() < end_time:
-        max_sims = 20
-        while self.root_node.sims < max_sims:
-            print('  mcts sims', self.root_node.sims)
+        while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
 
+        print('\nmove sims wins\n')
         for child in self.root_node.children:
             print(child.move, child.sims, child.results)
+        print()
         return self.get_best_move()
 
     def best_uct(self, node: TreeNode1) -> TreeNode1:
