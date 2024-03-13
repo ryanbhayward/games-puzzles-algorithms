@@ -36,7 +36,7 @@ class TreeNode1(TreeNode0):
         node = self
         while node is not None:
             node.sims += 1
-            print(self.move,'  sims:', node.sims)
+            #print(self.move,'  sims:', node.sims)
 
             if result == float('inf') and node != self:
                 for children in node.children:
@@ -71,7 +71,7 @@ class RootNode1(TreeNode1):
             won = game_copy.check_win(move)
 
             if won:
-                print('root win_found')
+                print('\n    root win_found\n')
                 return move
 
             t = TreeNode1(game_copy, 3-self.player, move, self)
@@ -138,7 +138,7 @@ class Mcts1(Mcts0):
         #while time.time() < end_time:
         max_sims = 20
         while self.root_node.sims < max_sims:
-            print('mcts sims', self.root_node.sims)
+            print('  mcts sims', self.root_node.sims)
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
