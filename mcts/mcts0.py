@@ -64,8 +64,14 @@ class TreeNode0:
         game_copy = self.game.copy()
         player = self.player
         moves = game_copy.get_legal_moves()
+        which, move_seq = self, ''  # which tree node are we at?
+        while which != None:
+           move_seq = str(which.move) + ' ' + move_seq
+           which = which.parent
+        print(move_seq, 'rollout ', sep='', end='')
         while len(moves) > 0:
             move_index = random.randint(0, len(moves)-1)  # Select random move
+            print(moves[move_index], end=' ')
             game_copy.play_move(moves[move_index], player)
             won = game_copy.check_win(moves[move_index])
 
@@ -77,8 +83,10 @@ class TreeNode0:
             player = 3 - player  # invert color / switch player
 
         if player != self.player:  # parent player won
+            print(' parent win')
             return True
         else:  # parent player lost
+            print(' parent loss')
             return False
 
 

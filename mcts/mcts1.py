@@ -1,16 +1,12 @@
-# Created by Luke Schultz
-# Fall 2022, Winter 2023, Spring 2023, Summer 2023, Fall 2023
-# Written with the help of GitHub Copilot
-
-# MCTS code largely taken from
-# https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
-# November 27, 2022
+# by Luke Schultz fall 22, w 23, spr 23, smr 23, f 23
+#  * written with help of GitHub Copilot
+#  *  MCTS code largely from
+#       https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
 
 import time
 from math import sqrt, log
 
 from mcts0 import TreeNode0, Mcts0
-
 
 class TreeNode1(TreeNode0):
     def __init__(self, game, player: int, move=None, parent=None):
@@ -26,7 +22,7 @@ class TreeNode1(TreeNode0):
             game_copy.play_move(move, self.player)
             won = game_copy.check_win(move)
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            print('append from', self.move, t.move)
+            print('expand', self.move, '->', t.move)
             self.children.append(t)
 
             if won:
@@ -40,6 +36,7 @@ class TreeNode1(TreeNode0):
         node = self
         while node is not None:
             node.sims += 1
+            print(self.move,'  sims:', node.sims)
 
             if result == float('inf') and node != self:
                 for children in node.children:
@@ -74,11 +71,11 @@ class RootNode1(TreeNode1):
             won = game_copy.check_win(move)
 
             if won:
-                print('root win found')
+                print('root win_found')
                 return move
 
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            print('root expand from', self.move, t.move)
+            print('root expand', self.move, '->', t.move)
             self.children.append(t)
 
         self.is_leaf = False
@@ -141,6 +138,7 @@ class Mcts1(Mcts0):
         #while time.time() < end_time:
         max_sims = 20
         while self.root_node.sims < max_sims:
+            print('mcts sims', self.root_node.sims)
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
