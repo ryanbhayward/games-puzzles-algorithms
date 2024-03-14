@@ -139,12 +139,6 @@ class Mcts1(Mcts0):
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
-
-            if self.root_node.player == BLACK and leaf.results == 1:
-                return leaf.move
-            elif self.root_node.player == WHITE and leaf.results == -1:
-                return leaf.move
-
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
 
