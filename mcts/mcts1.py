@@ -35,13 +35,13 @@ class TreeNode1(TreeNode0):
             t = TreeNode1(game_copy, 3-self.player, move, self)
             rs = root_node_sims(self)
             if rs < VERBOSE_SIMS:
-                print('  expand', path_from_root(self), '->', t.move)
+                print('  expand', path_from_root(self), '>', t.move)
             self.children.append(t)
 
             if won:
                 if rs < VERBOSE_SIMS:
                     print('    sim', '{:2d}'.format(rs+1), '  ', 
-                      path_from_root(self), move, 'win')
+                      path_from_root(self), '{:2d}'.format(move), 'win')
                 self.children[-1].backpropagate(float('inf'))
 
         self.is_leaf = False
@@ -87,7 +87,7 @@ class RootNode1(TreeNode1):
         winning move, if one is found
         """
 
-        print('  root expand  * -> ', end='')
+        print('  expand  * > ', end='')
         for move in self.moves:
             game_copy = self.game.copy()
             game_copy.play_move(move, self.player)
@@ -183,7 +183,7 @@ class Mcts1(Mcts0):
         """
 
         if len(node.moves) == 0:
-            print('terminal node')
+            #print('terminal node')
             return node  # if terminal node, return node
 
         best_uct = None
