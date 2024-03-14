@@ -109,13 +109,13 @@ def command_loop(game):
             if args[1] == "x":
                 mcts = mctsversions[mctsversion](game, BLACK)
                 move = mcts.monte_carlo_tree_search()
-                print("total sims", mcts.root_node.sims)
+                print('  total sims', mcts.root_node.sims)
                 game.play_move(move, BLACK)
             elif args[1] == "o":
                 previous_game = game.copy()
                 mcts = mctsversions[mctsversion](game, WHITE)
                 move = mcts.monte_carlo_tree_search()
-                print("total sims:", mcts.root_node.sims)
+                print('  total sims', mcts.root_node.sims)
                 game.play_move(move, WHITE)
 
             print(str(game))

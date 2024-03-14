@@ -35,7 +35,7 @@ class TreeNode1(TreeNode0):
             t = TreeNode1(game_copy, 3-self.player, move, self)
             rs = root_node_sims(self)
             if rs < VERBOSE_SIMS:
-                print('    expand', path_from_root(self), '->', t.move)
+                print('  expand', path_from_root(self), '->', t.move)
             self.children.append(t)
 
             if won:
@@ -87,18 +87,18 @@ class RootNode1(TreeNode1):
         winning move, if one is found
         """
 
+        print('  root expand  * -> ', end='')
         for move in self.moves:
             game_copy = self.game.copy()
             game_copy.play_move(move, self.player)
             won = game_copy.check_win(move)
-
             if won:
+                print(move, '  win !!!')
                 return move
-
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            print('    root expand', '* ->', t.move)
+            print(t.move, ', ', sep='', end='')
             self.children.append(t)
-
+        print()
         self.is_leaf = False
         return None
 
@@ -147,7 +147,6 @@ class Mcts1(Mcts0):
         """
 
         if self.winning_move is not None:
-            print("simulations", self.root_node.sims)
             return self.winning_move
 
         # return move after set amount of time
