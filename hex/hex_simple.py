@@ -10,6 +10,7 @@ too slow for larger boards
 
 import copy
 from collections import deque
+import time
 
 """
 points on the board
@@ -75,7 +76,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 3, 4
 N = ROWS * COLS
 
 NBRS = []
@@ -104,10 +105,10 @@ for c in range(COLS):
 cell order determines move order
 """
 
+CELLS = [j for j in range(N)]  # this order terrible for solving
 if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
-elif ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
-elif ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
-else: CELLS = [j for j in range(N)]  # this order terrible for solving
+if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
+if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
 
 """
 input, output
@@ -157,14 +158,17 @@ def undo(H, brd):  # pop last meta-move
     return copy.copy(H[len(H)-1])
 
 def msg(s, ch):
-  if has_win(s, 'x'): return('x has won')
+  if has_win(s, 'x'): 
+    return('x has won')
   elif has_win(s, 'o'): return('o has won')
   else: 
+    start_time = time.time()
     wm, calls = win_move(s, ch)
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
     out += (' ... ' if wm else ' ') + wm + '\n'
     out += str(calls) + ' calls\n'
+    out += format(time.time() - start_time, '.1f') + ' seconds\n'
     return out
 
 """
