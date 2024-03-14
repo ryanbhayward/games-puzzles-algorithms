@@ -7,6 +7,7 @@ import time
 from math import sqrt, log
 
 from mcts0 import TreeNode0, Mcts0, VERBOSE_SIMS, MCTS_TIME, root_node_sims
+from hex_game0 import BLACK, WHITE
 
 class TreeNode1(TreeNode0):
     def __init__(self, game, player: int, move=None, parent=None):
@@ -138,6 +139,12 @@ class Mcts1(Mcts0):
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
+
+            if self.root_node.player == BLACK and leaf.results == 1:
+                return leaf.move
+            elif self.root_node.player == WHITE and leaf.results == -1:
+                return leaf.move
+
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
 
