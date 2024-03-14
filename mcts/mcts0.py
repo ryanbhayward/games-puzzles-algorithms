@@ -10,7 +10,7 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 20 # verbose output for these
+VERBOSE_SIMS = 20 # verbose for initial simulations
 MCTS_TIME = .1
 
 def root_node_sims(node):
@@ -76,7 +76,8 @@ class TreeNode0:
         moves = game_copy.get_legal_moves()
         rs = root_node_sims(self)
         if rs < VERBOSE_SIMS:
-            print('sim', rs+1, '  ', path_from_root(self), 'roll', end=' ')
+            print('simulation', '{:2d}'.format(rs+1), 
+              '  ', path_from_root(self), 'roll', end=' ')
         while len(moves) > 0:
             move_index = random.randint(0, len(moves)-1)  # Select random move
             if rs < VERBOSE_SIMS:
@@ -160,7 +161,6 @@ class Mcts0:
         """
 
         if self.winning_move is not None:
-            print("total simulations", self.root_node.sims)
             return self.winning_move
 
         # return move after set amount of time
