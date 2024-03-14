@@ -14,6 +14,11 @@ from math import sqrt, log
 from mcts0 import TreeNode0, Mcts0, VERBOSE_SIMS, MCTS_TIME, \
   root_node_sims, path_from_root
 
+def int_or_inf(results): # int or +-infinity
+    if results == float('inf'):  return '  inf'
+    if results == float('-inf'): return ' -inf'
+    return '{:5d}'.format(results)
+
 class TreeNode1(TreeNode0):
     def __init__(self, game, player: int, move=None, parent=None):
         super().__init__(game, player, move, parent)
@@ -29,13 +34,13 @@ class TreeNode1(TreeNode0):
             won = game_copy.check_win(move)
             t = TreeNode1(game_copy, 3-self.player, move, self)
             rs = root_node_sims(self)
-            if rs <= VERBOSE_SIMS:
+            if rs < VERBOSE_SIMS:
                 print('    expand', path_from_root(self), '->', t.move)
             self.children.append(t)
 
             if won:
-                if rs <= VERBOSE_SIMS:
-                    print('simulation', '{:2d}'.format(rs+1), '  ', 
+                if rs < VERBOSE_SIMS:
+                    print('    sim', '{:2d}'.format(rs+1), '  ', 
                       path_from_root(self), move, 'win')
                 self.children[-1].backpropagate(float('inf'))
 
@@ -65,8 +70,15 @@ class TreeNode1(TreeNode0):
 
             node = node.parent
 
-
 class RootNode1(TreeNode1):
+    def show_data(self):
+        print('\n  move  sims  wins\n')
+        for child in self.children:
+            print('{:5d}'.format(child.move), 
+                  '{:5d}'.format(child.sims), 
+                  int_or_inf(child.results))
+        print()
+
     def expand_node(self):
         """
         Generate children of this node.
@@ -90,12 +102,9 @@ class RootNode1(TreeNode1):
         self.is_leaf = False
         return None
 
-
 class Mcts1(Mcts0):
-    # MCTS code largely taken from
+    # november 27 2022... MCTS code largely taken from
     # https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
-    # November 27, 2022
-
     def __init__(self, game, player):
         self.root_node = RootNode1(game, player)
         self.winning_move = self.root_node.expand_node()
@@ -146,18 +155,17 @@ class Mcts1(Mcts0):
 
         while time.time() < end_time:
 
+            # winning move found?  return :) woo hoo :)
             for child in self.root_node.children:
                 if child.results == float('inf'):
+                    self.root_node.show_data()
                     return child.move
 
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
 
-        print('\nmove sims wins\n')
-        for child in self.root_node.children:
-            print(child.move, child.sims, child.results)
-        print()
+        self.root_node.show_data()
         return self.get_best_move()
 
     def best_uct(self, node: TreeNode1) -> TreeNode1:

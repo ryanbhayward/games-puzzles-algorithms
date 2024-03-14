@@ -40,7 +40,7 @@ def command_loop(game):
         if command != None and (command == 'q' or len(command) == 0):
           print('\n    ... adios   :)    ... \n')
           return
-        print("= ", end="")
+        print("\n= ", end="")
         command = input().lower()
 
         if command.replace(" ", "") == "":
