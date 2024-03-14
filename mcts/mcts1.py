@@ -138,6 +138,11 @@ class Mcts1(Mcts0):
         end_time = time.time() + MCTS_TIME
 
         while time.time() < end_time:
+
+            for child in self.root_node.children:
+                if child.results == float('inf'):
+                    return child.move
+
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             result = leaf.rollout()  # rollout
             leaf.backpropagate(result)  # backpropagate
