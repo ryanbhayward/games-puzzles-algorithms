@@ -2,12 +2,17 @@
 #  * written with help of GitHub Copilot
 #  *  MCTS code largely from
 #       https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
+#  rbh 2024: show data from initial VERBOSE_SIMS simulations
+#    - every rollout is a simulation
+#    - every win discovered after a node expansion is a simulation
+#      so the number of simulations is >= number of mcts iterations
 
 import time
 from math import sqrt, log
 
-from mcts0 import TreeNode0, Mcts0, VERBOSE_SIMS, MCTS_TIME, root_node_sims
-from hex_game0 import BLACK, WHITE
+#from hex_game0 import BLACK, WHITE
+from mcts0 import TreeNode0, Mcts0, VERBOSE_SIMS, MCTS_TIME, \
+  root_node_sims, path_from_root
 
 class TreeNode1(TreeNode0):
     def __init__(self, game, player: int, move=None, parent=None):
@@ -23,11 +28,15 @@ class TreeNode1(TreeNode0):
             game_copy.play_move(move, self.player)
             won = game_copy.check_win(move)
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            if root_node_sims(self) <= VERBOSE_SIMS:
-                print('    expand', self.move, '->', t.move)
+            rs = root_node_sims(self)
+            if rs <= VERBOSE_SIMS:
+                print('    expand', path_from_root(self), '->', t.move)
             self.children.append(t)
 
             if won:
+                if rs <= VERBOSE_SIMS:
+                    print('simulation', '{:2d}'.format(rs+1), '  ', 
+                      path_from_root(self), move, 'win')
                 self.children[-1].backpropagate(float('inf'))
 
         self.is_leaf = False
@@ -38,7 +47,6 @@ class TreeNode1(TreeNode0):
         node = self
         while node is not None:
             node.sims += 1
-            #print(self.move,'  sims:', node.sims)
 
             if result == float('inf') and node != self:
                 for children in node.children:
@@ -73,11 +81,10 @@ class RootNode1(TreeNode1):
             won = game_copy.check_win(move)
 
             if won:
-                print('\n    root win_found\n')
                 return move
 
             t = TreeNode1(game_copy, 3-self.player, move, self)
-            print('    root expand', self.move, '->', t.move)
+            print('    root expand', '* ->', t.move)
             self.children.append(t)
 
         self.is_leaf = False
@@ -157,8 +164,8 @@ class Mcts1(Mcts0):
         """
         Return the next move for traversal.
 
-        If node is a root, return node.
-        If there is a child of node that has not been simulated, return child.
+        If node is root, return node.
+        If node has unsimulated child, return child.
         Otherwise, return child with best uct score.
 
         Arguments:
