@@ -201,6 +201,7 @@ class Mcts1(Mcts0):
             # calculate UCT, update if best
             mean_res = child.results / child.sims
             uct = mean_res+(self.c*sqrt(log(self.root_node.sims)/child.sims))
+            #uct = mean_res+(self.c*(self.root_node.sims/(child.sims+self.root_node.sims)))
             if best_uct is None or uct > best_uct:
                 best_uct, best_child = uct, child
           
