@@ -9,7 +9,7 @@ from hex_game0 import BLACK, WHITE, BLANK
 import mcts0
 import mcts1
 
-size = 6
+size = 2
 previous_game = None
 boardversion = 2  # 0 or 1 or 2
 mctsversion = 1  # 0 or 1

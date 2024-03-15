@@ -177,9 +177,9 @@ class Mcts0:
         """
         Return the next move for traversal.
 
-        If node is a root, return node.
-        If there is a child of node that has not been simulated, return child.
-        Otherwise, return child with best uct score.
+        node is root? return node
+        node has unsimulated child? return child
+        otherwise? return child with best uct score
 
         Arguments:
         node (TreeNode): Node in tree to find child to traverse for
@@ -199,6 +199,7 @@ class Mcts0:
                 # if the children of the node have not been
                 # fully explored, then explore a move that
                 # hasn't been before
+                print('      unexplored child')
                 return child
 
             # calculate UCT, update if best
@@ -213,13 +214,13 @@ class Mcts0:
 
     def traverse_and_expand(self, node: TreeNode0):
         """
-        Traverse tree and find node to simulate.
+        traverse tree, select node to simulate
 
-        Arguments:
-        node (TreeNode): Root (first move) of tree
+        args:
+        node (TreeNode): root of tree
 
-        Returns:
-        Node (TreeNode): move to run simulation on
+        returns:
+        node (TreeNode): move from which to simulate
         """
 
         while not node.is_leaf:

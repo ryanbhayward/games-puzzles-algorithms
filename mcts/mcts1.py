@@ -182,26 +182,29 @@ class Mcts1(Mcts0):
         TreeNode: child to traverse
         """
 
-        if len(node.moves) == 0:
-            #print('terminal node')
-            return node  # if terminal node, return node
+        # for hex, each board-filling move is a winner
+        # so this test never passes
+        if len(node.moves) == 0: 
+            return node  # terminal so return
 
         best_uct = None
         best_child = None
 
+
         for child in node.children:
-            if child.sims == 0:
-                # if the children of the node have not been
-                # fully explored, then explore a move that
-                # hasn't been before
+            if child.sims == 0: # unexplored children have priority
+                rs = root_node_sims(child)
+                if rs < VERBOSE_SIMS:
+                    print('       unexplored', child.move)
                 return child
 
             # calculate UCT, update if best
             mean_res = child.results / child.sims
             uct = mean_res+(self.c*sqrt(log(self.root_node.sims)/child.sims))
             if best_uct is None or uct > best_uct:
-                best_uct = uct
-                best_child = child
-
-        # return best uct
+                best_uct, best_child = uct, child
+          
+        rs = root_node_sims(best_child)
+        if rs < VERBOSE_SIMS:
+            print('       best uct', node.move, best_child.move)
         return best_child
