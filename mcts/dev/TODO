@@ -1,0 +1,11 @@
+bugs
+ - undo from an empty board erases board
+
+fixes
+ - replace log, sqrt: too slow
+ - fix undo (e.g. multiple consecutive)
+
+features
+- fast (string or set) hex implementation that uses UF and tracks winning moves in simulation
+- print message when winning move found
+- print each node in mcts, for the first k nodes (k could be 0)
