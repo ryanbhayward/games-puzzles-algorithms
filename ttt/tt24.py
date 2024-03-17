@@ -223,6 +223,7 @@ def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
     psn.brd[cell] = Cell.e  # reset brd to original
     #if so_far == 1: break   # improvement: return once win found
   if use_tt: MMX[ptm - 1][psn_int] = so_far
+  if d == 0 and use_tt: print('\n  TT size', len(MMX[0])+len(MMX[1]))
   return so_far, calls
 
 def info(p, use_tt, use_iso, MMX):
