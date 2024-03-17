@@ -108,7 +108,7 @@ cell order determines move order
 CELLS = [j for j in range(N)]  # this order terrible for solving
 #if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
 #if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
-#if ROWS == 4 and COLS == 3: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
+#if ROWS == 4 and COLS == 3: CELLS = (4,7,5,6,3,2,8,9,1,10,0,11)
 #if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
 
 """
