@@ -105,7 +105,7 @@ for c in range(COLS):
 cell order determines move order
 """
 
-CELLS = [j for j in range(N)]  # this order terrible for solving
+CELLS = range(N)  # this order terrible for solving
 #if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
 #if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 #if ROWS == 4 and COLS == 3: CELLS = (4,7,5,6,3,2,8,9,1,10,0,11)
@@ -193,22 +193,41 @@ def has_win(brd, who):
         Q.append(d)
         seen.add(d)
   return False
+
+# number of reachable positions in subtree rooted at psn
+def reachable(psn, ptm, rpsns):
+  rpsns.add(psn)
+  nodes, optm = 1, oppCH(ptm)
+  if has_win(psn, ptm) or has_win(psn, optm): return 1
+  for k in CELLS:
+    if psn[k]==ECH:
+      new_psn = change_str(psn, k, ptm) # add ptm-stone at cell k
+      if new_psn not in rpsns:
+        nodes += reachable(new_psn, optm, rpsns)
+  return nodes
+        
+# number of nodes in tree-of-all-continuations rooted at psn
+def TOAC(psn, ptm):
+  nodes, optm = 1, oppCH(ptm)
+  if has_win(psn, ptm) or has_win(psn, optm): return 1
+  for k in CELLS:
+    if psn[k]==ECH:
+      new_psn = change_str(psn, k, ptm) # add ptm-stone at cell k
+      nodes += TOAC(new_psn, optm)
+  return nodes
         
 def win_move(s, ptm): # assume neither player has won yet
-  blanks, calls = [], 1
-  for j in CELLS:
-    if s[j]==ECH: blanks.append(j)
-  #if len(blanks)==0: print('whoops',s)
-  #assert(len(blanks)>0) # since x has no draws
+  calls = 1
   optm = oppCH(ptm)
-  for k in blanks:
-    t = change_str(s, k, ptm)
-    if has_win(t, ptm):
-      return point_to_alphanum(k, COLS), calls
-    cw, prev_calls = win_move(t, optm)
-    calls += prev_calls
-    if not cw:
-      return point_to_alphanum(k, COLS), calls
+  for k in CELLS:
+    if s[k]==ECH:
+      t = change_str(s, k, ptm)
+      if has_win(t, ptm):
+        return point_to_alphanum(k, COLS), calls
+      cw, prev_calls = win_move(t, optm)
+      calls += prev_calls
+      if not cw:
+        return point_to_alphanum(k, COLS), calls
   return '', calls
 
 def interact():
@@ -225,13 +244,19 @@ def interact():
       printmenu()
     elif cmd[0][0]=='u':
       p.brd = undo(history, p.brd)
+    elif cmd[0][0]=='r':
+      for ch in (BCH, WCH):
+        r = set()
+        rn = reachable(p.brd, ch, r)
+        assert(rn==len(r))
+        print(rn, ch, 'reachable nodes')
+        print(TOAC(p.brd, ch), ch, 'TOAC nodes')
     elif cmd[0][0]=='?':
       cmd = cmd.split()
       if len(cmd)>0:
-        if cmd[1][0]=='x': 
-          print(msg(p.brd, 'x'))
-        elif cmd[1][0]=='o': 
-          print(msg(p.brd, 'o'))
+        for ch in (BCH, WCH):
+          if cmd[1][0]==ch: 
+            print(msg(p.brd, ch))
     elif (cmd[0][0] in PTS):
       new = p.requestmove(cmd)
       if new != '':
