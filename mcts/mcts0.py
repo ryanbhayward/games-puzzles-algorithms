@@ -10,7 +10,7 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 20 # verbose for initial simulations
+VERBOSE_SIMS = 0 # verbose for initial simulations
 MCTS_TIME = 1
 
 def root_node_sims(node):
@@ -55,11 +55,8 @@ class TreeNode0:
         node = self
         while node is not None:
             node.sims += 1
-
-            if won:
-                node.wins += 1
+            if won: node.wins += 1
             won = not won
-
             node = node.parent
 
     def rollout(self) -> bool:

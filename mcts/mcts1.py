@@ -22,7 +22,6 @@ def int_or_inf(results): # int or +-infinity
 class TreeNode1(TreeNode0):
     def __init__(self, game, player: int, move=None, parent=None):
         super().__init__(game, player, move, parent)
-
         self.results = 0  # +1 for black win, -1 for white win
 
     def expand_node(self):
@@ -108,7 +107,6 @@ class Mcts1(Mcts0):
     def __init__(self, game, player):
         self.root_node = RootNode1(game, player)
         self.winning_move = self.root_node.expand_node()
-
         self.c = 0.3  # used for UCT
 
     def get_best_move(self):
