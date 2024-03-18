@@ -23,8 +23,10 @@ def show(n):
     print('\n hex ',n, 'x', n,' board', sep='')
     #for k in range(n*n+1):
     #  print('  ', k, 'stones', board_states(n, k))
-    print(' positions', upto_states(n, n*n))
-    print(' ^3-bound ', power3(n))
+    psns, pow3 = upto_states(n, n*n), power3(n)
+    print(' positions', psns)
+    print(' ^3-bound ', pow3)
+    print('ratio', psns/pow3)
 
 def nodeCount7x7():
 # number of nodes in 7x7 solver recursion tree, cf TCS paper
