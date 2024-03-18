@@ -124,18 +124,15 @@ class Mcts1(Mcts0):
         for node in self.root_node.children:
             if node.results == float('-inf'):
                 continue
-
             if most_visits is None or node.sims > most_visits:
                 best_node = node
                 most_visits = node.sims
-
         if best_node is None:
             # all moves are losing, choose the one with the most visits
             for node in self.root_node.children:
                 if most_visits is None or node.sims > most_visits:
                     best_node = node
                     most_visits = node.sims
-
         return best_node.move
 
     def monte_carlo_tree_search(self):
