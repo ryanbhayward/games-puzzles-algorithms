@@ -63,13 +63,15 @@ def command_loop(game):
             print(str(game))
         elif args[0] == "test":
             print('4x4 test')
-            tw, trials = 0, 10
+            tw, trials, wmoves = 0, 20, set()
             for j in range(trials):
               mcts = mctsversions[1](game, BLACK)
               move = mcts.monte_carlo_tree_search()
               wins4 = set((10,15,20,25))
-              if move in wins4: tw +=1
-            print(tw, 'wins', trials, 'trials')
+              if move in wins4: 
+                tw +=1
+                wmoves.add(move)
+            print(tw, 'wins', trials, 'trials', wmoves, 'winning moves')
         elif args[0] == "size":
             global size
             try:
