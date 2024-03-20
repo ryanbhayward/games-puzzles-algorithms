@@ -43,12 +43,7 @@ class TreeNode1(TreeNode0):
                       path_from_root(self), '{:2d}'.format(move), 'win', end='')
                 self.children[-1].backpropagate(float('inf'))
                 if rs < VERBOSE_SIMS: print('\n  break expand_node', end='')
-                break
-                #if self.parent != None:
-                #    for aunt in self.parent.children:
-                #        if aunt != self.parent and aunt.move != move:
-                #            print('loser', path_from_root(aunt))
-                #            aunt.backpropagate(float('-inf')) 
+                break # winner found, no need to add rest of children
 
         self.is_leaf = False
 
