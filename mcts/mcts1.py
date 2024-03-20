@@ -42,6 +42,9 @@ class TreeNode1(TreeNode0):
                     print('    sim', '{:2d}.'.format(rs+1), '  ', 
                       path_from_root(self), '{:2d}'.format(move), 'win')
                 self.children[-1].backpropagate(float('inf'))
+                self.backpropagate(float('-inf'))
+                if rs < VERBOSE_SIMS: print('break')
+                break
                 #if self.parent != None:
                 #    for aunt in self.parent.children:
                 #        if aunt != self.parent and aunt.move != move:
@@ -53,6 +56,7 @@ class TreeNode1(TreeNode0):
     def backpropagate(self, result: int):
         """Backpropagate simulation results."""
 
+        #print('  backprop', path_from_root(self), 'result', result)
         node = self
         while node is not None:
             node.sims += 1
@@ -196,7 +200,6 @@ class Mcts1(Mcts0):
 
         best_uct = None
         best_child = None
-
 
         for child in node.children:
             if child.sims == 0: # unexplored children have priority

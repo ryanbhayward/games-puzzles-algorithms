@@ -68,6 +68,12 @@ class TreeNode0:
         bool: True if parent player won
         """
 
+        if self.results == float('inf'): 
+          #print('  rollout: already won')
+          return True
+        if self.results == float('-inf'): 
+          print('  rollout: already lost')
+          return False
         game_copy = self.game.copy()
         player = self.player
         moves = game_copy.get_legal_moves()

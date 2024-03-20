@@ -1,0 +1,70 @@
+
+= start root node init
+  expand  * > 5, 6, 9, 10, 
+done  root node init
+  trav_expand   best_uct 5 unexplored
+  trav_expand leaf *  5
+    sim  1.    *  5 roll  6 10  9 parent loss
+  trav_expand   best_uct 6 unexplored
+  trav_expand leaf *  6
+    sim  2.    *  6 roll 10  5  9 parent loss
+  trav_expand   best_uct 9 unexplored
+  trav_expand leaf *  9
+    sim  3.    *  9 roll 10  6 parent win
+  trav_expand   best_uct 10 unexplored
+  trav_expand leaf * 10
+    sim  4.    * 10 roll  9  6 parent win
+  trav_expand   best_uct None 9
+  expand *  9 > 5
+  expand *  9 > 6
+  expand *  9 > 10
+  trav_expand leaf *  9  5
+    sim  5.    *  9  5 roll  6 parent loss
+  trav_expand   best_uct None 10
+  expand * 10 > 5
+  expand * 10 > 6
+  expand * 10 > 9
+  trav_expand leaf * 10  6
+    sim  6.    * 10  6 roll  9  5 parent win
+  trav_expand   best_uct None 9
+  best_uct 6 unexplored
+  trav_expand leaf *  9  6
+    sim  7.    *  9  6 roll  5 parent loss
+  trav_expand   best_uct None 9
+  best_uct 10 unexplored
+  trav_expand leaf *  9 10
+    sim  8.    *  9 10 roll  5 parent loss
+  trav_expand   best_uct None 9
+  best_uct 9 5
+  expand *  9  5 > 6
+    sim  9.    *  9  5  6 win
+break
+  trav_expand leaf *  9  5  6
+  trav_expand   best_uct None 9
+  best_uct 9 6
+  expand *  9  6 > 5
+    sim 12.    *  9  6  5 win
+break
+  trav_expand leaf *  9  6  5
+  trav_expand   best_uct None 9
+  best_uct 9 10
+  expand *  9 10 > 5
+    sim 15.    *  9 10  5 win
+break
+  trav_expand leaf *  9 10  5
+
+  move  sims  wins
+    5     1     0
+    6     1     0
+    9    13   inf
+   10     2     1
+total    17   inf
+
+    a b 
+  1  . . o
+   2  x . o
+       x x 
+
+= 
+    ... adios   :)    ... 
+
