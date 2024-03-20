@@ -79,7 +79,7 @@ class TreeNode0:
         moves = game_copy.get_legal_moves()
         rs = root_node_sims(self)
         if rs < VERBOSE_SIMS:
-            print('    sim', '{:2d}.'.format(rs+1), 
+            print('\n  sim', '{:2d}.'.format(rs+1), 
               '  ', path_from_root(self), 'roll', end='')
         while len(moves) > 0:
             move_index = random.randint(0, len(moves)-1)  # Select random move
@@ -96,10 +96,10 @@ class TreeNode0:
             player = 3 - player  # invert color / switch player
 
         if player != self.player:  # parent player won
-            if rs < VERBOSE_SIMS: print(' parent win')
+            if rs < VERBOSE_SIMS: print(' parent win', end='')
             return True
         else:  # parent player lost
-            if rs < VERBOSE_SIMS: print(' parent loss')
+            if rs < VERBOSE_SIMS: print(' parent loss', end='')
             return False
 
 class RootNode0(TreeNode0):

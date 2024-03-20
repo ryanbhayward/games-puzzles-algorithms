@@ -1,68 +1,63 @@
 
-= start root node init
-  expand  * > 5, 6, 9, 10, 
-done  root node init
+= root node init * > 5, 6, 9, 10, done
   trav_expand   best_uct 5 unexplored
   trav_expand leaf *  5
-    sim  1.    *  5 roll  6 10  9 parent loss
+  sim  1.    *  5 roll  6 10  9 parent loss
   trav_expand   best_uct 6 unexplored
   trav_expand leaf *  6
-    sim  2.    *  6 roll 10  5  9 parent loss
+  sim  2.    *  6 roll 10  5  9 parent loss
   trav_expand   best_uct 9 unexplored
   trav_expand leaf *  9
-    sim  3.    *  9 roll 10  6 parent win
+  sim  3.    *  9 roll  5 10  6 parent loss
   trav_expand   best_uct 10 unexplored
   trav_expand leaf * 10
-    sim  4.    * 10 roll  9  6 parent win
-  trav_expand   best_uct None 9
-  expand *  9 > 5
-  expand *  9 > 6
-  expand *  9 > 10
-  trav_expand leaf *  9  5
-    sim  5.    *  9  5 roll  6 parent loss
-  trav_expand   best_uct None 10
-  expand * 10 > 5
-  expand * 10 > 6
-  expand * 10 > 9
-  trav_expand leaf * 10  6
-    sim  6.    * 10  6 roll  9  5 parent win
-  trav_expand   best_uct None 9
-  best_uct 6 unexplored
-  trav_expand leaf *  9  6
-    sim  7.    *  9  6 roll  5 parent loss
-  trav_expand   best_uct None 9
-  best_uct 10 unexplored
-  trav_expand leaf *  9 10
-    sim  8.    *  9 10 roll  5 parent loss
-  trav_expand   best_uct None 9
-  best_uct 9 5
-  expand *  9  5 > 6
-    sim  9.    *  9  5  6 win
-break
-  trav_expand leaf *  9  5  6
-  trav_expand   best_uct None 9
-  best_uct 9 6
-  expand *  9  6 > 5
-    sim 12.    *  9  6  5 win
-break
-  trav_expand leaf *  9  6  5
-  trav_expand   best_uct None 9
-  best_uct 9 10
-  expand *  9 10 > 5
-    sim 15.    *  9 10  5 win
-break
-  trav_expand leaf *  9 10  5
-
+  sim  4.    * 10 roll  5  9  6 parent loss
+  trav_expand   best_uct * 5
+  expand *  5 > 6
+  expand *  5 > 9
+  expand *  5 > 10
+  trav_expand leaf *  5  9
+  sim  5.    *  5  9 roll  6 10 parent win
+  trav_expand   best_uct * 6
+  expand *  6 > 5
+  expand *  6 > 9
+  expand *  6 > 10
+  trav_expand leaf *  6  5
+  sim  6.    *  6  5 roll 10 parent loss
+  trav_expand   best_uct * 6  best_uct 9 unexplored
+  trav_expand leaf *  6  9
+  sim  7.    *  6  9 roll  5 10 parent win
+  trav_expand   best_uct * 6  best_uct 10 unexplored
+  trav_expand leaf *  6 10
+  sim  8.    *  6 10 roll  9 parent loss
+  trav_expand   best_uct * 6  best_uct 6 9
+  expand *  6  9 > 5
+  expand *  6  9 > 10
+  sim  9. *  6  9 10 win
+  break expand_node
+  trav_expand leaf *  6  9  5
+  sim 11.    *  6  9  5 roll 10 parent loss
+  trav_expand   best_uct * 6  best_uct 6 5
+  expand *  6  5 > 9
+  sim 12. *  6  5  9 win
+  break expand_node
+  trav_expand leaf *  6  5  9
+  trav_expand   best_uct * 6  best_uct 6 10
+  expand *  6 10 > 5
+  expand *  6 10 > 9
+  sim 15. *  6 10  9 win
+  break expand_node
+  trav_expand leaf *  6 10  9
   move  sims  wins
-    5     1     0
-    6     1     0
-    9    13   inf
-   10     2     1
+    5     2     0
+    6    13   inf
+    9     1     0
+   10     1     0
 total    17   inf
 
     a b 
-  1  . . o
-   2  x . o
+  1  . x o
+   2  . . o
        x x 
 
 = 
