@@ -68,12 +68,14 @@ class TreeNode0:
         bool: True if parent player won
         """
 
-        if self.results == float('inf'): 
-          #print('  rollout: already won')
-          return True
-        if self.results == float('-inf'): 
-          print('  rollout: already lost')
-          return False
+        assert(self.results != float('inf'))
+        assert(self.results != float('-inf'))
+        #if self.results == float('inf'): 
+        #  print('  rollout: already won')
+        #  return True
+        #if self.results == float('-inf'): 
+        #  print('  rollout: already lost')
+        #  return False
         game_copy = self.game.copy()
         player = self.player
         moves = game_copy.get_legal_moves()
@@ -171,8 +173,9 @@ class Mcts0:
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
-            won = leaf.rollout()  # rollout
-            leaf.backpropagate(won)  # backpropagate
+            if leaf.results != float('inf'):
+                won = leaf.rollout()  # rollout
+                leaf.backpropagate(won)  # backpropagate
 
         return self.get_best_move()
 
