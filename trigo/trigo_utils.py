@@ -63,25 +63,26 @@ class IO:  ############## hex and go output #############
     print('\n' + msg)
     for x in d: print(x, d[x])
 
-  def disp(brd): 
-    s = '  ' + brd[0] + '\n' + IO.spread(brd[1:]) + '\n'
+  def disp(state): 
+    s = '  ' + state.board[0] + '\n' + IO.spread(state.board[1:])
     print(Color.paint(s, Cell.io_ch))
+    print('      score ', state.score(), 'empty cells', state.empty_cells())
 
   def test():
     print('tests for class IO\n')
     for color in (Cell.b, Cell.w):
       state = Board()
-      IO.disp(state.board)
+      IO.disp(state)
       for j in range(state.n):
         state.color_cell(color, j)
-        IO.disp(state.board)
+        IO.disp(state)
     for j in range(state.n):
       state.color_cell(Cell.e, j)
-      IO.disp(state.board)
+      IO.disp(state)
     state.color_cell(Cell.b, 2)
-    IO.disp(state.board)
+    IO.disp(state)
     state.color_cell(Cell.w, 1)
-    IO.disp(state.board)
+    IO.disp(state)
 
 class Pt: ############## board points     ###############
 
@@ -95,14 +96,36 @@ class Board:
 
   def __init__(self):
     self.board = Cell.io_ch[Cell.e] * self.n
+    self.history = [self.board]
     print('init board', self.board)
+    print('init history', self.history)
   
-  #def change_string(p, where, ch):
-  #  return p[:where] + ch + p[where+1:]
-
   def color_cell(self, color, where):
     assert(where in (0,1,2))
     assert(color in (Cell.b, Cell.w, Cell.e))
     assert(color == Cell.e or self.board[where] == Cell.io_ch[Cell.e])
     self.board = self.board[:where] + Cell.io_ch[color] + self.board[where+1:]
-    
+
+  def is_legal(self):
+    return Cell.io_ch[Cell.e] in self.board
+
+  def empty_cells(self):
+    empties = [j for j, x in enumerate(self.board) if x == Cell.io_ch[Cell.e]]
+    return empties
+
+  def legal_moves(self, color):
+    assert(color in (Cell.b, Cell.w))
+    assert self.is_legal()
+    bcount = self.board.count(Cell.io_ch[Cell.b])
+    wcount = self.board.count(Cell.io_ch[Cell.w])
+    return self.empty_cells()
+
+  def score(self):
+    if self.is_legal():
+      bcount = self.board.count(Cell.io_ch[Cell.b])
+      wcount = self.board.count(Cell.io_ch[Cell.w])
+      if bcount == 2 or bcount > wcount: return 1
+      if wcount == 2 or bcount < wcount: return -1
+      return 0
+    else:
+      print('      illegal position ', end='')
