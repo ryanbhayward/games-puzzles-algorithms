@@ -1,9 +1,13 @@
 * interact working so far, woo hoo
 
-* change_cell working
+* legal_moves working
 
 * next:  make_move
-      - capture
-      - don't fill board
+          - don't fill board
+          - capture
+
+* next:  game_state
+          - history
+          - make_move: superko check
 
 * next:  minimax

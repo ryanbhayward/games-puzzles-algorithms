@@ -10,6 +10,7 @@ from string import ascii_lowercase
 class Cell: ############## board cells ###############
   b, w, e = 'x', 'o', '.' # black, white, empty
   io_ch = b+w+e
+  n = 3   # 3 cells on trigo board
 
   def opponent(c): 
     if c == Cell.e: return None
@@ -53,23 +54,16 @@ class IO:  ############## input/output, strings #############
     s = '  ' + board[0] + '\n' + IO.spread(board[1:])
     return Color.paint(s, Cell.io_ch)
 
-  #def show_pairs(msg, d):
-  #  print('\n' + msg)
-  #  for x in d: print(x, d[x], end=' : ')
-  #  print()
-
-  #def show_dict(msg, d):
-  #  print('\n' + msg)
-  #  for x in d: print(x, d[x])
-
-
 class Board:
-  n = 3        # trigo board: only 3 cells   :)
-  board = Cell.e * n
+  board = Cell.e * Cell.n  # trigo board: only 3 cells   :)
   
   def report(self): 
     print(IO.board_str(self.board))
-    print('      score ', self.score(), 'empty cells', self.empty_cells())
+    print('      score ', self.score(), end='')
+    print('empties ', self.empty_cells())
+    print('legal black moves', self.legal_moves(Cell.b))
+    print('legal white moves', self.legal_moves(Cell.w))
+    print()
 
   def change_cell(self, color, where):
     assert(where in (0,1,2))
@@ -86,10 +80,14 @@ class Board:
 
   def legal_moves(self, color):
     assert(color in (Cell.b, Cell.w))
-    assert self.is_legal()
     bcount = self.board.count(Cell.b)
     wcount = self.board.count(Cell.w)
-    return self.empty_cells()
+    stones = bcount + wcount
+    if stones != 2 or bcount == 1 or \
+       (bcount == 0 and color == Cell.b) or \
+       (wcount == 0 and color == Cell.w):
+      return self.empty_cells()
+    return []
 
   def score(self):
     if self.is_legal():
@@ -105,10 +103,10 @@ class Board:
     p = self
     print('Board tests\n')
     for color in (Cell.b, Cell.w):
-      for j in range(self.n):
+      for j in range(Cell.n):
         p.change_cell(color, j)
         p.report()
-      for j in range(p.n):
+      for j in range(Cell.n):
         p.change_cell(Cell.e, j)
         p.report()
     p.change_cell(Cell.b, 2)
