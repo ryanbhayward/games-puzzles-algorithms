@@ -1,6 +1,9 @@
+* interact working so far, woo hoo
 
-* get legal_moves working properly
+* change_cell working
 
-* get interact working
+* next:  make_move
+      - capture
+      - don't fill board
 
-* get minimax working :)
+* next:  minimax

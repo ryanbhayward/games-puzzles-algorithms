@@ -1,5 +1,5 @@
 """
-  go on a triangle (based on hexgo)      rbh 2024
+  game of go on a triangular 3-point board  rbh 2024
       
        .     cell names   0
       . .                1 2
@@ -8,7 +8,7 @@
 from string import ascii_lowercase
 
 class Cell: ############## board cells ###############
-  b, w, e = '*', '@', '.' # black, white, empty
+  b, w, e = 'x', 'o', '.' # black, white, empty
   io_ch = b+w+e
 
   def opponent(c): 
@@ -62,36 +62,16 @@ class IO:  ############## input/output, strings #############
   #  print('\n' + msg)
   #  for x in d: print(x, d[x])
 
-  def disp(state): 
-    print(IO.board_str(state.board))
-    print('      score ', state.score(), 'empty cells', state.empty_cells())
-
-  def test():
-    print('tests for class IO\n')
-    for color in (Cell.b, Cell.w):
-      state = Board()
-      IO.disp(state)
-      for j in range(state.n):
-        state.color_cell(color, j)
-        IO.disp(state)
-    for j in range(state.n):
-      state.color_cell(Cell.e, j)
-      IO.disp(state)
-    state.color_cell(Cell.b, 2)
-    IO.disp(state)
-    state.color_cell(Cell.w, 1)
-    IO.disp(state)
 
 class Board:
   n = 3        # trigo board: only 3 cells   :)
-
-  def __init__(self):
-    self.board = Cell.e * self.n
-    self.history = [self.board]
-    print('init board', self.board)
-    print('init history', self.history)
+  board = Cell.e * n
   
-  def color_cell(self, color, where):
+  def report(self): 
+    print(IO.board_str(self.board))
+    print('      score ', self.score(), 'empty cells', self.empty_cells())
+
+  def change_cell(self, color, where):
     assert(where in (0,1,2))
     assert(color in (Cell.b, Cell.w, Cell.e))
     assert(color == Cell.e or self.board[where] == Cell.e)
@@ -120,3 +100,17 @@ class Board:
       return 0
     else:
       print('      illegal position ', end='')
+
+  def test(self):
+    p = self
+    print('Board tests\n')
+    for color in (Cell.b, Cell.w):
+      for j in range(self.n):
+        p.change_cell(color, j)
+        p.report()
+      for j in range(p.n):
+        p.change_cell(Cell.e, j)
+        p.report()
+    p.change_cell(Cell.b, 2)
+    p.change_cell(Cell.w, 1)
+    p.report()
