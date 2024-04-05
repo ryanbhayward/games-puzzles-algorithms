@@ -16,10 +16,6 @@ class Cell: ############## board cells ###############
 
   def opponent(c): return 1 - c
 
-  #def get_ptm(ch):
-  #divide by floor of 32, get player 1 or 2 based on char * or @
-  #  return ord(ch) >> 5 
-
   def test():
     print('tests for class Cell')
     io_ch = Cell.io_ch

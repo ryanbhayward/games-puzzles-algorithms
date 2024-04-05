@@ -13,34 +13,13 @@ def menu():
   m += '\n   u                undo'
   return m + '\n[return]            quit\n'
 
-def empty_board(r, c):
-  board = GUARD*(c+1)         # bottom row
-  for rows in range(r):
-    board += GUARD + EMPTY*c  # middle rows
-  board += GUARD*(c+1)        # top row
-  return board
-
-def brd_index(r, c, C): # index in points board of point (r, c)
-  return (C+1) * (r+1) + c + 1
-
-def point_to_alphanum(p, C):
-  r, c = divmod(p, C+1)
-  return COLUMNS[c-1] + str(r+1)
-
 def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
 
-def mylabel(j):
-  return '  .' if j == 0 else '{:3d}'.format(j)
-
 class Game_state: 
   def __init__(self, r, c):
-    self.brd = empty_board(r, c)         # empty guarded board
     self.history = [self.brd]            # history of board positions
     self.next_to_move = BLACK
-
-  def export_gdg(self):
-     print('todo')
 
   def status_report(self):
     self.showboard()
@@ -72,7 +51,7 @@ class Game_state:
             else:
               print('\n ok we should do something')
               if move_is_ok:
-              return move_is_ok
+                return move_is_ok
 
   def interact(self):
     p = self
@@ -112,5 +91,5 @@ def color_where(x, C):
   else:
     return (BW_to_PT(x[0]))
 
-  p = Game_state(4, 4)
-  p.interact()
+p = Game_state(4, 4)
+p.interact()
