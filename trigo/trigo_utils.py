@@ -8,7 +8,7 @@
 from string import ascii_lowercase
 
 class Cell: ############## board cells ###############
-  b, w, e = 'x', 'o', '.' # black, white, empty
+  b, w, e = '*', 'o', '.' # black, white, empty
   io_ch = b+w+e
   n = 3   # 3 cells on trigo board
 
@@ -40,8 +40,8 @@ class Color: ############ for color output ############
   def paint(s, chrs):
     p = ''
     for c in s:
-      if c == chrs[0]: p += Color.grn(c)
-      elif c == chrs[1]: p += Color.mgn(c)
+      if   c == chrs[0]: p += Color.mgn(c)
+      elif c == chrs[1]: p += Color.grn(c)
       elif c.isalpha(): p+= Color.grn(c)
       elif c.isnumeric(): p+= Color.mgn(c)
       #elif c.isprintable(): p += Color.grey + c + Color.end
@@ -60,17 +60,18 @@ class IO:  ############## input/output, strings #############
   def spread(s): # embed blanks in string
     return ''.join([' ' + c for c in s])
 
-  welcome = Color.mgn('\n          :)    welcome    :)\n')+\
-            Color.grn('the game of go played on a 3-cell triangular board)\n')+\
-            Color.mgn('   usual logical rules (Tromp-Taylor no-suicide)\n')
+  welcome = Color.grn('\n welcome  :) ')+\
+    Color.mgn('  go on a 3-cell board\n')+\
+    Color.mgn(' logical rules ')+\
+    Color.grn('(Tromp-Taylor no-suicide)\n')
 
-  menu = Color.grn('\ncells  0')+ Color.mgn('  menu options')+\
-         Color.grn('\n      1 2')+\
-         Color.mgn('    x pass')+'  play black pass' +\
-         Color.mgn('\n             o 2')+'     play white cell 2' +\
-         Color.mgn('\n             . 0')+'     erase stone at cell 0 (not legal move)' +\
-         Color.mgn('\n              u')+'          undo' +\
-         Color.mgn('\n          [return]')+'       quit\n'
+  menu = Color.mgn(' cells')+Color.grn('  0')+ Color.mgn('      menu options')+\
+    Color.grn('\n       1 2')+\
+    Color.mgn('   b pass')+'  play black pass' +\
+    Color.mgn('\n             w 2')+'     play white cell 2' +\
+    Color.mgn('\n             . 0')+'     erase stone at cell 0 (not legal move)' +\
+    Color.mgn('\n              u')+'          undo' +\
+    Color.mgn('\n          [return]')+'       quit\n'
 
 class Board:
   board = Cell.e * Cell.n  # trigo board: only 3 cells   :)
