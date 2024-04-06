@@ -58,7 +58,7 @@ class Game_state:
     p = self
     while True:
       p.bn.report()
-      cmd = input('')
+      cmd = input('  ')
       if len(cmd)==0:
         print('\n ... adios :)\n')
         return
@@ -70,13 +70,6 @@ class Game_state:
           p.history.pop()
       elif (cmd[0][0] in Cell.io_ch):
         sofar = p.requestmove(cmd)
-        #if sofar: # no liberty violation, check superko
-        #  new_position = p.brd
-        #  if new_position in p.history:
-        #    print('superko violation, move not allowed')
-        #    p.undo_last_action()
-        #  else:
-        #    p.history.append(new_position)
       else:
         print('\n ???????\n')
         print(menu())

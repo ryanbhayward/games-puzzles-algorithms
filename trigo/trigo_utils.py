@@ -25,6 +25,9 @@ class Cell: ############## board cells ###############
       print(j, Cell.opponent(j), end='  ')
     print()
 
+class Move: ####
+  b, w, p = Cell.b, Cell.w, '-'
+
 class Color: ############ for color output ############
   green   = '\033[0;32m'
   magenta = '\033[0;35m'
@@ -58,11 +61,11 @@ class Board:
   board = Cell.e * Cell.n  # trigo board: only 3 cells   :)
   
   def report(self): 
-    print(IO.board_str(self.board))
-    print('      score ', self.score(), end='')
-    print('empties ', self.empty_cells())
-    print('legal black moves', self.legal_moves(Cell.b))
-    print('legal white moves', self.legal_moves(Cell.w))
+    print('\n', IO.board_str(self.board), sep='')
+    print('      score', self.score(), end=' ')
+    print('empties', self.empty_cells())
+    print('      ? black moves', self.legal_moves(Cell.b))
+    print('      ? white moves', self.legal_moves(Cell.w))
     print()
 
   def change_cell(self, color, where):
