@@ -32,6 +32,8 @@ class Game_state:
       color = cmd[0][0]
       if color in Cell.io_ch:
         q = cmd[1][0]
+        if q == 'p':
+          print('\n    ', color, ' pass move')
         if q.isdigit():
           q = int(q)
           if q >= 3:
