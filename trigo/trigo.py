@@ -7,15 +7,6 @@
 from trigo_utils import Cell, Color, IO, Board
 from time import time
 
-def menu():
-  m =  '\n  cells         0 '
-  m += '\n               1 2\n'
-  m += '\n  x 2         play black cell 2'
-  m += '\n  o 1         play white cell 1'
-  m += '\n  . 0         erase stone at cell 0'
-  m += '\n   u          undo'
-  return m + '\n[return]      quit\n'
-
 def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
 
@@ -30,6 +21,8 @@ class Game_state:
     move_is_ok, cmd = False, cmd.split()
     if len(cmd)==2:
       color = cmd[0][0]
+      if color == 'b': color = Cell.b
+      if color == 'w': color = Cell.w
       if color in Cell.io_ch:
         q = cmd[1][0]
         if q == 'p':
@@ -58,23 +51,26 @@ class Game_state:
 
   def interact(self):
     p = self
+    print(IO.welcome)
+    print(IO.menu)
     while True:
       p.bn.report()
       cmd = input('  ')
       if len(cmd)==0:
         print('\n ... adios :)\n')
         return
-      if cmd[0][0] == 'h':
-        print(menu())
-      elif cmd[0][0] == 'u':
+      c0 = cmd[0][0]
+      if c0 == 'h':
+        print(IO.menu)
+      elif c0 == 'u':
         p.undo_last_action()
         if len(p.history) > 1: 
           p.history.pop()
-      elif (cmd[0][0] in Cell.io_ch):
+      elif c0 in Cell.io_ch + 'bw':
         sofar = p.requestmove(cmd)
       else:
         print('\n ???????\n')
-        print(menu())
+        print(IO.menu)
 
 def BW_to_PT(c):
   return IO_CHR[' BW'.index(c)]

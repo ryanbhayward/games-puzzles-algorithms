@@ -34,35 +34,50 @@ class Color: ############ for color output ############
   grey    = '\033[0;37m'
   end     = '\033[0m'
 
+  def grn(s): return Color.green + s + Color.end
+  def mgn(s): return Color.magenta + s + Color.end
+
   def paint(s, chrs):
     p = ''
     for c in s:
-      if c == chrs[0]: p += Color.magenta + c + Color.end
-      elif c == chrs[1]: p += Color.green + c + Color.end
-      elif c.isalpha(): p+= Color.magenta + c + Color.end
-      elif c.isnumeric(): p+= Color.green + c + Color.end
-      elif c.isprintable(): p += Color.grey + c + Color.end
+      if c == chrs[0]: p += Color.grn(c)
+      elif c == chrs[1]: p += Color.mgn(c)
+      elif c.isalpha(): p+= Color.grn(c)
+      elif c.isnumeric(): p+= Color.mgn(c)
+      #elif c.isprintable(): p += Color.grey + c + Color.end
       else: p += c
     return p
+   
 
 class IO:  ############## input/output, strings #############
+  def board_show(string):
+    s = ' '*15 + string[0] + '\n' + ' '*13 + IO.spread(string[1:])
+    return Color.paint(s, Cell.io_ch)
 
   def change_string(p, where, ch):
     return p[:where] + ch + p[where+1:]
 
   def spread(s): # embed blanks in string
     return ''.join([' ' + c for c in s])
-  
-  def board_str(board):
-    s = '  ' + board[0] + '\n' + IO.spread(board[1:])
-    return Color.paint(s, Cell.io_ch)
+
+  welcome = Color.mgn('\n          :)    welcome    :)\n')+\
+            Color.grn('the game of go played on a 3-cell triangular board)\n')+\
+            Color.mgn('   usual logical rules (Tromp-Taylor no-suicide)\n')
+
+  menu = Color.grn('\ncells  0')+ Color.mgn('  menu options')+\
+         Color.grn('\n      1 2')+\
+         Color.mgn('    x pass')+'  play black pass' +\
+         Color.mgn('\n             o 2')+'     play white cell 2' +\
+         Color.mgn('\n             . 0')+'     erase stone at cell 0 (not legal move)' +\
+         Color.mgn('\n              u')+'          undo' +\
+         Color.mgn('\n          [return]')+'       quit\n'
 
 class Board:
   board = Cell.e * Cell.n  # trigo board: only 3 cells   :)
   
   def report(self): 
-    print('\n', IO.board_str(self.board), sep='')
-    print('      score', self.score(), end=' ')
+    print(IO.board_show(self.board))
+    print('\n      score', self.score(), end=' ')
     print('empties', self.empty_cells())
     print('      ? black moves', self.legal_moves(Cell.b))
     print('      ? white moves', self.legal_moves(Cell.w))
