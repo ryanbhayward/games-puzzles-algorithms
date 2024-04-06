@@ -60,18 +60,18 @@ class IO:  ############## input/output, strings #############
   def spread(s): # embed blanks in string
     return ''.join([' ' + c for c in s])
 
-  welcome = Color.grn('\n welcome  :) ')+\
-    Color.mgn('  go on a 3-cell board\n')+\
+  welcome = Color.mgn('\n welcome  :)\n')+\
+    Color.grn(' go on a 3-cell board\n')+\
     Color.mgn(' logical rules ')+\
     Color.grn('(Tromp-Taylor no-suicide)\n')
 
-  menu = Color.mgn(' cells')+Color.grn('  0')+ Color.mgn('      menu options')+\
+  menu = Color.mgn(' cells')+Color.grn('  0')+ Color.mgn('    menu options')+\
     Color.grn('\n       1 2')+\
     Color.mgn('   b pass')+'  play black pass' +\
     Color.mgn('\n             w 2')+'     play white cell 2' +\
     Color.mgn('\n             . 0')+'     erase stone at cell 0 (not legal move)' +\
-    Color.mgn('\n              u')+'          undo' +\
-    Color.mgn('\n          [return]')+'       quit\n'
+    Color.mgn('\n             u')+'          undo' +\
+    Color.mgn('\n             [return]')+'   quit\n'
 
 class Board:
   board = Cell.e * Cell.n  # trigo board: only 3 cells   :)
