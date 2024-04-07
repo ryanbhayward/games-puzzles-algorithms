@@ -26,7 +26,7 @@ class Cell: ############## board cells ###############
     print()
 
 class Move: ####
-  b, w, p = Cell.b, Cell.w, '-'
+  b, w, p, nil = Cell.b, Cell.w, 'pass', ' nil'
 
 class Color: ############ for color output ############
   green   = '\033[0;32m'
@@ -85,7 +85,6 @@ class Board:
       Board.legal_moves(brd, Cell.b))
     print('      ? white moves', 
       Board.legal_moves(brd, Cell.w))
-    print()
 
   def change_cell(brd, color, where):
     assert(where in (0,1,2))
