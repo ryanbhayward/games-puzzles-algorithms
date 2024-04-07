@@ -74,60 +74,62 @@ class IO:  ############## input/output, strings #############
     Color.mgn('\n             [return]')+'   quit\n'
 
 class Board:
-  board = Cell.e * Cell.n  # trigo board: only 3 cells   :)
-  
-  def report(self): 
-    print(IO.board_show(self.board))
-    print('\n      score', self.score(), end=' ')
-    print('empties', self.empty_cells())
-    print('      ? black moves', self.legal_moves(Cell.b))
-    print('      ? white moves', self.legal_moves(Cell.w))
+  def empty():
+    return Cell.e * Cell.n  # 3 empty cells 
+
+  def report(brd): 
+    print(IO.board_show(brd))
+    print('\n      score', Board.score(brd), end=' ')
+    print('empties', Board.empty_cells(brd))
+    print('      ? black moves', 
+      Board.legal_moves(brd, Cell.b))
+    print('      ? white moves', 
+      Board.legal_moves(brd, Cell.w))
     print()
 
-  def change_cell(self, color, where):
+  def change_cell(brd, color, where):
     assert(where in (0,1,2))
     assert(color in (Cell.b, Cell.w, Cell.e))
-    assert(color == Cell.e or self.board[where] == Cell.e)
-    self.board = IO.change_string(self.board, where,  color)
+    assert(color == Cell.e or brd[where] == Cell.e)
+    return IO.change_string(brd, where,  color)
 
-  def is_legal(self):
-    return Cell.e in self.board
+  def is_legal(brd):
+    return Cell.e in brd
 
-  def empty_cells(self):
-    empties = [j for j, x in enumerate(self.board) if x == Cell.e]
+  def empty_cells(brd):
+    empties = [j for j, x in enumerate(brd) if x == Cell.e]
     return empties
 
-  def legal_moves(self, color):
+  def legal_moves(brd, color):
     assert(color in (Cell.b, Cell.w))
-    bcount = self.board.count(Cell.b)
-    wcount = self.board.count(Cell.w)
+    bcount = brd.count(Cell.b)
+    wcount = brd.count(Cell.w)
     stones = bcount + wcount
     if stones != 2 or bcount == 1 or \
        (bcount == 0 and color == Cell.b) or \
        (wcount == 0 and color == Cell.w):
-      return self.empty_cells()
+      return Board.empty_cells(brd)
     return []
 
-  def score(self):
-    if self.is_legal():
-      bcount = self.board.count(Cell.b)
-      wcount = self.board.count(Cell.w)
+  def score(brd):
+    if Board.is_legal(brd):
+      bcount = brd.count(Cell.b)
+      wcount = brd.count(Cell.w)
       if bcount == 2 or bcount > wcount: return 3
       if wcount == 2 or bcount < wcount: return -3
       return 0
     else:
       print('      illegal position ', end='')
 
-  def test(self):
-    p = self
+  def test(p):
     print('Board tests\n')
     for color in (Cell.b, Cell.w):
       for j in range(Cell.n):
-        p.change_cell(color, j)
-        p.report()
+        p = Board.change_cell(p, color, j)
+        Board.report(p)
       for j in range(Cell.n):
-        p.change_cell(Cell.e, j)
-        p.report()
-    p.change_cell(Cell.b, 2)
-    p.change_cell(Cell.w, 1)
-    p.report()
+        p = Board.change_cell(p, Cell.e, j)
+        Board.report(p)
+    p = Board.change_cell(p, Cell.b, 2)
+    p = Board.change_cell(p, Cell.w, 1)
+    Board.report(p)

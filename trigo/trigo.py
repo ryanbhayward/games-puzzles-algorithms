@@ -1,7 +1,5 @@
 """
-  * simple set-based go environment    rbh 2024
-  * similar to hex.py
-  * they both use hexgo.py, stone_board.py
+game of go on a triangular 3-point board  rbh 2024
 """
 
 from trigo_utils import Cell, Color, IO, Board
@@ -11,11 +9,23 @@ def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
 
 class Game_state: 
-
   def __init__(self):
-    self.bn = Board()
-    self.history = [self.bn.board]            # history of board positions
-    self.next_to_move = Cell.b
+    self.board = Board.empty()
+    bcopy = self.board[:]          # copy of initial board
+    self.board_history  = [bcopy]  # history of boards
+    self.move_history = [-1]     # history of moves
+    self.next_to_move = Cell.b   # black moves first
+    self.move_num = 0
+    self.show_history()
+
+  def show_history(self):
+    nb = len(self.board_history)
+    nm = len(self.move_history)
+    assert(nb == nm)
+    assert(nb == 1 + self.move_num)
+    print(' history\n move cell board')
+    for j in range(nb):
+       print('{:4} {:4d}   {:3}'.format(j, self.move_history[j], self.board_history[j]))
 
   def requestmove(self, cmd):
     move_is_ok, cmd = False, cmd.split()
@@ -35,26 +45,27 @@ class Game_state:
           else:
             where = q
             if color == Cell.e: # erase move
-              point_color = self.bn.board[where]
+              point_color = self.board[where]
               if point_color == Cell.e:
                 print('\n  that location is already empty')
                 return move_is_ok
               else:
-                self.bn.change_cell(color, where) 
+                # TODO self.make_move()
+                self.board = Board.change_cell(self.board, color, where) 
                 return True
-            if self.bn.board[where] != Cell.e:
+            if self.board[where] != Cell.e:
               print('\n  sorry, position occupied')
               return move_is_ok
             else:
-              self.bn.change_cell(color, where) 
+              self.board = Board.change_cell(self.board, color, where) 
               return True
 
   def interact(self):
-    p = self
+    gs = self
     print(IO.welcome)
     print(IO.menu)
     while True:
-      p.bn.report()
+      Board.report(gs.board)
       cmd = input('  ')
       if len(cmd)==0:
         print('\n ... adios :)\n')
@@ -63,11 +74,11 @@ class Game_state:
       if c0 == 'h':
         print(IO.menu)
       elif c0 == 'u':
-        p.undo_last_action()
-        if len(p.history) > 1: 
-          p.history.pop()
+        gs.undo_last_action()
+        if len(gs.history) > 1: 
+          gs.history.pop()
       elif c0 in Cell.io_ch + 'bw':
-        sofar = p.requestmove(cmd)
+        sofar = gs.requestmove(cmd)
       else:
         print('\n ???????\n')
         print(IO.menu)
@@ -85,7 +96,6 @@ def color_where(x, C):
 #print('\ntime ', time() - start_time)
 #Cell.test()
 s = Game_state()
-#s.bn.report()
-#s.bn.test()
+Board.test(s.board)
 s.interact()
 
