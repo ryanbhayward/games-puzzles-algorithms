@@ -50,8 +50,9 @@ class Color: ############ for color output ############
    
 
 class IO:  ############## input/output, strings #############
-  def board_show(string):
-    s = ' '*15 + string[0] + '\n' + ' '*13 + IO.spread(string[1:])
+  def board_show(brd):
+    s = '\n  0      '+ brd[0] + '\n 1 2   '+ IO.spread(brd[1:]) +\
+        '   score ' + str(Board.score(brd))
     return Color.paint(s, Cell.io_ch)
 
   def change_string(p, where, ch):
@@ -60,18 +61,15 @@ class IO:  ############## input/output, strings #############
   def spread(s): # embed blanks in string
     return ''.join([' ' + c for c in s])
 
-  welcome = Color.mgn('\n welcome  :)\n')+\
+  welcome = Color.mgn('\n welcome to  trigo  :)\n')+\
     Color.grn(' go on a 3-cell board\n')+\
     Color.mgn(' logical rules ')+\
     Color.grn('(Tromp-Taylor no-suicide)\n')
 
-  menu = Color.mgn(' cells')+Color.grn('  0')+ Color.mgn('    menu options')+\
-    Color.grn('\n       1 2')+\
-    Color.mgn('   b pass')+'  play black pass' +\
-    Color.mgn('\n             w 2')+'     play white cell 2' +\
-    Color.mgn('\n             . 0')+'     erase stone at cell 0 (not legal move)' +\
-    Color.mgn('\n             u')+'          undo' +\
-    Color.mgn('\n             [return]')+'   quit\n'
+  menu =  Color.mgn(' b pass')+'     black pass\n' +\
+    Color.mgn(' w 2   ')+'     play white: cell 2\n' +\
+    Color.mgn('  u    ')+'     undo\n' +\
+    Color.mgn(' [return]')+'   quit\n'
 
 class Board:
   def empty():
@@ -79,12 +77,10 @@ class Board:
 
   def report(brd): 
     print(IO.board_show(brd))
-    print('\n      score', Board.score(brd), end=' ')
-    print('empties', Board.empty_cells(brd))
-    print('      ? black moves', 
-      Board.legal_moves(brd, Cell.b))
-    print('      ? white moves', 
-      Board.legal_moves(brd, Cell.w))
+    #print(' ? black moves', 
+    #  Board.legal_moves(brd, Cell.b))
+    #print(' ? white moves', 
+    #  Board.legal_moves(brd, Cell.w))
 
   def change_cell(brd, color, where):
     assert(where in (0,1,2))

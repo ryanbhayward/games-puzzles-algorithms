@@ -4,6 +4,7 @@ game of go on a triangular 3-point board  rbh 2024
 
 from trigo_utils import Cell, Color, IO, Board, Move
 from time import time
+from os import system
 
 def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
@@ -21,7 +22,7 @@ class Game_state:
     nm = len(self.move_history)
     assert(nb == nm)
     assert(nb == 1 + self.moves_made)
-    print(Color.grn(' history'),
+    print(Color.grn('\n history'),
           Color.mgn(' move cell board'))
     for j in range(nb):
        print(8*' ', '{:4} {:4}   {:3}'.format(j, 
@@ -35,11 +36,16 @@ class Game_state:
 
   def undo_move(self):
     if self.moves_made == 0:
-      print(' nothing to undo')
+      self.fail_msg('nothing to undo')
       return
     self.board_history.pop()
+    self.board = self.board_history[-1]
     self.move_history.pop()
     self.moves_made -= 1
+
+  def fail_msg(self, msg):
+    print(Color.mgn('\n sorry,'), end=' ')
+    print(msg)
 
   def wrong_player_msg(self, parity):
     print(Color.mgn('\n sorry,'), end=' ')
@@ -52,8 +58,7 @@ class Game_state:
       if color == 'b': color = Cell.b
       if color == 'w': color = Cell.w
       if color == Cell.e:
-        print(Color.mgn('\n sorry,'), 
-          'color must be black or white')
+        self.fail_msg('color must be black or white')
         return
       parity = self.moves_made % 2
       whose_turn = (Cell.b, Cell.w)[parity]
@@ -68,22 +73,18 @@ class Game_state:
         if q.isdigit():
           q = int(q)
           if q >= 3:
-            print(Color.mgn('\n  sorry,'), end=' ')
-            print('cells 0, 1, 2 only')
+            self.fail_msg('cells 0, 1, 2 only')
             return 
           else:
             where = q
             if self.board[where] != Cell.e:
-              print('\n  sorry, position occupied')
+              self.fail_msg('cell occupied')
               return 
             else:
               new_psn = Board.change_cell(self.board, color, where) 
               self.make_move(new_psn, where)
               return 
 
-  def request_fail(self):
-    print('\n ???????\n')
-    print(IO.menu)
 
   def interact(self):
     gs = self
@@ -104,7 +105,8 @@ class Game_state:
       elif c0 in Cell.io_ch + 'bw':
         gs.request_move(cmd)
       else:
-        gs.request_fail()
+        gs.fail_msg('could not parse request: please try again\n')
+        print(IO.menu)
 
 def BW_to_PT(c):
   return IO_CHR[' BW'.index(c)]
@@ -118,6 +120,7 @@ def color_where(x, C):
 #start_time = time()
 #print('\ntime ', time() - start_time)
 #Cell.test()
+system('clear')
 s = Game_state()
 #Board.test(s.board)
 s.interact()
