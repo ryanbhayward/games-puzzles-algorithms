@@ -110,7 +110,7 @@ class Game_state:
     while True:
       Board.report(gs.board)
       gs.show_history()
-      gs.show_kids()
+      #gs.show_kids()
       if gs.move_history[-1] == Move.p and \
          gs.move_history[-2] == Move.p:
         print('\n consecutive passes: game over ... adios :)\n')
