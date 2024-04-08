@@ -12,6 +12,8 @@ class Cell: ############## board cells ###############
   io_ch = b+w+e
   n = 3   # 3 cells on trigo board
 
+  def name(c): return ('black','white','empty')[Cell.io_ch.index(c)]
+
   def opponent(c): 
     if c == Cell.e: return None
     return Cell.b if c == Cell.w else Cell.w

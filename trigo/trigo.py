@@ -3,6 +3,7 @@ game of go on a triangular 3-point board  rbh 2024
 """
 DSHOW = 8
 MAX_SCORE = 3 # only possible scores  -3, 0, 3
+calls = 0     
 
 from trigo_utils import Cell, Color, IO, Board, Move
 from time import time
@@ -137,37 +138,39 @@ class Game_state:
       elif c0 in Cell.io_ch + 'bw':
         gs.request_move(cmd)
       elif c0 == 's':
-        s, c = gs.negamax(0, 0)
-        print('mmx', s, 'calls', c)
+        s = gs.negamax(0)
+        global calls
+        print(Cell.name(gs.ptm), 'to-move,', 'mmx', s, 'calls', calls)
       else:
         gs.fail_msg('could not parse request: please try again\n')
         print(IO.menu)
 
-  def nega_score(self):
-    return Board.score(self.board)
+  def ptm_score(self):
+    return Board.score(self.board) if self.ptm == Cell.b \
+      else -Board.score(self.board)
 
-  def negamax(self, calls, d): # 1/0/-1 win/draw/loss
-    calls += 1
+  def negamax(self, d): # 1/0/-1 win/draw/loss
+    global calls; calls += 1
+
     if d <= DSHOW: print('depth', d, 'psn', self.board)
     if self.move_history[-1] == Move.p: # pass move
-      s, c = -self.nega_score(), 0
+      so_far = self.ptm_score()
     else:
       self.make_move(self.board[:], Move.p)
-      s, c = self.negamax(calls, d+1)
+      so_far = -self.negamax(d+1)
       self.undo_move()
-    so_far, calls = -s, calls + c
-    if so_far == MAX_SCORE: 
-      return so_far, calls
+#    if so_far == MAX_SCORE: 
+#      return so_far
+    nmx = -MAX_SCORE # in case there are no legal moves
     for child in Board.children(self.board, self.ptm):
-      nmx, c = -MAX_SCORE, 0 # in case there are no legal moves
       if child[1] not in self.board_history:
         self.make_move(child[1], child[0])
-        nmx, c = self.negamax(calls, d+1)
+        nmx = max(nmx, -self.negamax(d+1))
         self.undo_move()
-      so_far, calls = max(so_far, -nmx), calls + c
-      if so_far == MAX_SCORE: 
-        break
-    return so_far, calls
+      so_far = max(so_far, nmx)
+#      if so_far == MAX_SCORE: 
+#        break
+    return so_far
 
 #start_time = time()
 #print('\ntime ', time() - start_time)
