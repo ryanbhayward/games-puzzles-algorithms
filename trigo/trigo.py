@@ -28,6 +28,11 @@ class Game_state:
        print(8*' ', '{:4} {:4}   {:3}'.format(j, 
          self.move_history[j], self.board_history[j]))
 
+  def show_kids(self):
+    brd = self.board
+    print('b kids', Board.children(brd,Cell.b))
+    print('w kids', Board.children(brd,Cell.w))
+
   def make_move(self, new_psn, where):
      if where != Move.p and new_psn in self.board_history:
        self.fail_msg('superko violation')
@@ -92,9 +97,9 @@ class Game_state:
               o_color = Cell.opponent(color)
               o_count = new_psn.count(o_color)
               if p_count + o_count == 3:
-                print('capture')
+                #print('capture')
                 new_psn = Board.clear_color(new_psn, o_color)
-                print(new_psn)
+                #print(new_psn)
               self.make_move(new_psn, where)
               return 
 
@@ -105,6 +110,7 @@ class Game_state:
     while True:
       Board.report(gs.board)
       gs.show_history()
+      gs.show_kids()
       if gs.move_history[-1] == Move.p and \
          gs.move_history[-2] == Move.p:
         print('\n consecutive passes: game over ... adios :)\n')

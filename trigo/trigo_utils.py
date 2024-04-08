@@ -91,23 +91,41 @@ class Board:
   def clear_color(brd, color):
     return ''.join([Cell.e if c == color else c for c in brd])
 
+  def counts(brd, color):
+    return brd.count(color), brd.count(Cell.opponent(color))
+
+  def children(brd, color):
+    kids = []
+    pc, oc = Board.counts(brd, color)
+    if pc + oc < 2:
+      for j in (0,1,2):
+        if brd[j] == Cell.e:
+          kids.append(IO.change_string(brd, j, color))
+    elif pc < 2: 
+      for j in (0,1,2):
+        if brd[j] == Cell.e:
+          new = IO.change_string(brd, j, color)
+          new = Board.clear_color(new, Cell.opponent(color))
+          kids.append(new)
+    return kids
+
   def is_legal(brd):
     return Cell.e in brd
 
-  def empty_cells(brd):
-    empties = [j for j, x in enumerate(brd) if x == Cell.e]
-    return empties
+  #def empty_cells(brd):
+  #  empties = [j for j, x in enumerate(brd) if x == Cell.e]
+  #  return empties
 
-  def legal_moves(brd, color):
-    assert(color in (Cell.b, Cell.w))
-    bcount = brd.count(Cell.b)
-    wcount = brd.count(Cell.w)
-    stones = bcount + wcount
-    if stones != 2 or bcount == 1 or \
-       (bcount == 0 and color == Cell.b) or \
-       (wcount == 0 and color == Cell.w):
-      return Board.empty_cells(brd)
-    return []
+  #def legal_moves(brd, color):
+  #  assert(color in (Cell.b, Cell.w))
+  #  bcount = brd.count(Cell.b)
+  #  wcount = brd.count(Cell.w)
+  #  stones = bcount + wcount
+  #  if stones != 2 or bcount == 1 or \
+  #     (bcount == 0 and color == Cell.b) or \
+  #     (wcount == 0 and color == Cell.w):
+  #    return Board.empty_cells(brd)
+  #  return []
 
   def score(brd):
     if Board.is_legal(brd):
