@@ -29,6 +29,17 @@ class Game_state:
       else: s+= str(m)
     print(s)
 
+  def show_moves_fancy(self):
+    s, j, player = '', 0, 'BW'
+    for m in self.move_history:
+      if m == Move.nil: pass
+      elif m == Move.p: 
+        s+= str(j)+'.'+player[(j+1)%2]+'[pass] '
+      else: 
+        s+= str(j)+'.'+player[(j+1)%2]+'['+str(m)+'] '
+      j += 1
+    print(s)
+
   def show_history(self):
     nb = len(self.board_history)
     nm = len(self.move_history)
@@ -162,6 +173,7 @@ class Game_state:
     calls += 1
     if d > max_depth:
       self.show_moves()
+      self.show_moves_fancy()
       max_depth = d
 
     if d <= DSHOW: print('depth', d, 'psn', self.board)
