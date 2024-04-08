@@ -1,13 +1,2 @@
-* interact working so far, woo hoo
-
-* legal_moves working
-
-* next:  make_move
-          - don't fill board
-          - capture
-
-* next:  game_state
-          - history
-          - make_move: superko check
-
+* print game history in usual notation 
 * next:  minimax

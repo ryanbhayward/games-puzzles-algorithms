@@ -29,6 +29,9 @@ class Game_state:
          self.move_history[j], self.board_history[j]))
 
   def make_move(self, new_psn, where):
+     if where != Move.p and new_psn in self.board_history:
+       self.fail_msg('superko violation')
+       return
      self.board = new_psn
      self.board_history.append(new_psn)
      self.move_history.append(where)
@@ -82,9 +85,18 @@ class Game_state:
               return 
             else:
               new_psn = Board.change_cell(self.board, color, where) 
+              p_count = new_psn.count(color)
+              if p_count == 3:
+                self.fail_msg('that move is suicide')
+                return
+              o_color = Cell.opponent(color)
+              o_count = new_psn.count(o_color)
+              if p_count + o_count == 3:
+                print('capture')
+                new_psn = Board.clear_color(new_psn, o_color)
+                print(new_psn)
               self.make_move(new_psn, where)
               return 
-
 
   def interact(self):
     gs = self
@@ -93,6 +105,10 @@ class Game_state:
     while True:
       Board.report(gs.board)
       gs.show_history()
+      if gs.move_history[-1] == Move.p and \
+         gs.move_history[-2] == Move.p:
+        print('\n consecutive passes: game over ... adios :)\n')
+        return
       cmd = input('  ')
       if len(cmd)==0:
         print('\n ... adios :)\n')
@@ -107,15 +123,6 @@ class Game_state:
       else:
         gs.fail_msg('could not parse request: please try again\n')
         print(IO.menu)
-
-def BW_to_PT(c):
-  return IO_CHR[' BW'.index(c)]
-
-def color_where(x, C):
-  if x[2] == ']':
-    return (Cell.e, 0) # pass move
-  else:
-    return (BW_to_PT(x[0]))
 
 #start_time = time()
 #print('\ntime ', time() - start_time)

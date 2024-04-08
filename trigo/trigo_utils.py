@@ -87,6 +87,9 @@ class Board:
     assert(color in (Cell.b, Cell.w, Cell.e))
     assert(color == Cell.e or brd[where] == Cell.e)
     return IO.change_string(brd, where,  color)
+  
+  def clear_color(brd, color):
+    return ''.join([Cell.e if c == color else c for c in brd])
 
   def is_legal(brd):
     return Cell.e in brd
