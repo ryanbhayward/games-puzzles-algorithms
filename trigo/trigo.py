@@ -1,6 +1,8 @@
 """
 game of go on a triangular 3-point board  rbh 2024
 """
+DSHOW = 8
+MAX_SCORE = 3 # only possible scores  -3, 0, 3
 
 from trigo_utils import Cell, Color, IO, Board, Move
 from time import time
@@ -16,6 +18,7 @@ class Game_state:
     self.board_history  = [bcopy]  # history of boards
     self.move_history = [Move.nil] # history of moves
     self.moves_made = 0
+    self.ptm = Cell.b
 
   def show_history(self):
     nb = len(self.board_history)
@@ -30,17 +33,23 @@ class Game_state:
 
   def show_kids(self):
     brd = self.board
-    print('b kids', Board.children(brd,Cell.b))
-    print('w kids', Board.children(brd,Cell.w))
+    for c in (Cell.b, Cell.w):
+       print(c, 'kids')
+       for k in Board.children(brd,c):
+         print('     ', k)
 
   def make_move(self, new_psn, where):
-     if where != Move.p and new_psn in self.board_history:
-       self.fail_msg('superko violation')
-       return
-     self.board = new_psn
-     self.board_history.append(new_psn)
-     self.move_history.append(where)
-     self.moves_made += 1
+    self.board = new_psn
+    self.board_history.append(new_psn)
+    self.move_history.append(where)
+    self.moves_made += 1
+    self.ptm = Cell.opponent(self.ptm)
+
+  def try_move(self, new_psn, where):
+    if where != Move.p and new_psn in self.board_history:
+      self.fail_msg('superko violation')
+      return
+    self.make_move(new_psn, where)
 
   def undo_move(self):
     if self.moves_made == 0:
@@ -50,6 +59,7 @@ class Game_state:
     self.board = self.board_history[-1]
     self.move_history.pop()
     self.moves_made -= 1
+    self.ptm = Cell.opponent(self.ptm)
 
   def fail_msg(self, msg):
     print(Color.mgn('\n sorry,'), end=' ')
@@ -77,7 +87,7 @@ class Game_state:
         q = cmd[1][0]
         if q == 'p':
           same_psn = self.board[:] # new copy
-          self.make_move(same_psn, Move.p)
+          self.try_move(same_psn, Move.p)
         if q.isdigit():
           q = int(q)
           if q >= 3:
@@ -100,7 +110,7 @@ class Game_state:
                 #print('capture')
                 new_psn = Board.clear_color(new_psn, o_color)
                 #print(new_psn)
-              self.make_move(new_psn, where)
+              self.try_move(new_psn, where)
               return 
 
   def interact(self):
@@ -126,9 +136,38 @@ class Game_state:
         gs.undo_move()
       elif c0 in Cell.io_ch + 'bw':
         gs.request_move(cmd)
+      elif c0 == 's':
+        s, c = gs.negamax(0, 0)
+        print('mmx', s, 'calls', c)
       else:
         gs.fail_msg('could not parse request: please try again\n')
         print(IO.menu)
+
+  def nega_score(self):
+    return Board.score(self.board)
+
+  def negamax(self, calls, d): # 1/0/-1 win/draw/loss
+    calls += 1
+    if d <= DSHOW: print('depth', d, 'psn', self.board)
+    if self.move_history[-1] == Move.p: # pass move
+      s, c = -self.nega_score(), 0
+    else:
+      self.make_move(self.board[:], Move.p)
+      s, c = self.negamax(calls, d+1)
+      self.undo_move()
+    so_far, calls = -s, calls + c
+    if so_far == MAX_SCORE: 
+      return so_far, calls
+    for child in Board.children(self.board, self.ptm):
+      nmx, c = -MAX_SCORE, 0 # in case there are no legal moves
+      if child[1] not in self.board_history:
+        self.make_move(child[1], child[0])
+        nmx, c = self.negamax(calls, d+1)
+        self.undo_move()
+      so_far, calls = max(so_far, -nmx), calls + c
+      if so_far == MAX_SCORE: 
+        break
+    return so_far, calls
 
 #start_time = time()
 #print('\ntime ', time() - start_time)

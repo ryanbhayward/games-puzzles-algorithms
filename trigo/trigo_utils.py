@@ -51,7 +51,7 @@ class Color: ############ for color output ############
 
 class IO:  ############## input/output, strings #############
   def board_show(brd):
-    s = '\n  0      '+ brd[0] + '\n 1 2   '+ IO.spread(brd[1:]) +\
+    s = '\n  0     '+ brd[0]+'\n 2 1   '+brd[2]+' '+brd[1]+\
         '   score ' + str(Board.score(brd))
     return Color.paint(s, Cell.io_ch)
 
@@ -100,32 +100,17 @@ class Board:
     if pc + oc < 2:
       for j in (0,1,2):
         if brd[j] == Cell.e:
-          kids.append(IO.change_string(brd, j, color))
+          kids.append((j, IO.change_string(brd, j, color)))
     elif pc < 2: 
       for j in (0,1,2):
         if brd[j] == Cell.e:
           new = IO.change_string(brd, j, color)
           new = Board.clear_color(new, Cell.opponent(color))
-          kids.append(new)
+          kids.append((j,new))
     return kids
 
   def is_legal(brd):
     return Cell.e in brd
-
-  #def empty_cells(brd):
-  #  empties = [j for j, x in enumerate(brd) if x == Cell.e]
-  #  return empties
-
-  #def legal_moves(brd, color):
-  #  assert(color in (Cell.b, Cell.w))
-  #  bcount = brd.count(Cell.b)
-  #  wcount = brd.count(Cell.w)
-  #  stones = bcount + wcount
-  #  if stones != 2 or bcount == 1 or \
-  #     (bcount == 0 and color == Cell.b) or \
-  #     (wcount == 0 and color == Cell.w):
-  #    return Board.empty_cells(brd)
-  #  return []
 
   def score(brd):
     if Board.is_legal(brd):
