@@ -201,7 +201,7 @@ class Game_state:
           if d == 0: print('winning next position', best_move)
           break
 
-    if d == 0: print('best move/position', best_move)
+    if d == 0: print('a best move/psn', best_move)
     return so_far
 
 #start_time = time()
