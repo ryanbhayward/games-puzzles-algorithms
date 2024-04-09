@@ -3,7 +3,7 @@ game of go on a triangular 3-point board  rbh 2024
 """
 DSHOW = 1
 MAX_SCORE = 3 # only possible scores  -3, 0, 3
-calls, max_depth, best_move = 999, 999, ''
+calls, max_depth, max_var = 0, 0, ''
 
 from trigo_utils import Cell, Color, IO, Board, Move
 from time import time
@@ -157,12 +157,9 @@ class Game_state:
       elif c0 in Cell.io_ch + 'bw':
         gs.request_move(cmd)
       elif c0 == 's':
-        global calls, max_depth, best_move
-        calls, max_depth, best_move = 0, 0, 'none'
         s = gs.negamax(0)
-        print('\n', Cell.name(gs.ptm), '-to-move, ', sep='', end='')
-        print('mmx', s, 'calls', calls)
-        print(' max_depth', max_depth, ' a best move', best_move)
+        print(Cell.name(gs.ptm), 'to-move,', 'mmx', s, 'calls', calls)
+        print('max_depth', max_depth)
       else:
         gs.fail_msg('could not parse request: please try again\n')
         print(IO.menu)
@@ -172,7 +169,7 @@ class Game_state:
       else -Board.score(self.board)
 
   def negamax(self, d): 
-    global calls, max_depth, best_move
+    global calls, max_depth
     calls += 1
     if d > max_depth: 
       self.show_moves()
@@ -180,27 +177,31 @@ class Game_state:
     if d <= DSHOW: 
       print('depth', d, 'psn', self.board)
 
-    so_far = float('-inf')
+    if self.move_history[-1] == Move.p: # pass move
+      so_far = self.ptm_score()
+    else:
+      self.make_move(self.board[:], Move.p)
+      so_far = -self.negamax(d+1)
+      self.undo_move()
 
+    if so_far == MAX_SCORE: 
+      if d == 0: print('winning move pass')
+      return so_far
+
+    best_move = 'pass'
     for child in Board.children(self.board, self.ptm):
       if child[1] not in self.board_history:
         self.make_move(child[1], child[0])
         child_score = -self.negamax(d+1)
         if child_score > so_far:
           so_far = child_score
-          if d==0: best_move = child[1]
+          best_move = child[1]
         self.undo_move()
+        if so_far == MAX_SCORE: 
+          if d == 0: print('winning next position', best_move)
+          break
 
-    if self.move_history[-1] == Move.p: # pass move
-      p_score = self.ptm_score()
-    else:
-      self.make_move(self.board[:], Move.p)
-      p_score = -self.negamax(d+1)
-      self.undo_move()
-    if p_score > so_far:
-      so_far = p_score
-      if d==0: best_move = 'pass'
-
+    if d == 0: print('a best move/psn', best_move)
     return so_far
 
 #start_time = time()

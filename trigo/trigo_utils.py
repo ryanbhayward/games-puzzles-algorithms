@@ -53,8 +53,8 @@ class Color: ############ for color output ############
 
 class IO:  ############## input/output, strings #############
   def board_show(brd):
-    s = '\n  0     '+ brd[0]+'\n 2 1   '+brd[2]+' '+brd[1]+\
-        '   score ' + str(Board.score(brd))
+    s = '\n  0       '+ brd[0]+'\n 2 1     '+brd[2]+' '+brd[1]+\
+        '      score ' + str(Board.score(brd))
     return Color.paint(s, Cell.io_ch)
 
   def change_string(p, where, ch):
@@ -63,10 +63,10 @@ class IO:  ############## input/output, strings #############
   def spread(s): # embed blanks in string
     return ''.join([' ' + c for c in s])
 
-  welcome = Color.mgn('\n welcome to  trigo  :)\n')+\
+  welcome = Color.mgn('\n    trigo    ')+\
     Color.grn(' go on a 3-cell board\n')+\
-    Color.mgn(' logical rules ')+\
-    Color.grn('(Tromp-Taylor no-suicide)\n')
+    Color.mgn(' usual rules ')+\
+    Color.grn(' Tromp-Taylor no-suicide\n')
 
   menu =  Color.mgn(' b pass')+'     black pass\n' +\
     Color.mgn(' w 2   ')+'     play white: cell 2\n' +\
