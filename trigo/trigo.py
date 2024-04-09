@@ -1,7 +1,7 @@
 """
 game of go on a triangular 3-point board  rbh 2024
 """
-DSHOW = 4
+DSHOW = 1
 MAX_SCORE = 3 # only possible scores  -3, 0, 3
 calls, max_depth, max_var = 0, 0, ''
 
@@ -27,6 +27,17 @@ class Game_state:
       if m == Move.nil: s+= '-'
       elif m == Move.p: s+= 'p'
       else: s+= str(m)
+    print(s)
+
+  def show_moves_fancy(self):
+    s, j, player = '', 0, 'BW'
+    for m in self.move_history:
+      if m == Move.nil: pass
+      elif m == Move.p: 
+        s+= str(j)+'.'+player[(j+1)%2]+'[pass] '
+      else: 
+        s+= str(j)+'.'+player[(j+1)%2]+'['+str(m)+'] '
+      j += 1
     print(s)
 
   def show_history(self):
@@ -157,31 +168,40 @@ class Game_state:
     return Board.score(self.board) if self.ptm == Cell.b \
       else -Board.score(self.board)
 
-  def negamax(self, d): # 1/0/-1 win/draw/loss
+  def negamax(self, d): 
     global calls, max_depth
     calls += 1
-    if d > max_depth:
+    if d > max_depth: 
       self.show_moves()
       max_depth = d
+    if d <= DSHOW: 
+      print('depth', d, 'psn', self.board)
 
-    if d <= DSHOW: print('depth', d, 'psn', self.board)
     if self.move_history[-1] == Move.p: # pass move
       so_far = self.ptm_score()
     else:
       self.make_move(self.board[:], Move.p)
       so_far = -self.negamax(d+1)
       self.undo_move()
+
     if so_far == MAX_SCORE: 
+      if d == 0: print('winning move pass')
       return so_far
-    nmx = -MAX_SCORE # in case there are no legal moves
+
+    best_move = 'pass'
     for child in Board.children(self.board, self.ptm):
       if child[1] not in self.board_history:
         self.make_move(child[1], child[0])
-        nmx = max(nmx, -self.negamax(d+1))
+        child_score = -self.negamax(d+1)
+        if child_score > so_far:
+          so_far = child_score
+          best_move = child[1]
         self.undo_move()
-      so_far = max(so_far, nmx)
-      if so_far == MAX_SCORE: 
-        break
+        if so_far == MAX_SCORE: 
+          if d == 0: print('winning next position', best_move)
+          break
+
+    if d == 0: print('a best move/psn', best_move)
     return so_far
 
 #start_time = time()
