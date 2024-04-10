@@ -1,3 +1,5 @@
+# starting from root, count paths in the trigo transition digraph
+# rbh 2024
 
 def change_string(p, where, ch):
   return p[:where] + ch + p[where+1:]
@@ -14,9 +16,8 @@ def opponent(c):
   if c == 'o': return 'x'
 
 class Graph:
-### dictionaries
   colors = '.xo'
-  psns = []
+  psns = [] # each node is a trigo position
   nbrs = {} # dictionary: psn -> neighbors
 
   def children(self, brd, color):
@@ -39,6 +40,13 @@ class Graph:
             kids.append(new2)
     return kids
 
+  def show_nbrs(self):
+    for p in self.nbrs: 
+      print(p, ': ', end='')
+      for v in self.nbrs[p]:
+        print(v, end=' ')
+      print()
+
   def __init__(self):
     for a in self.colors:
       for b in self.colors:
@@ -53,23 +61,29 @@ class Graph:
         kids = self.children(p, clr)
         for k in kids:
           self.nbrs[p].add(k)
-    for p in self.nbrs: 
-      print(p, ': ', end='')
-      for v in self.nbrs[p]:
-        print(v, end=' ')
-      print()
 
   def explore(self, path):
     global count
-    count += 1
+    if len(count) < len(path):
+      assert(len(count) == len(path) - 1)
+      count.append(0)
+    count[len(path) - 1] += 1
+
     for v in self.nbrs[path[-1]]:
       if v not in path:
         path.append(v)
         self.explore(path)
         path.pop()
-    if len(path) == 1: print('count', count)
+
+    if len(path) == 1: 
+      print('\n nodes ', sum(count))
+      print(' depth')
+      for j in range(len(count)):
+        print('  {:2d}'.format(j), '    {:3d}'.format(count[j]))
+      print()
 
 g = Graph()
-count = 0
+count = []
 path = ['...']
 g.explore(path)
+g.show_nbrs()
