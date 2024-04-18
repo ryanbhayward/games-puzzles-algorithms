@@ -2,16 +2,13 @@
 from time import sleep
 from sys import stdin
 
-def isLeaf(v, L): # L leaves (terminal nodes)
-  return v in L
-
 def alphabeta(d, T, V, v, alpha, beta): # root MAX, leaf scores for MAX
   def off(d):  return ' .'*d
   def kind(d): return 'MAX' if 0 == d % 2 else 'MIN'
 
   print(off(d), v, kind(d), end=': ')
   print('?', alpha, beta)
-  if isLeaf(v,V):
+  if v in V: # V is the set of leaves
     val = V[v] 
     print(off(d), v, 'leaf, val',val)
     return val
