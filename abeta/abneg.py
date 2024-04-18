@@ -5,44 +5,39 @@
 from time import sleep
 from sys import stdin
 
-NEGINF, INF = -999, 999
+def abnega(d, Tree, V, v, alpha, beta): #leaf scores for root player
+  def off(d):  return d*' .'
+  def ab(d):   return 'alpha' if 0==d%2 else 'beta'
+  def kind(d): return 'MAX'  if 0==d%2 else 'MIN'
+  def showdata(): print(off(d), v, kind(d), alpha, beta, so_far)
+  def leafval(v, V, d): return V[v] if 0==d%2 else -V[v]
 
-def offset(d): print('  '*d,end='')
-
-def abnega(d, T, V, v, alpha, beta): #leaf scores for root player
-  def showdata():
-    sleep(.05)
-    offset(d)
-    print(v, alpha, beta, so_far)
-
-  so_far = NEGINF  # best score so far
+  so_far = float('-inf')  # best score so far
   showdata()
-  if v in V: # V is set of leaves
+
+  if v in V: # leaves
     # leaf scores are for first player,
     # need to convert for player-to-move:
     # *** val needed only if we want to print comment
-    if 0==d%2: val = V[v]  # even depth, no change
-    else:      val = -V[v]  # odd depth, negate score
-    offset(d)
-    print(v,'leaf value',val)
+    #if 0==d%2: val = V[v]  # even depth, no change
+    #else:      val = -V[v]  # odd depth, negate score
+    val = leafval(v, V, d)
+    print(off(d), v,'leaf',val)
     return val
-  for c in T[v]:
+  for c in Tree[v]:
     # if no comment needed, use following line instead
     # so_far = max(so_far,-abnega(d+1,T,V,c, -beta, -alpha))
-    cval = -abnega(d+1,T,V,c, -beta, -alpha)
+    cval = -abnega(d+1,Tree,V,c, -beta, -alpha)
     if cval > so_far:
-      offset(d+1)
-      print(c,'now best child of',v)
+      print(off(d+1), c,'now', v, "'s best child")
       so_far = cval
     # if no comment needed, use following line instead
     # alpha = max(alpha, so_far)
-    if alpha < so_far:
+    if so_far > alpha:
       alpha = so_far
-      offset(d+1)
-      print(c,'improved alpha(',v,') to',alpha)
+      print(off(d+1), c, ab(d), 'at', v,'now', alpha)
     if alpha >= beta:
-      offset(d+1)
-      print('alpha > beta, prune remaining children of', v)
+      print(off(d+1), 'prune remaining children of', v)
       break
   showdata()
   return so_far
@@ -91,4 +86,4 @@ def showtree(L,T,V):
 
 L,T,V,root = readtree()
 showtree(L,T,V)
-abnega(0, T, V, root, NEGINF, INF)
+abnega(0, T, V, root, float('-inf'), float('inf'))

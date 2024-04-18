@@ -1,8 +1,6 @@
 # simple negamax   rbh 2024
 from sys import stdin
 
-NEGINF = -999
-
 def isTerminalNode(v,V): # V is the set of terminal nodes
   return v in V
 
@@ -10,7 +8,7 @@ def negamax(d, T, V, v): # leaf scores for player-to-move
   print(d*'  ', v)
   if isTerminalNode(v,V): 
     val = V[v]; print(d*'  ', v, 'leaf', val); return val
-  val = NEGINF
+  val = float('-inf')
   for c in T[v]: # for each child c of v
     val = max(val, -negamax(d+1, T, V, c))
   print(d*'  ', v, val)

@@ -2,50 +2,50 @@
 from time import sleep
 from sys import stdin
 
-NEGINF, INF = -999, 999
-
 def isTerminalNode(v,V): # V is the set of terminal nodes
   return v in V
 
-def isMaxNode(v, d): # in our examples, terminal iff even depth
+def isMaxNode(v, d): 
   return 0 == d % 2
 
 def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
-  print(d*'  ', v, 'MAX node' if isMaxNode(v,d) else 'MIN node', end=': ')
+  def off(d): return d*' .'
+
+  print(off(d), v, 'MAX node' if isMaxNode(v,d) else 'MIN node', end=': ')
   print('?', alpha, beta)
   if isTerminalNode(v,V):
     val = V[v] 
-    print(d*'  ', v, 'leaf, val',val)
+    print(off(d), v, 'leaf, val',val)
     return val
   if isMaxNode(v, d):
-    val = NEGINF
+    val = float('-inf')
     for c in T[v]:
       ab = alphabeta(d+1, T, V, c, alpha, beta)
       if ab > val: # have improved current mmax value
         alpha, val = ab, ab
-        print((d+1)*'  ',c,'new best child of',v, end=': ')
+        print(off(d+1),c,'new best child of',v, end=': ')
       else:
-        print((d+1)*'  ',c,'not best child of',v, end=': ')
+        print(off(d+1),c,'not best child of',v, end=': ')
       print(val, alpha, beta)
       if alpha >= beta:
-        print((d+1)*'  ','alpha > beta, prune remaining children of', v)
+        print(off(d+1),'alpha > beta, prune remaining children of', v)
         break
-    print(d*'  ', v, val, alpha, beta)
+    print(off(d), v, val, alpha, beta)
     return val
   #else a MIN node
-  val = INF
+  val = float('inf')
   for c in T[v]:
     ab = alphabeta(d+1, T, V, c, alpha, beta)
     if ab < val:
       beta, val = ab, ab
-      print((d+1)*'  ', c,'new best child of',v, end=': ')
+      print(off(d+1), c,'new best child of',v, end=': ')
     else:
-      print((d+1)*'  ', c,'not best child of',v, end=': ') 
+      print(off(d+1), c,'not best child of',v, end=': ') 
     print(val, alpha, beta)
     if alpha >= beta:
-      print((d+1)*'  ','alpha > beta, prune remaining children of', v)
+      print(off(d+1),'alpha > beta, prune remaining children of', v)
       break
-  print(d*'  ', v, val, alpha, beta)
+  print(off(d), v, val, alpha, beta)
   return val
 
 def readtree():
@@ -92,4 +92,4 @@ def showtree(L,T,V):
 
 L,T,V,root = readtree()
 #showtree(L,T,V)
-alphabeta(0, T, V, root, NEGINF, INF)
+alphabeta(0, T, V, root, float('-inf'), float('inf'))
