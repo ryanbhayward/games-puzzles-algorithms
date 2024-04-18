@@ -2,12 +2,12 @@
 from time import sleep
 from sys import stdin
 
-def isLeaf(v,V): # V is the set of terminal nodes
-  return v in V
+def isLeaf(v, L): # L leaves (terminal nodes)
+  return v in L
 
-def alphabeta(d, T, V, v, alpha, beta): # leaf scores for MAX (root player)
-  def off(d):  return d*' .'
-  def kind(d): return 'MAX'   if 0==d%2 else 'MIN'
+def alphabeta(d, T, V, v, alpha, beta): # root MAX, leaf scores for MAX
+  def off(d):  return ' .'*d
+  def kind(d): return 'MAX' if 0 == d % 2 else 'MIN'
 
   print(off(d), v, kind(d), end=': ')
   print('?', alpha, beta)
