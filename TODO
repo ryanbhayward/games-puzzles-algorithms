@@ -1,1 +1,5 @@
 ttt: add code so that negamax terminates once a win found
+trigo: => graphgo (solve ala Tromp up to ? nodes)
+hex: vcs, inferior cells, solve 6x6
+mcts: vanilla ews ?
+boolean negamax:
