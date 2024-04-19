@@ -1,8 +1,8 @@
 """
-  game of go on a triangular 3-point board  rbh 2024
+  game of go on a 4-point board  rbh 2024
       
-       .     cell names   0
-      . .                1 2
+      . .     cell names  3 0
+      . .                 2 1
 """
 
 from string import ascii_lowercase
@@ -10,7 +10,8 @@ from string import ascii_lowercase
 class Cell: ############## board cells ###############
   b, w, e = '*', 'o', '.' # black, white, empty
   io_ch = b+w+e
-  n = 3   # 3 cells on trigo board
+  n = 4   # 4 cells on trigo board
+  cells = (0,1,2,3)
 
   def name(c): return ('black','white','empty')[Cell.io_ch.index(c)]
 
@@ -53,8 +54,8 @@ class Color: ############ for color output ############
 
 class IO:  ############## input/output, strings #############
   def board_show(brd):
-    s = '\n  0       '+ brd[0]+'\n 2 1     '+brd[2]+' '+brd[1]+\
-        '      score ' + str(Board.score(brd))
+    s = '\n 3 0  '+ brd[3]+' '+brd[0] + '\n 2 1  '+brd[2]+' '+brd[1]+\
+        '  score ' + str(Board.score(brd))
     return Color.paint(s, Cell.io_ch)
 
   def change_string(p, where, ch):
@@ -66,7 +67,7 @@ class IO:  ############## input/output, strings #############
   welcome = Color.mgn('\n    trigo    ')+\
     Color.grn(' go on a 3-cell board\n')+\
     Color.mgn(' usual rules ')+\
-    Color.grn(' Tromp-Taylor no-self-capture\n')
+    Color.grn(' Tromp-Taylor no-suicide\n')
 
   menu =  Color.mgn(' b pass')+'     black pass\n' +\
     Color.mgn(' w 2   ')+'     play white: cell 2\n' +\
@@ -75,7 +76,7 @@ class IO:  ############## input/output, strings #############
 
 class Board:
   def empty():
-    return Cell.e * Cell.n  # 3 empty cells 
+    return Cell.e * Cell.n  # all empty cells 
 
   def report(brd): 
     print(IO.board_show(brd))
@@ -85,7 +86,7 @@ class Board:
     #  Board.legal_moves(brd, Cell.w))
 
   def change_cell(brd, color, where):
-    assert(where in (0,1,2))
+    assert(where in range(Cell.n))
     assert(color in (Cell.b, Cell.w, Cell.e))
     assert(color == Cell.e or brd[where] == Cell.e)
     return IO.change_string(brd, where,  color)
@@ -96,33 +97,54 @@ class Board:
   def counts(brd, color):
     return brd.count(color), brd.count(Cell.opponent(color))
 
+  def has_liberty(brd, j, color):
+    c0, c1, c2 = (j+1)%4, (j+2)%4, (j+3)%4
+    return (brd[c0] == Cell.e) or (brd[c2] == Cell.e) or \
+      ((brd[c0] == color) and (brd[c1] == Cell.e)) or \
+      ((brd[c2] == color) and (brd[c1] == Cell.e))
+
+  def can_play(brd, j, color):
+    new = IO.change_string(brd, j, color)
+    c0, c2 = (j+1)%4, (j+3)%4
+    if (brd[c0] == Cell.opponent(color) and
+      not Board.has_liberty(new, c0, Cell.opponent(color))) or \
+       (brd[c2] == Cell.opponent(color) and
+      not Board.has_liberty(new, c2, Cell.opponent(color))):
+      new = Board.clear_color(new, Cell.opponent(color))
+    if Board.has_liberty(new, j, color):
+      return True, new
+    return False, ''
+
   def children(brd, color):
     kids = []
-    pc, oc = Board.counts(brd, color)
-    if pc + oc < 2:
-      for j in (0,1,2):
-        if brd[j] == Cell.e:
-          kids.append((j, IO.change_string(brd, j, color)))
-    elif pc < 2: 
-      for j in (0,1,2):
-        if brd[j] == Cell.e:
-          new = IO.change_string(brd, j, color)
-          new = Board.clear_color(new, Cell.opponent(color))
-          kids.append((j,new))
+    for j in Cell.cells:
+      if brd[j] == Cell.e:
+        ok, new = Board.can_play(brd, j, color)
+      if ok: kids.append((j,new))
     return kids
 
   def is_legal(brd):
-    return Cell.e in brd
+    bcount = brd.count(Cell.b)
+    wcount = brd.count(Cell.w)
+    ecount = 4 - (bcount + wcount)
+    if ecount == 0: return False
+    if ecount >= 2: return True
+    if bcount == 0 or wcount == 0: return True
+    # total 3 b,w, at least 1 of each
+    return (brd[0] == Cell.e and brd[3] != brd[1]) or \
+           (brd[1] == Cell.e and brd[0] != brd[2]) or \
+           (brd[2] == Cell.e and brd[1] != brd[3]) or \
+           (brd[3] == Cell.e and brd[2] != brd[0])
 
   def score(brd):
     if Board.is_legal(brd):
       bcount = brd.count(Cell.b)
       wcount = brd.count(Cell.w)
-      if bcount == 2 or bcount > wcount: return 3
-      if wcount == 2 or bcount < wcount: return -3
-      return 0
-    else:
-      print('      illegal position ', end='')
+      if bcount == wcount: return 0
+      if wcount == 0: return 4
+      if bcount == 0: return -4
+      return 1 if bcount > wcount else -1
+    print('      illegal position ', end='')
 
   def test(p):
     print('Board tests\n')

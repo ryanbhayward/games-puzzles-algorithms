@@ -76,7 +76,7 @@ class Graph:
         path.pop()
 
     if len(path) == 1: 
-      print('\n nodes ', sum(count))
+      print('\n paths ', sum(count))
       print(' depth')
       for j in range(len(count)):
         print('  {:2d}'.format(j), '    {:3d}'.format(count[j]))

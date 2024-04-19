@@ -160,6 +160,7 @@ class Game_state:
         s = gs.negamax(0)
         print(Cell.name(gs.ptm), 'to-move,', 'mmx', s, 'calls', calls)
         print('max_depth', max_depth)
+        print('nmx', gs.nmx(0))
       else:
         gs.fail_msg('could not parse request: please try again\n')
         print(IO.menu)
@@ -202,6 +203,22 @@ class Game_state:
           break
 
     if d == 0: print('a best move/psn', best_move)
+    return so_far
+
+  def nmx(self, d): 
+    so_far = float('-inf')
+    for child in Board.children(self.board, self.ptm):
+      if child[1] not in self.board_history:
+        self.make_move(child[1], child[0])
+        child_score = -self.nmx(d+1)
+        so_far = max(so_far, child_score)
+        self.undo_move()
+    if self.move_history[-1] == Move.p: # pass move
+      so_far = max(so_far, self.ptm_score())
+    else:
+      self.make_move(self.board[:], Move.p)
+      so_far = max(so_far, -self.nmx(d+1))
+      self.undo_move()
     return so_far
 
 #start_time = time()

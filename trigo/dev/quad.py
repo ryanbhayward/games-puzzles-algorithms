@@ -1,11 +1,11 @@
 """
-game of go on a triangular 3-point board  rbh 2024
+game of go on 4-cell board  rbh 2024
 """
 DSHOW = 1
-MAX_SCORE = 3 # only possible scores  -3, 0, 3
+MAX_SCORE = 4 # only possible scores -4, -1, 0, 1, 4
 calls, max_depth, best_move = 999, 999, ''
 
-from trigo_utils import Cell, Color, IO, Board, Move
+from q_utils import Cell, Color, IO, Board, Move
 from time import time
 from os import system
 
@@ -110,8 +110,8 @@ class Game_state:
           self.try_move(same_psn, Move.p)
         if q.isdigit():
           q = int(q)
-          if q >= 3:
-            self.fail_msg('cells 0, 1, 2 only')
+          if q >= Cell.n:
+            self.fail_msg('cells 0 to '+str(Cell.n-1)+' only')
             return 
           else:
             where = q
@@ -119,17 +119,10 @@ class Game_state:
               self.fail_msg('cell occupied')
               return 
             else:
-              new_psn = Board.change_cell(self.board, color, where) 
-              p_count = new_psn.count(color)
-              if p_count == 3:
+              ok, new_psn = Board.can_play(self.board, where, color) 
+              if not ok:
                 self.fail_msg('self-capture not allowed')
                 return
-              o_color = Cell.opponent(color)
-              o_count = new_psn.count(o_color)
-              if p_count + o_count == 3:
-                #print('capture')
-                new_psn = Board.clear_color(new_psn, o_color)
-                #print(new_psn)
               self.try_move(new_psn, where)
               return 
 
