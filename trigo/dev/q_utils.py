@@ -120,7 +120,7 @@ class Board:
     for j in Cell.cells:
       if brd[j] == Cell.e:
         ok, new = Board.can_play(brd, j, color)
-      if ok: kids.append((j,new))
+        if ok: kids.append((j,new))
     return kids
 
   def is_legal(brd):

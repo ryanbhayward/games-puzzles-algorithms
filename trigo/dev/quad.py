@@ -174,16 +174,6 @@ class Game_state:
       print('depth', d, 'psn', self.board)
 
     so_far = float('-inf')
-
-    for child in Board.children(self.board, self.ptm):
-      if child[1] not in self.board_history:
-        self.make_move(child[1], child[0])
-        child_score = -self.negamax(d+1)
-        if child_score > so_far:
-          so_far = child_score
-          if d==0: best_move = child[1]
-        self.undo_move()
-
     if self.move_history[-1] == Move.p: # pass move
       p_score = self.ptm_score()
     else:
@@ -193,6 +183,17 @@ class Game_state:
     if p_score > so_far:
       so_far = p_score
       if d==0: best_move = 'pass'
+    if so_far == MAX_SCORE: return so_far
+
+    for child in Board.children(self.board, self.ptm):
+      if child[1] not in self.board_history:
+        self.make_move(child[1], child[0])
+        child_score = -self.negamax(d+1)
+        if child_score > so_far:
+          so_far = child_score
+          if d==0: best_move = child[1]
+        self.undo_move()
+        if so_far == MAX_SCORE: return so_far
 
     return so_far
 
