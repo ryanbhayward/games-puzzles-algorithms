@@ -1,0 +1,80 @@
+# simple alpha-beta-search demo  rbh 2019 (edits 2024)
+from time import sleep
+from sys import stdin
+
+def alphabeta(d, T, V, v, alpha, beta): # root MAX, leaf scores for MAX
+  print(' .'*d, v, 'MAX' if 0==d%2 else 'MIN', end=': ')
+  print('?', alpha, beta)
+  if v in V: # V is the set of leaves
+    #print(' .'*d, v, 'leaf, val',val)
+    val = V[v]; return val
+  if 0 == d%2: # MAX node
+    val = float('-inf')
+    for c in T[v]:
+      ab = alphabeta(d+1, T, V, c, alpha, beta)
+      if ab > val: # have improved current mmax value
+        alpha, val = ab, ab
+        print(' .'*(d+1),c,'best child of',v, 'alpha', alpha)
+      if alpha >= beta:
+        print(' .'*(d+1),'prune rem. children of', v)
+        break
+    print(' .'*d, v, val, alpha, beta)
+    return val
+  #else a MIN node ...
+  val = float('inf')
+  for c in T[v]:
+    ab = alphabeta(d+1, T, V, c, alpha, beta)
+    if ab < val:
+      beta, val = ab, ab
+      print(' .'*(d+1), c,'best child of',v, 'beta', beta)
+    if alpha >= beta:
+      print(' .'*(d+1),'prune rem. children of', v)
+      break
+  print(' .'*d, v, val, alpha, beta)
+  return val
+
+def readtree():
+# L   labels,  ie. single-character node names
+# T   nbr lists of          all non-leaf nodes
+# V   root-player-minimax-values of all leaves
+  lines = []
+  for line in stdin:
+    if line[0] != '#':
+      lines.append(line.strip())
+  L = []
+  for c in lines[0]: # get labels (node names)
+    L.append(c)
+  T,V = {}, {}
+  for j in range(1,len(lines)):
+    row = lines[j].split()
+    node = row[0][0]
+    if len(row[0]) > 1:
+      assert(len(row)==2)
+      assert(row[0][1]==':')
+      nbrs = []
+      for c in row[1]:
+        nbrs.append(c)
+      T[node] = nbrs
+    else:
+      V[node] = int(row[1])
+  for node in V:
+    assert(node not in T)
+  for node in T:
+    for nbr in T[node]:
+      assert(nbr in T or nbr in V)
+  return L,T,V, L[0]
+
+def showtree(L,T,V):
+  print('showtree')
+  for v in sorted(L):
+    print(v, end=' ')
+    if (v in T and len(T[v])>0): 
+      print(T[v], end=' ')
+    if v in V:  
+      print(V[v], end=' ')
+    print('')
+  print('')
+
+L,T,V,root = readtree()
+showtree(L,T,V)
+alphabeta(0, T, V, root, float('-inf'), float('inf'))
