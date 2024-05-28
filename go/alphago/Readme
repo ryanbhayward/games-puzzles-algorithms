@@ -1,3 +1,6 @@
-AG-LS games now in gopix/px-crds/western
-  because to match DeepMind, we print 
-  boards in western format (row 1 on top)
+AG-LS games now in 
+  gpa_priv/notes/go/agls/wikgames 
+    and then printed in 
+  gopix/px-crds/western
+    because to match DeepMind, we print 
+    boards in western format (row 1 on top)
