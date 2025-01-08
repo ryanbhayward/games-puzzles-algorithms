@@ -27,7 +27,7 @@ hw1 = ((b,0,1),(w,0,2),
        (b,2,0))
 
 start_time = time()
-hb = Stone_board(Game.hex_game, 2, 3)
+hb = Stone_board(Game.hex_game, 5, 5)
 
 #for move in hw1:
 #  hb.make_move(move)
