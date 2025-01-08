@@ -31,7 +31,8 @@ class IO:
   def show_board(brd, r, c):
     assert (len(brd) == r*c), 'board, rows, columns inconsistent'
     outs = '\n'
-    for y in reversed(range(r)): # print last row first
+    #for y in reversed(range(r)): # if you want last row first
+    for y in range(r): # print row by row
       outs += f'{y+1:2} '+ IO.spread(brd[y*c:(y+1)*c]) + '\n'
     outs += '\n   ' + IO.spread(ascii_lowercase[:c])
     print(Color.paint(outs))

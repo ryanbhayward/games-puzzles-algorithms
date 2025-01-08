@@ -324,8 +324,8 @@ class Game_state: # go board, each point in {B, W, E, G}
     for c in range(self.C): # columns
       pretty += ' ' + paint(COLUMNS[c])
     pretty += '\n'
-    #for j in reversed(range(self.R)): # rows, asian
-    for j in range(self.R): # rows, western (e.g. deepmind AGLS series)
+    for j in reversed(range(self.R)): # rows, asian
+    #for j in range(self.R): # rows, western (e.g. deepmind AGLS series)
       pretty += ' ' + paint('{:2d}'.format(1+j)) + ' '
       for k in range(self.C): # columns
         pretty += ' ' + paint(self.brd[brd_index(j,k,self.C)])
@@ -423,5 +423,5 @@ if __name__ == "__main__":
       p.actions.append(move_record) # record move for undo
     p.showboard()
   else:
-    p = Game_state(4, 4)
+    p = Game_state(3, 4)
   p.interact()
