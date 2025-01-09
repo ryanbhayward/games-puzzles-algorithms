@@ -11,6 +11,7 @@ too slow for larger boards
 import copy
 from collections import deque
 import time
+from menu import printmenu
 
 """
 points on the board
@@ -122,13 +123,13 @@ escape_ch           = '\033['
 colorend, textcolor = escape_ch + '0m', escape_ch + '0;37m'
 stonecolors         = (textcolor, escape_ch + '0;35m', escape_ch + '0;32m')
 
-def printmenu():
-  print('  h             help menu')
-  print('  x b2         play x b 2')
-  print('  o e3         play o e 3')
-  print('  . a2          erase a 2')
-  print('  u                  undo')
-  print('  [return]           quit')
+#def printmenu():
+#  print('  h             help menu')
+#  print('  x b2         play x b 2')
+#  print('  o e3         play o e 3')
+#  print('  . a2          erase a 2')
+#  print('  u                  undo')
+#  print('  [return]           quit')
 
 def showboard(brd, R, C):
   def paint(s):  # s   a string

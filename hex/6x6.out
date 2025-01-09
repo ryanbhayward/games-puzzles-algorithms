@@ -1,0 +1,60 @@
+  n  n  n  n  n  n  n 
+w  0  1  2  3  4  5  e
+ w  6  7  8  9 10 11  e
+  w 12 13 14 15 16 17  e
+   w 18 19 20 21 22 23  e
+    w 24 25 26 27 28 29  e
+     w 30 31 32 33 34 35  e
+      s  s  s  s  s  s  s
+
+this is why we are removing
+ N semi {5}
+WEIRD
+ N semi {10, 4, 5}
+this is why we are removing
+11 semi {5}
+WEIRD
+11 semi {10, 4, 5}
+this is why we are removing
+ N semi {5}
+WEIRD
+ N semi {2, 3, 4, 5, 8, 9, 10, 14, 15, 16}
+this is why we are removing
+11 semi {5}
+WEIRD
+11 semi {2, 3, 4, 5, 8, 9, 10, 14, 15, 16}
+this is why we are removing
+ N semi {5}
+this is why we are removing
+ N semi {5}
+this is why we are removing
+ N semi {5}
+WEIRD
+ N semi {3, 4, 5, 9, 10, 11, 14, 15, 16, 21}
+WEIRD
+ N semi {0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 19, 21}
+WEIRD
+ N semi {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16, 19, 21}
+this is why we are removing
+11 semi {5}
+this is why we are removing
+11 semi {5}
+this is why we are removing
+11 semi {5}
+WEIRD
+11 semi {3, 4, 5, 9, 10, 11, 14, 15, 16, 21}
+WEIRD
+11 semi {0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 19, 21}
+WEIRD
+11 semi {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16, 19, 21}
+
+ *** black has not yet won
+ *** white mustplay: {27, 21, 14, 31}
+
+Time taken: 0.24833273887634277
+- - - - - - 
+ - - - - - - 
+  - - - - - - 
+   - - * - - - 
+    - - - - - - 
+     - - - - - - 

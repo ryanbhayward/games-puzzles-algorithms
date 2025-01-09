@@ -1,7 +1,7 @@
 #### based on an hsearch implementation by Owen Randall   rbh 2024 ***
 
 import time
-from hexio import Cell, IO
+#from hexio import Cell, IO
 
 # todo
 # class hex_board
