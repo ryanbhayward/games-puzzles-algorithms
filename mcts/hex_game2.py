@@ -9,7 +9,7 @@
 # 2 0 0 0 2 ==   2 0 0 0 2
 # 2 0 0 0 2       2 0 0 0 2
 # 3 1 1 1 3        3 1 1 1 3
-# Where BOARDER = 3, BLACK = 1, WHITE = 2, BLANK = 0
+# Where BORDER = 3, BLACK = 1, WHITE = 2, BLANK = 0
 
 
 from copy import deepcopy
