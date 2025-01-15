@@ -115,12 +115,12 @@ class Stone_board:
     if gt: # hex game 
       self.top, self.rgt, self.btm, self.lft = -4, -3, -2, -1
       self.border = range(self.top, 0) # -4, -3, -2, -1
-      self.p_range = range(self.top, self.n)
+      self.p_range = range(self.top, self.n) # -4, ..., rows*cols-1
       self.nbr_offset = ((-1,0),(-1,1),(0,1),(1,0),(1,-1),(0,-1))
       #   0 1
       #  5 . 2
       #   4 3
-    else:
+    else: # go game
       self.p_range = range(self.n)
       self.nbr_offset = ((-1,0),(0,1),(1,0),(0,-1))
       #    0 

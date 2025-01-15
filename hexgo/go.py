@@ -22,12 +22,12 @@ hw1 = ((b,2,1),(w,2,2),
 start_time = time()
 gb = Stone_board(Game.go_game, 2, 2)
 
-#for move in hw1:
-#  gb.make_move(move)
+for move in hw1:
+  gb.make_move(move)
 
-for sort_nbrs in (True, False):
-  gb.bfs_demo(2, sort_nbrs)
-  gb.dfs_demo(2, sort_nbrs, True)
-  gb.dfs_demo(2, sort_nbrs, False)
+#for sort_nbrs in (True, False):
+#  gb.bfs_demo(2, sort_nbrs)
+#  gb.dfs_demo(2, sort_nbrs, True)
+#  gb.dfs_demo(2, sort_nbrs, False)
 
 print('\ntime ', time() - start_time)
