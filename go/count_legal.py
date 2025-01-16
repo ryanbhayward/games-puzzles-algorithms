@@ -265,7 +265,10 @@ def count_legal_positions(r,c):
   for p.brd in cartesian(r*c, PTS):
     if p.legal_psn():
       legal += 1
-  print(r, 'rows', c, 'cols ', legal, 'legal positions out of ', 3**(r*c))
+  all_psns = 3**(r*c)
+  print(r, 'rows', c, 'cols ', 
+        legal, 'legal positions out of ', all_psns,
+        'fraction', legal/all_psns)
 
 count_legal_positions(2,2)
 count_legal_positions(2,3)
