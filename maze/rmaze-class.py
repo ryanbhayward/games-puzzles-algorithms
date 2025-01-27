@@ -69,6 +69,9 @@ class Maze:
       self.mark_location(psn, current_ch)
       self.showpretty() # print maze, so we can watch the traversal
       self.mark_location(psn, seen_ch)
+# if you want to consider neighbours in random order,
+# uncomment the next line
+#   shuffle(nbr_offsets)
     for shift in nbr_offsets:
       # to move from a grid-point to a neighboring grid-point,
       #    add the associated shift value to the row and column values
