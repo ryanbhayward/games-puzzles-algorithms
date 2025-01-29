@@ -1,14 +1,16 @@
 # simple astar 
-import weight3
+from wt_graphs import wg_355, wg_pq, wg_pq2, \
+  h_pq, h_pq2, h_355, indexOfMin, showGraph, nodeList
 from time import sleep
 from math import inf
-PAUSE  = 1
+PAUSE  = .1
 DSF, ETD = 0, 1
 
-def astar(G, source, target):
+def astar(G, hvals, source, target):
   def welcome():
-    print('\n A-star road-map demo\n'); sleep(PAUSE)
-    print(' DSF  distance so far'); sleep(PAUSE)
+    print('\n A-star road-map demo'); sleep(PAUSE)
+    print(' single-source to single-target\n')
+    print(' DSF  distance from source, so far'); sleep(PAUSE)
     print(' ERD  est. remaining distance (heuristic)'); sleep(PAUSE)
     print(' ETD  est.   total   distance (DSF + ERD)\n'); sleep(PAUSE)
     print('     here ERD is crow-flies distance, never more'); sleep(PAUSE)
@@ -42,12 +44,6 @@ def astar(G, source, target):
       print('yes' if v in done else '   ', end=' ')
     print('\n'); sleep(PAUSE)
     
-  dist, etd, heurstc, parent, fringe, done = {}, {}, {}, {}, [], []
-  for v in G:
-    dist[v], etd[v], parent[v] = inf, inf, -1
-  dist[source], etd[source], parent[source] = 0, 0, source
-
-  nodes, hvals = ['A','B','C','Z'], [30, 20, 23, 0]
   #              [  0, 26, 24, 22, 18,  7, 10, 0 ]
   #              [  0, 26, 25, 20, 17,  7, 10, 0 ]
   #              [  0, 26, 24, 22, 18,  7,  2, 0 ]
@@ -58,20 +54,26 @@ def astar(G, source, target):
   #nodes, hvals = ['A','B','C','D','F','L','M','P','Q','R','S','T','Z'],\
   #               [366, 0, 160,242,176,244,241,100,380,193,253,329,374]
 
-  welcome()
-
+  dist, etd, heurstc, parent, fringe, done, order_found = {}, {}, {}, {}, [], [], []
+  for v in G:
+    dist[v], etd[v], parent[v] = inf, inf, -1
+  dist[source], etd[source], parent[source] = 0, 0, source
+  nodes = nodeList(G)
   n = len(nodes)
   assert n==len(hvals)
   for j in range(n): 
     heurstc[nodes[j]] = hvals[j]
+
+  welcome()
   show_nodes(n, nodes)
   show_heur(n, heurstc)
 
   msg = ''
   fringe.append(source)
   while len(fringe) > 0:
-    node = fringe.pop(weight3.indexOfMin(fringe, etd))
+    node = fringe.pop(indexOfMin(fringe, etd))
     done.append(node)
+    order_found.append(node)
     show_vals(G, dist, DSF)
     show_vals(G, etd, ETD)
     show_done(G, done)
@@ -87,10 +89,16 @@ def astar(G, source, target):
           parent[v] = node
           etd[v] = new_v_dist + heurstc[v]
           if v not in fringe: fringe.append(v)
-  print(' distances, in order found:\n  ', msg)
+  print('\n dsf and etd, in order finalized:  ')
+  for j in range(len(order_found)):
+    node = order_found[j]
+    print(node, dist[node], etd[node], end='')
+    if j < len(order_found) -1:
+      print(end=', ')
+  print()
 
-G = weight3.PQ2
-astar(G,'A','Z')
-#G = weight3.G355
-#print(G)
-#astar(G,'A','B')
+#G, h = wg_pq2, h_pq2
+G, h = wg_355, h_355
+showGraph(G)
+#print(h)
+astar(G, h, 'A','B')
