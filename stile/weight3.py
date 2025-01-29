@@ -8,8 +8,6 @@ def weightSum(G):
     for (v,weight) in G[u]: sum += weight
   return sum
 
-def infinity(G): return 999+weightSum(G)
-
 def indexOfMin(L,C):
   ndx = 0
   for j in range(1,len(L)):
@@ -63,6 +61,12 @@ G355 = {'A': [['S',140],['T',118],['Z',75]],
         'T': [['A',118],['L',111]],
         'Z': [['A',75],['Q',71]]
 }
+PQ2 = {'A': [['C',10],['B',20]],
+       'B': [['A',20],['Z',20]],
+       'C': [['A',10],['Z',23]],
+       'Z': [['B',20],['C',23]]
+}
+
 #Gtest = readWGraph()
 #print(Gtest)
 #showGraph(Gtest)
