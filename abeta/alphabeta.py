@@ -19,6 +19,7 @@ def alphabeta(d, T, V, v, alpha, beta): # root MAX, leaf scores for MAX
       if ab > val: # have improved current mmax value
         alpha, val = ab, ab
         print(off(d+1),c,'now best child of',v, 'alpha', alpha)
+        print(off(d),v,alpha,alpha,beta)
       #else:
       # print(off(d+1),c,'not best child of',v, end=': ')
       #print(val, alpha, beta)
@@ -34,6 +35,7 @@ def alphabeta(d, T, V, v, alpha, beta): # root MAX, leaf scores for MAX
     if ab < val:
       beta, val = ab, ab
       print(off(d+1), c,'now best child of',v, 'beta', beta)
+      print(off(d),v,beta, alpha, beta)
     #else:
     #  print(off(d+1), c,'not best child of',v, end=': ') 
     #print(val, alpha, beta)
@@ -87,4 +89,6 @@ def showtree(L,T,V):
 
 L,T,V,root = readtree()
 showtree(L,T,V)
+print('for each update at node x\n   : mmx(x), alpha(x), beta(x)\n')
+print('whenever alpha(x) >= beta(x)\n    prune remaining children of x\n')
 alphabeta(0, T, V, root, float('-inf'), float('inf'))
