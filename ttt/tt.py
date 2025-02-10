@@ -1,4 +1,4 @@
-# classic ttt: 3x3 board  rbh (2016, 2019, 2022, 2024)
+# classic ttt: 3x3 board  rbh (2016, '19, '22, '24, '25)
 #      - no numpy
 #      - no alphabeta (in previous version of this program)
 #      - print non-iso moves
