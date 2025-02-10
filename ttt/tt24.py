@@ -67,6 +67,7 @@ def printmenu():
   print('  o e3         play o e 3')
   print('  . a2          erase a 2')
   print('  t        toggle: use TT')
+  print('  s        toggle: use isomorphisms')
   print('  ?           solve state')
   print('  g x/o           genmove')
   print('  u                  undo')

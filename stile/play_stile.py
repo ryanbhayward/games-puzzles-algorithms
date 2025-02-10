@@ -97,9 +97,13 @@ def get_command():
 
 def play():
   #r,c = get_dimensions()
-  r,c = 3,3
+  r,c = 2,3
   st = Tile(r,c)
-  st.state = [0,8,7,6,5,4,3,2,1]
+  #st.state = [0,8,7,6,5,4,3,2,1]
+  st.state = [1,5,4,3,2,0]
+  #st.state = [1,4,0,3,2,5]
+  #st.state = [4,0,2,3,1,5]
+  #st.state = [4,3,1,0,2,5]
   st.showpretty()
   while True:
     ndx0 = st.state.index(min(st.state)) # index of 0
