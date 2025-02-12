@@ -1,4 +1,4 @@
-# classic ttt: 3x3 board  rbh (2016, '19, '22, '24, '25)
+# classic ttt: 3x3 board  rbh (2016 -- '25)
 #      - no numpy
 #      - no alphabeta (in previous version of this program)
 #      - print non-iso moves
@@ -26,6 +26,9 @@ def opponent(c): return 3 - c
 powers_of_3 = (# for conversion from vector to integer
   1, 3, 9, 27, 81, 243, 729, 2187, 6561)
 
+def mynumber(n):
+  return n if n>0 else '-'
+
 def board_to_int(B):
   return sum([B[j]*powers_of_3[j] for j in range(Cell.n)]) 
 
@@ -39,6 +42,9 @@ def base_3(y): # int_to_board
     y, L[j] = divmod(y,3)
     if y==0: break
   return L
+
+def num_tokens(brd):
+  return Cell.n - brd.count(0)
 
 # input-output ################################################
 def char_to_cell(c): 
@@ -229,6 +235,18 @@ def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
     print('\n  TT size', xsize, osize, xsize+osize)
   return so_far, calls
 
+def see_positions(ALL, psn, optm): # see all positions, no win-check
+  psn_int = board_to_int(psn.brd)
+  if psn_int in ALL[optm - 1]: return 
+  else: ALL[optm - 1].add(psn_int)
+  G = psn.legal_moves()
+  if len(G) == 0: return 
+  for cell in G:
+    psn.brd[cell] = optm
+    see_positions(ALL, psn, opponent(optm))
+    psn.brd[cell] = Cell.e  # reset brd to original
+  return 
+
 def info(p, use_tt, use_iso, MMX):
     h, L = min_iso(p.brd), p.legal_moves()
     print('  min_iso', h, '\n  legal moves', L)
@@ -241,6 +259,17 @@ def info(p, use_tt, use_iso, MMX):
     if p.game_over():
       pass
 
+def psns_info(ALLPSNS):
+  for j in range(1,-1,-1):
+    sizes = [0]*(1+Cell.n)
+    for k in ALLPSNS[j]:
+      sizes[num_tokens(base_3(k))] += 1
+    print()
+    print(len(ALLPSNS[j]), 'psns with', Cell.chars[opponent(j+1)],'to move')
+    print('\noccupied cells   number psns')
+    for j in range(1+Cell.n):
+      print('   ',j, '              ', mynumber(sizes[j]))
+
 def msg(tt, iso):
   if not tt and not iso: return("no TT, no isomorphisms")
   elif not tt: return("isomorphisms but no TT")
@@ -249,6 +278,8 @@ def msg(tt, iso):
 
 def interact(use_tt, use_iso):
   MMX = ({}, {})  # x and o dictionaries of minimax values
+  ALLPSNS = (set(), set())  # x and o dictionaries of 0 values
+  print(len(ALLPSNS[Cell.x-1]), len(ALLPSNS[Cell.o-1]))
   p = Position(0)
   history = []  # used for erasing, so only need locations
   while True:
@@ -265,6 +296,10 @@ def interact(use_tt, use_iso):
       mo = p.non_iso_moves(L, Cell.o)
       print('non-isomorphic x moves', mx)
       print('non-isomorphic o moves', mo)
+    elif cmd[0][0]=='#':
+      q = Position(0)
+      see_positions(ALLPSNS, q, Cell.o)
+      psns_info(ALLPSNS)
     elif cmd[0][0]=='?':
       info(p, use_tt, use_iso, MMX)
     elif cmd[0][0]=='u':
