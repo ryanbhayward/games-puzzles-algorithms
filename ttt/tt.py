@@ -279,7 +279,6 @@ def msg(tt, iso):
 def interact(use_tt, use_iso):
   MMX = ({}, {})  # x and o dictionaries of minimax values
   ALLPSNS = (set(), set())  # x and o dictionaries of 0 values
-  print(len(ALLPSNS[Cell.x-1]), len(ALLPSNS[Cell.o-1]))
   p = Position(0)
   history = []  # used for erasing, so only need locations
   while True:
