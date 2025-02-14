@@ -228,23 +228,29 @@ def negamax(use_tt, use_iso, MMX, calls, d, psn, ptm): # 1/0/-1 win/draw/loss
     nmx, c = negamax(use_tt, use_iso, MMX, 0, d+1, psn, opponent(ptm))
     so_far, calls = max(so_far, -nmx), calls + c
     psn.brd[cell] = Cell.e  # reset brd to original
-    #if so_far == 1: break   # improvement: return once win found
+    # if so_far == 1: break   # improvement: return once win found
   if use_tt: MMX[ptm - 1][psn_int] = so_far
   if d == 0 and use_tt: 
     xsize, osize = len(MMX[0]), len(MMX[1])
     print('\n  TT size', xsize, osize, xsize+osize)
   return so_far, calls
 
-def see_positions(ALL, psn, optm): # see all positions, no win-check
+######################### see all positions: no win-check
+### ALL: two sets, x-moves-next and o-moves-next psns
+### psn: position
+### pwjm: player who just moved
+### nptm: next player to move, so opponent of pwjm
+def see_positions(ALL, psn, pwjm): 
   psn_int = board_to_int(psn.brd)
-  if psn_int in ALL[optm - 1]: return 
-  else: ALL[optm - 1].add(psn_int)
+  if psn_int in ALL[pwjm - 1]:   # shift by one because
+    return                       # sets indexed 0,1, but x-,o- indexed 1,2
+  else: ALL[pwjm - 1].add(psn_int)
   G = psn.legal_moves()
   if len(G) == 0: return 
   for cell in G:
-    psn.brd[cell] = optm
-    see_positions(ALL, psn, opponent(optm))
-    psn.brd[cell] = Cell.e  # reset brd to original
+    psn.brd[cell] = pwjm
+    see_positions(ALL, psn, opponent(pwjm)) # nptm
+    psn.brd[cell] = Cell.e  # reset board position
   return 
 
 def info(p, use_tt, use_iso, MMX):
