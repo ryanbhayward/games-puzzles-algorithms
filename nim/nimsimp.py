@@ -8,7 +8,7 @@ def get_piles():
        except ValueError: pass
        print('invalid, try again')
 
-def win_loss(istrue): return 'win' if istrue else 'loss' 
+def win_loss(istrue): return 'wins' if istrue else 'loses' 
 def offset(k): return ' '*(2*k+1)
 
 """
@@ -16,7 +16,7 @@ sd         dictionary(state: boolean), true if player-to-move wins
 """
 def winning(nim_psn, sd, depth): #tuple, dictionary, recursion depth
   if nim_psn in sd:
-    print(offset(depth), win_loss(sd[nim_psn]), nim_psn, 'dict')
+    print(offset(depth), nim_psn, win_loss(sd[nim_psn]), ': dict')
     return sd[nim_psn]
   print(offset(depth), nim_psn)
   psn = tuple(sorted(nim_psn))
@@ -24,11 +24,11 @@ def winning(nim_psn, sd, depth): #tuple, dictionary, recursion depth
     for k in range(psn[j]): # number stones that will remain in pile
       child = tuple(sorted(psn[:j] + (k,) + psn[j+1:]))
       if not winning(child, sd, depth+1):
-        print(offset(depth), win_loss(True), nim_psn, 'losing child')
+        print(offset(depth), nim_psn, win_loss(True), ': losing child')
         sd.update({ nim_psn: True })   # update before return
         if depth == 0: print(len(sd), 'states')
         return True
-  print(offset(depth), win_loss(False), nim_psn, 'no winning child')
+  print(offset(depth), nim_psn, win_loss(False))
   sd.update({ nim_psn: False })  # update before return
   if depth == 0: print(len(sd), 'states')
   return False
