@@ -1,64 +1,58 @@
-# based on Jake Hennig's translation of Tromp's c program 
 # solve 2x2 go, Tromp-Taylor rules, no self-capture, positional superko
-# 2025: change abmmx to abnegamax
+# ** Tromp's algorithm (in C) translated to python by Jake Hennig,
+# ** rbh 2025: edited comments, changed abmmx to abnegamax
 
-NSHOW  = 4  # max depth for displying search output
-NMOVES = 4  # max number possible moves
-PWRNMV = 16 # 2^NMOVES
+NSHOW  = 4  # search display output: max depth
+NMOVES = 4  # number board cells (different moves)
+#PWRNMV = 16 # 2^NMOVES
 CUT    = 1  # CUT 1 allows pruning, CUT 0 is minimax (2x2: too slow)
 
-h = [0] * 256  # bitmap of positions in game history
+h = [0] * 256  # bitmap of psns in game history
 nodes = [0] * 99  # number of nodes visited at each depth
 ngames = 0  # number games scored
 
-def show(n, black, white, alpha, beta, passed): #n: depth, b/w: bitsets
-    '''2-line ascii rep'n of position'''
+def show(n, black, white, alpha, beta, passed): #n  depth, b/w  bitsets
+    '''2-line ascii rep'n of psn'''
+    # 2x2  1000 top-left, 0100 top-right, 0010 bottom-left, 0001 bottom-right
     print(f'{n} ({alpha},{beta})', 'pass' if passed else '')#if prev. move pass
     for j in range(NMOVES):
         if (j % 2 == 0):
             print(' ', end='')
         print('.*o#'[((black >> j) & 1) + 2 * ((white >> j) & 1)], end=' ')
         if (j == 1): print() 
-        # 2x2: 1000 top-left, 0100 top-right, 0010 bottom-left, 0001 bottom-right
 
-def visit(black, white): # mark position as visited
+def visit(black, white): # mark psn as visited
     h[black + 16 * white] = 1
 
-def unvisit(black, white): # mark position as unvisited
+def unvisit(black, white): # mark " " unvisited
     h[black + 16 * white] = 0
 
 def visited(black, white): # has psn been visited?
     return h[black + 16 * white]
 
-def owns(bb): # 2x2: does player own only 2 diagonally opposing corners?
-    return bb == (1 | 8) or bb == (2 | 4)
+def owns(pbits): # 2x2: player controls whole board (2 diag. oppos. corners)?
+    return pbits == (1 | 8) or pbits == (2 | 4)
 
-popcnt = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]  
 # number 1-bits in binary rep'n 0 to 15, used to count stones
+popcnt = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]  
 
-def score(black, white): #calculate psn score
+def score(player, oppt): #calculate psn score
     global ngames
     ngames += 1 # counts number of times psn scored
-    if (black == 0): return -4 if white else 0 # b no stones? w win or draw
-    if (white == 0): return 4                  # w no stones? b win
-    else: return popcnt[black] - popcnt[white] # score is stones difference
+    if (player == 0): return -4 if oppt else 0 # b no stones? w win or draw
+    if (oppt == 0): return 4                  # w no stones? b win
+    else: return popcnt[player] - popcnt[oppt] # stones difference
 
-def xhasmove(black, white, move_index): # b has valid move?
+def hasmove(is_black, player, oppt, move_index): # player has valid move?
     move = (1,2,4,8)[move_index] # get bin-rep'n of selected move
-    if (black | white) & move or popcnt[black] == 3 or owns(white): # can you explain this?
+    # illegal move (cell occupied or self-capture)
+    if (player | oppt) & move or popcnt[player] == 3 or owns(oppt): 
       return False # no 
-    newblack = black | move # update b psn: add stone
-    newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white # capture? update white
-    return not visited(newblack, newwhite) # true if psn unvisited
-
-def ohasmove(black, white, move_index): # see xhasmove for comments
-    '''Check if white has a valid move'''
-    #moves = [1, 2, 4, 8]
-    move = (1,2,4,8)[move_index]
-    if (black | white) & move or popcnt[white] == 3 or owns(black): return False 
-    newwhite = white | move 
-    newblack = 0 if (newwhite | black) == 15 or owns(newwhite) else black 
-    return not visited(newblack, newwhite) 
+    newplayer = player | move # update player psn: add stone
+    # remove opponent stones if captured
+    newoppt = 0 if (newplayer | oppt) == 15 or owns(newplayer) else oppt
+    return not visited(newplayer, newoppt) if is_black else \
+           not visited(newoppt, newplayer)
 
 def xab(n, black, white, alpha, beta, passed):
     '''Alpha-beta search for black's turn'''
@@ -67,7 +61,7 @@ def xab(n, black, white, alpha, beta, passed):
     if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
 
     # make pass move
-    #   if previous opponent move was pass, position is terminal: calculate score
+    #   if previous opponent move was pass, psn is terminal: calculate score
     #   otherwise continue search with parameter passed == 1
     s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
     if (s > alpha):
@@ -75,7 +69,7 @@ def xab(n, black, white, alpha, beta, passed):
         if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
 
     for i in range(NMOVES):  # try moves topleft, topright, btmleft, btmright
-        if (xhasmove(black, white, i)):
+        if (hasmove(True, black, white, i)):
             newblack, newwhite = black, white
             move = 1 << i
             newblack = black | move
@@ -100,7 +94,7 @@ def oab(n, black, white, alpha, beta, passed): # see xab for comments
         if (beta <= alpha and CUT): return beta 
 
     for i in range(NMOVES):
-        if (ohasmove(black, white, i)): 
+        if (hasmove(False, white, black, i)): 
             newblack, newwhite = black, white
             move = 1 << i
             newwhite = white | move
