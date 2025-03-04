@@ -20,6 +20,7 @@ def show(n, black, white, alpha, beta, passed): #n  depth, b/w  bitsets
             print(' ', end='')
         print('.*o#'[((black >> j) & 1) + 2 * ((white >> j) & 1)], end=' ')
         if (j == 1): print() 
+    print('\n')
 
 def visit(black, white): # mark psn as visited
     h[black + 16 * white] = 1

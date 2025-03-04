@@ -58,38 +58,10 @@ def hasmove(is_black, player, oppt, move_index): # player has valid move?
     (newblack, newwhite) = bw(is_black, newplayer, newoppt)
     return not visited(newblack, newwhite) 
 
-def xab(n, black, white, alpha, beta, passed):
-    '''Alpha-beta search for black's turn'''
-    global nodes
-    nodes[n] += 1 # nodes visited at this depth
-    if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
-
-    # make pass move
-    #   if previous opponent move was pass, psn is terminal: calculate score
-    #   otherwise continue search with parameter passed == 1
-    s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
-    if (s > alpha):
-        alpha = s
-        if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
-
-    for i in range(NMOVES):  # try moves topleft, topright, btmleft, btmright
-        if (hasmove(True, black, white, i)):
-            newblack, newwhite = black, white
-            move = 1 << i
-            newblack = black | move
-            newwhite = 0 if (newblack | white) == 15 or owns(newblack) else white
-            visit(newblack, newwhite) 
-            s = oab(n + 1, newblack, newwhite, alpha, beta, 0)
-            unvisit(newblack, newwhite) 
-            if (s > alpha):
-                alpha = s
-                if (alpha >= beta and CUT): return alpha # prune if score > alpha and after update whether alpha >= beta
-    return alpha
-
 def abnega(n, player, oppt, alpha, beta, passed): # alpha-beta negamax
     global nodes
     nodes[n] += 1 # nodes visited at this depth
-    is_black = (n % 2)
+    is_black = 1 - (n % 2)
     # show board if within NSHOW depth
     (black, white) = bw(is_black, player, oppt)
     if n < NSHOW: show(n, black, white, alpha, beta, passed)
@@ -98,7 +70,7 @@ def abnega(n, player, oppt, alpha, beta, passed): # alpha-beta negamax
     #   if previous opponent move was pass, psn is terminal: calculate score
     #   otherwise continue search with parameter passed == 1
     if passed:
-      s = score(black, white) 
+      s = score(player, oppt) 
     else:
       s = -abnega(n + 1, oppt, player, -beta, -alpha, 1) 
     if (s > alpha):
@@ -107,9 +79,7 @@ def abnega(n, player, oppt, alpha, beta, passed): # alpha-beta negamax
         if (alpha >= beta and CUT): return alpha 
 
     for i in range(NMOVES):  # try moves topleft, topright, btmleft, btmright
-        hm = hasmove(True,  player, oppt, i) if is_black \
-             else hasmove(False, oppt, player, i) 
-        if hm:
+        if hasmove(is_black, player, oppt, i):
             newplayer, newoppt = player, oppt
             move = 1 << i
             newplayer = player | move
