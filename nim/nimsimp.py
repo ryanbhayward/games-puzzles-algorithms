@@ -1,5 +1,5 @@
 # simplified version of nimnega_v2.py rbh 2025
-def get_piles():
+def piles():
    while True:
        raw = input('nim game pile sizes (eg. 3 5 7)   ')
        try:
@@ -8,33 +8,24 @@ def get_piles():
        except ValueError: pass
        print('invalid, try again')
 
-def win_loss(istrue): return 'wins' if istrue else 'loses' 
-def offset(k): return ' '*(2*k+1)
-
-"""
-sd         dictionary(state: boolean), true if player-to-move wins
-"""
-def winning(nim_psn, sd, depth): #tuple, dictionary, recursion depth
-  if nim_psn in sd:
-    print(offset(depth), nim_psn, win_loss(sd[nim_psn]), ': dict')
-    return sd[nim_psn]
-  print(offset(depth), nim_psn)
-  psn = tuple(sorted(nim_psn))
-  for j in range(len(psn)): # each pile
-    for k in range(psn[j]): # number stones that will remain in pile
-      child = tuple(sorted(psn[:j] + (k,) + psn[j+1:]))
-      if not winning(child, sd, depth+1):
-        print(offset(depth), nim_psn, win_loss(True), ': losing child')
-        sd.update({ nim_psn: True })   # update before return
-        if depth == 0: print(len(sd), 'states')
+def wins(psn, sd, d): #sd: state dict
+  if psn in sd:
+    print('  '*d,psn,sd[psn],'dict')
+    return sd[psn]
+  print('  '*d,psn)
+  psn = tuple(sorted(psn))
+  for j in range(len(psn)): 
+    for k in range(psn[j]): 
+      child = tuple(sorted(psn[:j]+(k,)+psn[j+1:]))
+      if not wins(child,sd,d+1):
+        print('  '*d,psn,True,'losing child')
+        sd.update({ psn: True })
+        if d == 0: print(len(sd),'states')
         return True
-  print(offset(depth), nim_psn, win_loss(False))
-  sd.update({ nim_psn: False })  # update before return
-  if depth == 0: print(len(sd), 'states')
+  print('  '*d, psn, False)
+  sd.update({ psn: False }) 
+  if d == 0: print(len(sd), 'states')
   return False
 
-v = get_piles()
-S = dict()
-empty = tuple([0]*len(v))# position (0 0 ... )
-S.update({empty: False}) # position (0 0 ... ) loses
-w = winning(v, S, 0) 
+v = piles();S=dict();e=tuple([0]*len(v))
+S.update({e:False}); w = wins(v, S, 0) 
