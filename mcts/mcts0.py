@@ -17,8 +17,17 @@ def root_node_sims(node):
   if node.parent == None: return node.sims
   return root_node_sims(node.parent)
 
+# hack: alphabetic node names of 2x2 board
+def name2x2(move):
+  if move == 5: return 'a1'
+  if move == 6: return 'b1'
+  if move == 9: return 'a2'
+  if move == 10: return 'b2'
+  return '??'
+
 def path_from_root(node):
   if node.parent == None: return '*'
+  #return path_from_root(node.parent) + ' ' + name2x2(node.move)
   return path_from_root(node.parent) + ' ' + '{:2d}'.format(node.move)
 
 class TreeNode0:
