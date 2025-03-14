@@ -34,15 +34,15 @@ class TreeNode1(TreeNode0):
             t = TreeNode1(game_copy, 3-self.player, move, self)
             rs = root_node_sims(self)
             if rs < VERBOSE_SIMS:
-                print('\n  expand', path_from_root(self), '>', t.move, end='')
+                print('\n    xpnd_nd', path_from_root(self), '>', t.move, end='')
             self.children.append(t)
 
             if won:
                 if rs < VERBOSE_SIMS:
-                    print('\n  sim', '{:2d}.'.format(rs+1), 
+                    print('\n    sim', '{:2d}.'.format(rs+1), 
                       path_from_root(self), '{:2d}'.format(move), 'win', end='')
                 self.children[-1].backpropagate(float('inf'))
-                if rs < VERBOSE_SIMS: print('\n  break expand_node', end='')
+                if rs < VERBOSE_SIMS: print(' no need to add more children')
                 break # winner found, no need to add rest of children
 
         self.is_leaf = False
@@ -108,11 +108,11 @@ class Mcts1(Mcts0):
     # november 27 2022... MCTS code largely taken from
     # https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
     def __init__(self, game, player):
-        print('root node init ', end='')
+        print('\nroot node init ', end='')
         self.root_node = RootNode1(game, player)
         self.winning_move = self.root_node.expand_node()
         self.c = 0.3  # used for UCT
-        print('done', end='')
+        print('done')
 
     def get_best_move(self):
         """
@@ -161,10 +161,10 @@ class Mcts1(Mcts0):
                     return child.move
             rs = self.root_node.sims
             if rs < VERBOSE_SIMS:
-                print('\n  trav_expand ', end='')
+                print('\n  trv_xpnd ', end='')
             leaf = self.traverse_and_expand(self.root_node)  # traverse
             if rs < VERBOSE_SIMS:
-                print('\n  trav_expand leaf', path_from_root(leaf), end='')
+                print('\n  trv_xpnd leaf ', path_from_root(leaf), end='')
             if leaf.results != float('inf'):
               result = leaf.rollout()  # rollout
               leaf.backpropagate(result)  # backpropagate
@@ -199,7 +199,7 @@ class Mcts1(Mcts0):
             if child.sims == 0: # unexplored children have priority
                 rs = root_node_sims(child)
                 if rs < VERBOSE_SIMS:
-                    print('  best_uct', child.move, 'no_sims_yet', end='')
+                    print(' bu', child.move, 'no-sims child', end='')
                 return child
 
             # calculate UCT, update if best
@@ -211,6 +211,6 @@ class Mcts1(Mcts0):
           
         rs = root_node_sims(best_child)
         if rs < VERBOSE_SIMS:
-            print('  best_uct', '*' if node.move == None else node.move, 
+            print('  bu', '*' if node.move == None else node.move, 
               best_child.move, end='')
         return best_child

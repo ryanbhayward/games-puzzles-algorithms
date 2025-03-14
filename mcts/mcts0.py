@@ -10,7 +10,7 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 5 # verbose for initial simulations
+VERBOSE_SIMS = 30 # verbose for initial simulations
 MCTS_TIME = 3
 
 def root_node_sims(node):
@@ -107,10 +107,10 @@ class TreeNode0:
             player = 3 - player  # invert color / switch player
 
         if player != self.player:  # parent player won
-            if rs < VERBOSE_SIMS: print(' parent win', end='')
+            if rs < VERBOSE_SIMS: print(' parent win')
             return True
         else:  # parent player lost
-            if rs < VERBOSE_SIMS: print(' parent loss', end='')
+            if rs < VERBOSE_SIMS: print(' parent loss')
             return False
 
 class RootNode0(TreeNode0):
