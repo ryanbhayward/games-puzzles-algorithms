@@ -163,8 +163,8 @@ class Mcts1(Mcts0):
             if rs < VERBOSE_SIMS:
                 print('\n  trv_xpnd ', end='')
             leaf = self.traverse_and_expand(self.root_node)  # traverse
-            if rs < VERBOSE_SIMS:
-                print('\n  trv_xpnd leaf ', path_from_root(leaf), end='')
+            #if rs < VERBOSE_SIMS:
+            #    print('\n  trv_xpnd leaf ', path_from_root(leaf), end='')
             if leaf.results != float('inf'):
               result = leaf.rollout()  # rollout
               leaf.backpropagate(result)  # backpropagate
