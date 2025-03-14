@@ -10,8 +10,8 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 20 # verbose for initial simulations
-MCTS_TIME = 1
+VERBOSE_SIMS = 5 # verbose for initial simulations
+MCTS_TIME = 3
 
 def root_node_sims(node):
   if node.parent == None: return node.sims
@@ -210,13 +210,16 @@ class Mcts0:
         best_child = None
 
         for child in node.children:
+            # to improve MCTS, improve the move ordering
+            #    by putting hopefully stronger nodes near front of list
+            #    currently there is none, move order is just
+            #    default order of node.children
             if child.sims == 0:
-                # if the children of the node have not been
-                # fully explored, then explore a move that
-                # hasn't been before
-                print('      unexplored child')
+                # some 0-sims child? return first found
+                print('      0-sims child found')
                 return child
-
+ 
+            # each child node has at least one simulation
             # calculate UCT, update if best
             mean_wins = child.wins / child.sims
             uct = mean_wins+(self.c*sqrt(log(self.root_node.sims)/child.sims))
