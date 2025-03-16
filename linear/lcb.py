@@ -5,7 +5,12 @@ from collections import deque
 #from copy import deepcopy
 
 BLACK, WHITE, EMPTY = 0,1,2
-CHARS = 'xog'  # black white g
+CHARS = 'xoq'  # black white g
+
+def minstring(a,b):
+  if len(a) < len(b): return a
+  if len(b) < len(a): return b
+  return min(a,b)
 
 def opponent(ch):
   return '*' if ch == 'o' else 'o'
@@ -21,10 +26,9 @@ def show(brd):
     indexstr += ' ' + str(j)
 
   cellstr = '   ' + ''.join(['  ' + c for c in brd])
-  #print(paint3(indexstr + '\n' + cellstr + '\n' + brd, CHARS))
   print(paint3('\n' + indexstr + '\n' + cellstr, CHARS))
 
-def reverse(s):
+def revstring(s):
   return s[::-1]
 
 def form(s, pattern, symbol):
@@ -34,41 +38,32 @@ def form(s, pattern, symbol):
   return p
 
 def myadd(item, s):
-  if item not in s and reverse(item) not in s: 
+  if item not in s and revstring(item) not in s: 
     s.add(item)
+
+def nonzero(brd):
+  return CHARS[BLACK] in brd and CHARS[WHITE] in brd
 
 def clobber(brd):
   n = len(brd)
   newset = set()
   for j in range(2):
     stone = CHARS[j]
-
-    #print('\n', paint3(stone, CHARS), ' clobbers forward\n', sep='')
     for k in range(n-1):
       if (brd[k] == stone) and (brd[k] != brd[k+1]):
         b0, b1 = brd[:k], brd[k] + brd[k+2:]
-    #    print(k, paint3(b0, CHARS),  paint3(b1, CHARS))
-    #    b0, b1 = form(b0, 'xxo', 'g'), form(b1, 'xxo', 'g')
-    #    print(k, paint3(b0, CHARS),  paint3(b1, CHARS))
         myadd(b0, newset)
         myadd(b1, newset)
-
-    #print('\n', paint3(stone, CHARS), ' clobbers backwards\n', sep='')
     for k in range(1,n):
       if (brd[k] == stone) and (brd[k] != brd[k-1]):
         b0, b1 = brd[:k-1] + brd[k], brd[k+1:]
-    #    print(k, paint3(b0, CHARS),  paint3(b1, CHARS))
-    #    b0, b1 = form(b0, 'xxo', 'g'), form(b1, 'xxo', 'g')
-    #    print(k, paint3(b0, CHARS),  paint3(b1, CHARS))
         myadd(b0, newset)
         myadd(b1, newset)
   return newset
 
 class LC_state:
-  def __init__(self):
-
-    # board as string
-    self.b =  'xxo'*3
+  def __init__(self, k):
+    self.b =  'xxo'*k
     self.n = len(self.b)
 
 def get_command(color):
@@ -97,18 +92,57 @@ def playGame(state):
       break
   print('\n  adios ...\n  zaijian ...\n  sayonara ...\n  annyeong ...\n')
 
-st = LC_state()
-show(st.b)
-q, spawn = [st.b], set()
-while len(q) > 0:
-  brd = q.pop(0)
-  newbrds = clobber(brd)
-  for b in newbrds:
-    if b not in spawn and reverse(b) not in spawn:
-      print(paint3(b, CHARS))
-      spawn.add(b)
-      q.append(b)
-print('\ndone')
+def equal(a,b):
+  lena, lenb = len(a), len(b)
+  if lena != lenb:
+    print('unequal length lists', lena, lenb)
+    return False
+  for j in range(lena):
+    if a[j] != b[j]:
+      print('unequal at index',j, a[j], b[j])
+      return False
+  return True
 
-#clobber(st.b)
-#playGame(brd)
+def mydiff(sa, sb):
+  for x in sa:
+    if x not in sb: print('in L0 not L1', x)
+  for x in sb:
+    if x not in sa: print('in L1 not L0', x)
+   
+startsize = 5
+fk = [[], []]
+for k in range(2):
+  st = LC_state(startsize + k)
+  show(st.b)
+  q, spawn, forms = [st.b], [], []
+  while len(q) > 0:
+    brd = q.pop(0)
+    newbrds = clobber(brd)
+    for b in newbrds:
+      if b not in spawn and \
+          revstring(b) not in spawn \
+          and nonzero(b): 
+        print(paint3(b, CHARS))
+        spawn.append(b)
+        q.append(b)
+        brev = revstring(b)
+        fb    = form(b,     'xxo', 'q')
+        fbrev = form(brev, 'xxo', 'q')
+        fb = minstring(fb, fbrev)
+        if fb not in forms:
+          forms.append(fb)
+  print('\nforms')
+  for fb in sorted(forms):
+    print(paint3(fb, CHARS))
+    fk[k].append(fb)
+
+for k in range(2):
+  print(fk[k])
+  print()
+
+if equal(fk[0], fk[1]):
+  print('equal lists, len', len(fk[0]))
+mydiff(fk[0], fk[1])
+print('\n    done')
+
+  
