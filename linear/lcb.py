@@ -109,7 +109,7 @@ def mydiff(sa, sb):
   for x in sb:
     if x not in sa: print('in L1 not L0', x)
    
-startsize = 5
+startsize = 4 # min length to get equal lists
 fk = [[], []]
 for k in range(2):
   st = LC_state(startsize + k)
