@@ -10,15 +10,24 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 20 # verbose for initial simulations
-MCTS_TIME = 1
+VERBOSE_SIMS = 30 # verbose for initial simulations
+MCTS_TIME = 3
 
 def root_node_sims(node):
   if node.parent == None: return node.sims
   return root_node_sims(node.parent)
 
+# hack: alphabetic node names of 2x2 board
+def name2x2(move):
+  if move == 5: return 'a1'
+  if move == 6: return 'b1'
+  if move == 9: return 'a2'
+  if move == 10: return 'b2'
+  return '??'
+
 def path_from_root(node):
   if node.parent == None: return '*'
+  #return path_from_root(node.parent) + ' ' + name2x2(node.move)
   return path_from_root(node.parent) + ' ' + '{:2d}'.format(node.move)
 
 class TreeNode0:
@@ -98,10 +107,10 @@ class TreeNode0:
             player = 3 - player  # invert color / switch player
 
         if player != self.player:  # parent player won
-            if rs < VERBOSE_SIMS: print(' parent win', end='')
+            if rs < VERBOSE_SIMS: print(' parent win')
             return True
         else:  # parent player lost
-            if rs < VERBOSE_SIMS: print(' parent loss', end='')
+            if rs < VERBOSE_SIMS: print(' parent loss')
             return False
 
 class RootNode0(TreeNode0):
@@ -201,13 +210,16 @@ class Mcts0:
         best_child = None
 
         for child in node.children:
+            # to improve MCTS, improve the move ordering
+            #    by putting hopefully stronger nodes near front of list
+            #    currently there is none, move order is just
+            #    default order of node.children
             if child.sims == 0:
-                # if the children of the node have not been
-                # fully explored, then explore a move that
-                # hasn't been before
-                print('      unexplored child')
+                # some 0-sims child? return first found
+                print('      0-sims child found')
                 return child
-
+ 
+            # each child node has at least one simulation
             # calculate UCT, update if best
             mean_wins = child.wins / child.sims
             uct = mean_wins+(self.c*sqrt(log(self.root_node.sims)/child.sims))

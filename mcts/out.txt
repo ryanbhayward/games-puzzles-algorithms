@@ -1,0 +1,62 @@
+= mcts x
+root node init * > a1, b1, a2, b2, done
+  trav_expand   best_uct a1 no_sims_yet
+  trav_expand leaf *  a1
+  sim  1.    *  a1 roll  a2 b2  b1 parent loss
+  trav_expand   best_uct b1 no_sims_yet
+  trav_expand leaf *  b1
+  sim  2.    *  b1 roll  a2  a1 b2 parent loss
+  trav_expand   best_uct a2 no_sims_yet
+  trav_expand leaf *  a2
+  sim  3.    *  a2 roll  b1  a1 parent win
+  trav_expand   best_uct b2 no_sims_yet
+  trav_expand leaf * b2
+  sim  4.    * b2 roll  a2  b1 parent win
+  trav_expand   best_uct * a2
+  expand *  a2 > a1
+  expand *  a2 > b1
+  expand *  a2 > b2
+  trav_expand leaf *  a2 b2
+  sim  5.    *  a2 b2 roll  b1 parent loss
+  trav_expand   best_uct * b2
+  expand * b2 > a1
+  expand * b2 > b1
+  expand * b2 > a2
+  trav_expand leaf * b2  a1
+  sim  6.    * b2  a1 roll  b1 parent loss
+  trav_expand   best_uct * a2  best_uct a1 no_sims_yet
+  trav_expand leaf *  a2  a1
+  sim  7.    *  a2  a1 roll  b1 parent loss
+  trav_expand   best_uct * b2  best_uct b1 no_sims_yet
+  trav_expand leaf * b2  b1
+  sim  8.    * b2  b1 roll  a1  a2 parent win
+  trav_expand   best_uct * a2  best_uct b1 no_sims_yet
+  trav_expand leaf *  a2  b1
+  sim  9.    *  a2  b1 roll b2  a1 parent win
+  trav_expand   best_uct * a2  best_uct a2 b1
+  expand *  a2  b1 > a1
+  sim 10. *  a2  b1  a1 win
+  break expand_node
+  trav_expand leaf *  a2  b1  a1
+  trav_expand   best_uct * a2  best_uct a2 a1
+  expand *  a2  a1 > b1
+  sim 11. *  a2  a1  b1 win
+  break expand_node
+  trav_expand leaf *  a2  a1  b1
+  trav_expand   best_uct * a2  best_uct a2 b2
+  expand *  a2 b2 > a1
+  sim 12. *  a2 b2  a1 win
+  break expand_node
+  trav_expand leaf *  a2 b2  a1
+  move  sims  wins
+    a1     1     0
+    b1     1     0
+    a2     7   inf
+    b2     3     2
+total    12   inf
+
+    a b 
+  1  . . o
+   2  x . o
+       x x 
+

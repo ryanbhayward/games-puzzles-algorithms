@@ -5,7 +5,8 @@
 # Note that suicide is not possible in this case
 # Trying moves before passes slows search dramatically
 
-NSHOW = 4  # max depth for displying search output
+#NSHOW = 4  # max depth for displying search output
+GSHOW = 10  # while ngames < GSHOW, print output
 NMOVES = 4  # max number possible moves
 CUT = 1  # CUT 1 allows pruning otherwise, CUT 0 is minimax
 
@@ -74,7 +75,9 @@ def xab(n, black, white, alpha, beta, passed):
     """Alpha-beta search for black's turn"""
     global nodes
     nodes[n] += 1 # nodes visited at this depth
-    if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
+    #if n < NSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
+    global ngames
+    if ngames < GSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
 
     # make pass move
     #   if previous opponent move was pass, position is terminal: calculate score
@@ -82,7 +85,9 @@ def xab(n, black, white, alpha, beta, passed):
     s = score(black, white) if passed else oab(n + 1, black, white, alpha, beta, 1) 
     if (s > alpha):
         alpha = s
-        if (alpha >= beta and CUT): return alpha # prune if score  > alpha and after update whether alpha  >= beta
+        if (alpha >= beta and CUT): 
+            if ngames < GSHOW: print('   CUT', alpha, beta)
+            return alpha # prune if score  > alpha and after update whether alpha  >= beta
 
     for i in range(NMOVES):  # try moves topleft, topright, btmleft, btmright
         if (xhasmove(black, white, i)):
@@ -95,19 +100,25 @@ def xab(n, black, white, alpha, beta, passed):
             unvisit(newblack, newwhite) 
             if (s > alpha):
                 alpha = s
-                if (alpha >= beta and CUT): return alpha # prune if score > alpha and after update whether alpha >= beta
+                if (alpha >= beta and CUT): 
+                    if ngames < GSHOW: print('   CUT', alpha, beta)
+                    return alpha # prune if score > alpha and after update whether alpha >= beta
     return alpha
 
 def oab(n, black, white, alpha, beta, passed): # see xab for comments
     """Alpha-beta search for white's turn"""
     global nodes
     nodes[n] += 1 
-    if (n < NSHOW): show(n, black, white, alpha, beta, passed) 
+    #if (n < NSHOW): show(n, black, white, alpha, beta, passed) 
+    global ngames
+    if ngames < GSHOW: show(n, black, white, alpha, beta, passed) # displays board state if within NSHOW depth
 
     s = score(black, white) if passed else xab(n + 1, black, white, alpha, beta, 1) 
     if (s < beta):
         beta = s
-        if (beta <= alpha and CUT): return beta 
+        if (beta <= alpha and CUT): 
+            if ngames < GSHOW: print('   CUT', alpha, beta)
+            return beta 
 
     for i in range(NMOVES):
         if (ohasmove(black, white, i)): 
@@ -120,7 +131,9 @@ def oab(n, black, white, alpha, beta, passed): # see xab for comments
             unvisit(newblack, newwhite) 
             if (s < beta):
                 beta = s
-                if (beta <= alpha and CUT): return beta 
+                if (beta <= alpha and CUT): 
+                    if ngames < GSHOW: print('   CUT', alpha, beta)
+                    return beta 
     return beta
 
 def main():
