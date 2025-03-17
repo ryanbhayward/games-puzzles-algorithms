@@ -109,40 +109,42 @@ def mydiff(sa, sb):
   for x in sb:
     if x not in sa: print('in L1 not L0', x)
    
-startsize = 4 # min length to get equal lists
-fk = [[], []]
-for k in range(2):
-  st = LC_state(startsize + k)
-  show(st.b)
-  q, spawn, forms = [st.b], [], []
-  while len(q) > 0:
-    brd = q.pop(0)
-    newbrds = clobber(brd)
-    for b in newbrds:
-      if b not in spawn and \
-          revstring(b) not in spawn \
-          and nonzero(b): 
-        print(paint3(b, CHARS))
-        spawn.append(b)
-        q.append(b)
-        brev = revstring(b)
-        fb    = form(b,     'xxo', 'q')
-        fbrev = form(brev, 'xxo', 'q')
-        fb = minstring(fb, fbrev)
-        if fb not in forms:
-          forms.append(fb)
-  print('\nforms')
-  for fb in sorted(forms):
-    print(paint3(fb, CHARS))
-    fk[k].append(fb)
+def generate(startsize):
+  qsize = 1
+  fk = [[], []]
+  for k in range(2):
+    st = LC_state(startsize + k)
+    show(st.b)
+    q, spawn, forms = [st.b], [], []
+    while len(q) > 0:
+      brd = q.pop(0)
+      newbrds = clobber(brd)
+      for b in newbrds:
+        if b not in spawn and \
+            revstring(b) not in spawn \
+            and nonzero(b): 
+          print(paint3(b, CHARS))
+          spawn.append(b)
+          q.append(b)
+          qsize += 1
+          brev = revstring(b)
+          fb    = form(b,     'xxo', 'q')
+          fbrev = form(brev, 'xxo', 'q')
+          fb = minstring(fb, fbrev)
+          if fb not in forms:
+            forms.append(fb)
+    print('\nforms')
+    for fb in sorted(forms):
+      print(paint3(fb, CHARS))
+      fk[k].append(fb)
 
-for k in range(2):
-  print(fk[k])
-  print()
+  for k in range(2):
+    print(fk[k])
+    print()
 
-if equal(fk[0], fk[1]):
-  print('equal lists, len', len(fk[0]))
-mydiff(fk[0], fk[1])
-print('\n    done')
+  if equal(fk[0], fk[1]):
+    print('equal lists, len', len(fk[0]))
+  mydiff(fk[0], fk[1])
+  print('\n  done, qsize', qsize)
 
-  
+generate(20) 
