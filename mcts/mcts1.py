@@ -40,9 +40,9 @@ class TreeNode1(TreeNode0):
             if won:
                 if rs < VERBOSE_SIMS:
                     print('\n    sim', '{:2d}.'.format(rs+1), 
-                      path_from_root(self), '{:2d}'.format(move), 'win', end='')
+                      path_from_root(self), '{:2d}'.format(move), 'win,', end='')
                 self.children[-1].backpropagate(float('inf'))
-                if rs < VERBOSE_SIMS: print(' no need to add more children')
+                if rs < VERBOSE_SIMS: print(' no more sibs')
                 break # winner found, no need to add rest of children
 
         self.is_leaf = False
@@ -68,7 +68,7 @@ class TreeNode1(TreeNode0):
             if result == float('inf') or result == float('-inf'):
                 result *= -1
             else:
-                result = 1-result
+                result = 1 - result
 
             node = node.parent
 
@@ -212,5 +212,5 @@ class Mcts1(Mcts0):
         rs = root_node_sims(best_child)
         if rs < VERBOSE_SIMS:
             print('  bu', '*' if node.move == None else node.move, 
-              best_child.move, end='')
+              best_child.move, '{:.1f}'.format(best_uct), end='')
         return best_child

@@ -1,0 +1,72 @@
+= mcts x
+
+root node init * > 5, 6, 9, 10, done
+
+  trv_xpnd  bu 5 no-sims child
+  sim  1.    *  5 roll  6  9 parent win
+
+  trv_xpnd  bu 6 no-sims child
+  sim  2.    *  6 roll  5  9 parent win
+
+  trv_xpnd  bu 9 no-sims child
+  sim  3.    *  9 roll  5 10  6 parent loss
+
+  trv_xpnd  bu 10 no-sims child
+  sim  4.    * 10 roll  6  9  5 parent loss
+
+  trv_xpnd   bu * 5 1.4
+    xpnd_nd *  5 > 6
+    xpnd_nd *  5 > 9
+    xpnd_nd *  5 > 10
+  sim  5.    *  5 10 roll  6  9 parent win
+
+  trv_xpnd   bu * 6 1.4
+    xpnd_nd *  6 > 5
+    xpnd_nd *  6 > 9
+    xpnd_nd *  6 > 10
+  sim  6.    *  6 10 roll  5  9 parent win
+
+  trv_xpnd   bu * 5 .8 bu 6 no-sims child
+  sim  7.    *  5  6 roll  9 parent loss
+
+  trv_xpnd   bu * 5 .9 bu 9 no-sims child
+  sim  8.    *  5  9 roll  6 10 parent win
+
+  trv_xpnd   bu * 6 .8 bu 5 no-sims child
+  sim  9.    *  6  5 roll  9 parent loss
+
+  trv_xpnd   bu * 6 .9 bu 9 no-sims child
+  sim 1.    *  6  9 roll  5 10 parent win
+
+  trv_xpnd   bu * 5 .7  bu 5 9 1.5
+    xpnd_nd *  5  9 > 6
+    xpnd_nd *  5  9 > 10
+  sim 11.    *  5  9 10 roll  6 parent loss
+
+  trv_xpnd   bu * 6 .7  bu 6 9 1.5
+    xpnd_nd *  6  9 > 5
+    xpnd_nd *  6  9 > 10
+    sim 12. *  6  9 10 win, no more sibs
+
+  sim 13.    *  6  9  5 roll 10 parent loss
+
+  trv_xpnd   bu * 6 .7  bu 6 10 1.5
+    xpnd_nd *  6 10 > 5
+    xpnd_nd *  6 10 > 9
+    sim 14. *  6 10  9 win, no more sibs
+
+  trv_xpnd   bu * 6 .8  bu 6 5 .5
+    xpnd_nd *  6  5 > 9
+    sim 15. *  6  5  9 win, no more sibs
+
+  move  sims  wins
+    5     5     2
+    6     8   inf
+    9     1     0
+   10     1     0
+total    15   inf
+
+    a b 
+  1  . x o
+   2  . . o
+       x x 
