@@ -15,7 +15,7 @@ from math import sqrt, log
 
 #from hex_game0 import BLACK, WHITE
 from mcts0 import TreeNode0, Mcts0, VERBOSE_SIMS, MCTS_TIME, \
-  root_node_sims, path_from_root
+  root_node_sims, path_from_root, compress
 
 def int_or_inf(results): # int or +-infinity
     if results == float('inf'):  return '  inf'
@@ -42,8 +42,8 @@ class TreeNode1(TreeNode0):
 
             if won:
                 if rs < VERBOSE_SIMS:
-                    print('\n    sim', '{:2d}.'.format(rs+1), 
-                      path_from_root(self), '{:2d}'.format(move), 'win,', end='')
+                    print('\n    sim', '{:1d}.'.format(rs+1), \
+                      path_from_root(self), '{:1d}'.format(move), 'win,', end='')
                 self.children[-1].backpropagate(float('inf'))
                 if rs < VERBOSE_SIMS: print(' no more sibs')
                 break # winner found, no need to add rest of children
@@ -201,22 +201,25 @@ class Mcts1(Mcts0):
         best_uct = None
         best_child = None
 
+        rs = root_node_sims(node)
+        if rs < VERBOSE_SIMS: 
+            print('bu', '*' if node.move == None else node.move, end=' ')
         for child in node.children:
             if child.sims == 0: # unexplored children have priority
-                rs = root_node_sims(child)
-                if rs < VERBOSE_SIMS:
-                    print(' bu', child.move, 'no-sims child', end='')
+                if rs < VERBOSE_SIMS: 
+                    print(child.move, 'no-sims child', end=' ')
                 return child
 
             # calculate UCT, update if best
             mean_res = child.results / child.sims
             uct = mean_res+(self.c*sqrt(log(self.root_node.sims)/child.sims))
+            if rs < VERBOSE_SIMS:
+                print(compress('{:.1f}'.format(uct)), end=' ')
             #uct = mean_res+(self.c*(self.root_node.sims/(child.sims+self.root_node.sims)))
             if best_uct is None or uct > best_uct:
                 best_uct, best_child = uct, child
           
         rs = root_node_sims(best_child)
         if rs < VERBOSE_SIMS:
-            print('  bu', '*' if node.move == None else node.move, 
-              best_child.move, '{:.1f}'.format(best_uct), end='')
+            print(best_child.move, end=' ')
         return best_child
