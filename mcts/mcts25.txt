@@ -1,3 +1,5 @@
+this example was used for mcts25.tex, in gpa_priv/notes/hex/mcts
+------------------- rbh 2025
 
 root node init * > 5, 6, 9, 10, done
 
