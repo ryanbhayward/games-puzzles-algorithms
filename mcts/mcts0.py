@@ -10,7 +10,7 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 30 # verbose for initial simulations
+VERBOSE_SIMS = 10 # verbose for initial simulations
 MCTS_TIME = 3
 
 def root_node_sims(node):
