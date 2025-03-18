@@ -1,0 +1,65 @@
+
+= 
+root node init * > 5, 6, 9, 10, done
+
+  trv_xpnd  bu 5 no-sims child
+  sim  1.    *  5 roll  9  6 10 parent loss
+
+  trv_xpnd  bu 6 no-sims child
+  sim  2.    *  6 roll  9 10 parent win
+
+  trv_xpnd  bu 9 no-sims child
+  sim  3.    *  9 roll  5 10  6 parent loss
+
+  trv_xpnd  bu 10 no-sims child
+  sim  4.    * 10 roll  5  6 parent win
+
+  trv_xpnd   bu * 6 1.4
+    xpnd_nd *  6 > 5
+    xpnd_nd *  6 > 9
+    xpnd_nd *  6 > 10
+  sim  5.    *  6  9 roll 10 parent loss
+
+  trv_xpnd   bu * 10 1.4
+    xpnd_nd * 10 > 5
+    xpnd_nd * 10 > 6
+    xpnd_nd * 10 > 9
+  sim  6.    * 10  6 roll  9  5 parent win
+
+  trv_xpnd   bu * 6 1.3 bu 5 no-sims child
+  sim  7.    *  6  5 roll  9 parent loss
+
+  trv_xpnd   bu * 6 1.2 bu 10 no-sims child
+  sim  8.    *  6 10 roll  5  9 parent win
+
+  trv_xpnd   bu * 6 1.0  bu 6 10 1.4
+    xpnd_nd *  6 10 > 5
+    xpnd_nd *  6 10 > 9
+    sim  9. *  6 10  9 win, no more sibs
+
+  sim 10.    *  6 10  5 roll  9 parent loss
+
+  trv_xpnd   bu * 6 0.9  bu 6 5 0.5
+    xpnd_nd *  6  5 > 9
+    sim 11. *  6  5  9 win, no more sibs
+
+  trv_xpnd   bu * 6 0.9  bu 6 9 0.5
+    xpnd_nd *  6  9 > 5
+    xpnd_nd *  6  9 > 10
+    sim 12. *  6  9 10 win, no more sibs
+
+  move  sims  wins
+    5     1     0
+    6     8   inf
+    9     1     0
+   10     2     1
+total    12   inf
+
+    a b 
+  1  . x o
+   2  . . o
+       x x 
+
+= 
+    ... adios   :)    ... 
+
