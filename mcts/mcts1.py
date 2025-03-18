@@ -6,6 +6,9 @@
 #    - every rollout is a simulation
 #    - every win discovered after a node expansion is a simulation
 #      so the number of simulations is >= number of mcts iterations
+#  rbh 2025: 
+#    - don't rollout from proven loss leaf
+#    - result = 1 - result (works also for infinity)
 
 import time
 from math import sqrt, log
@@ -65,10 +68,13 @@ class TreeNode1(TreeNode0):
 
             node.results += result
 
-            if result == float('inf') or result == float('-inf'):
-                result *= -1
-            else:
-                result = 1 - result
+            # negate (works also for +/- infinity)
+            result = 1 - result
+
+            #if result == float('inf') or result == float('-inf'):
+            #    result *= -1
+            #else:
+            #    result = 1 - result
 
             node = node.parent
 

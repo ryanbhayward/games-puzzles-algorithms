@@ -182,7 +182,7 @@ class Mcts0:
 
         while time.time() < end_time:
             leaf = self.traverse_and_expand(self.root_node)  # traverse
-            if leaf.results != float('inf'):
+            if leaf.results != float('inf') and leaf.results != float('-inf'):
                 won = leaf.rollout()  # rollout
                 leaf.backpropagate(won)  # backpropagate
 
@@ -218,8 +218,8 @@ class Mcts0:
                 # some 0-sims child? return first found
                 print('      0-sims child found')
                 return child
- 
             # each child node has at least one simulation
+
             # calculate UCT, update if best
             mean_wins = child.wins / child.sims
             uct = mean_wins+(self.c*sqrt(log(self.root_node.sims)/child.sims))
