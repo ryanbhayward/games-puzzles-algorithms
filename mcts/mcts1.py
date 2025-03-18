@@ -42,7 +42,7 @@ class TreeNode1(TreeNode0):
 
             if won:
                 if rs < VERBOSE_SIMS:
-                    print('\n    sim', '{:1d}.'.format(rs+1), \
+                    print('\n  won sim', '{:1d}.'.format(rs+1), \
                       path_from_root(self), '{:1d}'.format(move), 'win,', end='')
                 self.children[-1].backpropagate(float('inf'))
                 if rs < VERBOSE_SIMS: print(' no more sibs')
