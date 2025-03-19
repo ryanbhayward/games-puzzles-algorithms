@@ -157,6 +157,7 @@ class Mcts1(Mcts0):
 
         # return move after set amount of time
         end_time = time.time() + MCTS_TIME
+        start_time = time.time()
 
         while time.time() < end_time:
 
@@ -164,6 +165,7 @@ class Mcts1(Mcts0):
             for child in self.root_node.children:
                 if child.results == float('inf'):
                     self.root_node.show_data()
+                    print('{:.1f}'.format(time.time()-start_time), 'sec')
                     return child.move
             rs = self.root_node.sims
             if rs < VERBOSE_SIMS:
@@ -175,6 +177,7 @@ class Mcts1(Mcts0):
               result = leaf.rollout()  # rollout
               leaf.backpropagate(result)  # backpropagate
 
+        print('{:.1f}'.format(time.time()-start_time), 'sec')
         self.root_node.show_data()
         return self.get_best_move()
 
