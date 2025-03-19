@@ -10,8 +10,12 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 10 # verbose for initial simulations
+VERBOSE_SIMS = 20 # verbose for initial simulations
 MCTS_TIME = 3
+
+def compress(s):
+  if s[0]=='0': return s[1:]
+  return s
 
 def root_node_sims(node):
   if node.parent == None: return node.sims
@@ -28,7 +32,7 @@ def name2x2(move):
 def path_from_root(node):
   if node.parent == None: return '*'
   #return path_from_root(node.parent) + ' ' + name2x2(node.move)
-  return path_from_root(node.parent) + ' ' + '{:2d}'.format(node.move)
+  return path_from_root(node.parent) + ' ' + '{:1d}'.format(node.move)
 
 class TreeNode0:
     def __init__(self, game, player: int, move=None, parent=None):
@@ -90,12 +94,11 @@ class TreeNode0:
         moves = game_copy.get_legal_moves()
         rs = root_node_sims(self)
         if rs < VERBOSE_SIMS:
-            print('\n  sim', '{:2d}.'.format(rs+1), 
-              '  ', path_from_root(self), 'roll', end='')
+            print('\n  sim', '{:1d}.'.format(rs+1), path_from_root(self), 'roll', end='')
         while len(moves) > 0:
             move_index = random.randint(0, len(moves)-1)  # Select random move
             if rs < VERBOSE_SIMS:
-                print(' ', '{:2d}'.format(moves[move_index]), sep='', end='')
+                print(' ', '{:1d}'.format(moves[move_index]), sep='', end='')
             game_copy.play_move(moves[move_index], player)
             won = game_copy.check_win(moves[move_index])
 
