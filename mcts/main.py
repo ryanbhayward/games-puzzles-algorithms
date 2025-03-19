@@ -11,8 +11,13 @@ import mcts1
 
 size = 2
 previous_game = None
+history = []
 boardversion = 2  # 0 or 1 or 2
 mctsversion = 1  # 0 or 1
+
+def hadd(h, gc):
+    h.append(gc)
+    print('history len', len(h))
 
 boardversions = [hex_game0.Hex0, hex_game1.Hex1, hex_game2.Hex2]
 mctsversions = [mcts0.Mcts0, mcts1.Mcts1]
@@ -30,6 +35,7 @@ def coord_to_move(coord: str) -> list:
 def command_loop(game):
     global size
     global previous_game
+    global history
     global boardversion
     global mctsversion
 
@@ -49,6 +55,7 @@ def command_loop(game):
             try:
                 move = coord_to_move(args[1])
                 previous_game = game.copy()
+                hadd(history, game.copy())
                 if args[0] == "x":
                     game.play_move(move, BLACK)
                 elif args[0] == "o":
@@ -80,14 +87,20 @@ def command_loop(game):
                 print("invalid size")
                 continue
             previous_game = game.copy()
+            history = []
             game = boardversions[boardversion](size)
             print(str(game))
         elif args[0] == "reset":
             previous_game = game.copy()
+            history = []
             game = boardversions[boardversion](size)
             print(str(game))
         elif args[0] == "undo" or args[0] == 'u':
-            game = previous_game
+            #game = previous_game
+            if len(history) > 0: 
+                game = history.pop()
+            else:
+                print('nothing to undo')
             print(str(game))
         elif args[0] == "gameversion":
             try:
@@ -97,6 +110,7 @@ def command_loop(game):
                 print("invalid game version, see readme for list of versions")
                 continue
             previous_game = game.copy()
+            history = []
             game = boardversions[gameversion](size)
             print(str(game))
         elif args[0] == "mctsversion":
@@ -114,13 +128,13 @@ def command_loop(game):
                 continue
 
             previous_game = game.copy()
+            hadd(history, game.copy())
 
             if args[1] == "x":
                 mcts = mctsversions[mctsversion](game, BLACK)
                 move = mcts.monte_carlo_tree_search()
                 game.play_move(move, BLACK)
             elif args[1] == "o":
-                previous_game = game.copy()
                 mcts = mctsversions[mctsversion](game, WHITE)
                 move = mcts.monte_carlo_tree_search()
                 game.play_move(move, WHITE)
