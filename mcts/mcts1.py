@@ -144,6 +144,10 @@ class Mcts1(Mcts0):
                     most_visits = node.sims
         return best_node.move
 
+    def end_msg(self, start_time, msg):
+        print('\ndone  ' + msg, '{:.1f}'.format(time.time()-start_time), 'sec')
+        self.root_node.show_data()
+
     def monte_carlo_tree_search(self):
         """
         Perform Monte Carlo Tree Search.
@@ -159,14 +163,23 @@ class Mcts1(Mcts0):
         end_time = time.time() + MCTS_TIME
         start_time = time.time()
 
+
         while time.time() < end_time:
 
-            # winning move found?  return :) woo hoo :)
+            max_sims = float('-inf')
             for child in self.root_node.children:
+                # return if some child is true win 
                 if child.results == float('inf'):
-                    self.root_node.show_data()
-                    print('{:.1f}'.format(time.time()-start_time), 'sec')
+                    #self.root_node.show_data()
+                    #print('{:.1f}'.format(time.time()-start_time), 'sec')
+                    self.end_msg(start_time, 'proven win')
                     return child.move
+                max_sims = max(max_sims, child.results)
+            # return if all children are true loss
+            if max_sims == float('-inf'):
+                self.end_msg(start_time, 'proven loss')
+                return self.get_best_move()
+                
             rs = self.root_node.sims
             if rs < VERBOSE_SIMS:
                 print('\n  trv_xpnd ', end='')
@@ -177,8 +190,7 @@ class Mcts1(Mcts0):
               result = leaf.rollout()  # rollout
               leaf.backpropagate(result)  # backpropagate
 
-        print('{:.1f}'.format(time.time()-start_time), 'sec')
-        self.root_node.show_data()
+        self.end_msg(start_time, 'not proven')
         return self.get_best_move()
 
     def best_uct(self, node: TreeNode1) -> TreeNode1:

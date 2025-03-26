@@ -11,7 +11,8 @@ import random
 from math import sqrt, log
 
 VERBOSE_SIMS = 6 # verbose for initial simulations
-MCTS_TIME = 1
+MCTS_TIME = 10
+ROLLS = 20
 
 def compress(s):
   if s[0]=='0': return s[1:]
