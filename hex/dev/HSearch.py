@@ -33,7 +33,7 @@ import time
 #    S S S S
 
 #Change to desired board size (only supports rhombus boards: same # rows,cols)
-BOARD_X = 7
+BOARD_X = 6
 BOARD_SIZE = BOARD_X * BOARD_X
 
 #Set to True to enable optimization, may limit connections found

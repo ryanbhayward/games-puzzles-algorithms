@@ -1,11 +1,5 @@
 """
-negamax small-board hex solver
-
-based on ttt and 3x3 go programs,
-special move order for 3x3, 3x4, 4x4 only,
-too slow for larger boards
-
-4x4 empty board, x-to-move, x wins, 7034997 calls
+added a TT to hex_simple.py      rbh 2025
 """
 
 import copy
@@ -20,10 +14,12 @@ points on the board
 PTS = '.xo'
 EMPTY, BLACK, WHITE = 0, 1, 2
 ECH, BCH, WCH = PTS[EMPTY], PTS[BLACK], PTS[WHITE]
+TT = ({}, {}) # black, white
+TTCALLS = 0
 
 def oppCH(ch): 
-  if ch== BCH: return WCH
-  elif ch== WCH: return BCH
+  if ch == BCH: return WCH
+  elif ch == WCH: return BCH
   else: assert(False)
 
 """
@@ -49,6 +45,7 @@ class Position: # hex board
   def __init__(self, rows, cols):
     self.R, self.C, self.n = rows, cols, rows*cols
     self.brd = PTS[EMPTY]*self.n
+    self.TT = ({}, {}) # black, white
 
   def requestmove(self, cmd):
     parseok, cmd = False, cmd.split()
@@ -77,7 +74,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 3, 3
+ROWS, COLS = 5,5
 N = ROWS * COLS
 
 NBRS = []
@@ -197,43 +194,33 @@ def has_win(brd, who):
         seen.add(d)
   return False
 
-# number of reachable positions in subtree rooted at psn
-def reachable(psn, ptm, rpsns):
-  rpsns.add(psn)
-  nodes, optm = 1, oppCH(ptm)
-  if has_win(psn, ptm) or has_win(psn, optm): return 1
-  for k in CELLS:
-    if psn[k]==ECH:
-      new_psn = change_str(psn, k, ptm) # add ptm-stone at cell k
-      if new_psn not in rpsns:
-        nodes += reachable(new_psn, optm, rpsns)
-  return nodes
-        
-# number of nodes in tree-of-all-continuations rooted at psn
-def TOAC(psn, ptm):
-  nodes, optm = 1, oppCH(ptm)
-  if has_win(psn, ptm) or has_win(psn, optm): return 1
-  for k in CELLS:
-    if psn[k]==ECH:
-      new_psn = change_str(psn, k, ptm) # add ptm-stone at cell k
-      nodes += TOAC(new_psn, optm)
-  return nodes
-        
 def win_move(s, ptm): # assume neither player has won yet
+  global TTCALLS
   calls = 1
+  player = 0 if ptm==BCH else 1 # black tt or white tt?
+  if s in TT[player]: 
+    TTCALLS += 1
+    move = TT[player][s]
+    if move == '': 
+      return '', calls
+    return point_to_alphanum(move, COLS), calls
   optm = oppCH(ptm)
   for k in CELLS:
     if s[k]==ECH:
       t = change_str(s, k, ptm)
       if has_win(t, ptm):
+        TT[player][s] = k
         return point_to_alphanum(k, COLS), calls
       cw, prev_calls = win_move(t, optm)
       calls += prev_calls
       if not cw:
+        TT[player][s] = k
         return point_to_alphanum(k, COLS), calls
+  TT[player][s] = ''
   return '', calls
 
 def interact():
+  global TTCALLS
   p = Position(ROWS, COLS)
   history = []  # board positions
   new = copy.copy(p.brd); history.append(new)
@@ -241,19 +228,13 @@ def interact():
     showboard(p.brd, p.R, p.C)
     cmd = input(' ')
     if len(cmd)==0:
+      print('\n TT calls', TTCALLS)
       print('\n ... adios :)\n')
       return
     if cmd[0][0]=='h':
       printmenu()
     elif cmd[0][0]=='u':
       p.brd = undo(history, p.brd)
-    elif cmd[0][0]=='r':
-      for ch in (BCH, WCH):
-        r = set()
-        rn = reachable(p.brd, ch, r)
-        assert(rn==len(r))
-        print(rn, ch, 'reachable nodes')
-        print(TOAC(p.brd, ch), ch, 'TOAC nodes')
     elif cmd[0][0]=='?':
       cmd = cmd.split()
       if len(cmd)>0:
