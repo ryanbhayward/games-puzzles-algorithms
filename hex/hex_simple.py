@@ -77,7 +77,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 3, 3
+ROWS, COLS = 4, 4
 N = ROWS * COLS
 
 NBRS = []
@@ -167,7 +167,7 @@ def msg(s, ch):
   elif has_win(s, 'o'): return('o has won')
   else: 
     start_time = time.time()
-    wm, calls = win_move(s, ch)
+    wm, calls = mmx_move(s, ch)
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
     out += (' ... ' if wm else ' ') + wm + '\n'
@@ -219,17 +219,20 @@ def TOAC(psn, ptm):
       nodes += TOAC(new_psn, optm)
   return nodes
         
-def win_move(s, ptm): # assume neither player has won yet
-  calls = 1
+def mmx_move(s, ptm): # assumes no winner yet
+  calls = 1 # count total number of calls
   optm = oppCH(ptm)
-  for k in CELLS:
-    if s[k]==ECH:
-      t = change_str(s, k, ptm)
-      if has_win(t, ptm):
+  for k in CELLS: # for every cell on the board
+    if s[k]==ECH:   # if the cell is empty
+      t = change_str(s, k, ptm) # ptm plays at cell k
+      if has_win(t, ptm): # did this move win for ptm?
         return point_to_alphanum(k, COLS), calls
-      cw, prev_calls = win_move(t, optm)
+      # if not, continue from new board t with optm
+      optm_wins, prev_calls = mmx_move(t, optm)
       calls += prev_calls
-      if not cw:
+      # if optm has no winning move, then
+      #   ptm move at k is a winning move
+      if not optm_wins:
         return point_to_alphanum(k, COLS), calls
   return '', calls
 

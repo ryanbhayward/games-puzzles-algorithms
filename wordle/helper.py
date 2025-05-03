@@ -90,9 +90,9 @@ def get_word_list():
 main loop
 """
 
-green  =   '.ater'
-yellows = ['.....']
-grey   = 'slw'
+green  =   '....r'
+yellows = ['.ta.e']
+grey   = 'sonchidumpy'
 allowed, vacant, must_have = wordle_prep(green, yellows, grey)
 word_list = get_word_list()
 assert(len(word_list[0])==len(green))
