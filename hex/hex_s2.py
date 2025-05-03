@@ -74,7 +74,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 5,5
+ROWS, COLS = 4, 4
 N = ROWS * COLS
 
 NBRS = []
@@ -164,7 +164,7 @@ def msg(s, ch):
   elif has_win(s, 'o'): return('o has won')
   else: 
     start_time = time.time()
-    wm, calls = win_move(s, ch)
+    wm, calls = mmx_move(s, ch)
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
     out += (' ... ' if wm else ' ') + wm + '\n'
@@ -194,7 +194,7 @@ def has_win(brd, who):
         seen.add(d)
   return False
 
-def win_move(s, ptm): # assume neither player has won yet
+def mmx_move(s, ptm): # assume neither player has won yet
   global TTCALLS
   calls = 1
   player = 0 if ptm==BCH else 1 # black tt or white tt?
@@ -211,7 +211,7 @@ def win_move(s, ptm): # assume neither player has won yet
       if has_win(t, ptm):
         TT[player][s] = k
         return point_to_alphanum(k, COLS), calls
-      cw, prev_calls = win_move(t, optm)
+      cw, prev_calls = mmx_move(t, optm)
       calls += prev_calls
       if not cw:
         TT[player][s] = k
