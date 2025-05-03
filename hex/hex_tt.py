@@ -159,6 +159,7 @@ def undo(H, brd):  # pop last meta-move
     return copy.copy(H[len(H)-1])
 
 def msg(s, ch):
+  global TTCALLS
   if has_win(s, 'x'): 
     return('x has won')
   elif has_win(s, 'o'): return('o has won')
@@ -168,8 +169,10 @@ def msg(s, ch):
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
     out += (' ... ' if wm else ' ') + wm + '\n'
-    out += str(calls) + ' calls\n'
-    out += format(time.time() - start_time, '.2f') + ' seconds\n'
+    out += '{0:10}'.format(calls)   + ' function calls\n'
+    out += '{0:10}'.format(TTCALLS) + '       TT calls\n'
+    TTCALLS = 0
+    out += '    ' + format(time.time() - start_time, '.2f') + ' sec\n'
     return out
 
 """
