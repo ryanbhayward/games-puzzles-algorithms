@@ -1,5 +1,6 @@
 """
-modified hex_simple to allow Van Rijswijck's threat search
+Van Rijswijck's threat search
+started from hex_simple
 2025 rbh
 """
 
