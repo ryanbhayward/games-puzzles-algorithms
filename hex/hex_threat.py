@@ -1,11 +1,6 @@
 """
-negamax small-board hex solver
-
-based on ttt and 3x3 go programs,
-special move order for 3x3, 3x4, 4x4 only,
-too slow for larger boards
-
-4x4 empty board, x-to-move, x wins, 7034997 calls
+modified hex_simple to allow Van Rijswijck's threat search
+2025 rbh
 """
 
 import copy
@@ -77,7 +72,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 2, 3
+ROWS, COLS = 4, 4
 N = ROWS * COLS
 
 NBRS = []
@@ -107,12 +102,13 @@ cell order determines move order
 """
 
 CELLS = range(N)  # this order terrible for solving
+#if ROWS == 2 and COLS == 2: CELLS = (1,2,3,0)
 #if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
 #if ROWS == 3 and COLS == 4: CELLS = (0,1,2,3,4,5,6,7,8,9,10,11)
 #if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 #if ROWS == 3 and COLS == 4: CELLS = (5,9,10,3,8,1,4,6,2,7,0,11)
 #if ROWS == 4 and COLS == 3: CELLS = (4,7,5,6,3,2,8,9,1,10,0,11)
-if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+#if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
 
 """
 input, output
@@ -167,18 +163,20 @@ def msg(s, ch):
   elif has_win(s, 'o'): return('o has won')
   else: 
     start_time = time.time()
-    wm, calls = mmx_move(s, ch)
-    out = '\n' + ch + '-to-move: '
-    out += (ch if wm else oppCH(ch)) + ' wins' 
-    out += (' ... ' if wm else ' ') + wm + '\n'
-    out += str(calls) + ' calls\n'
-    out += format(time.time() - start_time, '.2f') + ' seconds\n'
+    #wm, calls = mmx_move(s, ch)
+    #out = '\n' + ch + '-to-move: '
+    #out += (ch if wm else oppCH(ch)) + ' wins' 
+    #out += (' ... ' if wm else ' ') + wm + '\n'
+    #out += str(calls) + ' calls\n'
+    #out += format(time.time() - start_time, '.2f') + ' seconds\n'
     
-    mp = empty_cells(s)
-    ptm_wins, winmv, winstrat, calls = th_search(s, ch, mp)
-    print(ptm_wins, winmv, winstrat, calls)
+    mp = set(CELLS)
+    ptm_wins, winmv, winset, calls = th_search(0, s, ch, mp)
+    print(ptm_wins, winmv, winset, calls)
+    print('CELLS', CELLS)
 
-    return out
+    #return out
+    return ''
 
 """
 solving
@@ -219,31 +217,55 @@ def mmx_move(s, ptm): # assumes no winner yet
         return point_to_alphanum(k, COLS), calls
   return '', calls
 
-def empty_cells(psn):
-  L = ind = [j for j, val in enumerate(psn) if val == ECH]
-  return set(L)
+def empty_cells(psn, L):
+  E = []
+  for j in L:
+    if psn[j] == ECH: 
+      E.append(j)
+  return set(E)
 
-def th_search(s, ptm, mp): # return ptm_wins?, winmove_if_yes, carrier, calls
+def next_cell(mp, L): # remove 1st item in CELLS from mp
+  for j in L:
+    if j in mp: 
+     mp.remove(j)
+     return j
+
+def move_to_front(x, L):
+  assert(x in L)
+  M = [x]
+  for j in L:
+    if j != x:
+      M.append(j)
+  return tuple(M)
+
+def th_search(d, s, ptm, mp): # return ptm_wins?, winmove_if_yes, carrier, calls
 # carrier is cell set of winning player's strategy
-  print(s, ptm, mp)
+  global CELLS
+  if d <= 0: print('  '*d, s, 'start', ptm, mp)
   calls, optm = 1, oppCH(ptm)
   union_threats = set() # union of carriers of all opponent win-threats
   while mp: # False if mp is empty
-    k = mp.pop()
+    k = next_cell(mp, CELLS)
+    if d <= 0: print('  '*d, 'try', k)
     t = change_str(s, k, ptm)
     if has_win(t, ptm):
+      CELLS = move_to_front(k, CELLS)
+      if d <= 0: print('  '*d, s, 'finish', ptm, 'wins', mp, 'winset', set([k]))
       return True, k, set([k]), calls
-    move_list = empty_cells(t)
-    optm_wins, owinmv, winstrat, prev_calls = th_search(t, optm, move_list)
+    move_list = empty_cells(t, CELLS)
+    optm_wins, owinmv, winset, prev_calls = th_search(d+1, t, optm, move_list)
     calls += prev_calls
-    if optm_wins:
     if not optm_wins: 
-      winstrat.add(k)
-      return True, k, winstrat, calls
+      CELLS = move_to_front(k, CELLS)
+      winset.add(k)
+      if d <= 0: print('  '*d, s, 'finish', ptm, 'wins', mp, 'winset', winset)
+      return True, k, winset, calls
+    if d <= 0: print('  '*d, s, 'opponent threat', owinmv, winset)
     # optm wins, refine mustply
-    mp = mp.intersection(winstrat)
-    union_threats = union_threats.union(winstrat)
-  print(' lose')
+    CELLS = move_to_front(owinmv, CELLS)
+    mp = mp.intersection(winset)
+    union_threats = union_threats.union(winset)
+  if d <= 0: print('  '*d, s, 'finish', ptm, 'loses', mp, 'winset', union_threats)
   return False, None, union_threats, calls
 
 def interact():
