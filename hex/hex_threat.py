@@ -108,7 +108,7 @@ CELLS = range(N)  # this order terrible for solving
 #if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 #if ROWS == 3 and COLS == 4: CELLS = (5,9,10,3,8,1,4,6,2,7,0,11)
 #if ROWS == 4 and COLS == 3: CELLS = (4,7,5,6,3,2,8,9,1,10,0,11)
-#if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
 
 """
 input, output
@@ -170,7 +170,7 @@ def msg(s, ch):
     #out += str(calls) + ' calls\n'
     #out += format(time.time() - start_time, '.2f') + ' seconds\n'
     
-    mp = set(CELLS)
+    mp = empty_cells(s, CELLS)
     ptm_wins, winmv, winset, calls = th_search(0, s, ch, mp)
     print(ptm_wins, winmv, winset, calls)
     print('CELLS', CELLS)
