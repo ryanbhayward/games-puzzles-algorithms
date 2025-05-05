@@ -42,8 +42,10 @@ def point_to_alphanum(p, C):
   r, c = point_to_coord(p, C)
   return 'abcdefghj'[c] + '1234566789'[r]
 
-def change_str(s, where, what):
-  return s[:where] + what + s[where+1:]
+# on board psn, set location where to color
+# psn is a string
+def color_cell(psn, where, color):
+  return psn[:where] + color + psn[where+1:]
 
 class Position: # hex board 
   def __init__(self, rows, cols):
@@ -71,7 +73,7 @@ class Position: # hex board
     if self.brd[where] != ECH:
       print('\n  sorry, position occupied')
       return ''
-    return change_str(self.brd, where, ch)
+    return color_cell(self.brd, where, ch)
 
 """ 
 set board size 
@@ -204,7 +206,7 @@ def reachable(psn, ptm, rpsns):
   if has_win(psn, ptm) or has_win(psn, optm): return 1
   for k in CELLS:
     if psn[k]==ECH:
-      new_psn = change_str(psn, k, ptm) # add ptm-stone at cell k
+      new_psn = color_cell(psn, k, ptm) # add ptm-stone at cell k
       if new_psn not in rpsns:
         nodes += reachable(new_psn, optm, rpsns)
   return nodes
@@ -215,7 +217,7 @@ def TOAC(psn, ptm):
   if has_win(psn, ptm) or has_win(psn, optm): return 1
   for k in CELLS:
     if psn[k]==ECH:
-      new_psn = change_str(psn, k, ptm) # add ptm-stone at cell k
+      new_psn = color_cell(psn, k, ptm) # add ptm-stone at cell k
       nodes += TOAC(new_psn, optm)
   return nodes
         
@@ -224,7 +226,7 @@ def mmx_move(s, ptm): # assumes no winner yet
   optm = oppCH(ptm)
   for k in CELLS: # for every cell on the board
     if s[k]==ECH:   # if the cell is empty
-      t = change_str(s, k, ptm) # ptm plays at cell k
+      t = color_cell(s, k, ptm) # ptm plays at cell k
       if has_win(t, ptm): # did this move win for ptm?
         return point_to_alphanum(k, COLS), calls
       # if not, continue from new board t with optm
@@ -234,7 +236,7 @@ def mmx_move(s, ptm): # assumes no winner yet
       #   ptm move at k is a winning move
       if not optm_wins:
         return point_to_alphanum(k, COLS), calls
-  return '', calls
+  return None, calls
 
 def interact():
   p = Position(ROWS, COLS)

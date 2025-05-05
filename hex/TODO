@@ -1,3 +1,5 @@
+_simple, _vc, threat: make code more readable ala xin_mmx
+
 hex_simple: show x on bottom, o on right
 
 _simple, _vc, ... : update interact menu to show user how to solve
