@@ -73,7 +73,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 5, 5
 N = ROWS * COLS
 
 NBRS = []
@@ -110,6 +110,13 @@ CELLS = range(N)  # this order terrible for solving
 #if ROWS == 3 and COLS == 4: CELLS = (5,9,10,3,8,1,4,6,2,7,0,11)
 #if ROWS == 4 and COLS == 3: CELLS = (4,7,5,6,3,2,8,9,1,10,0,11)
 if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+#  0  1  2  3  4
+#   5  6  7  8  9
+#   10 11 12 13 14
+#    15 16 17 18 19
+#     20 21 22 23 24
+if ROWS == 5 and COLS == 5: 
+  CELLS = (12,8,16,7,17,11,13,6,18,4,20,15,9,10,14,5,19,3,21,2,22,1,23,0,24)
 
 """
 input, output
