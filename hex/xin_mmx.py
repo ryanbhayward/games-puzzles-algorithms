@@ -1,4 +1,4 @@
-# return winning move if ptm wins, else None
+# return winning move if ptm wins else empty string
 def mmx_move(psn, ptm): # assumes no winner yet
   optm = oppCH(ptm) # opponent of player-to-move
   for k in CELLS: # for every cell on the board
@@ -12,4 +12,4 @@ def mmx_move(psn, ptm): # assumes no winner yet
       #   ptm move at k is a winning move
       if not optm_wins:
         return k
-  return None
+  return '' # no winning move

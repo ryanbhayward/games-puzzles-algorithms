@@ -73,7 +73,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 5, 5
+ROWS, COLS = 4, 4
 N = ROWS * COLS
 
 NBRS = []
@@ -274,7 +274,7 @@ def th_search(d, s, ptm, mp): # return ptm_wins?, winmove_if_yes, carrier, calls
     mp = mp.intersection(winset)
     union_threats = union_threats.union(winset)
   if d <= 0: print('  '*d, s, 'finish', ptm, 'loses', mp, 'winset', union_threats)
-  return False, None, union_threats, calls
+  return False, '', union_threats, calls
 
 def interact():
   p = Position(ROWS, COLS)

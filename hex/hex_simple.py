@@ -236,7 +236,7 @@ def mmx_move(s, ptm): # assumes no winner yet
       #   ptm move at k is a winning move
       if not optm_wins:
         return point_to_alphanum(k, COLS), calls
-  return None, calls
+  return '', calls
 
 def interact():
   p = Position(ROWS, COLS)
