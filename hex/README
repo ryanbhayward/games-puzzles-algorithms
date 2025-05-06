@@ -1,1 +1,16 @@
-xin_ are fragments for xinyue's thesis
+different versions of a boolean negamax hex solver   revised 2025 rbh
+
+hex_.py    simplest
+   _tt.py  transposition table
+   _vc.py  back up virtual connections (see Van Rijswijck  MSc thesis)
+   _vc3.py faster
+   _threat.py another vc.py that I wrote in a hurry
+              without realizing I had already written _vc.py :)
+
+xin_ fragments for xinyue's thesis
+
+TODO
+  * add TT to _vc.py etc
+  * use modules to simple code reuse among above versions
+  * make code more readable ala xin_mmx
+  * update interact menu to show user how to solve

@@ -179,12 +179,15 @@ def msg(s, ch):
     #out += format(time.time() - start_time, '.2f') + ' seconds\n'
     
     mp = empty_cells(s, CELLS)
-    ptm_wins, winmv, winset, calls = th_search(0, s, ch, mp)
-    print(ptm_wins, winmv, winset, calls)
-    print('CELLS', CELLS)
-
-    #return out
-    return ''
+    ptm_wins,  wm, winset, calls = th_search(0, s, ch, mp)
+    out = '\n' + ch + '-to-move: '
+    out += ('wins ' if ptm_wins else 'loses')
+    out += (' ... ' if wm else ' ') + point_to_alphanum(wm, COLS) + '\n'
+    out += 'winset' + str(winset) + '\n'
+    out += 'CELLS' + str(CELLS) + '\n'
+    out += str(calls) + ' calls\n'
+    out += format(time.time() - start_time, '.2f') + ' seconds\n'
+    return out
 
 """
 solving
@@ -257,20 +260,20 @@ def th_search(d, s, ptm, mp): # return ptm_wins?, winmove_if_yes, carrier, calls
     if d <= 0: print('  '*d, 'try', k)
     t = change_str(s, k, ptm)
     if has_win(t, ptm):
-      CELLS = move_to_front(k, CELLS)
+      #CELLS = move_to_front(k, CELLS)
       if d <= 0: print('  '*d, s, 'finish', ptm, 'wins', mp, 'winset', set([k]))
       return True, k, set([k]), calls
     move_list = empty_cells(t, CELLS)
     optm_wins, owinmv, winset, prev_calls = th_search(d+1, t, optm, move_list)
     calls += prev_calls
     if not optm_wins: 
-      CELLS = move_to_front(k, CELLS)
+      #CELLS = move_to_front(k, CELLS)
       winset.add(k)
       if d <= 0: print('  '*d, s, 'finish', ptm, 'wins', mp, 'winset', winset)
       return True, k, winset, calls
     if d <= 0: print('  '*d, s, 'opponent threat', owinmv, winset)
     # optm wins, refine mustply
-    CELLS = move_to_front(owinmv, CELLS)
+    #CELLS = move_to_front(owinmv, CELLS)
     mp = mp.intersection(winset)
     union_threats = union_threats.union(winset)
   if d <= 0: print('  '*d, s, 'finish', ptm, 'loses', mp, 'winset', union_threats)

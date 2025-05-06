@@ -8,6 +8,7 @@ TODO: use H-search to find vcs
 based on hex-simple.py
 """
 
+import time
 import numpy as np
 import copy
 from menu import printmenu
@@ -173,12 +174,14 @@ def msg(s, ch):
   if has_win(s, 'x'): return('x has won')
   elif has_win(s, 'o'): return('o has won')
   else: 
+    start_time = time.time()
     wm, calls, vc = win_move(s, ch)
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
     out += (' ... ' if wm else ' ') + wm + '\n'
     out += str(calls) + ' calls   '
     out += pointset_to_str(vc)
+    out += format(time.time() - start_time, '.2f') + ' seconds\n'
     return out
 
 """

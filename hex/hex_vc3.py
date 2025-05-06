@@ -8,6 +8,7 @@ TODO: use H-search to find vcs
 based on hex-simple.py
 """
 
+import time
 import numpy as np
 import copy
 from collections import deque
@@ -84,7 +85,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 5, 5
+ROWS, COLS = 4, 4
 N = ROWS * COLS
 
 NBRS = []
@@ -113,7 +114,7 @@ for c in range(COLS):
 cell order determines move order
 """
 
-if ROWS == 2 and COLS == 2: CELLS = (1,2,0,3)
+if   ROWS == 2 and COLS == 2: CELLS = (1,2,0,3)
 elif ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
 elif ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 elif ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
@@ -170,12 +171,14 @@ def msg(s, ch):
   if has_win(s, 'x'): return('x has won')
   elif has_win(s, 'o'): return('o has won')
   else: 
+    start_time = time.time()
     wm, calls, vc = win_move(s, ch)
     out = '\n' + ch + '-to-move: '
     out += (ch if wm else oppCH(ch)) + ' wins' 
     out += (' ... ' if wm else ' ') + wm + '\n'
     out += str(calls) + ' calls   '
     out += pointset_to_str(vc)
+    out += format(time.time() - start_time, '.2f') + ' seconds\n'
     return out
 
 """
