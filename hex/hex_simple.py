@@ -79,7 +79,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 3, 3
 N = ROWS * COLS
 
 NBRS = []

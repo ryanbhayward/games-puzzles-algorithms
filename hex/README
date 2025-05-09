@@ -10,7 +10,11 @@ hex_.py    simplest
 xin_ fragments for xinyue's thesis
 
 TODO
-  * add TT to _vc.py etc
   * use modules to simple code reuse among above versions
+     - for now,
+          write new module, put all mmx versions there,
+          then "from versions.py import mmx_3 as mmx"
+
+  * add TT to _vc.py etc
   * make code more readable ala xin_mmx
   * update interact menu to show user how to solve

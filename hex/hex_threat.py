@@ -73,7 +73,7 @@ class Position: # hex board
 set board size 
 """
 
-ROWS, COLS = 4, 4
+ROWS, COLS = 3, 3
 N = ROWS * COLS
 
 NBRS = []
@@ -105,6 +105,7 @@ cell order determines move order
 CELLS = range(N)  # this order terrible for solving
 #if ROWS == 2 and COLS == 2: CELLS = (1,2,3,0)
 #if ROWS == 3 and COLS == 3: CELLS = (4,2,6,3,5,1,7,0,8)
+if ROWS == 3 and COLS == 3: CELLS = (4,1,2,6,7,3,5,0,8)
 #if ROWS == 3 and COLS == 4: CELLS = (0,1,2,3,4,5,6,7,8,9,10,11)
 #if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 #if ROWS == 3 and COLS == 4: CELLS = (5,9,10,3,8,1,4,6,2,7,0,11)
@@ -179,10 +180,10 @@ def msg(s, ch):
     #out += format(time.time() - start_time, '.2f') + ' seconds\n'
     
     mp = empty_cells(s, CELLS)
-    ptm_wins,  wm, winset, calls = th_search(0, s, ch, mp)
+    wm, winset, calls = th_search(0, s, ch, mp)
     out = '\n' + ch + '-to-move: '
-    out += ('wins ' if ptm_wins else 'loses')
-    out += (' ... ' if wm else ' ') + point_to_alphanum(wm, COLS) + '\n'
+    out += (ch if wm else oppCH(ch)) + ' wins' 
+    out += (' ... ' if wm else ' ') + wm + '\n'
     out += 'winset' + str(winset) + '\n'
     out += 'CELLS' + str(CELLS) + '\n'
     out += str(calls) + ' calls\n'
@@ -262,22 +263,22 @@ def th_search(d, s, ptm, mp): # return ptm_wins?, winmove_if_yes, carrier, calls
     if has_win(t, ptm):
       #CELLS = move_to_front(k, CELLS)
       if d <= 0: print('  '*d, s, 'finish', ptm, 'wins', mp, 'winset', set([k]))
-      return True, k, set([k]), calls
+      return point_to_alphanum(k, COLS), set([k]), calls
     move_list = empty_cells(t, CELLS)
-    optm_wins, owinmv, winset, prev_calls = th_search(d+1, t, optm, move_list)
+    owinmv, winset, prev_calls = th_search(d+1, t, optm, move_list)
     calls += prev_calls
-    if not optm_wins: 
+    if not owinmv: 
       #CELLS = move_to_front(k, CELLS)
       winset.add(k)
       if d <= 0: print('  '*d, s, 'finish', ptm, 'wins', mp, 'winset', winset)
-      return True, k, winset, calls
+      return point_to_alphanum(k, COLS), winset, calls
     if d <= 0: print('  '*d, s, 'opponent threat', owinmv, winset)
     # optm wins, refine mustply
     #CELLS = move_to_front(owinmv, CELLS)
     mp = mp.intersection(winset)
     union_threats = union_threats.union(winset)
   if d <= 0: print('  '*d, s, 'finish', ptm, 'loses', mp, 'winset', union_threats)
-  return False, '', union_threats, calls
+  return '', union_threats, calls
 
 def interact():
   p = Position(ROWS, COLS)
