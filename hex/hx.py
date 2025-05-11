@@ -12,10 +12,9 @@ from string import ascii_lowercase
 globals
 """
 
-ROWS, COLS = 3, 3  # board size
+ROWS, COLS = 4, 4  # board size
 
 N = ROWS * COLS
-
 BLK, WHT, EMP, IO_CH = 0, 1, 2, 'xo.'
 BCH, WCH, ECH = IO_CH[BLK], IO_CH[WHT], IO_CH[EMP]
 
@@ -69,7 +68,7 @@ CELLS = range(N)  # this order terrible for solving
 #if ROWS == 3 and COLS == 4: CELLS = (5,6,4,7,2,9,3,8,1,10,0,11)
 #if ROWS == 3 and COLS == 4: CELLS = (5,9,10,3,8,1,4,6,2,7,0,11)
 #if ROWS == 4 and COLS == 3: CELLS = (4,7,5,6,3,2,8,9,1,10,0,11)
-#if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
+if ROWS == 4 and COLS == 4: CELLS = (6,9,3,12,2,13,5,10,8,7,1,14,4,11,0,15)
 
 class Cell: ############## board cells ###############
 

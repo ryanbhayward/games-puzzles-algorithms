@@ -1,10 +1,6 @@
 """
-negamax small-board hex solver
-
-based on ttt and 3x3 go programs,
-special move order for 3x3, 3x4, 4x4 only,
-too slow for larger boards
-
+rbh 2025
+boolean negamax hex solver
 4x4 empty board, x-to-move, x wins, 7034997 calls
 """
 
@@ -35,29 +31,6 @@ def has_win(brd, who):
         seen.add(d)
   return False
 
-# number of reachable positions in subtree rooted at psn
-def reachable(psn, ptm, rpsns):
-  rpsns.add(psn)
-  nodes, optm = 1, hx.Cell.oppCH(ptm)
-  if has_win(psn, ptm) or has_win(psn, optm): return 1
-  for k in CELLS:
-    if psn[k] == hx.ECH:
-      new_psn = color_cell(psn, k, ptm) # add ptm-stone at cell k
-      if new_psn not in rpsns:
-        nodes += reachable(new_psn, optm, rpsns)
-  return nodes
-        
-# number of nodes in tree-of-all-continuations rooted at psn
-def TOAC(psn, ptm):
-  nodes, optm = 1, hx.Cell.oppCH(ptm)
-  if has_win(psn, ptm) or has_win(psn, optm): return 1
-  for k in CELLS:
-    if psn[k] == hx.ECH:
-      new_psn = color_cell(psn, k, ptm) # add ptm-stone at cell k
-      new_psn = color_cell(psn, k, ptm) # add ptm-stone at cell k
-      nodes += TOAC(new_psn, optm)
-  return nodes
-        
 def mmx_move(s, ptm): # assumes no winner yet
   calls = 1 # count total number of calls
   optm = hx.Cell.oppCH(ptm)

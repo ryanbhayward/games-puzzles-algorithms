@@ -9,3 +9,8 @@ move order
 x-to-move: x wins ... c2
 7034997 calls
 22.83 seconds
+
+hx_simple slower :(
+x-to-move: x wins ... c2
+7034997 calls
+23.57 seconds
