@@ -1,0 +1,11 @@
+macbook air M2 (8 cpu) 2022 8GB Sonoma 14.6.1
+
+hex_simple.py empty 4x4 board
+
+no move_order
+> 60 s
+
+move order
+x-to-move: x wins ... c2
+7034997 calls
+22.83 seconds
