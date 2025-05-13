@@ -10,7 +10,7 @@ import time
 import random
 from math import sqrt, log
 
-VERBOSE_SIMS = 6 # verbose for initial simulations
+VERBOSE_SIMS = 0 # verbose for initial simulations
 MCTS_TIME = 10
 ROLLS = 20
 
@@ -82,8 +82,8 @@ class TreeNode0:
         bool: True if parent player won
         """
 
-        assert(self.results != float('inf'))
-        assert(self.results != float('-inf'))
+        #assert(self.results != float('inf'))
+        #assert(self.results != float('-inf'))
         #if self.results == float('inf'): 
         #  print('  rollout: already won')
         #  return True

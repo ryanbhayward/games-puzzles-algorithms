@@ -17,7 +17,7 @@ mctsversion = 1  # 0 or 1
 
 def hadd(h, gc):
     h.append(gc)
-    print('history len', len(h))
+    #print('history len', len(h))
 
 boardversions = [hex_game0.Hex0, hex_game1.Hex1, hex_game2.Hex2]
 mctsversions = [mcts0.Mcts0, mcts1.Mcts1]

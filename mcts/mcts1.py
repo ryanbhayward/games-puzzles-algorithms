@@ -114,11 +114,11 @@ class Mcts1(Mcts0):
     # november 27 2022... MCTS code largely taken from
     # https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
     def __init__(self, game, player):
-        print('\nroot node init ', end='')
+        #print('\nroot node init ', end='')
         self.root_node = RootNode1(game, player)
         self.winning_move = self.root_node.expand_node()
         self.c = 0.3  # used for UCT
-        print('done')
+        #print('done')
 
     def get_best_move(self):
         """
@@ -146,7 +146,7 @@ class Mcts1(Mcts0):
 
     def end_msg(self, start_time, msg):
         print('\ndone  ' + msg, '{:.1f}'.format(time.time()-start_time), 'sec')
-        self.root_node.show_data()
+        #self.root_node.show_data()
 
     def monte_carlo_tree_search(self):
         """
