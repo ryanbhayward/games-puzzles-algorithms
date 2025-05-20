@@ -1,4 +1,6 @@
-# simple program to play linear clobber
+# I think this is checking all forms that can
+#   arise with alternating linear clobber
+
 import sys
 from paint_chars import paint3
 from collections import deque
