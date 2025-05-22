@@ -3,6 +3,8 @@
 # rbh
 
 # TODO: clobber not working properly
+#   check that the start move has a color
+# and that the destination move is the opposite color
 
 import sys
 #import string
