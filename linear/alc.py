@@ -2,13 +2,13 @@
 # started 2025
 # rbh
 
-# TODO: allow specified user move
+# TODO: clobber not working properly
 
 import sys
 #import string
 from paint_chars import paint3
 from collections import deque
-#from copy import deepcopy
+from copy import copy
 
 BLK, WHT, EMP = 0,1,2  # b LEFT, w RIGHT
 CHRS = 'xo_'  # black white g
@@ -22,6 +22,14 @@ def opponent(col): return 1 - col
 
 def color(brd, psn, color):
   return brd[:psn] + CHRS[color] + brd[psn+1:]
+
+def undo(H, brd):  # pop last meta-move
+  if len(H)==1:
+    print('\n    original position,  nothing to undo\n')
+    return brd
+  else:
+    H.pop()
+    return copy(H[len(H)-1])
 
 def clobber(brd, psn, n, rgt): # if rgt, clobber right
   print(psn, 'clobber', direction(rgt), end='  ')
@@ -43,7 +51,6 @@ def show(brd):
     if j < 10:
       indexstr += ' '
     indexstr += ' ' + str(j)
-
   cellstr = '   ' + ''.join(['  ' + c for c in brd])
   print(paint3('\n' + indexstr + '\n' + cellstr, CHRS))
 
@@ -63,7 +70,30 @@ def nonzero(brd):
 class ALC:
   def __init__(self, k):
     self.b =  'ox'*k
-    self.n = len(self.b)
+
+def show_format():
+  print('invalid move format')
+  print('  like this: 13+')
+  print('... or this: 0-')
+
+def clbbr(brd, psn, delta):
+  b1 = color(brd, psn, EMP)
+  col = CHRS.index(b1[psn + delta])
+  return color(b1, psn + delta, opponent(col))
+
+def requestmove(brd, cmd):
+  parseok = False
+  psn, direction = cmd[:-1], cmd[-1]
+  if (cmd[-1] not in '+-') or not psn.isdigit():
+    show_format()
+    return ''
+  psn = int(psn)
+  if psn == 0 and direction == '-' or \
+     psn >= len(brd) - 1 and direction == '+':
+    print('invalid move: off board')
+    return ''
+  delta = 1 if direction else -1
+  return clbbr(brd, psn, delta)
 
 def get_command(color):
   print('\n ' + color + '  command? ', end='')
@@ -116,6 +146,25 @@ def mydiff(sa, sb):
   for x in sb:
     if x not in sa: print('in L1 not L0', x)
 
-state = ALC(5)
-show(state.b)
-playGame(state)
+def interact(brd):
+  history = []  # board positions
+  new = copy(brd); history.append(new)
+  while True:
+    show(brd)
+    cmd = input(' ')
+    print(cmd)
+    if len(cmd)==0:
+      print('\n ... adios :)\n')
+      return
+    #if cmd[0][0]=='h':
+    #  printmenu()
+    elif cmd[0][0]=='u':
+      brd = undo(history, brd)
+    elif (cmd[0][0].isdigit()):
+      new = requestmove(brd, cmd)
+      if new != '':
+        brd = new
+        history.append(new)
+
+state = ALC(3)
+interact(state.b)
