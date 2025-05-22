@@ -2,18 +2,40 @@
 # started 2025
 # rbh
 
+# TODO: allow specified user move
+
 import sys
+#import string
 from paint_chars import paint3
 from collections import deque
 #from copy import deepcopy
 
-BLACK, WHITE, EMPTY = 0,1,2  # black == LEFT  white == RIGHT
-CHARS = 'xoq'  # black white g
+BLK, WHT, EMP = 0,1,2  # b LEFT, w RIGHT
+CHRS = 'xo_'  # black white g
 
-def opponent(ch): return '*' if ch == 'o' else 'o'
+def direction(right):
+  return 'right' if right else 'left '
 
-def erase_stone(brd, psn, k):
-  return brd[:psn] + CHARS[EMPTY]*k + brd[psn+k:]
+def opp_ch(ch): return 'x' if ch == 'o' else 'o'
+
+def opponent(col): return 1 - col
+
+def color(brd, psn, color):
+  return brd[:psn] + CHRS[color] + brd[psn+1:]
+
+def clobber(brd, psn, n, rgt): # if rgt, clobber right
+  print(psn, 'clobber', direction(rgt), end='  ')
+  delta = 1 if rgt else -1
+  if (psn + delta < 0) or (psn + delta >= n):
+    print('off board')
+    return ''
+  bp, bpd = brd[psn], brd[psn + delta]
+  if (bp == EMP or bpd == EMP or bp == bpd):
+    print('invalid there')
+    return ''
+  b1 = color(brd, psn, EMP)
+  col = CHRS.index(b1[psn + delta])
+  return color(b1, psn + delta, opponent(col))
 
 def show(brd):
   indexstr = '   '  # print cell indices
@@ -23,7 +45,7 @@ def show(brd):
     indexstr += ' ' + str(j)
 
   cellstr = '   ' + ''.join(['  ' + c for c in brd])
-  print(paint3('\n' + indexstr + '\n' + cellstr, CHARS))
+  print(paint3('\n' + indexstr + '\n' + cellstr, CHRS))
 
 def revstring(s): return s[::-1]
 
@@ -33,14 +55,14 @@ def myadd(item, s):
 
 def nonzero(brd):
   for j in range(len(brd)-1):
-    if brd[j] != EMPTY and
-       brd[j+1] != EMPTY and
-       brd[j] == opponent(brd[j+1]): return True
+    if brd[j] != EMP and \
+       brd[j+1] != EMP and \
+       brd[j] == opp_ch(brd[j+1]): return True
   return False
 
-class LC_state:
+class ALC:
   def __init__(self, k):
-    self.b =  'xxo'*k
+    self.b =  'ox'*k
     self.n = len(self.b)
 
 def get_command(color):
@@ -56,18 +78,26 @@ def get_command(color):
   else:
     return int(line.split()[0])
 
+def test(brd):
+  n = len(brd)
+  for j in range(n):
+    for k in (0,1):
+      cr = clobber(brd, j, n, (True,False)[k])
+      if cr: print(paint3(cr, CHRS))
+
 def playGame(state):
   while True:
     show(state.b)
-    m = get_command(CHARS[WHITE])
+    m = get_command(CHRS[WHT])
     if m == -3:
       break
     elif m == -1:
       print('sorry ? ... ')
     elif m == 0:
-      clobber(state.b)
-      break
-  print('\n  adios ...\n  zaijian ...\n  sayonara ...\n  annyeong ...\n')
+      test(state.b)
+    break
+  #print('\n  adios ...\n  zaijian ...\n  sayonara ...\n  annyeong ...\n')
+  print('\n  adios ...')
 
 def equal(a,b):
   lena, lenb = len(a), len(b)
@@ -85,3 +115,7 @@ def mydiff(sa, sb):
     if x not in sb: print('in L0 not L1', x)
   for x in sb:
     if x not in sa: print('in L1 not L0', x)
+
+state = ALC(5)
+show(state.b)
+playGame(state)
