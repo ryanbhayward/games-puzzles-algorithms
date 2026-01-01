@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # - represent quarto state as sequence of 16 4-bit integers
 # - simulate random games
-# TODO: don't allow losing moves, as follows
+# TODO: 1-move lookahead: don't hand opponent a winning piece
 #    - check any file with 3 tokens
 #    - &sum tokens: if positive, then that value there wins
 #    - &sum 15-complement of tokens: if positive, then that 15-comp't-value there wins
