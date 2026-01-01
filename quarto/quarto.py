@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 # - represent quarto state as sequence of 16 4-bit integers
 # - simulate random games
-# rbh 2025.12.31 :)
+# TODO: don't allow losing moves, as follows
+#    - check any file with 3 tokens
+#    - &sum tokens: if positive, then that value there wins
+#    - &sum 15-complement of tokens: if positive, then that 15-comp't-value there wins
+#    - remove winning pieces from list of possibles
+#    - pick next piece randomly from each list of possibles (any piece if list empty)
+# rbh v0 working 2025.12.31
 
 from random import shuffle
 from time import time
