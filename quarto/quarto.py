@@ -60,15 +60,18 @@ def show_st(st):
 def same_bit(x,y,psn):
   return (x >> psn) &1 == (y >> psn) &1
 
-def wins(f, st, verb): # is file f a winning file?
+def wins(f, st, verb): # is FILES[f] winning?
   file = FILES[f]
-  for j in range(ROWS):
-    if st[file[j]] < 0: 
-      return False
+  #for j in range(ROWS):
+  #  if st[file[j]] < 0: 
+  #    return False
+  pieces = [st[j] for j in file if st[j] >= 0]
+  if len(pieces) < 4: 
+    return False
   for psn in range(ROWS-1):
-    if same_bit(st[file[0]], st[file[1]], psn) and \
-       same_bit(st[file[0]], st[file[2]], psn) and \
-       same_bit(st[file[0]], st[file[3]], psn):
+    if same_bit(pieces[0], pieces[1], psn) and \
+       same_bit(pieces[0], pieces[2], psn) and \
+       same_bit(pieces[0], pieces[3], psn):
       if verb: show_st(st)
       if verb: print('\n', f, ' is winning file\n', sep='')
       return True
