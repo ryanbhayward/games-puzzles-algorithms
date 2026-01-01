@@ -4,6 +4,7 @@
 # rbh 2025.12.31 :)
 
 from random import shuffle
+from time import time
 
 ROWS = 4
 CELLS = ROWS*ROWS
@@ -96,6 +97,7 @@ def show_winmoves(wm):
     print('{:3}'.format(wm[j]), end=' ')
   print()
 
+t0 = time()
 verb = False
 winmoves = CELLS*[0]
 for _ in range(TRIALS):
@@ -109,3 +111,4 @@ for j in range(1, CELLS):
   else: p1 += winmoves[j]
 print('p1-wins  p2-wins  draws  total')
 print(p1, '  ', p2, '  ', winmoves[0], TRIALS)
+print('time in seconds', '{:.1f}'.format(time()-t0)) 
