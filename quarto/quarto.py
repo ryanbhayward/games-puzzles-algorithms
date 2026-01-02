@@ -2,6 +2,33 @@
 # - represent quarto state as sequence of 16 4-bit integers
 # - simulate random games
 # TODO: 1-move lookahead: don't hand opponent a winning piece
+# call a token unsafe if there is some cell
+#   where it immediately wins, and safe otherwise
+# we are interested in games where each player
+#   hands the opponent, for their next move,
+#   a *safe* piece if one exists (if every token is unsafe,
+#   then the opponent win on the next move)
+# so, after each move, we want to know which
+#   tokens are safe and which unsafe,
+#   and we want to make a random move with a safe piece
+# notice that a token can shift from unsafe to safe
+#   e.g. after a move which occupies the sole
+#   location where that token would immediately win
+# how to do this?
+# for each token, track where_token_wins
+#    token j is safe iff where_token_wins[j] is empty
+# after each move, update where_token_wins
+#    - if lastmove was at cell k,
+#        then remove k from all w_t_wins[j] lists
+#    - for each file containing the last move,
+#        if that file has exactly three tokens
+#        and the 4th location is j,
+#        then check which not-onboard tokens t
+#        will win at j, and add t to w_t_wins[j]
+#   - use updated wtw[j] data to update safe/unsafe tkns
+#   - makemove: if exists safe token, then
+#       put random safe token at random empty cell
+#             : otherwise, record that next move wins
 #    - check any file with 3 tokens
 #    - &sum tokens: if positive, then that value there wins
 #    - &sum 15-complement of tokens: if positive, then that 15-comp't-value there wins
@@ -105,6 +132,14 @@ def show_winmoves(wm):
   for j in range(CELLS):
     print('{:3}'.format(wm[j]), end=' ')
   print()
+
+pfiles = [[] for _ in range(CELLS)] #files containing each piece
+for p in range(CELLS):
+  for f in range(NFILES):
+    if p in FILES[f]:
+      pfiles[p].append(f)
+for p in range(CELLS):
+  print(p, pfiles[p])
 
 t0 = time()
 verb = False
