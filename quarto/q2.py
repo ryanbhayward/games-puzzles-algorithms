@@ -1,22 +1,9 @@
 #!/usr/bin/env python3
 # - represent quarto state as sequence of 16 4-bit integers
 # - simulate random games
-# rbh v0 working 2025.12.31
+# - version 2: rather than randomly picking any piece,
+#     randomly pick a safe piece (one that can't win)
 
-# TODO: 1-move lookahead: don't hand opponent a winning piece
-# call a token unsafe if there is some cell
-#   where it immediately wins, and safe otherwise
-# we are interested in games where each player
-#   hands the opponent, for their next move,
-#   a *safe* piece if one exists (if every token is unsafe,
-#   then the opponent win on the next move)
-# so, after each move, we want to know which
-#   tokens are safe and which unsafe,
-#   and we want to make a random move with a safe piece
-# ( notice that a token can shift from unsafe to safe
-#   e.g. after a move which occupies the sole
-#   location where that token would immediately win )
-# how to do this?
 # proceed thru random perm where[]
 # current index j, so previous where[j] are occupied
 # w <- where[j]
@@ -25,11 +12,12 @@
 #   - compute 1-and and 0-and (1-and of 15-complements) of those 3 tokens
 #   - if at least one of these is non-zero:
 #        - for each currently safe token
-#            - check whether token is now unsafe, and if so remove it from safe set
+#            - check whether token is now unsafe, and if so 
+#              remove it from safe set
 # if all offboard tokens are unsafe, return NEXT MOVE WINS
 #    else pick random safe token, put in next random location
 
-from random import shuffle
+from random import shuffle, choice
 from time import time
 
 ROWS = 4
@@ -39,6 +27,14 @@ FILES = ((0,1,2,3),(4,5,6,7),(8,9,10,11),(12,13,14,15),
          (0,5,10,15),(3,6,9,12))
 NFILES = 10 # len(FILES)
 TRIALS = 100000
+
+LCNFILES = [[] for _ in range(CELLS)] #files containing each lcn
+for p in range(CELLS):
+  for f in range(NFILES):
+    if p in FILES[f]:
+      LCNFILES[p].append(f)
+#for p in range(CELLS):
+#  print(p, LCNFILES[p])
 
 def index_list():
   return list(range(CELLS))
@@ -77,25 +73,8 @@ def show_st(st):
     if (k%ROWS) == ROWS-1:
       print()
 
-def same_bit(x,y,psn):
-  return (x >> psn) &1 == (y >> psn) &1
-
-def wins(f, st, verb): # is FILES[f] winning?
-  file = FILES[f]
-  #for j in range(ROWS):
-  #  if st[file[j]] < 0: 
-  #    return False
-  pieces = [st[j] for j in file if st[j] >= 0]
-  if len(pieces) < 4: 
-    return False
-  for psn in range(ROWS-1):
-    if same_bit(pieces[0], pieces[1], psn) and \
-       same_bit(pieces[0], pieces[2], psn) and \
-       same_bit(pieces[0], pieces[3], psn):
-      if verb: show_st(st)
-      if verb: print('\n', f, ' is winning file\n', sep='')
-      return True
-  return False
+def same_bit(x, y, psn):
+  return (x >> psn) & 1 == (y >> psn) & 1
 
 def has_win(st, verb):
   for f in range(NFILES):
@@ -103,20 +82,53 @@ def has_win(st, verb):
       return True
   return False
 
-def play_game(verb):
+def safe_piece(j, lcns, pieces, st):
+  # find all safe pieces, starting from piece[j]
+  unsafe = set()
+  for k in range(j, CELLS):
+    w = lcns[j]
+    for f in LCNFILES[w]:
+      fps = [st[j] for j in FILES[f] if st[j] >= 0]
+      if len(fps) == 3:
+        x = fps[0] & fps[1] & fps[2] 
+        if x: # intersect in 1-bit
+          for t in range(j, CELLS):
+            if (pieces[t] & x):
+              unsafe.add(pieces[t])
+        y = (15-fps[0]) & (15-fps[1]) & (15-fps[2])
+        if y:  # intersect in 0-bit
+          for t in range(j, CELLS):
+            if ((15-pieces[t]) & y):
+              unsafe.add(pieces[t])
+  safe = []
+  for k in range(j, CELLS):
+    if pieces[k] not in unsafe:
+      safe.append(pieces[k])
+  if len(safe)==0:
+    return None
+  return choice(safe)
+
+def play_game(verb): # return winning move number
   st = init_state()
   lcns = rperm()
   pieces = rperm()
+  onboard = set()
   for j in range(3):
     make_move(st, lcns[j], pieces[j])
-  for j in range(3, CELLS):
+    onboard.add(pieces[j])
+  for j in range(3, CELLS-1):
+    sf = safe_piece(j, lcns, pieces, st)
+    if sf == None: # next move wins
+      if verb:
+        print('all unsafe: next move wins')
+        show_st(st)
+      return(j+1)
     make_move(st, lcns[j], pieces[j])
-    if has_win(st, verb):
-      if verb: show_perms(lcns, pieces)
-      if verb: print('winmove ',j,': piece ',pieces[j],' at cell ',lcns[j],sep='')
-      return j
-  if verb: print('draw: no winning move')
-  return 0 
+  # 15 moves made, and next move possible, so draw
+  if verb:
+    print('draw')
+    show_st(st)
+  return 0
 
 def show_winmoves(wm):
   for j in range(CELLS):
@@ -125,14 +137,6 @@ def show_winmoves(wm):
   for j in range(CELLS):
     print('{:3}'.format(wm[j]), end=' ')
   print()
-
-pfiles = [[] for _ in range(CELLS)] #files containing each piece
-for p in range(CELLS):
-  for f in range(NFILES):
-    if p in FILES[f]:
-      pfiles[p].append(f)
-for p in range(CELLS):
-  print(p, pfiles[p])
 
 t0 = time()
 verb = False
@@ -148,4 +152,4 @@ for j in range(1, CELLS):
   else: p1 += winmoves[j]
 print('p1-wins  p2-wins  draws  total')
 print(p1, '  ', p2, '  ', winmoves[0], TRIALS)
-print('time in seconds', '{:.1f}'.format(time()-t0)) 
+print('time in seconds', '{:.1f}'.format(time()-t0))
